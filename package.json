@@ -1,0 +1,21 @@
+{
+  "name": "imgui-js",
+  "version": "1.0.0",
+  "description": "JavaScript bindings for Dear ImGui using Emscripten and TypeScript",
+  "main": "imgui.js",
+  "types": "imgui.ts",
+  "scripts": {
+    "dev": "http-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/emscripten": "0.0.31",
+    "@types/node": "^4.0.36",
+    "@types/systemjs": "^0.20.6",
+    "http-server": "^0.11.1",
+    "systemjs": "^0.20.19",
+    "typescript": "^2.7.1"
+  }
+}

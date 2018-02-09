@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "inlineSourceMap": true,
+    "strict": true
+  },
+  "files": [
+    "imconfig.ts",
+    "imgui.ts",
+    "imgui_demo.ts",
+    "imgui_memory_editor.ts"
+  ]
+}
