@@ -120,7 +120,7 @@ export function Init(): void {
                 case event.DOM_DELTA_LINE: scale = 0.2; break;
                 case event.DOM_DELTA_PAGE: scale = 1.0; break;
             }
-            io.MouseWheel = event.deltaY * scale; // Mouse wheel: 1 unit scrolls about 5 lines text.
+            io.MouseWheel = -event.deltaY * scale; // Mouse wheel: 1 unit scrolls about 5 lines text.
             event.preventDefault();
         });
     }
