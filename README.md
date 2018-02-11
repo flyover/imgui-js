@@ -1,4 +1,4 @@
-# imgui-js
+# [imgui-js](https://github.com/flyover/imgui-js)
 JavaScript bindings for [Dear ImGui](https://github.com/ocornut/imgui) using [Emscripten](https://github.com/kripken/emscripten) and [TypeScript](https://github.com/Microsoft/TypeScript)
 
 ## Example
