@@ -39,6 +39,39 @@ export default function main(): void {
     
     const memory_editor: MemoryEditor = new MemoryEditor();
 
+    let source: string = [
+        "ImGui.Text(\"Hello, world!\");",
+        "ImGui.SliderFloat(\"float\",",
+        "\t(value = f) => f = value,",
+        "\t0.0, 1.0);",
+        ""
+    ].join("\n");
+
+    function ShowSandboxWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
+        ImGui.Begin(title, p_open, ImGui.WindowFlags.AlwaysAutoResize);
+        ImGui.InputTextMultiline("##source", (_ = source) => (source = _), 1024, ImVec2.ZERO, ImGui.InputTextFlags.AllowTabInput);
+        ImGui.SameLine();
+        ImGui.TextDisabled("(?)");
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.PushTextWrapPos(450.0);
+            ImGui.TextUnformatted("Contents evaluated and appended to the window.");
+            ImGui.PopTextWrapPos();
+            ImGui.EndTooltip();
+        }
+        try {
+            eval(source);
+        } catch (e) {
+            ImGui.TextColored(new ImVec4(1.0,0.0,0.0,1.0), "error: ");
+            ImGui.SameLine();
+            ImGui.Text(e.message);
+        }
+        ImGui.End();
+    }
+
+    let show_sandbox_window: boolean = false;
+
     // Main loop
     let done: boolean = false;
     function _loop(time: number): void {
@@ -76,6 +109,10 @@ export default function main(): void {
             ImGui.Text(`Total allocated space (uordblks):      ${mi.uordblks}`);
             ImGui.Text(`Total free space (fordblks):           ${mi.fordblks}`);
             // ImGui.Text(`Topmost releasable block (keepcost):   ${mi.keepcost}`);
+            if (ImGui.Button("Sandbox Window"))
+                show_sandbox_window = !show_sandbox_window;
+            if (show_sandbox_window)
+                ShowSandboxWindow("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
         }
     
         // 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name the window.
