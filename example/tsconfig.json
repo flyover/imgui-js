@@ -3,7 +3,12 @@
     "target": "es6",
     "module": "commonjs",
     "inlineSourceMap": true,
-    "strict": true
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@imgui": [ ".." ],
+      "@imgui/*": [ "../*" ]
+    }
   },
   "files": [
     "main.ts",

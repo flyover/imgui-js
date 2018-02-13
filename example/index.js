@@ -1,23 +1,20 @@
+/// @ts-check
 /// <reference types="node"/>
 
 process.chdir(__dirname);
 
-global.SystemJS = require("systemjs");
-
-[ "fs", "path" ].forEach(function (id) {
-    SystemJS.set(id, SystemJS.newModule(require(id)));    
-});
+global["SystemJS"] = require("systemjs");
 
 SystemJS.config({
+    paths: {
+        "@imgui": "..",
+    },
     packages: {
-        "./bind-imgui": {
-            main: "../bind-imgui.js",
-            format: "global",
+        "@imgui": {
+            main: "imgui.js",
             defaultExtension: 'js',
-            meta: { "../bind-imgui.js": { exports: "Module" } }
-        },
-        "..": { defaultExtension: "js" },
-        ".": { defaultExtension: "js" }
+            meta: { "bind-imgui.js": { exports: "Module" } }
+        }
     }
 });
 

@@ -6,15 +6,15 @@
     <script type="text/javascript">
     window.addEventListener("load", function(event) {
       SystemJS.config({
+        paths: {
+          "@imgui": ".."
+        },
         packages: {
-          "../bind-imgui": {
-            main: "../bind-imgui.js",
-            format: "global",
+          "@imgui": {
+            main: "imgui.js",
             defaultExtension: 'js',
-            meta: { "../bind-imgui.js": { exports: "Module" } }
-          },
-          "..": { defaultExtension: "js" },
-          ".": { defaultExtension: "js" }
+            meta: { "bind-imgui.js": { exports: "Module" } }
+          }
         }
       });
       SystemJS.import("./main")
