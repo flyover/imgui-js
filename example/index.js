@@ -7,10 +7,10 @@ global["SystemJS"] = require("systemjs");
 
 SystemJS.config({
     paths: {
-        "@imgui": "..",
+        "imgui-js": "..",
     },
     packages: {
-        "@imgui": {
+        "imgui-js": {
             main: "imgui.js",
             defaultExtension: 'js',
             meta: { "bind-imgui.js": { exports: "Module" } }

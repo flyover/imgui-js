@@ -1,9 +1,9 @@
-import * as ImGui from "@imgui";
-import { ImGuiKey } from "@imgui";
-import { ImGuiIO } from "@imgui";
-import { ImDrawCmd } from "@imgui";
-import { ImDrawList } from "@imgui";
-import { ImDrawData } from "@imgui";
+import * as ImGui from "../imgui";
+import { ImGuiKey } from "../imgui";
+import { ImGuiIO } from "../imgui";
+import { ImDrawCmd } from "../imgui";
+import { ImDrawList } from "../imgui";
+import { ImDrawData } from "../imgui";
 
 export let gl: WebGLRenderingContext | null = null;
 let g_ShaderHandle: WebGLProgram | null = null;

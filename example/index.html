@@ -7,10 +7,10 @@
     window.addEventListener("load", function(event) {
       SystemJS.config({
         paths: {
-          "@imgui": ".."
+          "imgui-js": ".."
         },
         packages: {
-          "@imgui": {
+          "imgui-js": {
             main: "imgui.js",
             defaultExtension: 'js',
             meta: { "bind-imgui.js": { exports: "Module" } }

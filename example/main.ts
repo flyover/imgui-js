@@ -1,11 +1,11 @@
-import * as ImGui from "@imgui";
+import * as ImGui from "imgui-js";
 import * as ImGui_Impl from "./imgui_impl";
-import * as bindImGui from "@imgui/bind-imgui";
-import { ImVec2 } from "@imgui";
-import { ImVec4 } from "@imgui";
-import { ShowDemoWindow } from "@imgui/imgui_demo";
+import * as bindImGui from "imgui-js/bind-imgui";
+import { ImVec2 } from "imgui-js";
+import { ImVec4 } from "imgui-js";
+import { ShowDemoWindow } from "imgui-js/imgui_demo";
 
-import { MemoryEditor } from "@imgui/imgui_memory_editor";
+import { MemoryEditor } from "imgui-js/imgui_memory_editor";
 
 export default function main(): void {
     // Setup ImGui binding
