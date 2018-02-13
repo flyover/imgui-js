@@ -20,26 +20,13 @@ let g_FontTexture: WebGLTexture | null = null;
 
 let prev_time: number = 0;
 
-export function Init(): void {
+export function Init(canvas: HTMLCanvasElement | null): void {
     const io: ImGuiIO = ImGui.GetIO();
 
-    if (typeof(window) !== "undefined") {
-        const canvas: HTMLCanvasElement = document.createElement("canvas");
-        canvas.style.position = "absolute";
-        canvas.style.left = "0px";
-        canvas.style.right = "0px";
-        canvas.style.top = "0px";
-        canvas.style.bottom = "0px";
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        window.addEventListener("resize", () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-        document.body.appendChild(canvas);
+    if (canvas !== null) {
         gl = canvas.getContext("webgl", { alpha: false });
 
-        window.addEventListener("blur", (event: FocusEvent): void => {
+        canvas.addEventListener("blur", (event: FocusEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
             io.KeyCtrl = false;
             io.KeyShift = false;
@@ -53,39 +40,45 @@ export function Init(): void {
             }
         });
 
-        window.addEventListener("keydown", (event: KeyboardEvent): void => {
+        canvas.addEventListener("keydown", (event: KeyboardEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
             io.KeyCtrl = event.ctrlKey;
             io.KeyShift = event.shiftKey;
             io.KeyAlt = event.altKey;
             io.KeySuper = event.metaKey;
             io.KeysDown[event.keyCode] = true;
-            if (event.keyCode === 9) {
+            if (/*io.WantCaptureKeyboard ||*/ event.keyCode === 9) {
                 event.preventDefault();
             }
         });
 
-        window.addEventListener("keyup", (event: KeyboardEvent): void => {
+        canvas.addEventListener("keyup", (event: KeyboardEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
             io.KeyCtrl = event.ctrlKey;
             io.KeyShift = event.shiftKey;
             io.KeyAlt = event.altKey;
             io.KeySuper = event.metaKey;
             io.KeysDown[event.keyCode] = false;
-            event.preventDefault();
+            if (io.WantCaptureKeyboard) {
+                event.preventDefault();
+            }
         });
 
-        window.addEventListener("keypress", (event: KeyboardEvent): void => {
+        canvas.addEventListener("keypress", (event: KeyboardEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
             io.AddInputCharacter(event.charCode);
-            event.preventDefault();
+            if (io.WantCaptureKeyboard) {
+                event.preventDefault();
+            }
         });
 
-        window.addEventListener("mousemove", (event: MouseEvent): void => {
+        canvas.addEventListener("mousemove", (event: MouseEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
-            io.MousePos.x = event.clientX;
-            io.MousePos.y = event.clientY;
-            event.preventDefault();
+            io.MousePos.x = event.offsetX;
+            io.MousePos.y = event.offsetY;
+            if (io.WantCaptureMouse) {
+                event.preventDefault();
+            }
         });
 
         // MouseEvent.button
@@ -97,22 +90,28 @@ export function Init(): void {
         // 4: Fifth button, typically the Browser Forward button
         const mouse_button_map: number[] = [ 0, 2, 1, 3, 4 ];
 
-        window.addEventListener("mousedown", (event: MouseEvent): void => {
+        canvas.addEventListener("mousedown", (event: MouseEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
             io.MouseDown[mouse_button_map[event.button]] = true;
-            event.preventDefault();
+            // if (io.WantCaptureMouse) {
+            //     event.preventDefault();
+            // }
         });
-        window.addEventListener("contextmenu", (event: MouseEvent): void => {
-            event.preventDefault();
+        canvas.addEventListener("contextmenu", (event: PointerEvent): void => {
+            if (io.WantCaptureMouse) {
+                event.preventDefault();
+            }
         });
 
-        window.addEventListener("mouseup", (event: MouseEvent): void => {
+        canvas.addEventListener("mouseup", (event: MouseEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
             io.MouseDown[mouse_button_map[event.button]] = false;
-            event.preventDefault();
+            if (io.WantCaptureMouse) {
+                event.preventDefault();
+            }
         });
 
-        window.addEventListener("wheel", (event: WheelEvent): void => {
+        canvas.addEventListener("wheel", (event: WheelEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
             let scale: number = 1.0;
             switch (event.deltaMode) {
@@ -121,7 +120,9 @@ export function Init(): void {
                 case event.DOM_DELTA_PAGE: scale = 1.0; break;
             }
             io.MouseWheel = -event.deltaY * scale; // Mouse wheel: 1 unit scrolls about 5 lines text.
-            event.preventDefault();
+            if (io.WantCaptureMouse) {
+                event.preventDefault();
+            }
         });
     }
 

@@ -9,7 +9,27 @@ import { MemoryEditor } from "../imgui_memory_editor";
 
 export default function main(): void {
     // Setup ImGui binding
-    ImGui_Impl.Init();
+    if (typeof(window) !== "undefined") {
+        const output: HTMLElement = document.getElementById("output") || document.body;
+        const canvas: HTMLCanvasElement = document.createElement("canvas");
+        output.appendChild(canvas);
+        canvas.style.position = "absolute";
+        canvas.style.left = "0px";
+        canvas.style.right = "0px";
+        canvas.style.top = "0px";
+        canvas.style.bottom = "0px";
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+        window.addEventListener("resize", () => {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+        });
+        ImGui_Impl.Init(canvas);
+    } else {
+        ImGui_Impl.Init(null);
+    }
 
     // Setup style
     ImGui.StyleColorsClassic();
