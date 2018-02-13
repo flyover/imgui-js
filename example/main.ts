@@ -13,6 +13,7 @@ export default function main(): void {
         const output: HTMLElement = document.getElementById("output") || document.body;
         const canvas: HTMLCanvasElement = document.createElement("canvas");
         output.appendChild(canvas);
+        canvas.tabIndex = 1;
         canvas.style.position = "absolute";
         canvas.style.left = "0px";
         canvas.style.right = "0px";
