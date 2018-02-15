@@ -1,5 +1,7 @@
 import * as ImGui from "../imgui";
 import { ImGuiKey } from "../imgui";
+import { ImGuiNavFlags } from "../imgui";
+import { ImGuiNavInput } from "../imgui";
 import { ImGuiIO } from "../imgui";
 import { ImDrawCmd } from "../imgui";
 import { ImDrawList } from "../imgui";
@@ -46,6 +48,7 @@ export function Init(canvas: HTMLCanvasElement | null): void {
             io.KeyShift = event.shiftKey;
             io.KeyAlt = event.altKey;
             io.KeySuper = event.metaKey;
+            ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
             io.KeysDown[event.keyCode] = true;
             if (/*io.WantCaptureKeyboard ||*/ event.keyCode === 9) {
                 event.preventDefault();
@@ -58,6 +61,7 @@ export function Init(canvas: HTMLCanvasElement | null): void {
             io.KeyShift = event.shiftKey;
             io.KeyAlt = event.altKey;
             io.KeySuper = event.metaKey;
+            ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
             io.KeysDown[event.keyCode] = false;
             if (io.WantCaptureKeyboard) {
                 event.preventDefault();
@@ -119,6 +123,7 @@ export function Init(canvas: HTMLCanvasElement | null): void {
                 case event.DOM_DELTA_LINE: scale = 0.2; break;
                 case event.DOM_DELTA_PAGE: scale = 1.0; break;
             }
+            io.MouseWheelH = event.deltaX * scale;
             io.MouseWheel = -event.deltaY * scale; // Mouse wheel: 1 unit scrolls about 5 lines text.
             if (io.WantCaptureMouse) {
                 event.preventDefault();
@@ -130,7 +135,8 @@ export function Init(canvas: HTMLCanvasElement | null): void {
     // io.GetClipboardTextFn = ImGui_Impl_GetClipboardText;
     // io.ClipboardUserData = NULL;
 
-    io.KeyMap[ImGuiKey.Tab] = 9; // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
+    // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
+    io.KeyMap[ImGuiKey.Tab] = 9;
     io.KeyMap[ImGuiKey.LeftArrow] = 37;
     io.KeyMap[ImGuiKey.RightArrow] = 39;
     io.KeyMap[ImGuiKey.UpArrow] = 38;
@@ -139,8 +145,10 @@ export function Init(canvas: HTMLCanvasElement | null): void {
     io.KeyMap[ImGuiKey.PageDown] = 34;
     io.KeyMap[ImGuiKey.Home] = 36;
     io.KeyMap[ImGuiKey.End] = 35;
+    io.KeyMap[ImGuiKey.Insert] = 45;
     io.KeyMap[ImGuiKey.Delete] = 46;
     io.KeyMap[ImGuiKey.Backspace] = 8;
+    io.KeyMap[ImGuiKey.Space] = 32;
     io.KeyMap[ImGuiKey.Enter] = 13;
     io.KeyMap[ImGuiKey.Escape] = 27;
     io.KeyMap[ImGuiKey.A] = 65;
@@ -252,8 +260,6 @@ export function Shutdown(): void {
     gl && gl.deleteProgram(g_ShaderHandle); g_ShaderHandle = null;
     gl && gl.deleteShader(g_VertHandle); g_VertHandle = null;
     gl && gl.deleteShader(g_FragHandle); g_FragHandle = null;
-
-    ImGui.Shutdown();
 }
 
 export function NewFrame(time: number): void {
@@ -272,6 +278,73 @@ export function NewFrame(time: number): void {
     prev_time = time;
     io.DeltaTime = dt / 1000;
 
+    if (io.WantMoveMouse) {
+        console.log("TODO: MousePos", io.MousePos.x, io.MousePos.y);
+    }
+
+    // Gamepad navigation mapping [BETA]
+    for (let i = 0; i < io.NavInputs.length; ++i) {
+        io.NavInputs[i] = 0.0;
+    }
+    if (io.NavFlags & ImGuiNavFlags.EnableGamepad)
+    {
+        // Update gamepad inputs
+        const gamepads: Gamepad[] = typeof(navigator) !== "undefined" && typeof(navigator.getGamepads) === "function" ? navigator.getGamepads() : [];
+        for (let i = 0; i < gamepads.length; ++i) {
+            const gamepad: Gamepad = gamepads[i];
+            if (!gamepad) { continue; }
+            const buttons_count: number = gamepad.buttons.length;
+            const axes_count: number = gamepad.axes.length;
+            function MAP_BUTTON(NAV_NO: number, BUTTON_NO: number): void {
+                if (buttons_count > BUTTON_NO && gamepad.buttons[BUTTON_NO].pressed)
+                    io.NavInputs[NAV_NO] = 1.0;
+            }
+            function MAP_ANALOG(NAV_NO: number, AXIS_NO: number, V0: number, V1: number): void {
+                let v: number = (axes_count > AXIS_NO) ? gamepad.axes[AXIS_NO]: V0;
+                v = (v - V0) / (V1 - V0);
+                if (v > 1.0) v = 1.0;
+                if (io.NavInputs[NAV_NO] < v) io.NavInputs[NAV_NO] = v;
+            }
+            // TODO: map input based on vendor and product id
+            // id: Logitech Logitech Dual Action (Vendor: 046d Product: c216)
+            // MAP_BUTTON(ImGuiNavInput.Activate,    1); // Cross / A
+            // MAP_BUTTON(ImGuiNavInput.Cancel,      2); // Circle / B
+            // MAP_BUTTON(ImGuiNavInput.Menu,        0); // Square / X
+            // MAP_BUTTON(ImGuiNavInput.Input,       3); // Triangle / Y
+            // MAP_ANALOG(ImGuiNavInput.DpadLeft,    4, -0.3, -0.9); // D-Pad Left
+            // MAP_ANALOG(ImGuiNavInput.DpadRight,   4, +0.3, +0.9); // D-Pad Right
+            // MAP_ANALOG(ImGuiNavInput.DpadUp,      5, -0.3, -0.9); // D-Pad Up
+            // MAP_ANALOG(ImGuiNavInput.DpadDown,    5, +0.3, +0.9); // D-Pad Down
+            // MAP_BUTTON(ImGuiNavInput.FocusPrev,   4); // L1 / LB
+            // MAP_BUTTON(ImGuiNavInput.FocusNext,   5); // R1 / RB
+            // MAP_BUTTON(ImGuiNavInput.TweakSlow,   6); // L1 / LB
+            // MAP_BUTTON(ImGuiNavInput.TweakFast,   7); // R1 / RB
+            // MAP_ANALOG(ImGuiNavInput.LStickLeft,  0, -0.3, -0.9);
+            // MAP_ANALOG(ImGuiNavInput.LStickRight, 0, +0.3, +0.9);
+            // MAP_ANALOG(ImGuiNavInput.LStickUp,    1, -0.3, -0.9);
+            // MAP_ANALOG(ImGuiNavInput.LStickDown,  1, +0.3, +0.9);
+            // id: Logitech Gamepad F310 (STANDARD GAMEPAD Vendor: 046d Product: c21d)
+            MAP_BUTTON(ImGuiNavInput.Activate,    0); // Cross / A
+            MAP_BUTTON(ImGuiNavInput.Cancel,      1); // Circle / B
+            MAP_BUTTON(ImGuiNavInput.Menu,        2); // Square / X
+            MAP_BUTTON(ImGuiNavInput.Input,       3); // Triangle / Y
+            MAP_BUTTON(ImGuiNavInput.DpadLeft,    14); // D-Pad Left
+            MAP_BUTTON(ImGuiNavInput.DpadRight,   15); // D-Pad Right
+            MAP_BUTTON(ImGuiNavInput.DpadUp,      12); // D-Pad Up
+            MAP_BUTTON(ImGuiNavInput.DpadDown,    13); // D-Pad Down
+            MAP_BUTTON(ImGuiNavInput.FocusPrev,   4); // L1 / LB
+            MAP_BUTTON(ImGuiNavInput.FocusNext,   5); // R1 / RB
+            MAP_ANALOG(ImGuiNavInput.TweakSlow,   6, +0.3, +0.9); // L1 / LB
+            MAP_ANALOG(ImGuiNavInput.TweakFast,   7, +0.3, +0.9); // R1 / RB
+            MAP_ANALOG(ImGuiNavInput.LStickLeft,  0, -0.3, -0.9);
+            MAP_ANALOG(ImGuiNavInput.LStickRight, 0, +0.3, +0.9);
+            MAP_ANALOG(ImGuiNavInput.LStickUp,    1, -0.3, -0.9);
+            MAP_ANALOG(ImGuiNavInput.LStickDown,  1, +0.3, +0.9);
+            // id: null USB,2-axis 8-button gamepad   (STANDARD GAMEPAD Vendor: 0583 Product: 2060)
+            // id: 8Bitdo SN30 Pro  8Bitdo SN30 Pro (Vendor: 2dc8 Product: 6001)
+        }
+    }
+    
     ImGui.NewFrame();
 }
 

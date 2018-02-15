@@ -60,8 +60,12 @@ export const enum ImGuiWindowFlags {
     AlwaysHorizontalScrollbar=1<< 15,  // Always show horizontal scrollbar (even if ContentSize.x < Size.x)
     AlwaysUseWindowPadding = 1 << 16,  // Ensure child windows without border uses style.WindowPadding (ignored by default for non-bordered child windows, because more convenient)
     ResizeFromAnySide      = 1 << 17,  // (WIP) Enable resize from any corners and borders. Your back-end needs to honor the different values of io.MouseCursor set by imgui.
+    NoNavInputs            = 1 << 18,  // No gamepad/keyboard navigation within the window
+    NoNavFocus             = 1 << 19,  // No focusing toward this window with gamepad/keyboard navigation (e.g. skipped by CTRL+TAB)
+    NoNav                  = NoNavInputs | NoNavFocus,
 
     // [Internal]
+    NavFlattened           = 1 << 23,  // (WIP) Allow gamepad/keyboard navigation to cross over parent border to this child (only use on child that have no scrolling!)
     ChildWindow            = 1 << 24,  // Don't use! For internal use by BeginChild()
     Tooltip                = 1 << 25,  // Don't use! For internal use by BeginTooltip()
     Popup                  = 1 << 26,  // Don't use! For internal use by BeginPopup()
@@ -107,6 +111,7 @@ export const enum ImGuiTreeNodeFlags {
     FramePadding         = 1 << 10,  // Use FramePadding (even for an unframed text node) to vertically align text baseline to regular widget height. Equivalent to calling AlignTextToFramePadding().
     //SpanAllAvailWidth  = 1 << 11,  // FIXME: TODO: Extend hit box horizontally even if not framed
     //NoScrollOnOpen     = 1 << 12,  // FIXME: TODO: Disable automatic scroll on TreePop() if node got just open and contents is not visible
+    NavCloseFromChild    = 1 << 13,  // (WIP) Nav: left direction may close this TreeNode() when focusing on any child (items submitted between TreeNode and TreePop)
     CollapsingHeader     = Framed | NoAutoOpenOnLog
 }
 
@@ -131,6 +136,7 @@ export const enum ImGuiComboFlags {
 export const enum ImGuiFocusedFlags {
     ChildWindows                  = 1 << 0,   // IsWindowFocused(): Return true if any children of the window is focused
     RootWindow                    = 1 << 1,   // IsWindowFocused(): Test from root window (top most parent of the current hierarchy)
+    AnyWindow                     = 1 << 2,   // IsWindowFocused(): Return true if any window is focused
     RootAndChildWindows           = RootWindow | ChildWindows
 }
 
@@ -139,10 +145,11 @@ export const enum ImGuiHoveredFlags {
     Default                       = 0,        // Return true if directly over the item/window, not obstructed by another window, not obstructed by an active popup or modal blocking inputs under them.
     ChildWindows                  = 1 << 0,   // IsWindowHovered() only: Return true if any children of the window is hovered
     RootWindow                    = 1 << 1,   // IsWindowHovered() only: Test from root window (top most parent of the current hierarchy)
-    AllowWhenBlockedByPopup       = 1 << 2,   // Return true even if a popup window is normally blocking access to this item/window
-    //AllowWhenBlockedByModal     = 1 << 3,   // Return true even if a modal popup window is normally blocking access to this item/window. FIXME-TODO: Unavailable yet.
-    AllowWhenBlockedByActiveItem  = 1 << 4,   // Return true even if an active item is blocking access to this item/window. Useful for Drag and Drop patterns.
-    AllowWhenOverlapped           = 1 << 5,   // Return true even if the position is overlapped by another window
+    AnyWindow                     = 1 << 2,   // IsWindowHovered() only: Return true if any window is hovered
+    AllowWhenBlockedByPopup       = 1 << 3,   // Return true even if a popup window is normally blocking access to this item/window
+    //AllowWhenBlockedByModal     = 1 << 4,   // Return true even if a modal popup window is normally blocking access to this item/window. FIXME-TODO: Unavailable yet.
+    AllowWhenBlockedByActiveItem  = 1 << 5,   // Return true even if an active item is blocking access to this item/window. Useful for Drag and Drop patterns.
+    AllowWhenOverlapped           = 1 << 6,   // Return true even if the position is overlapped by another window
     RectOnly                      = AllowWhenBlockedByPopup | AllowWhenBlockedByActiveItem | AllowWhenOverlapped,
     RootAndChildWindows           = RootWindow | ChildWindows
 }
@@ -161,25 +168,27 @@ export const enum ImGuiDragDropFlags {
     AcceptPeekOnly               = AcceptBeforeDelivery | AcceptNoDrawDefaultRect  // For peeking ahead and inspecting the payload before delivery.
 }
 
-// Standard Drag and Drop payload types. You can define you own payload types using 8-characters long strings. Types starting with '_' are defined by Dear ImGui.
+// Standard Drag and Drop payload types. You can define you own payload types using 12-characters long strings. Types starting with '_' are defined by Dear ImGui.
 export const IMGUI_PAYLOAD_TYPE_COLOR_3F: string; // = "_COL3F";    // float[3]     // Standard type for colors, without alpha. User code may use this type. 
 export const IMGUI_PAYLOAD_TYPE_COLOR_4F: string; // = "_COL4F";    // float[4]     // Standard type for colors. User code may use this type.
 
 // User fill ImGuiIO.KeyMap[] array with indices into the ImGuiIO.KeysDown[512] array
 export const enum ImGuiKey {
-    Tab,       // for tabbing through fields
-    LeftArrow, // for text edit
-    RightArrow,// for text edit
-    UpArrow,   // for text edit
-    DownArrow, // for text edit
+    Tab,
+    LeftArrow,
+    RightArrow,
+    UpArrow,
+    DownArrow,
     PageUp,
     PageDown,
-    Home,      // for text edit
-    End,       // for text edit
-    Delete,    // for text edit
-    Backspace, // for text edit
-    Enter,     // for text edit
-    Escape,    // for text edit
+    Home,
+    End,
+    Insert,
+    Delete,
+    Backspace,
+    Space,
+    Enter,
+    Escape,
     A,         // for text edit CTRL+A: select all
     C,         // for text edit CTRL+C: copy
     V,         // for text edit CTRL+V: paste
@@ -187,6 +196,50 @@ export const enum ImGuiKey {
     Y,         // for text edit CTRL+Y: redo
     Z,         // for text edit CTRL+Z: undo
     COUNT
+}
+
+// [BETA] Gamepad/Keyboard directional navigation
+// Keyboard: Set io.NavFlags |= EnableKeyboard to enable. NewFrame() will automatically fill io.NavInputs[] based on your io.KeyDown[] + io.KeyMap[] arrays.
+// Gamepad:  Set io.NavFlags |= EnableGamepad to enable. Fill the io.NavInputs[] fields before calling NewFrame(). Note that io.NavInputs[] is cleared by EndFrame().
+// Read instructions in imgui.cpp for more details.
+export const enum ImGuiNavInput
+{
+    // Gamepad Mapping
+    Activate,      // activate / open / toggle / tweak value       // e.g. Circle (PS4), A (Xbox), B (Switch), Space (Keyboard)
+    Cancel,        // cancel / close / exit                        // e.g. Cross  (PS4), B (Xbox), A (Switch), Escape (Keyboard)
+    Input,         // text input / on-screen keyboard              // e.g. Triang.(PS4), Y (Xbox), X (Switch), Return (Keyboard)
+    Menu,          // tap: toggle menu / hold: focus, move, resize // e.g. Square (PS4), X (Xbox), Y (Switch), Alt (Keyboard)
+    DpadLeft,      // move / tweak / resize window (w/ PadMenu)    // e.g. D-pad Left/Right/Up/Down (Gamepads), Arrow keys (Keyboard)
+    DpadRight,     // 
+    DpadUp,        // 
+    DpadDown,      // 
+    LStickLeft,    // scroll / move window (w/ PadMenu)            // e.g. Left Analog Stick Left/Right/Up/Down
+    LStickRight,   // 
+    LStickUp,      // 
+    LStickDown,    // 
+    FocusPrev,     // next window (w/ PadMenu)                     // e.g. L1 or L2 (PS4), LB or LT (Xbox), L or ZL (Switch)
+    FocusNext,     // prev window (w/ PadMenu)                     // e.g. R1 or R2 (PS4), RB or RT (Xbox), R or ZL (Switch) 
+    TweakSlow,     // slower tweaks                                // e.g. L1 or L2 (PS4), LB or LT (Xbox), L or ZL (Switch)
+    TweakFast,     // faster tweaks                                // e.g. R1 or R2 (PS4), RB or RT (Xbox), R or ZL (Switch)
+
+    // [Internal] Don't use directly! This is used internally to differentiate keyboard from gamepad inputs for behaviors that require to differentiate them.
+    // Keyboard behavior that have no corresponding gamepad mapping (e.g. CTRL+TAB) may be directly reading from io.KeyDown[] instead of io.NavInputs[].
+    KeyMenu_,      // toggle menu                                  // = io.KeyAlt
+    KeyLeft_,      // move left                                    // = Arrow keys
+    KeyRight_,     // move right
+    KeyUp_,        // move up
+    KeyDown_,      // move down
+    COUNT,
+    InternalStart_ = KeyMenu_
+}
+
+// [BETA] Gamepad/Keyboard directional navigation options
+export const enum ImGuiNavFlags
+{
+    EnableKeyboard    = 1 << 0,   // Master keyboard navigation enable flag. NewFrame() will automatically fill io.NavInputs[] based on io.KeyDown[].
+    EnableGamepad     = 1 << 1,   // Master gamepad navigation enable flag. This is mostly to instruct your imgui back-end to fill io.NavInputs[].
+    MoveMouse         = 1 << 2,   // Request navigation to allow moving the mouse cursor. May be useful on TV/console systems where moving a virtual mouse is awkward. Will update io.MousePos and set io.WantMoveMouse=true. If enabled you MUST honor io.WantMoveMouse requests in your binding, otherwise ImGui will react as if the mouse is jumping around back and forth.
+    NoCaptureKeyboard = 1 << 3    // Do not set the io.WantCaptureKeyboard flag with io.NavActive is set. 
 }
 
 // Enumeration for PushStyleColor() / PopStyleColor()
@@ -234,6 +287,8 @@ export const enum ImGuiCol {
     TextSelectedBg,
     ModalWindowDarkening,  // darken entire screen when a modal window is active
     DragDropTarget,
+    NavHighlight,          // gamepad/keyboard: current highlighted item 
+    NavWindowingHighlight, // gamepad/keyboard: when holding NavMenu to focus/move/resize windows
     COUNT
 }
 
@@ -247,6 +302,7 @@ export const enum ImGuiStyleVar {
     WindowRounding,      // float     WindowRounding
     WindowBorderSize,    // float     WindowBorderSize
     WindowMinSize,       // ImVec2    WindowMinSize
+    WindowTitleAlign,    // ImVec2    WindowTitleAlign
     ChildRounding,       // float     ChildRounding
     ChildBorderSize,     // float     ChildBorderSize
     PopupRounding,       // float     PopupRounding
@@ -257,7 +313,10 @@ export const enum ImGuiStyleVar {
     ItemSpacing,         // ImVec2    ItemSpacing
     ItemInnerSpacing,    // ImVec2    ItemInnerSpacing
     IndentSpacing,       // float     IndentSpacing
+    ScrollbarSize,       // float     ScrollbarSize
+    ScrollbarRounding,   // float     ScrollbarRounding
     GrabMinSize,         // float     GrabMinSize
+    GrabRounding,        // float     GrabRounding
     ButtonTextAlign,     // ImVec2    ButtonTextAlign
     Count_, COUNT = Count_
 }
@@ -436,11 +495,11 @@ export class ImGuiTextEditCallbackData extends emscripten.EmscriptenClass {
     public HasSelection(): boolean;
 }
 
-export type ImGuiSizeConstraintCallback = (data: ImGuiSizeConstraintCallbackData) => void;
+export type ImGuiSizeConstraintCallback = (data: ImGuiSizeCallbackData) => void;
 
 // Resizing callback data to apply custom constraint. As enabled by SetNextWindowSizeConstraints(). Callback is called during the next Begin().
 // NB: For basic min/max size constraint on each axis you don't need to use the callback! The SetNextWindowSizeConstraints() parameters are enough.
-export class ImGuiSizeConstraintCallbackData extends emscripten.EmscriptenClass
+export class ImGuiSizeCallbackData extends emscripten.EmscriptenClass
 {
     // void*   UserData;       // Read-only.   What user passed to SetNextWindowSizeConstraints()
     public UserData: any;
@@ -475,46 +534,48 @@ export class ImGuiListClipper extends emscripten.EmscriptenClass {
     public End(): void;
 }
 
+// You may modify the ImGui::GetStyle() main instance during initialization and before NewFrame().
+// During the frame, prefer using ImGui::PushStyleVar(ImGuiStyleVar_XXXX)/PopStyleVar() to alter the main style values, and ImGui::PushStyleColor(ImGuiCol_XXX)/PopStyleColor() for colors.
 export interface interface_ImGuiStyle {
-    // float       Alpha;                      // Global alpha applies to everything in ImGui
+    // float       Alpha;                      // Global alpha applies to everything in ImGui.
     Alpha: number;
-    // ImVec2      WindowPadding;              // Padding within a window
+    // ImVec2      WindowPadding;              // Padding within a window.
     getWindowPadding(): interface_ImVec2;
-    // float       WindowRounding;             // Radius of window corners rounding. Set to 0.0f to have rectangular windows
+    // float       WindowRounding;             // Radius of window corners rounding. Set to 0.0f to have rectangular windows.
     WindowRounding: number;
-    // float       WindowBorderSize;           // Thickness of border around windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly)
+    // float       WindowBorderSize;           // Thickness of border around windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
     WindowBorderSize: number;
-    // ImVec2      WindowMinSize;              // Minimum window size
+    // ImVec2      WindowMinSize;              // Minimum window size. This is a global setting. If you want to constraint individual windows, use SetNextWindowSizeConstraints().
     getWindowMinSize(): interface_ImVec2;
     // ImVec2      WindowTitleAlign;           // Alignment for title bar text. Defaults to (0.0f,0.5f) for left-aligned,vertically centered.
     getWindowTitleAlign(): interface_ImVec2;
     // float       ChildRounding;              // Radius of child window corners rounding. Set to 0.0f to have rectangular windows.
     ChildRounding: number;
-    // float       ChildBorderSize;            // Thickness of border around child windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly)
+    // float       ChildBorderSize;            // Thickness of border around child windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
     ChildBorderSize: number;
     // float       PopupRounding;              // Radius of popup window corners rounding.
     PopupRounding: number;
-    // float       PopupBorderSize;            // Thickness of border around popup windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly)
+    // float       PopupBorderSize;            // Thickness of border around popup windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
     PopupBorderSize: number;
-    // ImVec2      FramePadding;               // Padding within a framed rectangle (used by most widgets)
+    // ImVec2      FramePadding;               // Padding within a framed rectangle (used by most widgets).
     getFramePadding(): interface_ImVec2;
     // float       FrameRounding;              // Radius of frame corners rounding. Set to 0.0f to have rectangular frame (used by most widgets).
     FrameRounding: number;
-    // float       FrameBorderSize;            // Thickness of border around frames. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly)
+    // float       FrameBorderSize;            // Thickness of border around frames. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
     FrameBorderSize: number;
-    // ImVec2      ItemSpacing;                // Horizontal and vertical spacing between widgets/lines
+    // ImVec2      ItemSpacing;                // Horizontal and vertical spacing between widgets/lines.
     getItemSpacing(): interface_ImVec2;
-    // ImVec2      ItemInnerSpacing;           // Horizontal and vertical spacing between within elements of a composed widget (e.g. a slider and its label)
+    // ImVec2      ItemInnerSpacing;           // Horizontal and vertical spacing between within elements of a composed widget (e.g. a slider and its label).
     getItemInnerSpacing(): interface_ImVec2;
     // ImVec2      TouchExtraPadding;          // Expand reactive bounding box for touch-based system where touch position is not accurate enough. Unfortunately we don't sort widgets so priority on overlap will always be given to the first widget. So don't grow this too much!
     getTouchExtraPadding(): interface_ImVec2;
     // float       IndentSpacing;              // Horizontal indentation when e.g. entering a tree node. Generally == (FontSize + FramePadding.x*2).
     IndentSpacing: number;
-    // float       ColumnsMinSpacing;          // Minimum horizontal spacing between two columns
+    // float       ColumnsMinSpacing;          // Minimum horizontal spacing between two columns.
     ColumnsMinSpacing: number;
-    // float       ScrollbarSize;              // Width of the vertical scrollbar, Height of the horizontal scrollbar
+    // float       ScrollbarSize;              // Width of the vertical scrollbar, Height of the horizontal scrollbar.
     ScrollbarSize: number;
-    // float       ScrollbarRounding;          // Radius of grab corners for scrollbar
+    // float       ScrollbarRounding;          // Radius of grab corners for scrollbar.
     ScrollbarRounding: number;
     // float       GrabMinSize;                // Minimum width/height of a grab box for slider/scrollbar.
     GrabMinSize: number;
@@ -526,6 +587,8 @@ export interface interface_ImGuiStyle {
     getDisplayWindowPadding(): interface_ImVec2;
     // ImVec2      DisplaySafeAreaPadding;     // If you cannot see the edge of your screen (e.g. on a TV) increase the safe area padding. Covers popups/tooltips as well regular windows.
     getDisplaySafeAreaPadding(): interface_ImVec2;
+    // float       MouseCursorScale;           // Scale software rendered mouse cursor (when io.MouseDrawCursor is enabled). May be removed later.
+    MouseCursorScale: number;
     // bool        AntiAliasedLines;           // Enable anti-aliasing on lines/borders. Disable if you are really tight on CPU/GPU.
     AntiAliasedLines: boolean;
     // bool        AntiAliasedFill;            // Enable anti-aliasing on filled shapes (rounded rectangles, circles, etc.)
@@ -542,68 +605,38 @@ export interface interface_ImGuiStyle {
 }
 
 export class ImGuiStyle extends emscripten.EmscriptenClass implements interface_ImGuiStyle {
-    // float       Alpha;                      // Global alpha applies to everything in ImGui
     Alpha: number;
-    // ImVec2      WindowPadding;              // Padding within a window
     getWindowPadding(): reference_ImVec2;
-    // float       WindowRounding;             // Radius of window corners rounding. Set to 0.0f to have rectangular windows
     WindowRounding: number;
-    // float       WindowBorderSize;           // Thickness of border around windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly)
     WindowBorderSize: number;
-    // ImVec2      WindowMinSize;              // Minimum window size
     getWindowMinSize(): reference_ImVec2;
-    // ImVec2      WindowTitleAlign;           // Alignment for title bar text. Defaults to (0.0f,0.5f) for left-aligned,vertically centered.
     getWindowTitleAlign(): reference_ImVec2;
-    // float       ChildRounding;              // Radius of child window corners rounding. Set to 0.0f to have rectangular windows.
     ChildRounding: number;
-    // float       ChildBorderSize;            // Thickness of border around child windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly)
     ChildBorderSize: number;
-    // float       PopupRounding;              // Radius of popup window corners rounding.
     PopupRounding: number;
-    // float       PopupBorderSize;            // Thickness of border around popup windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly)
     PopupBorderSize: number;
-    // ImVec2      FramePadding;               // Padding within a framed rectangle (used by most widgets)
     getFramePadding(): reference_ImVec2;
-    // float       FrameRounding;              // Radius of frame corners rounding. Set to 0.0f to have rectangular frame (used by most widgets).
     FrameRounding: number;
-    // float       FrameBorderSize;            // Thickness of border around frames. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly)
     FrameBorderSize: number;
-    // ImVec2      ItemSpacing;                // Horizontal and vertical spacing between widgets/lines
     getItemSpacing(): reference_ImVec2;
-    // ImVec2      ItemInnerSpacing;           // Horizontal and vertical spacing between within elements of a composed widget (e.g. a slider and its label)
     getItemInnerSpacing(): reference_ImVec2;
-    // ImVec2      TouchExtraPadding;          // Expand reactive bounding box for touch-based system where touch position is not accurate enough. Unfortunately we don't sort widgets so priority on overlap will always be given to the first widget. So don't grow this too much!
     getTouchExtraPadding(): reference_ImVec2;
-    // float       IndentSpacing;              // Horizontal indentation when e.g. entering a tree node. Generally == (FontSize + FramePadding.x*2).
     IndentSpacing: number;
-    // float       ColumnsMinSpacing;          // Minimum horizontal spacing between two columns
     ColumnsMinSpacing: number;
-    // float       ScrollbarSize;              // Width of the vertical scrollbar, Height of the horizontal scrollbar
     ScrollbarSize: number;
-    // float       ScrollbarRounding;          // Radius of grab corners for scrollbar
     ScrollbarRounding: number;
-    // float       GrabMinSize;                // Minimum width/height of a grab box for slider/scrollbar.
     GrabMinSize: number;
-    // float       GrabRounding;               // Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs.
     GrabRounding: number;
-    // ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f,0.5f) for horizontally+vertically centered.
     getButtonTextAlign(): reference_ImVec2;
-    // ImVec2      DisplayWindowPadding;       // Window positions are clamped to be visible within the display area by at least this amount. Only covers regular windows.
     getDisplayWindowPadding(): reference_ImVec2;
-    // ImVec2      DisplaySafeAreaPadding;     // If you cannot see the edge of your screen (e.g. on a TV) increase the safe area padding. Covers popups/tooltips as well regular windows.
     getDisplaySafeAreaPadding(): reference_ImVec2;
-    // bool        AntiAliasedLines;           // Enable anti-aliasing on lines/borders. Disable if you are really tight on CPU/GPU.
+    MouseCursorScale: number;
     AntiAliasedLines: boolean;
-    // bool        AntiAliasedFill;            // Enable anti-aliasing on filled shapes (rounded rectangles, circles, etc.)
     AntiAliasedFill: boolean;
-    // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
     CurveTessellationTol: number;
-    // ImVec4      Colors[ImGuiCol_COUNT];
     getColorsAt(idx: number): reference_ImVec4;
     setColorsAt(idx: number, value: Readonly<interface_ImVec4>): boolean;
 
-    // IMGUI_API ImGuiStyle();
-    // IMGUI_API void ScaleAllSizes(float scale_factor);
     public ScaleAllSizes(scale_factor: number): void;
 }
 
@@ -650,6 +683,7 @@ export class reference_ImDrawList extends emscripten.EmscriptenClassReference {
     // int                     _ChannelsCount;     // [Internal] number of active channels (1+)
     // ImVector<ImDrawChannel> _Channels;          // [Internal] draw channels for columns API (not resized down so _ChannelsCount may be smaller than _Channels.Size)
 
+    // If you want to create ImDrawList instances, pass them ImGui::GetDrawListSharedData() or create and use your own ImDrawListSharedData (so you can use ImDrawList without ImGui)
     // ImDrawList(const ImDrawListSharedData* shared_data) { _Data = shared_data; _OwnerName = NULL; Clear(); }
     // ~ImDrawList() { ClearFreeMemory(); }
     // IMGUI_API void  PushClipRect(ImVec2 clip_rect_min, ImVec2 clip_rect_max, bool intersect_with_current_clip_rect = false);  // Render-level scissoring. This is passed down to your render function but not used for CPU-side coarse clipping. Prefer using higher-level ImGui::PushClipRect() to affect logic (hit-testing and widget culling)
@@ -748,10 +782,10 @@ export class reference_ImDrawData extends emscripten.EmscriptenClassReference {
     public readonly TotalIdxCount: number;
 
     // Functions
-    // ImDrawData() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; }
+    // ImDrawData() { Clear(); }
+    // void Clear() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; } // Draw lists are owned by the ImGuiContext and only pointed to here.
     // IMGUI_API void DeIndexAllBuffers();               // For backward compatibility or convenience: convert all buffers from indexed to de-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
     // IMGUI_API void ScaleClipRects(const ImVec2& sc);  // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
-    // public ScaleClipRects(sc: Readonly<ImVec2>): void;
     public ScaleClipRects(sc: Readonly<interface_ImVec2>): void;
 }
 
@@ -801,6 +835,12 @@ export class reference_ImFont extends emscripten.EmscriptenClassReference {
     // #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
     // typedef ImFontGlyph Glyph; // OBSOLETE 1.52+
     // #endif
+}
+
+export enum ImFontAtlasFlags
+{
+    NoPowerOfTwoHeight = 1 << 0,   // Don't round the height to next power of two
+    NoMouseCursors     = 1 << 1    // Don't build software mouse cursors into the atlas
 }
 
 export class reference_ImFontAtlas extends emscripten.EmscriptenClassReference {
@@ -873,13 +913,17 @@ export class reference_ImFontAtlas extends emscripten.EmscriptenClassReference {
 
     // IMGUI_API int       AddCustomRectRegular(unsigned int id, int width, int height);                                                                   // Id needs to be >= 0x10000. Id >= 0x80000000 are reserved for ImGui and ImDrawList
     // IMGUI_API int       AddCustomRectFontGlyph(ImFont* font, ImWchar id, int width, int height, float advance_x, const ImVec2& offset = ImVec2(0,0));   // Id needs to be < 0x10000 to register a rectangle to map into a specific font.
-    // IMGUI_API void      CalcCustomRectUV(const CustomRect* rect, ImVec2* out_uv_min, ImVec2* out_uv_max);
     // const CustomRect*   GetCustomRectByIndex(int index) const { if (index < 0) return NULL; return &CustomRects[index]; }
+
+    // Internals
+    // IMGUI_API void      CalcCustomRectUV(const CustomRect* rect, ImVec2* out_uv_min, ImVec2* out_uv_max);
+    // IMGUI_API bool      GetMouseCursorTexData(ImGuiMouseCursor cursor, ImVec2* out_offset, ImVec2* out_size, ImVec2 out_uv_border[2], ImVec2 out_uv_fill[2]);
 
     // //-------------------------------------------
     // Members
     // //-------------------------------------------
 
+    // ImFontAtlasFlags            Flags;              // Build flags (see ImFontAtlasFlags_)
     // ImTextureID                 TexID;              // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
     getTexID(): WebGLTexture | null;
     setTexID(value: WebGLTexture | null): void;
@@ -894,6 +938,7 @@ export class reference_ImFontAtlas extends emscripten.EmscriptenClassReference {
     readonly TexWidth: number;
     // int                         TexHeight;          // Texture height calculated during Build().
     readonly TexHeight: number;
+    // ImVec2                      TexUvScale;         // = (1.0f/TexWidth, 1.0f/TexHeight)
     // ImVec2                      TexUvWhitePixel;    // Texture coordinates to a white pixel
     // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
     // ImVector<CustomRect>        CustomRects;        // Rectangles for packing custom texture data into the atlas.
@@ -913,10 +958,12 @@ export class reference_ImGuiIO extends emscripten.EmscriptenClassReference {
     // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
     // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
     // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
+    // ImGuiNavFlags NavFlags;                 // = 0                  // See ImGuiNavFlags_. Gamepad/keyboard navigation options.
+    public NavFlags: ImGuiNavFlags;
     // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
     // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
-    // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging
-    // int           KeyMap[ImGuiKey_COUNT];   // <unset>              // Map of indices into the KeysDown[512] entries array
+    // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging.
+    // int           KeyMap[ImGuiKey_COUNT];   // <unset>              // Map of indices into the KeysDown[512] entries array which represent your "native" keyboard state.
     public getKeyMapAt(index: ImGuiKey): number;
     public setKeyMapAt(index: ImGuiKey, value: number): boolean;
     // float         KeyRepeatDelay;           // = 0.250f             // When holding a key/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.).
@@ -953,11 +1000,6 @@ export class reference_ImGuiIO extends emscripten.EmscriptenClassReference {
     // void        (*SetClipboardTextFn)(void* user_data, const char* text);
     // void*       ClipboardUserData;
 
-    // Optional: override memory allocations. MemFreeFn() may be called with a NULL pointer.
-    // (default to posix malloc/free)
-    // void*       (*MemAllocFn)(size_t sz);
-    // void        (*MemFreeFn)(void* ptr);
-
     // Optional: notify OS Input Method Editor of the screen position of your cursor for text input position (e.g. when using Japanese/Chinese IME in Windows)
     // (default to use native imm32 api on Windows)
     // void        (*ImeSetInputScreenPosFn)(int x, int y);
@@ -967,27 +1009,32 @@ export class reference_ImGuiIO extends emscripten.EmscriptenClassReference {
     // Input - Fill before calling NewFrame()
     //------------------------------------------------------------------
 
-    // ImVec2      MousePos;                   // Mouse position, in pixels. Set to ImVec2(-FLT_MAX,-FLT_MAX) if mouse is unavailable (on another screen, etc.)
+    // ImVec2      MousePos;                       // Mouse position, in pixels. Set to ImVec2(-FLT_MAX,-FLT_MAX) if mouse is unavailable (on another screen, etc.)
     public getMousePos(): reference_ImVec2;
-    // bool        MouseDown[5];               // Mouse buttons: left, right, middle + extras. ImGui itself mostly only uses left button (BeginPopupContext** are using right button). Others buttons allows us to track if the mouse is being used by your application + available to user as a convenience via IsMouse** API.
+    // bool        MouseDown[5];                   // Mouse buttons: left, right, middle + extras. ImGui itself mostly only uses left button (BeginPopupContext** are using right button). Others buttons allows us to track if the mouse is being used by your application + available to user as a convenience via IsMouse** API.
     public getMouseDownAt(index: number): boolean;
     public setMouseDownAt(index: number, value: boolean): boolean;
-    // float       MouseWheel;                 // Mouse wheel: 1 unit scrolls about 5 lines text.
+    // float       MouseWheel;                     // Mouse wheel: 1 unit scrolls about 5 lines text.
     public MouseWheel: number;
-    // bool        MouseDrawCursor;            // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
+    // float       MouseWheelH;                    // Mouse wheel (Horizontal). Most users don't have a mouse with an horizontal wheel, may not be filled by all back ends.
+    public MouseWheelH: number;
+    // bool        MouseDrawCursor;                // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
     public MouseDrawCursor: boolean;
-    // bool        KeyCtrl;                    // Keyboard modifier pressed: Control
+    // bool        KeyCtrl;                        // Keyboard modifier pressed: Control
     public KeyCtrl: boolean;
-    // bool        KeyShift;                   // Keyboard modifier pressed: Shift
+    // bool        KeyShift;                       // Keyboard modifier pressed: Shift
     public KeyShift: boolean;
-    // bool        KeyAlt;                     // Keyboard modifier pressed: Alt
+    // bool        KeyAlt;                         // Keyboard modifier pressed: Alt
     public KeyAlt: boolean;
-    // bool        KeySuper;                   // Keyboard modifier pressed: Cmd/Super/Windows
+    // bool        KeySuper;                       // Keyboard modifier pressed: Cmd/Super/Windows
     public KeySuper: boolean;
-    // bool        KeysDown[512];              // Keyboard keys that are pressed (in whatever storage order you naturally have access to keyboard data)
+    // bool        KeysDown[512];                  // Keyboard keys that are pressed (ideally left in the "native" order your engine has access to keyboard keys, so you can use your own defines/enums for keys).
     public getKeysDownAt(index: number): boolean;
     public setKeysDownAt(index: number, value: boolean): boolean;
-    // ImWchar     InputCharacters[16+1];      // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
+    // ImWchar     InputCharacters[16+1];          // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
+    // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
+    public getNavInputsAt(index: number): number;
+    public setNavInputsAt(index: number, value: number): boolean;
     
     // Functions
     // IMGUI_API void AddInputCharacter(ImWchar c);                        // Add new character into InputCharacters[]
@@ -1005,11 +1052,14 @@ export class reference_ImGuiIO extends emscripten.EmscriptenClassReference {
     public WantCaptureKeyboard: boolean;
     // bool        WantTextInput;              // Mobile/console: when io.WantTextInput is true, you may display an on-screen keyboard. This is set by ImGui when it wants textual keyboard input to happen (e.g. when a InputText widget is active).
     public WantTextInput: boolean;
-    // bool        WantMoveMouse;              // [BETA-NAV] MousePos has been altered, back-end should reposition mouse on next frame. Set only when 'NavMovesMouse=true'.
+    // bool        WantMoveMouse;              // MousePos has been altered, back-end should reposition mouse on next frame. Set only when ImGuiNavFlags_MoveMouse flag is enabled in io.NavFlags.
     public WantMoveMouse: boolean;
+    // bool        NavActive;                  // Directional navigation is currently allowed (will handle ImGuiKey_NavXXX events) = a window is focused and it doesn't use the ImGuiWindowFlags_NoNavInputs flag.
+    public NavActive: boolean;
+    // bool        NavVisible;                 // Directional navigation is visible and allowed (will handle ImGuiKey_NavXXX events).
+    public NavVisible: boolean;
     // float       Framerate;                  // Application framerate estimation, in frame per second. Solely for convenience. Rolling average estimation based on IO.DeltaTime over 120 frames
     public Framerate: number;
-    // int         MetricsAllocs;              // Number of active memory allocations
     // int         MetricsRenderVertices;      // Vertices output during last call to Render()
     // int         MetricsRenderIndices;       // Indices output during last call to Render() = number of triangles * 3
     // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
@@ -1022,6 +1072,7 @@ export class reference_ImGuiIO extends emscripten.EmscriptenClassReference {
 
     // ImVec2      MousePosPrev;               // Previous mouse position temporary storage (nb: not for public use, set to MousePos in NewFrame())
     // ImVec2      MouseClickedPos[5];         // Position at time of clicking
+    public getMouseClickedPosAt(index: number): Readonly<reference_ImVec2>;
     // float       MouseClickedTime[5];        // Time of last click (used to figure out double-click)
     // bool        MouseClicked[5];            // Mouse button went from !Down to Down
     // bool        MouseDoubleClicked[5];      // Has mouse button been double-clicked?
@@ -1035,9 +1086,24 @@ export class reference_ImGuiIO extends emscripten.EmscriptenClassReference {
     // float       KeysDownDuration[512];      // Duration the keyboard key has been down (0.0f == just pressed)
     public getKeysDownDurationAt(index: number): number;
     // float       KeysDownDurationPrev[512];  // Previous duration the key has been down
+    // float       NavInputsDownDuration[ImGuiNavInput_COUNT];
+    public getNavInputsDownDurationAt(index: number): number;
+    // float       NavInputsDownDurationPrev[ImGuiNavInput_COUNT];
 
     // IMGUI_API   ImGuiIO();
 }
+
+// Context creation and access, if you want to use multiple context, share context between modules (e.g. DLL). 
+// All contexts share a same ImFontAtlas by default. If you want different font atlas, you can new() them and overwrite the GetIO().Fonts variable of an ImGui context.
+// All those functions are not reliant on the current context.
+// IMGUI_API ImGuiContext* CreateContext(ImFontAtlas* shared_font_atlas = NULL);
+export function CreateContext(): ImGuiContext | null;
+// IMGUI_API void          DestroyContext(ImGuiContext* ctx = NULL);   // NULL = Destroy current context
+export function DestroyContext(ctx: ImGuiContext | null): void;
+// IMGUI_API ImGuiContext* GetCurrentContext();
+export function GetCurrentContext(): ImGuiContext | null;
+// IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
+export function SetCurrentContext(ctx: ImGuiContext | null): void;
 
 // Main
 // IMGUI_API ImGuiIO&      GetIO();
@@ -1052,8 +1118,6 @@ export function NewFrame(): void;
 export function Render(): void;
 // IMGUI_API void          EndFrame();                                 // ends the ImGui frame. automatically called by Render(), so most likely don't need to ever call that yourself directly. If you don't need to render you may call EndFrame() but you'll have wasted CPU already. If you don't need to render, better to not create any imgui windows instead!
 export function EndFrame(): void;
-// IMGUI_API void          Shutdown();
-export function Shutdown(): void;
 
 // Demo, Debug, Informations
 // IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create demo/test window (previously called ShowTestWindow). demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
@@ -1068,6 +1132,16 @@ export function ShowStyleSelector(label: string): boolean;
 export function ShowFontSelector(label: string): void;
 // IMGUI_API void          ShowUserGuide();                            // add basic help/info block (not a window): how to manipulate ImGui as a end-user (mouse/keyboard controls).
 export function ShowUserGuide(): void;
+// IMGUI_API const char*   GetVersion();
+export function GetVersion(): string;
+
+// Styles
+// IMGUI_API void          StyleColorsClassic(ImGuiStyle* dst = NULL);
+export function StyleColorsClassic(dst: ImGuiStyle | null/* = NULL */): void;
+// IMGUI_API void          StyleColorsDark(ImGuiStyle* dst = NULL);
+export function StyleColorsDark(dst: ImGuiStyle | null/* = NULL */): void;
+// IMGUI_API void          StyleColorsLight(ImGuiStyle* dst = NULL);
+export function StyleColorsLight(dst: ImGuiStyle | null/* = NULL */): void;
 
 // Window
 export function Begin(name: string, p_open: [ boolean ] | null /* = NULL */, flags: ImGuiWindowFlags/* = 0 */): boolean;
@@ -1095,6 +1169,7 @@ export function SetNextWindowSizeConstraints(size_min: Readonly<interface_ImVec2
 export function SetNextWindowContentSize(size: Readonly<interface_ImVec2>): void;
 export function SetNextWindowCollapsed(collapsed: boolean, cond: ImGuiCond/* = 0 */): void;
 export function SetNextWindowFocus(): void;
+export function SetNextWindowBgAlpha(alpha: number): void;
 export function SetWindowPos(pos: Readonly<interface_ImVec2>, cond: ImGuiCond/* = 0 */): void;
 export function SetWindowSize(size: Readonly<interface_ImVec2>, cond: ImGuiCond/* = 0 */): void;
 export function SetWindowCollapsed(collapsed: boolean, cond: ImGuiCond/* = 0 */): void;
@@ -1412,14 +1487,6 @@ export function PushClipRect(clip_rect_min: Readonly<interface_ImVec2>, clip_rec
 // IMGUI_API void          PopClipRect();
 export function PopClipRect(): void;
 
-// Styles
-// IMGUI_API void          StyleColorsClassic(ImGuiStyle* dst = NULL);
-export function StyleColorsClassic(dst: ImGuiStyle | null/* = NULL */): void;
-// IMGUI_API void          StyleColorsDark(ImGuiStyle* dst = NULL);
-export function StyleColorsDark(dst: ImGuiStyle | null/* = NULL */): void;
-// IMGUI_API void          StyleColorsLight(ImGuiStyle* dst = NULL);
-export function StyleColorsLight(dst: ImGuiStyle | null/* = NULL */): void;
-
 // Focus
 // (FIXME: Those functions will be reworked after we merge the navigation branch + have a pass at focusing/tabbing features.)
 // (Prefer using "SetItemDefaultFocus()" over "if (IsWindowAppearing()) SetScrollHere()" when applicable, to make your code more forward compatible when navigation branch is merged)
@@ -1433,6 +1500,8 @@ export function SetKeyboardFocusHere(offset: number/* = 0 */): void;
 export function IsItemHovered(flags: ImGuiHoveredFlags/* = 0 */): boolean;
 // IMGUI_API bool          IsItemActive();                                                     // is the last item active? (e.g. button being held, text field being edited- items that don't interact will always return false)
 export function IsItemActive(): boolean;
+// IMGUI_API bool          IsItemFocused();                                                    // is the last item focused for keyboard/gamepad navigation?
+export function IsItemFocused(): boolean;
 // IMGUI_API bool          IsItemClicked(int mouse_button = 0);                                // is the last item clicked? (e.g. button/node just clicked on)
 export function IsItemClicked(mouse_button: number/* = 0 */): boolean;
 // IMGUI_API bool          IsItemVisible();                                                    // is the last item visible? (aka not out of sight due to clipping/scrolling.)
@@ -1441,6 +1510,8 @@ export function IsItemVisible(): boolean;
 export function IsAnyItemHovered(): boolean;
 // IMGUI_API bool          IsAnyItemActive();
 export function IsAnyItemActive(): boolean;
+// IMGUI_API bool          IsAnyItemFocused();
+export function IsAnyItemFocused(): boolean;
 // IMGUI_API ImVec2        GetItemRectMin();                                                   // get bounding rectangle of last item, in screen space
 export function GetItemRectMin(out: interface_ImVec2): typeof out;
 // IMGUI_API ImVec2        GetItemRectMax();                                                   // "
@@ -1453,10 +1524,6 @@ export function SetItemAllowOverlap(): void;
 export function IsWindowFocused(flags: ImGuiFocusedFlags/* = 0 */): boolean;
 // IMGUI_API bool          IsWindowHovered(ImGuiHoveredFlags flags = 0);                       // is current window hovered (and typically: not blocked by a popup/modal)? see flags for options.
 export function IsWindowHovered(flags: ImGuiHoveredFlags/* = 0 */): boolean;
-// IMGUI_API bool          IsAnyWindowFocused();
-export function IsAnyWindowFocused(): boolean;
-// IMGUI_API bool          IsAnyWindowHovered();                                               // is mouse hovering any visible window
-export function IsAnyWindowHovered(): boolean;
 // IMGUI_API bool          IsRectVisible(const ImVec2& size);                                  // test if rectangle (of given size, starting from cursor position) is visible / not clipped.
 // IMGUI_API bool          IsRectVisible(const ImVec2& rect_min, const ImVec2& rect_max);      // test if rectangle (in screen space) is visible / not clipped. to perform coarse clipping on user's side.
 export function IsRectVisible(size_or_rect_min: Readonly<interface_ImVec2>, rect_max?: Readonly<interface_ImVec2>): boolean;
@@ -1470,16 +1537,14 @@ export function GetOverlayDrawList(): reference_ImDrawList;
 export function GetDrawListSharedData(): reference_ImDrawListSharedData;
 // IMGUI_API const char*   GetStyleColorName(ImGuiCol idx);
 export function GetStyleColorName(idx: ImGuiCol): string;
-// IMGUI_API ImVec2        CalcItemRectClosestPoint(const ImVec2& pos, bool on_edge = false, float outward = +0.0f);   // utility to find the closest point the last item bounding rectangle edge. useful to visually link items
-export function CalcItemRectClosestPoint(pos: Readonly<interface_ImVec2>, on_edge: boolean/* = false */, outward: number/* = +0.0f */, out: interface_ImVec2): typeof out;
 // IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
 export function CalcTextSize(text: string, text_end: string | null/* = NULL */, hide_text_after_double_hash: boolean/* = false */, wrap_width: number/* = -1.0f */, out: interface_ImVec2): typeof out;
 // IMGUI_API void          CalcListClipping(int items_count, float items_height, int* out_items_display_start, int* out_items_display_end);    // calculate coarse clipping for large list of evenly sized items. Prefer using the ImGuiListClipper higher-level helper if you can.
 export function CalcListClipping(items_count: number, items_height: number, out_items_display_start: ImScalar<number>, out_items_display_end: ImScalar<number>): void;
 
-// IMGUI_API bool          BeginChildFrame(ImGuiID id, const ImVec2& size, ImGuiWindowFlags extra_flags = 0);    // helper to create a child window / scrolling region that looks like a normal widget frame
+// IMGUI_API bool          BeginChildFrame(ImGuiID id, const ImVec2& size, ImGuiWindowFlags flags = 0); // helper to create a child window / scrolling region that looks like a normal widget frame
 export function BeginChildFrame(id: ImGuiID, size: Readonly<interface_ImVec2>, extra_flags: ImGuiWindowFlags/* = 0 */): boolean;
-// IMGUI_API void          EndChildFrame();
+// IMGUI_API void          EndChildFrame();                                                    // always call EndChildFrame() regardless of BeginChildFrame() return values (which indicates a collapsed/clipped window)
 export function EndChildFrame(): void;
 
 // IMGUI_API ImVec4        ColorConvertU32ToFloat4(ImU32 in);
@@ -1504,6 +1569,8 @@ export function IsKeyReleased(user_key_index: number): boolean;
 export function GetKeyPressedAmount(key_index: number, repeat_delay: number, rate: number): number;
 // IMGUI_API bool          IsMouseDown(int button);                                            // is mouse button held
 export function IsMouseDown(button: number): boolean;
+// IMGUI_API bool          IsAnyMouseDown();                                                   // is any mouse button held
+export function IsAnyMouseDown(): boolean;
 // IMGUI_API bool          IsMouseClicked(int button, bool repeat = false);                    // did mouse button clicked (went from !Down to Down)
 export function IsMouseClicked(button: number, repeat: boolean/* = false */): boolean;
 // IMGUI_API bool          IsMouseDoubleClicked(int button);                                   // did mouse button double-clicked. a double-click returns false in IsMouseClicked(). uses io.MouseDoubleClickTime.
@@ -1542,17 +1609,3 @@ export function MemFree(ptr: any): void;
 export function GetClipboardText(): string;
 // IMGUI_API void          SetClipboardText(const char* text);
 export function SetClipboardText(text: string): void;
-
-// Internal context access - if you want to use multiple context, share context between modules (e.g. DLL). There is a default context created and active by default.
-// All contexts share a same ImFontAtlas by default. If you want different font atlas, you can new() them and overwrite the GetIO().Fonts variable of an ImGui context.
-// IMGUI_API const char*   GetVersion();
-export function GetVersion(): string;
-// IMGUI_API ImGuiContext* CreateContext(void* (*malloc_fn)(size_t) = NULL, void (*free_fn)(void*) = NULL);
-// export function CreateContext(malloc_fn: ((sz: number) => any) | null, free_fn: ((ptr: any) => void) | null): ImGuiContext | null;
-export function CreateContext(): ImGuiContext | null;
-// IMGUI_API void          DestroyContext(ImGuiContext* ctx);
-export function DestroyContext(ctx: ImGuiContext | null): void;
-// IMGUI_API ImGuiContext* GetCurrentContext();
-export function GetCurrentContext(): ImGuiContext | null;
-// IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
-export function SetCurrentContext(ctx: ImGuiContext | null): void;

@@ -1,4 +1,4 @@
-// dear imgui, v1.53
+// dear imgui, v1.60 WIP
 // (demo code)
 
 // Message to the person tempted to delete this file when integrating ImGui into their code base:
@@ -55,7 +55,7 @@ import { ImGuiStyleVar } from "./imgui";
 import { ImGuiTreeNodeFlags } from "./imgui";
 import { ImGuiWindowFlags } from "./imgui";
 import { ImGuiTextEditCallbackData } from "./imgui";
-import { ImGuiSizeConstraintCallbackData } from "./imgui";
+import { ImGuiSizeCallbackData } from "./imgui";
 import { ImDrawCornerFlags } from "./imgui";
 import { ImU32 } from "./imgui";
 import { ImVector } from "./imgui";
@@ -145,7 +145,7 @@ function ShowHelpMarker(desc: string): void
     if (ImGui.IsItemHovered())
     {
         ImGui.BeginTooltip();
-        ImGui.PushTextWrapPos(450.0);
+        ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35.0);
         ImGui.TextUnformatted(desc);
         ImGui.PopTextWrapPos();
         ImGui.EndTooltip();
@@ -211,7 +211,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     if (show_app_about.value)
     {
         ImGui.Begin("About Dear ImGui", (value = show_app_about.value) => show_app_about.value = value, ImGui.WindowFlags.AlwaysAutoResize);
-        ImGui.Text(`dear imgui, ${ImGui.GetVersion()}`);
+        ImGui.Text(`Dear ImGui, ${ImGui.GetVersion()}`);
         ImGui.Separator();
         ImGui.Text("By Omar Cornut and all dear imgui contributors.");
         ImGui.Text("Dear ImGui is licensed under the MIT License, see LICENSE for more information.");
@@ -225,6 +225,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     /* static */ const no_resize: Static<boolean> = STATIC("no_resize", false);
     /* static */ const no_collapse: Static<boolean> = STATIC("no_collapse", false);
     /* static */ const no_close: Static<boolean> = STATIC("no_close", false);
+    /* static */ const no_nav: Static<boolean> = STATIC("no_nav", false);
 
     // Demonstrate the various window flags. Typically you would just use the default.
     let window_flags: ImGui.WindowFlags = 0;
@@ -234,6 +235,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     if (no_move.value)      window_flags |= ImGuiWindowFlags.NoMove;
     if (no_resize.value)    window_flags |= ImGuiWindowFlags.NoResize;
     if (no_collapse.value)  window_flags |= ImGuiWindowFlags.NoCollapse;
+    if (no_nav.value)       window_flags |= ImGuiWindowFlags.NoNav;
     if (no_close.value)     p_open = null; // Don't pass our bool* to Begin
 
     ImGui.SetNextWindowSize(new ImVec2(550,680), ImGuiCond.FirstUseEver);
@@ -298,7 +300,8 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
         ImGui.Checkbox("No move", (value = no_move.value) => no_move.value = value); ImGui.SameLine(150);
         ImGui.Checkbox("No resize", (value = no_resize.value) => no_resize.value = value); ImGui.SameLine(300);
         ImGui.Checkbox("No collapse", (value = no_collapse.value) => no_collapse.value = value);
-        ImGui.Checkbox("No close", (value = no_close.value) => no_close.value = value);
+        ImGui.Checkbox("No close", (value = no_close.value) => no_close.value = value); ImGui.SameLine(150);
+        ImGui.Checkbox("No nav", (value = no_nav.value) => no_nav.value = value);
 
         if (ImGui.TreeNode("Style"))
         {
@@ -465,7 +468,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                     {
                         ImGui.Text("blah blah");
                         ImGui.SameLine(); 
-                        if (ImGui.SmallButton("print")) console.log(`Child ${i} pressed`);
+                        if (ImGui.SmallButton("button")) {}
                         ImGui.TreePop();
                     }
                 ImGui.TreePop();
@@ -656,30 +659,63 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 ImGui.SameLine();
             }
             ImGui.NewLine();
-            ImGui.Text(`Pressed ${pressed_count} times.`);
+            ImGui.Text(`Pressed ${pressed_count.value} times.`);
             ImGui.TreePop();
         }
 
         if (ImGui.TreeNode("Selectables"))
         {
+            // Selectable() has 2 overloads:
+            // - The one taking "bool selected" as a read-only selection information. When Selectable() has been clicked is returns true and you can alter selection state accordingly.
+            // - The one taking "bool* p_selected" as a read-write selection information (convenient in some cases)
+            // The earlier is more flexible, as in real application your selection may be stored in a different manner (in flags within objects, as an external list, etc).
             if (ImGui.TreeNode("Basic"))
             {
-                /* static */ const selected: Static<boolean[/*4*/]> = STATIC("selected#672", [ false, true, false, false ]);
-                ImGui.Selectable("1. I am selectable", (value = selected.value[0]) => selected.value[0] = value);
-                ImGui.Selectable("2. I am selectable", (value = selected.value[1]) => selected.value[1] = value);
+                /* static */ const selection: Static<boolean[/*5*/]> = STATIC("selection#695", [ false, true, false, false, false ]);
+                ImGui.Selectable("1. I am selectable", (value = selection.value[0]) => selection.value[0] = value);
+                ImGui.Selectable("2. I am selectable", (value = selection.value[1]) => selection.value[1] = value);
                 ImGui.Text("3. I am not selectable");
-                ImGui.Selectable("4. I am selectable", (value = selected.value[2]) => selected.value[2] = value);
-                if (ImGui.Selectable("5. I am double clickable", selected.value[3], ImGuiSelectableFlags.AllowDoubleClick))
+                ImGui.Selectable("4. I am selectable", (value = selection.value[3]) => selection.value[2] = value);
+                if (ImGui.Selectable("5. I am double clickable", selection.value[4], ImGuiSelectableFlags.AllowDoubleClick))
                     if (ImGui.IsMouseDoubleClicked(0))
-                        selected.value[3] = !selected.value[3];
+                        selection.value[4] = !selection.value[4];
                 ImGui.TreePop();
             }
-            if (ImGui.TreeNode("Rendering more text into the same block"))
+            if (ImGui.TreeNode("Selection State: Single Selection"))
             {
+                /* static */ const selected: Static<number> = STATIC("selected#707", -1);
+                for (let n = 0; n < 5; n++)
+                {
+                    const buf: string = `Object ${n}`;
+                    if (ImGui.Selectable(buf, selected.value === n)) 
+                        selected.value = n;
+                }
+                ImGui.TreePop();
+            }
+            if (ImGui.TreeNode("Selection State: Multiple Selection"))
+            {
+                ShowHelpMarker("Hold CTRL and click to select multiple items.");
+                /* static */ const selection: Static<boolean[/*5*/]> = STATIC("selection#720", [ false, false, false, false, false ]);
+                for (let n = 0; n < 5; n++)
+                {
+                    const buf: string = `Object ${n}`;
+                    if (ImGui.Selectable(buf, selection.value[n]))
+                    {
+                        if (!ImGui.GetIO().KeyCtrl)    // Clear selection when CTRL is not held
+                            // memset(selection, 0, sizeof(selection));
+                            selection.value.fill(false);
+                        selection.value[n] = !selection.value[n];
+                    }
+                }
+                ImGui.TreePop();
+            }
+            if (ImGui.TreeNode("Rendering more text into the same line"))
+            {
+                // Using the Selectable() override that takes "bool* p_selected" parameter and toggle your booleans automatically.
                 /* static */ const selected: Static<boolean[/*3*/]> = STATIC("selected#687", [ false, false, false ]);
-                ImGui.Selectable("main.c", (value = selected.value[0]) => selected.value[0] = value);    ImGui.SameLine(300); ImGui.Text(" 2,345 bytes");
+                ImGui.Selectable("main.c",    (value = selected.value[0]) => selected.value[0] = value); ImGui.SameLine(300); ImGui.Text(" 2,345 bytes");
                 ImGui.Selectable("Hello.cpp", (value = selected.value[1]) => selected.value[1] = value); ImGui.SameLine(300); ImGui.Text("12,345 bytes");
-                ImGui.Selectable("Hello.h", (value = selected.value[2]) => selected.value[2] = value);   ImGui.SameLine(300); ImGui.Text(" 2,345 bytes");
+                ImGui.Selectable("Hello.h",   (value = selected.value[2]) => selected.value[2] = value); ImGui.SameLine(300); ImGui.Text(" 2,345 bytes");
                 ImGui.TreePop();
             }
             if (ImGui.TreeNode("In columns"))
@@ -825,14 +861,14 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
         {
             /* static */ const color: Static<ImVec4> = STATIC("color#863", new ImColor(114, 144, 154, 200).toImVec4());
 
-            /* static */ const hdr: Static<boolean> = STATIC("hdr", false);
             /* static */ const alpha_preview: Static<boolean> = STATIC("alpha_preview", true);
             /* static */ const alpha_half_preview: Static<boolean> = STATIC("alpha_half_preview", false);
             /* static */ const options_menu: Static<boolean> = STATIC("options_menu", true);
-            ImGui.Checkbox("With HDR", (value = hdr.value) => hdr.value = value); ImGui.SameLine(); ShowHelpMarker("Currently all this does is to lift the 0..1 limits on dragging widgets.");
+            /* static */ const hdr: Static<boolean> = STATIC("hdr", false);
             ImGui.Checkbox("With Alpha Preview", (value = alpha_preview.value) => alpha_preview.value = value);
             ImGui.Checkbox("With Half Alpha Preview", (value = alpha_half_preview.value) => alpha_half_preview.value = value);
             ImGui.Checkbox("With Options Menu", (value = options_menu.value) => options_menu.value = value); ImGui.SameLine(); ShowHelpMarker("Right-click on the individual color widget to show options.");
+            ImGui.Checkbox("With HDR", (value = hdr.value) => hdr.value = value); ImGui.SameLine(); ShowHelpMarker("Currently all this does is to lift the 0..1 limits on dragging widgets.");
             const misc_flags: ImGuiColorEditFlags = (hdr.value ? ImGuiColorEditFlags.HDR : 0) | (alpha_half_preview.value ? ImGuiColorEditFlags.AlphaPreviewHalf : (alpha_preview.value ? ImGuiColorEditFlags.AlphaPreview : 0)) | (options_menu.value ? 0 : ImGuiColorEditFlags.NoOptions);
 
             ImGui.Text("Color widget:");
@@ -1077,9 +1113,10 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
         if (ImGui.TreeNode("Child regions"))
         {
             /* static */ const disable_mouse_wheel: Static<boolean> = STATIC("disable_mouse_wheel", false);
+            /* static */ const disable_menu: Static<boolean> = STATIC("disable_menu", false);
             ImGui.Checkbox("Disable Mouse Wheel", (value = disable_mouse_wheel.value) => disable_mouse_wheel.value = value);
+            ImGui.Checkbox("Disable Menu", (value = disable_menu.value) => disable_menu.value = value);
 
-            ImGui.Text("Without border");
             /* static */ const line: Static<number> = STATIC("line", 50);
             let goto_line: boolean = ImGui.Button("Goto");
             ImGui.SameLine();
@@ -1087,32 +1124,46 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             goto_line = ImGui.InputInt("##Line", (value = line.value) => line.value = value, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue) || goto_line;
             ImGui.PopItemWidth();
 
-            ImGui.BeginChild("Sub1", new ImVec2(ImGui.GetWindowContentRegionWidth() * 0.5,300), false, ImGuiWindowFlags.HorizontalScrollbar | (disable_mouse_wheel.value ? ImGuiWindowFlags.NoScrollWithMouse : 0));
-            for (let i = 0; i < 100; i++)
+            // Child 1: no border, enable horizontal scrollbar
             {
-                ImGui.Text(`${("0000" + i.toString()).substr(-4)}: scrollable region`);
-                if (goto_line && line.value === i)
+                ImGui.BeginChild("Child1", new ImVec2(ImGui.GetWindowContentRegionWidth() * 0.5, 300), false, ImGuiWindowFlags.HorizontalScrollbar | (disable_mouse_wheel.value ? ImGuiWindowFlags.NoScrollWithMouse : 0));
+                for (let i = 0; i < 100; i++)
+                {
+                    ImGui.Text(`${("0000" + i.toString()).substr(-4)}: scrollable region`);
+                    if (goto_line && line.value === i)
+                        ImGui.SetScrollHere();
+                }
+                if (goto_line && line.value >= 100)
                     ImGui.SetScrollHere();
+                ImGui.EndChild();
             }
-            if (goto_line && line.value >= 100)
-                ImGui.SetScrollHere();
-            ImGui.EndChild();
 
             ImGui.SameLine();
 
-            ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 5.0);
-            ImGui.BeginChild("Sub2", new ImVec2(0,300), true, (disable_mouse_wheel.value ? ImGuiWindowFlags.NoScrollWithMouse : 0));
-            ImGui.Text("With border");
-            ImGui.Columns(2);
-            for (let i = 0; i < 100; i++)
+            // Child 2: rounded border
             {
-                if (i === 50)
-                    ImGui.NextColumn();
-                const buf: string = `${("00000000" + (i*5731).toString(16)).substr(-8)}`;
-                ImGui.Button(buf, new ImVec2(-1.0, 0.0));
+                ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 5.0);
+                ImGui.BeginChild("Child2", new ImVec2(0,300), true, (disable_mouse_wheel.value ? ImGuiWindowFlags.NoScrollWithMouse : 0) | (disable_menu ? 0 : ImGuiWindowFlags.MenuBar));
+                if (!disable_menu && ImGui.BeginMenuBar())
+                {
+                    if (ImGui.BeginMenu("Menu"))
+                    {
+                        ShowExampleMenuFile();
+                        ImGui.EndMenu();
+                    }
+                    ImGui.EndMenuBar();
+                }
+                ImGui.Columns(2);
+                for (let i = 0; i < 100; i++)
+                {
+                    if (i === 50)
+                        ImGui.NextColumn();
+                    const buf: string = `${("00000000" + (i*5731).toString(16)).substr(-8)}`;
+                    ImGui.Button(buf, new ImVec2(-1.0, 0.0));
+                }
+                ImGui.EndChild();
+                ImGui.PopStyleVar();
             }
-            ImGui.EndChild();
-            ImGui.PopStyleVar();
 
             ImGui.TreePop();
         }
@@ -1555,6 +1606,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 ImGui.PopStyleVar();
 
                 if (ImGui.Button("OK", new ImVec2(120,0))) { ImGui.CloseCurrentPopup(); }
+                ImGui.SetItemDefaultFocus();
                 ImGui.SameLine();
                 if (ImGui.Button("Cancel", new ImVec2(120,0))) { ImGui.CloseCurrentPopup(); }
                 ImGui.EndPopup();
@@ -1574,7 +1626,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                     ImGui.OpenPopup("Stacked 2");
                 if (ImGui.BeginPopupModal("Stacked 2"))
                 {
-                    ImGui.Text("Hello from Stacked The Second");
+                    ImGui.Text("Hello from Stacked The Second!");
                     if (ImGui.Button("Close"))
                         ImGui.CloseCurrentPopup();
                     ImGui.EndPopup();
@@ -1804,18 +1856,24 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 ImGui.BulletText(lines[i]);
     }
 
-    if (ImGui.CollapsingHeader("Inputs & Focus"))
+    if (ImGui.CollapsingHeader("Inputs, Navigation & Focus"))
     {
         const io: ImGuiIO = ImGui.GetIO();
-        ImGui.Checkbox("io.MouseDrawCursor", (value = io.MouseDrawCursor) => io.MouseDrawCursor = value);
-        ImGui.SameLine(); ShowHelpMarker("Request ImGui to render a mouse cursor for you in software. Note that a mouse cursor rendered via your application GPU rendering path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
 
         ImGui.Text(`WantCaptureMouse: ${io.WantCaptureMouse}`);
         ImGui.Text(`WantCaptureKeyboard: ${io.WantCaptureKeyboard}`);
         ImGui.Text(`WantTextInput: ${io.WantTextInput}`);
         ImGui.Text(`WantMoveMouse: ${io.WantMoveMouse}`);
+        ImGui.Text(`NavActive: ${io.NavActive}, NavVisible: ${io.NavVisible}`);
 
-        if (ImGui.TreeNode("Keyboard & Mouse State"))
+        ImGui.Checkbox("io.MouseDrawCursor", (value = io.MouseDrawCursor) => io.MouseDrawCursor = value);
+        ImGui.SameLine(); ShowHelpMarker("Request ImGui to render a mouse cursor for you in software. Note that a mouse cursor rendered via your application GPU rendering path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
+        ImGui.CheckboxFlags("io.NavFlags: EnableGamepad", (value = io.NavFlags) => io.NavFlags = value, ImGui.ImGuiNavFlags.EnableGamepad);
+        ImGui.CheckboxFlags("io.NavFlags: EnableKeyboard", (value = io.NavFlags) => io.NavFlags = value, ImGui.ImGuiNavFlags.EnableKeyboard);
+        ImGui.CheckboxFlags("io.NavFlags: MoveMouse", (value = io.NavFlags) => io.NavFlags = value, ImGui.ImGuiNavFlags.MoveMouse);
+        ImGui.SameLine(); ShowHelpMarker("Request ImGui to move your move cursor when using gamepad/keyboard navigation. NewFrame() will change io.MousePos and set the io.WantMoveMouse flag, your backend will need to apply the new mouse position.");
+
+        if (ImGui.TreeNode("Keyboard, Mouse & Navigation State"))
         {
             if (ImGui.IsMousePosValid())
                 ImGui.Text(`Mouse pos: (${io.MousePos.x}, ${io.MousePos.x})`);
@@ -1831,6 +1889,10 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             ImGui.Text("Keys pressed:");   for (let i = 0; i < IM_ARRAYSIZE(io.KeysDown); i++) if (ImGui.IsKeyPressed(i))             { ImGui.SameLine(); ImGui.Text(i.toString()); }
             ImGui.Text("Keys release:");   for (let i = 0; i < IM_ARRAYSIZE(io.KeysDown); i++) if (ImGui.IsKeyReleased(i))            { ImGui.SameLine(); ImGui.Text(i.toString()); }
             ImGui.Text(`Keys mods: ${io.KeyCtrl ? "CTRL " : ""}${io.KeyShift ? "SHIFT " : ""}${io.KeyAlt ? "ALT " : ""}${io.KeySuper ? "SUPER " : ""}`);
+
+            ImGui.Text("NavInputs down:"); for (let i = 0; i < IM_ARRAYSIZE(io.NavInputs); i++) if (io.NavInputs[i] > 0.0)                    { ImGui.SameLine(); ImGui.Text(`[${i}] ${io.NavInputs[i].toFixed(2)}`); }
+            ImGui.Text("NavInputs pressed:"); for (let i = 0; i < IM_ARRAYSIZE(io.NavInputs); i++) if (io.NavInputsDownDuration[i] == 0.0)    { ImGui.SameLine(); ImGui.Text(`[${i}]`); }
+            ImGui.Text("NavInputs duration:"); for (let i = 0; i < IM_ARRAYSIZE(io.NavInputs); i++) if (io.NavInputsDownDuration[i] >= 0.0)   { ImGui.SameLine(); ImGui.Text(`[${i}] ${io.NavInputsDownDuration[i].toFixed(2)}`); }
 
             ImGui.Button("Hovering me sets the\nkeyboard capture flag");
             if (ImGui.IsItemHovered())
@@ -1879,11 +1941,22 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             ImGui.InputText("3 (tab skip)", buf.value, IM_ARRAYSIZE(buf.value));
             if (ImGui.IsItemActive()) has_focus = 3;
             ImGui.PopAllowKeyboardFocus();
+
             if (has_focus)
                 ImGui.Text(`Item with focus: ${has_focus}`);
             else
                 ImGui.Text("Item with focus: <none>");
-            ImGui.TextWrapped("Cursor & selection are preserved when refocusing last used item in code.");
+
+            // Use >= 0 parameter to SetKeyboardFocusHere() to focus an upcoming item
+            /* static */ const f3: Static<ImTuple3<number>> = STATIC<ImTuple3<number>>("f3", [ 0.0, 0.0, 0.0 ]);
+            let focus_ahead: number = -1;
+            if (ImGui.Button("Focus on X")) focus_ahead = 0; ImGui.SameLine();
+            if (ImGui.Button("Focus on Y")) focus_ahead = 1; ImGui.SameLine();
+            if (ImGui.Button("Focus on Z")) focus_ahead = 2;
+            if (focus_ahead != -1) ImGui.SetKeyboardFocusHere(focus_ahead);
+            ImGui.SliderFloat3("Float3", f3.value, 0.0, 1.0)
+            
+            ImGui.TextWrapped("NB: Cursor & selection are preserved when refocusing last used item in code.");
             ImGui.TreePop();
         }
 
@@ -1899,7 +1972,8 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 `IsWindowFocused() = ${ImGui.IsWindowFocused()}\n` +
                 `IsWindowFocused(_ChildWindows) = ${ImGui.IsWindowFocused(ImGuiFocusedFlags.ChildWindows)}\n` +
                 `IsWindowFocused(_ChildWindows|_RootWindow) = ${ImGui.IsWindowFocused(ImGuiFocusedFlags.ChildWindows | ImGuiFocusedFlags.RootWindow)}\n` +
-                `IsWindowFocused(_RootWindow) = ${ImGui.IsWindowFocused(ImGuiFocusedFlags.RootWindow)}\n`);
+                `IsWindowFocused(_RootWindow) = ${ImGui.IsWindowFocused(ImGuiFocusedFlags.RootWindow)}\n` + 
+                `IsWindowFocused(_AnyWindow) = ${ImGui.IsWindowFocused(ImGuiFocusedFlags.AnyWindow)}\n`);
 
             // Testing IsWindowHovered() function with its various flags (note that the flags can be combined)
             ImGui.BulletText(
@@ -1908,7 +1982,8 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 `IsWindowHovered(_AllowWhenBlockedByActiveItem) = ${ImGui.IsWindowHovered(ImGuiHoveredFlags.AllowWhenBlockedByActiveItem)}\n` +
                 `IsWindowHovered(_ChildWindows) = ${ImGui.IsWindowHovered(ImGuiHoveredFlags.ChildWindows)}\n` +
                 `IsWindowHovered(_ChildWindows|_RootWindow) = ${ImGui.IsWindowHovered(ImGuiHoveredFlags.ChildWindows | ImGuiHoveredFlags.RootWindow)}\n` +
-                `IsWindowHovered(_RootWindow) = ${ImGui.IsWindowHovered(ImGuiHoveredFlags.RootWindow)}\n"`);
+                `IsWindowHovered(_RootWindow) = ${ImGui.IsWindowHovered(ImGuiHoveredFlags.RootWindow)}\n"` +
+                `IsWindowHovered(_AnyWindow) = ${ImGui.IsWindowHovered(ImGuiHoveredFlags.AnyWindow)}\n"`);
 
             // Testing IsItemHovered() function (because BulletText is an item itself and that would affect the output of IsItemHovered, we pass all lines in a single items to shorten the code)
             ImGui.Button("ITEM");
@@ -1940,7 +2015,9 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 // Draw a line between the button and the mouse cursor
                 const draw_list: ImGui.ImDrawList = ImGui.GetWindowDrawList();
                 draw_list.PushClipRectFullScreen();
-                draw_list.AddLine(ImGui.CalcItemRectClosestPoint(io.MousePos, true, -2.0), io.MousePos, ImGui.ColorConvertFloat4ToU32(ImGui.GetStyle().Colors[ImGuiCol.Button]), 4.0);
+                // draw_list->AddLine(io.MouseClickedPos[0], io.MousePos, ImGui::GetColorU32(ImGuiCol_Button), 4.0f);
+                draw_list.AddLine(io.MouseClickedPos[0], io.MousePos, ImGui.GetColorU32(ImGuiCol.Button), 4.0);
+                // draw_list.AddLine(ImGui.CalcItemRectClosestPoint(io.MousePos, true, -2.0), io.MousePos, ImGui.ColorConvertFloat4ToU32(ImGui.GetStyle().Colors[ImGuiCol.Button]), 4.0);
                 draw_list.PopClipRect();
 
                 // Drag operations gets "unlocked" when the mouse has moved past a certain threshold (the default threshold is stored in io.MouseDragThreshold)
@@ -1965,7 +2042,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             {
                 const label: string = `Mouse cursor ${i}: ${mouse_cursors_names[i]}`;
                 ImGui.Bullet(); ImGui.Selectable(label, false);
-                if (ImGui.IsItemHovered())
+                if (ImGui.IsItemHovered() || ImGui.IsItemFocused())
                     ImGui.SetMouseCursor(i);
             }
             ImGui.TreePop();
@@ -1979,7 +2056,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
 // Here we use the simplified Combo() api that packs items into a single literal string. Useful for quick combo boxes where the choices are known locally.
 export function ShowStyleSelector(label: string): boolean
 {
-    /* static */ const style_idx: Static<number> = STATIC("style_idx", 0);
+    /* static */ const style_idx: Static<number> = STATIC("style_idx", -1);
     if (ImGui.Combo(label, (value = style_idx.value) => style_idx.value = value, "Classic\0Dark\0Light\0"))
     {
         switch (style_idx.value)
@@ -2011,7 +2088,7 @@ export function ShowFontSelector(label: string): void
     ShowHelpMarker(
         "- Load additional fonts with io.Fonts->AddFontFromFileTTF().\n" +
         "- The font atlas is built when calling io.Fonts->GetTexDataAsXXXX() or io.Fonts->Build().\n" +
-        "- Read FAQ and documentation in extra_fonts/ for more details.\n" +
+        "- Read FAQ and documentation in misc/fonts for more details.\n" +
         "- If you need to add/remove fonts at runtime (e.g. for DPI change), do it before calling NewFrame().");
 }
 
@@ -2127,7 +2204,7 @@ export function ShowStyleEditor(ref: ImGuiStyle | null = null): void
         ImGui.RadioButton("Alpha", (value = alpha_flags.value) => alpha_flags.value = value, ImGuiColorEditFlags.AlphaPreview); ImGui.SameLine(); 
         ImGui.RadioButton("Both", (value = alpha_flags.value) => alpha_flags.value = value, ImGuiColorEditFlags.AlphaPreviewHalf);
 
-        ImGui.BeginChild("#colors", new ImVec2(0, 300), true, ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.AlwaysHorizontalScrollbar);
+        ImGui.BeginChild("#colors", new ImVec2(0, 300), true, ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.AlwaysHorizontalScrollbar | ImGuiWindowFlags.NavFlattened);
         ImGui.PushItemWidth(-160);
         for (let i = 0; i < ImGuiCol.COUNT; i++)
         {
@@ -2139,7 +2216,7 @@ export function ShowStyleEditor(ref: ImGuiStyle | null = null): void
             if (!style.Colors[i].Equals(ref.Colors[i]))
             {
                 // Tips: in a real user application, you may want to merge and use an icon font into the main font, so instead of "Save"/"Revert" you'd use icons.
-                // Read the FAQ and extra_fonts/README.txt about using icon fonts. It's really easy and super convenient!
+                // Read the FAQ and misc/fonts/README.txt about using icon fonts. It's really easy and super convenient!
                 ImGui.SameLine(0.0, style.ItemInnerSpacing.x); if (ImGui.Button("Save")) ref.Colors[i].Copy(style.Colors[i]);
                 ImGui.SameLine(0.0, style.ItemInnerSpacing.x); if (ImGui.Button("Revert")) style.Colors[i].Copy(ref.Colors[i]);
             }
@@ -2176,6 +2253,7 @@ export function ShowStyleEditor(ref: ImGuiStyle | null = null): void
         //         ImGui.Text("The quick brown fox jumps over the lazy dog");
         //         ImGui.PopFont();
         //         ImGui.DragFloat("Font scale", &font->Scale, 0.005f, 0.3f, 2.0f, "%.1f");   // Scale only this font
+        //         ImGui.InputFloat("Font offset", &font->DisplayOffset.y, 1, 1, 0);
         //         ImGui.SameLine(); ShowHelpMarker("Note than the default embedded font is NOT meant to be scaled.\n\nFont are currently rendered into bitmaps at a given size at the time of building the atlas. You may oversample them to get some flexibility with scaling. You can also render at multiple sizes and select which one to use at runtime.\n\n(Glimmer of hope: the atlas system should hopefully be rewritten in the future to make scaling more natural and automatic.)");
         //         ImGui.Text("Ascent: %f, Descent: %f, Height: %f", font->Ascent, font->Descent, font->Ascent - font->Descent);
         //         ImGui.Text("Fallback character: '%c' (%d)", font->FallbackChar, font->FallbackChar);
@@ -2310,15 +2388,17 @@ function ShowExampleMenuFile(): void
     }
     if (ImGui.BeginMenu("Colors"))
     {
-        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new ImVec2(0,0));
+        const sz: number = ImGui.GetTextLineHeight();
         for (let i = 0; i < ImGuiCol.COUNT; i++)
         {
             const name: string = ImGui.GetStyleColorName(i as ImGuiCol);
             ImGui.ColorButton(name, ImGui.GetStyleColorVec4(i as ImGuiCol));
+            const p: ImGui.interface_ImVec2 = ImGui.GetCursorScreenPos();
+            ImGui.GetWindowDrawList().AddRectFilled(p, new ImVec2(p.x+sz, p.y+sz), ImGui.GetColorU32(i as ImGuiCol));
+            ImGui.Dummy(new ImVec2(sz, sz));
             ImGui.SameLine();
             ImGui.MenuItem(name);
         }
-        ImGui.PopStyleVar();
         ImGui.EndMenu();
     }
     if (ImGui.BeginMenu("Disabled", false)) // Disabled
@@ -2351,10 +2431,10 @@ function ShowExampleAppConstrainedResize(p_open: ImAccess<boolean>): void
 {
     class CustomConstraints // Helper functions to demonstrate programmatic constraints
     {
-        public static Square(data: ImGuiSizeConstraintCallbackData): void {
+        public static Square(data: ImGuiSizeCallbackData): void {
             data.DesiredSize.x = data.DesiredSize.y = IM_MAX(data.DesiredSize.x, data.DesiredSize.y);
         }
-        public static Step(data: ImGuiSizeConstraintCallbackData): void {
+        public static Step(data: ImGuiSizeCallbackData): void {
             const step: number = data.UserData;
             data.DesiredSize.x = Math.floor(data.DesiredSize.x / step + 0.5) * step;
             data.DesiredSize.y = Math.floor(data.DesiredSize.y / step + 0.5) * step;
@@ -2406,7 +2486,7 @@ function ShowExampleAppFixedOverlay(p_open: ImAccess<boolean>): void
     const window_pos: Readonly<ImVec2> = new ImVec2((corner.value & 1) ? ImGui.GetIO().DisplaySize.x - DISTANCE : DISTANCE, (corner.value & 2) ? ImGui.GetIO().DisplaySize.y - DISTANCE : DISTANCE);
     const window_pos_pivot: Readonly<ImVec2> = new ImVec2((corner.value & 1) ? 1.0 : 0.0, (corner.value & 2) ? 1.0 : 0.0);
     ImGui.SetNextWindowPos(window_pos, ImGuiCond.Always, window_pos_pivot);
-    ImGui.PushStyleColor(ImGuiCol.WindowBg, new ImVec4(0.0, 0.0, 0.0, 0.3)); // Transparent background
+    ImGui.SetNextWindowBgAlpha(0.3); // Transparent background
     if (ImGui.Begin("Example: Fixed Overlay", p_open, ImGuiWindowFlags.NoTitleBar|ImGuiWindowFlags.NoResize|ImGuiWindowFlags.AlwaysAutoResize|ImGuiWindowFlags.NoMove|ImGuiWindowFlags.NoSavedSettings))
     {
         ImGui.Text("Simple overlay\nin the corner of the screen.\n(right-click to change position)");
@@ -2418,11 +2498,11 @@ function ShowExampleAppFixedOverlay(p_open: ImAccess<boolean>): void
             if (ImGui.MenuItem("Top-right", null, corner.value === 1)) corner.value = 1;
             if (ImGui.MenuItem("Bottom-left", null, corner.value === 2)) corner.value = 2;
             if (ImGui.MenuItem("Bottom-right", null, corner.value === 3)) corner.value = 3;
+            if (p_open() && ImGui.MenuItem("Close")) p_open(false);
             ImGui.EndPopup();
         }
         ImGui.End();
     }
-    ImGui.PopStyleColor();
 }
 
 // Demonstrate using "##" and "###" in identifiers to manipulate ID generation.
@@ -2527,7 +2607,7 @@ function ShowExampleAppCustomRendering(p_open: ImAccess<boolean>): void
         {
             adding_preview = true;
             points.value.push_back(mouse_pos_in_canvas);
-            if (!ImGui.GetIO().MouseDown[0])
+            if (!ImGui.IsMouseDown(0))
                 adding_line.value = adding_preview = false;
         }
         if (ImGui.IsItemHovered())
@@ -2672,14 +2752,14 @@ class ExampleAppConsole {
         ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new ImVec2(4,1)); // Tighten spacing
         if (copy_to_clipboard)
             ImGui.LogToClipboard();
+        const col_default_text: Readonly<ImGui.reference_ImVec4> = ImGui.GetStyleColorVec4(ImGuiCol.Text);
         for (let i = 0; i < this.Items.Size; i++)
         {
             // const char* item = Items[i];
             const item: string = this.Items.Data[i];
             if (!filter.value.PassFilter(item))
                 continue;
-            // ImVec4 col = ImVec4(1.0f,1.0f,1.0f,1.0f); // A better implementation may store a type per-item. For the sample let's just parse the text.
-            let col: ImVec4 = new ImVec4(1.0,1.0,1.0,1.0); // A better implementation may store a type per-item. For the sample let's just parse the text.
+            let col: ImGui.interface_ImVec4 = col_default_text
             // if (strstr(item, "[error]")) col = ImColor(1.0f,0.4f,0.4f,1.0f);
             if (/\[error\]/.test(item)) col = new ImVec4(1.0,0.4,0.4,1.0);
             // else if (strncmp(item, "# ", 2) === 0) col = ImColor(1.0f,0.78f,0.58f,1.0f);
@@ -2698,6 +2778,7 @@ class ExampleAppConsole {
         ImGui.Separator();
 
         // Command-line
+        let reclaim_focus: boolean = false;
         if (ImGui.InputText("Input", this.InputBuf, IM_ARRAYSIZE(this.InputBuf), ImGuiInputTextFlags.EnterReturnsTrue|ImGuiInputTextFlags.CallbackCompletion|ImGuiInputTextFlags.CallbackHistory, ExampleAppConsole.TextEditCallbackStub, this))
         {
             // char* input_end = InputBuf+strlen(InputBuf);
@@ -2708,10 +2789,12 @@ class ExampleAppConsole {
                 this.ExecCommand(this.InputBuf.buffer);
             // strcpy(InputBuf, "");
             this.InputBuf.buffer = "";
+            reclaim_focus = true;
         }
 
-        // Demonstrate keeping auto focus on the input box
-        if (ImGui.IsItemHovered() || (ImGui.IsWindowFocused(ImGuiFocusedFlags.RootAndChildWindows) && !ImGui.IsAnyItemActive() && !ImGui.IsMouseClicked(0)))
+        // Demonstrate keeping focus on the input box
+        ImGui.SetItemDefaultFocus();
+        if (reclaim_focus)
             ImGui.SetKeyboardFocusHere(-1); // Auto focus previous widget
 
         ImGui.End();

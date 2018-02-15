@@ -177,23 +177,23 @@ EMSCRIPTEN_BINDINGS(ImGuiTextEditCallbackData) {
 
 // Resizing callback data to apply custom constraint. As enabled by SetNextWindowSizeConstraints(). Callback is called during the next Begin().
 // NB: For basic min/max size constraint on each axis you don't need to use the callback! The SetNextWindowSizeConstraints() parameters are enough.
-// struct ImGuiSizeConstraintCallbackData
+// struct ImGuiSizeCallbackData
 // {
 //     void*   UserData;       // Read-only.   What user passed to SetNextWindowSizeConstraints()
 //     ImVec2  Pos;            // Read-only.   Window position, for reference.
 //     ImVec2  CurrentSize;    // Read-only.   Current window size.
 //     ImVec2  DesiredSize;    // Read-write.  Desired size, based on user's mouse position. Write to this field to restrain resizing.
 // };
-EMSCRIPTEN_BINDINGS(ImGuiSizeConstraintCallbackData) {
-    emscripten::class_<ImGuiSizeConstraintCallbackData>("ImGuiSizeConstraintCallbackData")
+EMSCRIPTEN_BINDINGS(ImGuiSizeCallbackData) {
+    emscripten::class_<ImGuiSizeCallbackData>("ImGuiSizeCallbackData")
         .constructor()
-        .function("getPos", FUNCTION(emscripten::val, (const ImGuiSizeConstraintCallbackData& that), {
+        .function("getPos", FUNCTION(emscripten::val, (const ImGuiSizeCallbackData& that), {
             const ImVec2* p = &that.Pos; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
-        .function("getCurrentSize", FUNCTION(emscripten::val, (const ImGuiSizeConstraintCallbackData& that), {
+        .function("getCurrentSize", FUNCTION(emscripten::val, (const ImGuiSizeCallbackData& that), {
             const ImVec2* p = &that.CurrentSize; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
-        .function("getDesiredSize", FUNCTION(emscripten::val, (const ImGuiSizeConstraintCallbackData& that), {
+        .function("getDesiredSize", FUNCTION(emscripten::val, (const ImGuiSizeCallbackData& that), {
             const ImVec2* p = &that.DesiredSize; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
     ;
@@ -595,6 +595,8 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
         // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
         // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
+        // ImGuiNavFlags NavFlags;                 // = 0                  // See ImGuiNavFlags_. Gamepad/keyboard navigation options.
+        .property("NavFlags", &ImGuiIO::NavFlags)
         // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
         // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
         // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging
@@ -688,6 +690,13 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
             if (0 <= index && index < 512) { that->KeysDown[index] = value; return true; } return false;
         }), emscripten::allow_raw_pointers())
         // ImWchar     InputCharacters[16+1];      // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
+        // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
+        .function("getNavInputsAt", FUNCTION(float, (const ImGuiIO* that, int index), {
+            return (0 <= index && index < ImGuiNavInput_COUNT) ? that->NavInputs[index] : 0.0f;
+        }), emscripten::allow_raw_pointers())
+        .function("setNavInputsAt", FUNCTION(bool, (ImGuiIO* that, int index, float value), {
+            if (0 <= index && index < ImGuiNavInput_COUNT) { that->NavInputs[index] = value; return true; } return false;
+        }), emscripten::allow_raw_pointers())
 
         // Functions
         // IMGUI_API void AddInputCharacter(ImWchar c);                        // Add new character into InputCharacters[]
@@ -707,6 +716,10 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         .property("WantTextInput", &ImGuiIO::WantTextInput)
         // bool        WantMoveMouse;              // [BETA-NAV] MousePos has been altered, back-end should reposition mouse on next frame. Set only when 'NavMovesMouse=true'.
         .property("WantMoveMouse", &ImGuiIO::WantMoveMouse)
+        // bool        NavActive;                  // Directional navigation is currently allowed (will handle ImGuiKey_NavXXX events) = a window is focused and it doesn't use the ImGuiWindowFlags_NoNavInputs flag.
+        .property("NavActive", &ImGuiIO::NavActive)
+        // bool        NavVisible;                 // Directional navigation is visible and allowed (will handle ImGuiKey_NavXXX events).
+        .property("NavVisible", &ImGuiIO::NavVisible)
         // float       Framerate;                  // Application framerate estimation, in frame per second. Solely for convenience. Rolling average estimation based on IO.DeltaTime over 120 frames
         .property("Framerate", &ImGuiIO::Framerate)
         // int         MetricsAllocs;              // Number of active memory allocations
@@ -724,6 +737,12 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
 
         // ImVec2      MousePosPrev;               // Previous mouse position temporary storage (nb: not for public use, set to MousePos in NewFrame())
         // ImVec2      MouseClickedPos[5];         // Position at time of clicking
+        .function("getMouseClickedPosAt", FUNCTION(emscripten::val, (const ImGuiIO* that, int index), {
+            if (0 <= index && index < 5) {
+                const ImVec2* p = &that->MouseClickedPos[index]; return emscripten::val(p);
+            }
+            return emscripten::val::undefined();
+        }), emscripten::allow_raw_pointers())
         // float       MouseClickedTime[5];        // Time of last click (used to figure out double-click)
         // bool        MouseClicked[5];            // Mouse button went from !Down to Down
         // bool        MouseDoubleClicked[5];      // Has mouse button been double-clicked?
@@ -741,6 +760,11 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
             return (0 <= index && index < 512) ? that->KeysDownDuration[index] : -1.0f;
         }), emscripten::allow_raw_pointers())
         // float       KeysDownDurationPrev[512];  // Previous duration the key has been down
+        // float       NavInputsDownDuration[ImGuiNavInput_COUNT];
+        .function("getNavInputsDownDurationAt", FUNCTION(float, (const ImGuiIO* that, int index), {
+            return (0 <= index && index < ImGuiNavInput_COUNT) ? that->NavInputsDownDuration[index] : -1.0f;
+        }), emscripten::allow_raw_pointers())
+        // float       NavInputsDownDurationPrev[ImGuiNavInput_COUNT];
 
         // IMGUI_API   ImGuiIO();
     ;
@@ -819,6 +843,8 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         .function("getDisplaySafeAreaPadding", FUNCTION(emscripten::val, (ImGuiStyle* that), {
             ImVec2* p = &that->DisplaySafeAreaPadding; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
+        // float       MouseCursorScale;           // Scale software rendered mouse cursor (when io.MouseDrawCursor is enabled). May be removed later.
+        .property("MouseCursorScale", &ImGuiStyle::MouseCursorScale)
         // bool        AntiAliasedLines;           // Enable anti-aliasing on lines/borders. Disable if you are really tight on CPU/GPU.
         .property("AntiAliasedLines", &ImGuiStyle::AntiAliasedLines)
         // bool        AntiAliasedFill;            // Enable anti-aliasing on filled shapes (rounded rectangles, circles, etc.)
@@ -839,10 +865,11 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
     ;
 }
 
-// EMSCRIPTEN_BINDINGS(ImGuiContext) {
-//     emscripten::class_<ImGuiContext>("ImGuiContext")
-//     ;
-// }
+class ImGuiContext_ {};
+EMSCRIPTEN_BINDINGS(ImGuiContext) {
+    emscripten::class_<ImGuiContext_>("ImGuiContext")
+    ;
+}
 
 static emscripten::val _PlotLines_values_getter = emscripten::val::undefined();
 static emscripten::val _PlotLines_data = emscripten::val::undefined();
@@ -854,11 +881,34 @@ EMSCRIPTEN_BINDINGS(ImGui) {
 
     emscripten::constant("ImDrawVertSize", sizeof(ImDrawVert));
     emscripten::constant("ImDrawIdxSize", sizeof(ImDrawIdx));
-    #define OFFSETOF(TYPE, ELEMENT) ((int)&(((TYPE *)0)->ELEMENT))
-    emscripten::constant("ImDrawVertPosOffset", OFFSETOF(ImDrawVert, pos));
-    emscripten::constant("ImDrawVertUVOffset", OFFSETOF(ImDrawVert, uv));
-    emscripten::constant("ImDrawVertColOffset", OFFSETOF(ImDrawVert, col));
-    #undef OFFSETOF
+    emscripten::constant("ImDrawVertPosOffset", IM_OFFSETOF(ImDrawVert, pos));
+    emscripten::constant("ImDrawVertUVOffset", IM_OFFSETOF(ImDrawVert, uv));
+    emscripten::constant("ImDrawVertColOffset", IM_OFFSETOF(ImDrawVert, col));
+
+    // Context creation and access, if you want to use multiple context, share context between modules (e.g. DLL). 
+    // All contexts share a same ImFontAtlas by default. If you want different font atlas, you can new() them and overwrite the GetIO().Fonts variable of an ImGui context.
+    // All those functions are not reliant on the current context.
+    // IMGUI_API ImGuiContext* CreateContext(ImFontAtlas* shared_font_atlas = NULL);
+    emscripten::function("CreateContext", FUNCTION(emscripten::val, (), {
+        ImGuiContext* ctx = ImGui::CreateContext();
+        int p = (int)ctx;
+        return (ctx == NULL) ? emscripten::val::null() : emscripten::val(p);
+    }), emscripten::allow_raw_pointers());
+    // IMGUI_API void          DestroyContext(ImGuiContext* ctx = NULL);   // NULL = Destroy current context
+    emscripten::function("DestroyContext", FUNCTION(void, (emscripten::val ctx), {
+        ImGuiContext* _ctx = ctx.isNull() ? NULL : ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
+        ImGui::DestroyContext(_ctx);
+    }));
+    // IMGUI_API ImGuiContext* GetCurrentContext();
+    emscripten::function("GetCurrentContext", FUNCTION(emscripten::val, (), {
+        ImGuiContext* ctx = ImGui::GetCurrentContext();
+        return (ctx == NULL) ? emscripten::val::null() : emscripten::val(ctx);
+    }), emscripten::allow_raw_pointers());
+    // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
+    emscripten::function("SetCurrentContext", FUNCTION(void, (emscripten::val ctx), {
+        ImGuiContext* _ctx = ctx.isNull() ? NULL : ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
+        ImGui::SetCurrentContext(_ctx);
+    }));
 
     // Main
     // IMGUI_API ImGuiIO&      GetIO();
@@ -895,8 +945,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API void          EndFrame();                                 // ends the ImGui frame. automatically called by Render(), so most likely don't need to ever call that yourself directly. If you don't need to render you may call EndFrame() but you'll have wasted CPU already. If you don't need to render, better to not create any imgui windows instead!
     emscripten::function("EndFrame", &ImGui::EndFrame);
-    // IMGUI_API void          Shutdown();
-    emscripten::function("Shutdown", &ImGui::Shutdown);
 
     // Demo, Debug, Informations
     // IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create demo/test window (previously called ShowTestWindow). demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
@@ -938,6 +986,18 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API void          ShowUserGuide();                            // add basic help/info block (not a window): how to manipulate ImGui as a end-user (mouse/keyboard controls).
     emscripten::function("ShowUserGuide", &ImGui::ShowUserGuide);
+    // IMGUI_API const char*   GetVersion();
+    emscripten::function("GetVersion", FUNCTION(std::string, (), {
+        return ImGui::GetVersion();
+    }));
+
+    // Styles
+    // IMGUI_API void          StyleColorsDark(ImGuiStyle* dst = NULL);    // New, recommended style
+    emscripten::function("StyleColorsDark", FUNCTION(void, (ImGuiStyle* dst), { ImGui::StyleColorsDark(dst); }), emscripten::allow_raw_pointers());
+    // IMGUI_API void          StyleColorsClassic(ImGuiStyle* dst = NULL); // Classic imgui style (default)
+    emscripten::function("StyleColorsClassic", FUNCTION(void, (ImGuiStyle* dst), { ImGui::StyleColorsClassic(dst); }), emscripten::allow_raw_pointers());
+    // IMGUI_API void          StyleColorsLight(ImGuiStyle* dst = NULL);   // Best used with borders and a custom, thicker font
+    emscripten::function("StyleColorsLight", FUNCTION(void, (ImGuiStyle* dst), { ImGui::StyleColorsLight(dst); }), emscripten::allow_raw_pointers());
 
     // Window
     // IMGUI_API bool          Begin(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0);                                                   // push window to the stack and start appending to it. see .cpp for details. return false when window is collapsed, so you can early out in your code. 'bool* p_open' creates a widget on the upper-right to close the window (which sets your bool to false).
@@ -1020,7 +1080,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         if (!custom_callback.isUndefined() && !custom_callback.isNull()) {
             static emscripten::val _custom_callback = custom_callback;
             static emscripten::val _custom_callback_data = custom_callback_data;
-            ImGui::SetNextWindowSizeConstraints(import_ImVec2(size_min), import_ImVec2(size_max), FUNCTION(void, (ImGuiSizeConstraintCallbackData* data), {
+            ImGui::SetNextWindowSizeConstraints(import_ImVec2(size_min), import_ImVec2(size_max), FUNCTION(void, (ImGuiSizeCallbackData* data), {
                 // void*   UserData;       // Read-only.   What user passed to SetNextWindowSizeConstraints()
                 // ImVec2  Pos;            // Read-only.   Window position, for reference.
                 // ImVec2  CurrentSize;    // Read-only.   Current window size.
@@ -1047,6 +1107,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("SetNextWindowCollapsed", &ImGui::SetNextWindowCollapsed);
     // IMGUI_API void          SetNextWindowFocus();                                               // set next window to be focused / front-most. call before Begin()
     emscripten::function("SetNextWindowFocus", &ImGui::SetNextWindowFocus);
+    // IMGUI_API void          SetNextWindowBgAlpha(float alpha);                                  // set next window background color alpha. helper to easily modify ImGuiCol_WindowBg/ChildBg/PopupBg.
+    emscripten::function("SetNextWindowBgAlpha", &ImGui::SetNextWindowBgAlpha);
     // IMGUI_API void          SetWindowPos(const ImVec2& pos, ImGuiCond cond = 0);                // (not recommended) set current window position - call within Begin()/End(). prefer using SetNextWindowPos(), as this may incur tearing and side-effects.
     emscripten::function("SetWindowPos", FUNCTION(void, (emscripten::val pos, ImGuiCond cond), {
         ImGui::SetWindowPos(import_ImVec2(pos), cond);
@@ -1998,14 +2060,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          PopClipRect();
     emscripten::function("PopClipRect", &ImGui::PopClipRect);
 
-    // Styles
-    // IMGUI_API void          StyleColorsClassic(ImGuiStyle* dst = NULL);
-    emscripten::function("StyleColorsClassic", FUNCTION(void, (ImGuiStyle* dst), { ImGui::StyleColorsClassic(dst); }), emscripten::allow_raw_pointers());
-    // IMGUI_API void          StyleColorsDark(ImGuiStyle* dst = NULL);
-    emscripten::function("StyleColorsDark", FUNCTION(void, (ImGuiStyle* dst), { ImGui::StyleColorsDark(dst); }), emscripten::allow_raw_pointers());
-    // IMGUI_API void          StyleColorsLight(ImGuiStyle* dst = NULL);
-    emscripten::function("StyleColorsLight", FUNCTION(void, (ImGuiStyle* dst), { ImGui::StyleColorsLight(dst); }), emscripten::allow_raw_pointers());
-
     // Focus
     // (FIXME: Those functions will be reworked after we merge the navigation branch + have a pass at focusing/tabbing features.)
     // (Prefer using "SetItemDefaultFocus()" over "if (IsWindowAppearing()) SetScrollHere()" when applicable, to make your code more forward compatible when navigation branch is merged)
@@ -2019,6 +2073,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsItemHovered", &ImGui::IsItemHovered);
     // IMGUI_API bool          IsItemActive();                                                     // is the last item active? (e.g. button being held, text field being edited- items that don't interact will always return false)
     emscripten::function("IsItemActive", &ImGui::IsItemActive);
+    // IMGUI_API bool          IsItemFocused();                                                    // is the last item focused for keyboard/gamepad navigation?
+    emscripten::function("IsItemFocused", &ImGui::IsItemFocused);
     // IMGUI_API bool          IsItemClicked(int mouse_button = 0);                                // is the last item clicked? (e.g. button/node just clicked on)
     emscripten::function("IsItemClicked", &ImGui::IsItemClicked);
     // IMGUI_API bool          IsItemVisible();                                                    // is the last item visible? (aka not out of sight due to clipping/scrolling.)
@@ -2027,6 +2083,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsAnyItemHovered", &ImGui::IsAnyItemHovered);
     // IMGUI_API bool          IsAnyItemActive();
     emscripten::function("IsAnyItemActive", &ImGui::IsAnyItemActive);
+    // IMGUI_API bool          IsAnyItemFocused();
+    emscripten::function("IsAnyItemFocused", &ImGui::IsAnyItemFocused);
     // IMGUI_API ImVec2        GetItemRectMin();                                                   // get bounding rectangle of last item, in screen space
     emscripten::function("GetItemRectMin", FUNCTION(emscripten::val, (emscripten::val out), {
         return export_ImVec2(ImGui::GetItemRectMin(), out);
@@ -2045,10 +2103,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsWindowFocused", &ImGui::IsWindowFocused);
     // IMGUI_API bool          IsWindowHovered(ImGuiHoveredFlags flags = 0);                       // is current window hovered (and typically: not blocked by a popup/modal)? see flags for options.
     emscripten::function("IsWindowHovered", &ImGui::IsWindowHovered);
-    // IMGUI_API bool          IsAnyWindowFocused();
-    emscripten::function("IsAnyWindowFocused", &ImGui::IsAnyWindowFocused);
-    // IMGUI_API bool          IsAnyWindowHovered();                                               // is mouse hovering any visible window
-    emscripten::function("IsAnyWindowHovered", &ImGui::IsAnyWindowHovered);
     // IMGUI_API bool          IsRectVisible(const ImVec2& size);                                  // test if rectangle (of given size, starting from cursor position) is visible / not clipped.
     // IMGUI_API bool          IsRectVisible(const ImVec2& rect_min, const ImVec2& rect_max);      // test if rectangle (in screen space) is visible / not clipped. to perform coarse clipping on user's side.
     emscripten::function("IsRectVisible", FUNCTION(bool, (emscripten::val size_or_rect_min, emscripten::val rect_max), {
@@ -2072,10 +2126,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }), emscripten::allow_raw_pointers());
     // IMGUI_API const char*   GetStyleColorName(ImGuiCol idx);
     emscripten::function("GetStyleColorName", FUNCTION(std::string, (ImGuiCol idx), { return std::string(ImGui::GetStyleColorName(idx)); }));
-    // IMGUI_API ImVec2        CalcItemRectClosestPoint(const ImVec2& pos, bool on_edge = false, float outward = +0.0f);   // utility to find the closest point the last item bounding rectangle edge. useful to visually link items
-    emscripten::function("CalcItemRectClosestPoint", FUNCTION(emscripten::val, (emscripten::val pos, bool on_edge, float outward, emscripten::val out), {
-        return export_ImVec2(ImGui::CalcItemRectClosestPoint(import_ImVec2(pos), on_edge, outward), out);
-    }));
     // IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
     emscripten::function("CalcTextSize", FUNCTION(emscripten::val, (std::string text, emscripten::val text_end, bool hide_text_after_double_hash, float wrap_width, emscripten::val out), {
         return export_ImVec2(ImGui::CalcTextSize(text.c_str(), NULL, hide_text_after_double_hash, wrap_width), out); // TODO: text_end
@@ -2130,6 +2180,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("GetKeyPressedAmount", &ImGui::GetKeyPressedAmount);
     // IMGUI_API bool          IsMouseDown(int button);                                            // is mouse button held
     emscripten::function("IsMouseDown", &ImGui::IsMouseDown);
+    // IMGUI_API bool          IsAnyMouseDown();                                                   // is any mouse button held
+    emscripten::function("IsAnyMouseDown", &ImGui::IsAnyMouseDown);
     // IMGUI_API bool          IsMouseClicked(int button, bool repeat = false);                    // did mouse button clicked (went from !Down to Down)
     emscripten::function("IsMouseClicked", &ImGui::IsMouseClicked);
     // IMGUI_API bool          IsMouseDoubleClicked(int button);                                   // did mouse button double-clicked. a double-click returns false in IsMouseClicked(). uses io.MouseDoubleClickTime.
@@ -2192,32 +2244,5 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          SetClipboardText(const char* text);
     emscripten::function("SetClipboardText", FUNCTION(void, (emscripten::val text), {
         ImGui::SetClipboardText(text.as<std::string>().c_str());
-    }));
-
-    // Internal context access - if you want to use multiple context, share context between modules (e.g. DLL). There is a default context created and active by default.
-    // All contexts share a same ImFontAtlas by default. If you want different font atlas, you can new() them and overwrite the GetIO().Fonts variable of an ImGui context.
-    // IMGUI_API const char*   GetVersion();
-    emscripten::function("GetVersion", FUNCTION(std::string, (), {
-        return ImGui::GetVersion();
-    }));
-    // IMGUI_API ImGuiContext* CreateContext(void* (*malloc_fn)(size_t) = NULL, void (*free_fn)(void*) = NULL);
-    emscripten::function("CreateContext", FUNCTION(emscripten::val, (), {
-        ImGuiContext* ctx = ImGui::CreateContext();
-        return (ctx == NULL) ? emscripten::val::null() : emscripten::val(ctx);
-    }), emscripten::allow_raw_pointers());
-    // IMGUI_API void          DestroyContext(ImGuiContext* ctx);
-    emscripten::function("DestroyContext", FUNCTION(void, (emscripten::val ctx), {
-        ImGuiContext* _ctx = ctx.isNull() ? NULL : ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
-        ImGui::DestroyContext(_ctx);
-    }));
-    // IMGUI_API ImGuiContext* GetCurrentContext();
-    emscripten::function("GetCurrentContext", FUNCTION(emscripten::val, (), {
-        ImGuiContext* ctx = ImGui::GetCurrentContext();
-        return (ctx == NULL) ? emscripten::val::null() : emscripten::val(ctx);
-    }), emscripten::allow_raw_pointers());
-    // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
-    emscripten::function("SetCurrentContext", FUNCTION(void, (emscripten::val ctx), {
-        ImGuiContext* _ctx = ctx.isNull() ? NULL : ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
-        ImGui::SetCurrentContext(_ctx);
     }));
 }
