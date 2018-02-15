@@ -166,7 +166,7 @@ export class MemoryEditor
         // if (ImGui.Begin(title, &Open, ImGuiWindowFlags_NoScrollbar))
         if (ImGui.Begin(title, (value = this.Open) => this.Open = value, ImGuiWindowFlags.NoScrollbar))
         {
-            if (ImGui.IsWindowHovered(ImGuiHoveredFlags.RootWindow | ImGuiHoveredFlags.ChildWindows) && ImGui.IsMouseClicked(1))
+            if (ImGui.IsWindowHovered(ImGuiHoveredFlags.RootAndChildWindows) && ImGui.IsMouseClicked(1))
                 ImGui.OpenPopup("context");
             this.DrawContents(mem_data, mem_size, base_display_addr);
             if (this.ContentsWidthChanged)
@@ -185,8 +185,8 @@ export class MemoryEditor
         this.CalcSizes(s, mem_size, base_display_addr);
         const style: ImGuiStyle = ImGui.GetStyle();
 
-        // ImGui.BeginChild("##scrolling", new ImVec2(0, -ImGui.GetItemsLineHeightWithSpacing()));
-        ImGui.BeginChild("##scrolling", new ImVec2(0, -ImGui.GetFrameHeightWithSpacing()));
+        const footer_height_to_reserve: number = ImGui.GetStyle().ItemSpacing.y + ImGui.GetFrameHeightWithSpacing(); // 1 separator, 1 input text
+        ImGui.BeginChild("##scrolling", new ImVec2(0, -footer_height_to_reserve));
         const draw_list: ImDrawList = ImGui.GetWindowDrawList();
 
         ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new ImVec2(0, 0));
@@ -263,14 +263,18 @@ export class MemoryEditor
                     // Display text input on current byte
                     let data_write: boolean = false;
                     ImGui.PushID(addr);
+                    // sprintf(AddrInputBuf, "%0*" _PRISizeT, s.AddrDigitsCount, base_display_addr + addr);
+                    this.AddrInputBuf.buffer = MemoryEditor.sprintf_PRISizeT(base_display_addr + addr, s.AddrDigitsCount);
+                    // sprintf(DataInputBuf, "%02X", ReadFn ? ReadFn(mem_data, addr) : mem_data[addr]);
+                    this.DataInputBuf.buffer = MemoryEditor.sprintf_PRISizeT(this.ReadFn ? this.ReadFn(mem_data, addr) : new Uint8Array(mem_data)[addr], 2);
                     if (this.DataEditingTakeFocus)
                     {
                         ImGui.SetKeyboardFocusHere();
                         ImGui.CaptureKeyboardFromApp(true);
                         // sprintf(AddrInputBuf, "%0*" _PRISizeT, s.AddrDigitsCount, base_display_addr + addr);
-                        this.AddrInputBuf.buffer = MemoryEditor.sprintf_PRISizeT(base_display_addr + addr, s.AddrDigitsCount);
+                        // this.AddrInputBuf.buffer = MemoryEditor.sprintf_PRISizeT(base_display_addr + addr, s.AddrDigitsCount);
                         // sprintf(DataInputBuf, "%02X", ReadFn ? ReadFn(mem_data, addr) : mem_data[addr]);
-                        this.DataInputBuf.buffer = MemoryEditor.sprintf_PRISizeT(this.ReadFn ? this.ReadFn(mem_data, addr) : new Uint8Array(mem_data)[addr], 2);
+                        // this.DataInputBuf.buffer = MemoryEditor.sprintf_PRISizeT(this.ReadFn ? this.ReadFn(mem_data, addr) : new Uint8Array(mem_data)[addr], 2);
                     }
                     ImGui.PushItemWidth(s.GlyphWidth * 2);
                     // struct UserData
@@ -295,8 +299,9 @@ export class MemoryEditor
                     //     int    CursorPos;               // Output
                     // };
                     // FIXME: We should have a way to retrieve the text edit cursor position more easily in the API, this is rather tedious. This is such a ugly mess we may be better off not using InputText() at all here.
-                    function Callback(data: ImGuiTextEditCallbackData): number
+                    function UserData_Callback(data: ImGuiTextEditCallbackData): number
                     {
+                        const user_data: UserData = data.UserData;
                         if (!data.HasSelection())
                             user_data.CursorPos = data.CursorPos;
                         if (data.SelectionStart === 0 && data.SelectionEnd === data.BufTextLen)
@@ -309,9 +314,13 @@ export class MemoryEditor
                         }
                         return 0;
                     }
+                    interface UserData {
+                        CurrentBufOverwrite: string;  // Input
+                        CursorPos: number;            // Output
+                    }
                     // UserData user_data;
                     // user_data.CursorPos = -1;
-                    const user_data = {
+                    const user_data: UserData = {
                         CurrentBufOverwrite: "",
                         CursorPos: -1
                     };
@@ -319,7 +328,7 @@ export class MemoryEditor
                     user_data.CurrentBufOverwrite = MemoryEditor.sprintf_PRISizeT(this.ReadFn ? this.ReadFn(mem_data, addr) : new Uint8Array(mem_data)[addr], 2);
                     const flags: ImGui.InputTextFlags = ImGui.InputTextFlags.CharsHexadecimal | ImGui.InputTextFlags.EnterReturnsTrue | ImGui.InputTextFlags.AutoSelectAll | ImGui.InputTextFlags.NoHorizontalScroll | ImGui.InputTextFlags.AlwaysInsertMode | ImGui.InputTextFlags.CallbackAlways;
                     // if (ImGui.InputText("##data", DataInputBuf, 32, flags, UserData::Callback, &user_data))
-                    if (ImGui.InputText("##data", this.DataInputBuf, this.DataInputBuf.size, flags, Callback, user_data))
+                    if (ImGui.InputText("##data", this.DataInputBuf, this.DataInputBuf.size, flags, UserData_Callback, user_data))
                         data_write = data_next = true;
                     else if (!this.DataEditingTakeFocus && !ImGui.IsItemActive())
                         this.DataEditingAddr = data_editing_addr_next = -1;
