@@ -283,15 +283,19 @@ export function NewFrame(time: number): void {
     }
 
     if (typeof(document) !== "undefined") {
-        switch (ImGui.GetMouseCursor()) {
-            case ImGui.MouseCursor.None: document.body.style.cursor = "none"; break;
-            default: case ImGui.MouseCursor.Arrow: document.body.style.cursor = "default"; break;
-            case ImGui.MouseCursor.TextInput: document.body.style.cursor = "text"; break;         // When hovering over InputText, etc.
-            case ImGui.MouseCursor.Move: document.body.style.cursor = "move"; break;              // Unused
-            case ImGui.MouseCursor.ResizeNS: document.body.style.cursor = "ns-resize"; break;     // When hovering over an horizontal border
-            case ImGui.MouseCursor.ResizeEW: document.body.style.cursor = "ew-resize"; break;     // When hovering over a vertical border or a column
-            case ImGui.MouseCursor.ResizeNESW: document.body.style.cursor = "nesw-resize"; break; // When hovering over the bottom-left corner of a window
-            case ImGui.MouseCursor.ResizeNWSE: document.body.style.cursor = "nwse-resize"; break; // When hovering over the bottom-right corner of a window
+        if (io.MouseDrawCursor) {
+            document.body.style.cursor = "none";
+        } else {
+            switch (ImGui.GetMouseCursor()) {
+                case ImGui.MouseCursor.None: document.body.style.cursor = "none"; break;
+                default: case ImGui.MouseCursor.Arrow: document.body.style.cursor = "default"; break;
+                case ImGui.MouseCursor.TextInput: document.body.style.cursor = "text"; break;         // When hovering over InputText, etc.
+                case ImGui.MouseCursor.Move: document.body.style.cursor = "move"; break;              // Unused
+                case ImGui.MouseCursor.ResizeNS: document.body.style.cursor = "ns-resize"; break;     // When hovering over an horizontal border
+                case ImGui.MouseCursor.ResizeEW: document.body.style.cursor = "ew-resize"; break;     // When hovering over a vertical border or a column
+                case ImGui.MouseCursor.ResizeNESW: document.body.style.cursor = "nesw-resize"; break; // When hovering over the bottom-left corner of a window
+                case ImGui.MouseCursor.ResizeNWSE: document.body.style.cursor = "nwse-resize"; break; // When hovering over the bottom-right corner of a window
+            }
         }
     }
 
