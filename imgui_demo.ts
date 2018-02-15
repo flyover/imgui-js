@@ -1143,8 +1143,8 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             // Child 2: rounded border
             {
                 ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 5.0);
-                ImGui.BeginChild("Child2", new ImVec2(0,300), true, (disable_mouse_wheel.value ? ImGuiWindowFlags.NoScrollWithMouse : 0) | (disable_menu ? 0 : ImGuiWindowFlags.MenuBar));
-                if (!disable_menu && ImGui.BeginMenuBar())
+                ImGui.BeginChild("Child2", new ImVec2(0,300), true, (disable_mouse_wheel.value ? ImGuiWindowFlags.NoScrollWithMouse : 0) | (disable_menu.value ? 0 : ImGuiWindowFlags.MenuBar));
+                if (!disable_menu.value && ImGui.BeginMenuBar())
                 {
                     if (ImGui.BeginMenu("Menu"))
                     {
@@ -1571,7 +1571,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             }
 
             /* static */ const name: Static<ImStringBuffer> = STATIC("name", new ImStringBuffer(32, "Label1"));
-            const buf: string = `Button: ${name}###Button`; // ### operator override ID ignoring the preceding label
+            const buf: string = `Button: ${name.value.buffer}###Button`; // ### operator override ID ignoring the preceding label
             ImGui.Button(buf);
             if (ImGui.BeginPopupContextItem()) // When used after an item that has an ID (here the Button), we can skip providing an ID to BeginPopupContextItem().
             {
@@ -1674,7 +1674,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             {
                 const label: string = `Item ${n}`;
                 if (ImGui.Selectable(label)) {}
-                if (ImGui.Button(label, new ImVec2(-1,0))) {}
+                //if (ImGui.Button(label, new ImVec2(-1,0))) {}
                 ImGui.NextColumn();
             }
             ImGui.Columns(1);
