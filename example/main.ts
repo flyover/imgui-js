@@ -83,8 +83,9 @@ export default function main(): void {
     ].join("\n");
 
     function ShowSandboxWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
-        ImGui.Begin(title, p_open, ImGui.WindowFlags.AlwaysAutoResize);
-        ImGui.InputTextMultiline("##source", (_ = source) => (source = _), 1024, ImVec2.ZERO, ImGui.InputTextFlags.AllowTabInput);
+        ImGui.SetNextWindowSize(new ImVec2(320,240), ImGui.Cond.FirstUseEver);
+        ImGui.Begin(title, p_open);
+        ImGui.Text("Source");
         ImGui.SameLine();
         ImGui.TextDisabled("(?)");
         if (ImGui.IsItemHovered())
@@ -95,6 +96,9 @@ export default function main(): void {
             ImGui.PopTextWrapPos();
             ImGui.EndTooltip();
         }
+        ImGui.PushItemWidth(-1);
+        ImGui.InputTextMultiline("##source", (_ = source) => (source = _), 1024, ImVec2.ZERO, ImGui.InputTextFlags.AllowTabInput);
+        ImGui.PopItemWidth();
         try {
             eval(source);
         } catch (e) {
