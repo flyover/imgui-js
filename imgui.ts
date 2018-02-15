@@ -451,7 +451,7 @@ export type ImGuiTextEditCallback = (data: ImGuiTextEditCallbackData) => number;
 
 // Shared state of InputText(), passed to callback when a ImGuiInputTextFlags_Callback* flag is used and the corresponding callback is triggered.
 export class ImGuiTextEditCallbackData {
-    constructor(public native: bind.ImGuiTextEditCallbackData) {}
+    constructor(public native: bind.ImGuiTextEditCallbackData, public readonly UserData: any) {}
     delete(): void { if (this.native) { this.native.delete(); delete this.native; } }
 
     // ImGuiInputTextFlags EventFlag;      // One of ImGuiInputTextFlags_Callback* // Read-only
@@ -459,7 +459,7 @@ export class ImGuiTextEditCallbackData {
     // ImGuiInputTextFlags Flags;          // What user passed to InputText()      // Read-only
     public get Flags(): bind.ImGuiInputTextFlags { return this.native.Flags; }
     // void*               UserData;       // What user passed to InputText()      // Read-only
-    public get UserData(): any { return this.native.UserData; }
+    // public get UserData(): any { return this.native.UserData; }
     // bool                ReadOnly;       // Read-only mode                       // Read-only
     public get ReadOnly(): boolean { return this.native.ReadOnly; }
 
@@ -2132,47 +2132,51 @@ export function DragIntRange2(label: string, v_current_min: bind.ImAccess<number
 
 // Widgets: Input with Keyboard
 // IMGUI_API bool          InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
+let InputText_user_data: any = null;
 export function InputText(label: string, buf: ImStringBuffer | bind.ImAccess<string> | bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiTextEditDefaultSize, flags: bind.ImGuiInputTextFlags = 0, callback: ImGuiTextEditCallback | null = null, user_data: any = null): boolean {
+    InputText_user_data = user_data;
     function _callback(data: bind.ImGuiTextEditCallbackData): number {
-        const _data: ImGuiTextEditCallbackData = new ImGuiTextEditCallbackData(data);
+        const _data: ImGuiTextEditCallbackData = new ImGuiTextEditCallbackData(data, InputText_user_data);
         const ret: number = callback === null ? 0 : callback(_data);
         _data.delete();
         return ret;
     }
     if (Array.isArray(buf)) {
-        return bind.InputText(label, buf, buf_size, flags, callback === null ? null : _callback, user_data);
-    }else if (buf instanceof ImStringBuffer) {
+        return bind.InputText(label, buf, buf_size, flags, callback === null ? null : _callback, null);
+    } else if (buf instanceof ImStringBuffer) {
         const ref_buf: bind.ImScalar<string> = [ buf.buffer ];
         const _buf_size: number = Math.min(buf_size, buf.size);
-        let ret: boolean = bind.InputText(label, ref_buf, _buf_size, flags, callback === null ? null : _callback, user_data);
+        let ret: boolean = bind.InputText(label, ref_buf, _buf_size, flags, callback === null ? null : _callback, null);
         buf.buffer = ref_buf[0];
         return ret;
     } else {
         const ref_buf: bind.ImScalar<string> = [ buf() ];
-        let ret: boolean = bind.InputText(label, ref_buf, buf_size, flags, callback === null ? null : _callback, user_data);
+        let ret: boolean = bind.InputText(label, ref_buf, buf_size, flags, callback === null ? null : _callback, null);
         buf(ref_buf[0]);
         return ret;
     }
 }
 // IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
+let InputTextMultiline_user_data: any = null;
 export function InputTextMultiline(label: string, buf: ImStringBuffer | bind.ImAccess<string> | bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiTextEditDefaultSize, size: Readonly<bind.interface_ImVec2> = ImVec2.ZERO, flags: bind.ImGuiInputTextFlags = 0, callback: ImGuiTextEditCallback | null = null, user_data: any = null): boolean {
+    InputTextMultiline_user_data = user_data;
     function _callback(data: bind.ImGuiTextEditCallbackData): number {
-        const _data: ImGuiTextEditCallbackData = new ImGuiTextEditCallbackData(data);
+        const _data: ImGuiTextEditCallbackData = new ImGuiTextEditCallbackData(data, InputTextMultiline_user_data);
         const ret: number = callback === null ? 0 : callback(_data);
         _data.delete();
         return ret;
     }
     if (Array.isArray(buf)) {
-        return bind.InputTextMultiline(label, buf, buf_size, size, flags, callback === null ? null : _callback, user_data);
+        return bind.InputTextMultiline(label, buf, buf_size, size, flags, callback === null ? null : _callback, null);
     } else if (buf instanceof ImStringBuffer) {
         const ref_buf: bind.ImScalar<string> = [ buf.buffer ];
         const _buf_size: number = Math.min(buf_size, buf.size);
-        let ret: boolean = bind.InputTextMultiline(label, ref_buf, _buf_size, size, flags, callback === null ? null : _callback, user_data);
+        let ret: boolean = bind.InputTextMultiline(label, ref_buf, _buf_size, size, flags, callback === null ? null : _callback, null);
         buf.buffer = ref_buf[0];
         return ret;
     } else {
         const ref_buf: bind.ImScalar<string> = [ buf() ];
-        let ret: boolean = bind.InputTextMultiline(label, ref_buf, buf_size, size, flags, callback === null ? null : _callback, user_data);
+        let ret: boolean = bind.InputTextMultiline(label, ref_buf, buf_size, size, flags, callback === null ? null : _callback, null);
         buf(ref_buf[0]);
         return ret;
     }

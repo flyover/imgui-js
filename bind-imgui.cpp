@@ -1587,10 +1587,10 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         bool ret = false;
         if (!callback.isNull()) {
             static emscripten::val _callback = callback;
-            static emscripten::val _user_data = user_data;
+            // static emscripten::val _user_data = user_data;
             ret = ImGui::InputText(label.c_str(), (char*) _buf.data(), buf_size, flags, FUNCTION(int, (ImGuiTextEditCallbackData* data), {
                 emscripten::val _data = emscripten::val(data);
-                _data.set("UserData", _user_data);
+                // _data.set("UserData", _user_data);
                 return _callback(_data).as<int>();
             }), NULL);
         } else {
@@ -1606,10 +1606,10 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         bool ret = false;
         if (!callback.isNull()) {
             static emscripten::val _callback = callback;
-            static emscripten::val _user_data = user_data;
+            // static emscripten::val _user_data = user_data;
             ret = ImGui::InputTextMultiline(label.c_str(), (char*) _buf.data(), buf_size, import_ImVec2(size), flags, FUNCTION(int, (ImGuiTextEditCallbackData* data), {
                 emscripten::val _data = emscripten::val(data);
-                _data.set("UserData", _user_data);
+                // _data.set("UserData", _user_data);
                 return _callback(_data).as<int>();
             }), NULL);
         } else {
