@@ -23,22 +23,374 @@ export { ImTuple2 } from "./bind-imgui";
 export { ImTuple3 } from "./bind-imgui";
 export { ImTuple4 } from "./bind-imgui";
 
-export { ImGuiWindowFlags, ImGuiWindowFlags as WindowFlags } from "./bind-imgui";
-export { ImGuiInputTextFlags, ImGuiInputTextFlags as InputTextFlags } from "./bind-imgui";
-export { ImGuiTreeNodeFlags, ImGuiTreeNodeFlags as TreeNodeFlags } from "./bind-imgui";
-export { ImGuiSelectableFlags, ImGuiSelectableFlags as SelectableFlags } from "./bind-imgui";
-export { ImGuiComboFlags, ImGuiComboFlags as ComboFlags } from "./bind-imgui";
-export { ImGuiFocusedFlags, ImGuiFocusedFlags as FocusedFlags } from "./bind-imgui";
-export { ImGuiHoveredFlags, ImGuiHoveredFlags as HoveredFlags } from "./bind-imgui";
-export { ImGuiDragDropFlags, ImGuiDragDropFlags as DragDropFlags } from "./bind-imgui";
-export { ImGuiKey, ImGuiKey as Key } from "./bind-imgui";
-export { ImGuiNavInput, ImGuiNavInput as NavInput } from "./bind-imgui";
-export { ImGuiNavFlags, ImGuiNavFlags as NavFlags } from "./bind-imgui";
-export { ImGuiCol, ImGuiCol as Col } from "./bind-imgui";
-export { ImGuiStyleVar, ImGuiStyleVar as StyleVar } from "./bind-imgui";
-export { ImGuiColorEditFlags, ImGuiColorEditFlags as ColorEditFlags } from "./bind-imgui";
-export { ImGuiMouseCursor, ImGuiMouseCursor as MouseCursor } from "./bind-imgui";
-export { ImGuiCond, ImGuiCond as Cond } from "./bind-imgui";
+// Flags for ImGui::Begin()
+export { ImGuiWindowFlags as WindowFlags };
+export enum ImGuiWindowFlags {
+    NoTitleBar             = 1 << 0,   // Disable title-bar
+    NoResize               = 1 << 1,   // Disable user resizing with the lower-right grip
+    NoMove                 = 1 << 2,   // Disable user moving the window
+    NoScrollbar            = 1 << 3,   // Disable scrollbars (window can still scroll with mouse or programatically)
+    NoScrollWithMouse      = 1 << 4,   // Disable user vertically scrolling with mouse wheel. On child window, mouse wheel will be forwarded to the parent unless NoScrollbar is also set.
+    NoCollapse             = 1 << 5,   // Disable user collapsing window by double-clicking on it
+    AlwaysAutoResize       = 1 << 6,   // Resize every window to its content every frame
+    //ShowBorders          = 1 << 7,   // Show borders around windows and items (OBSOLETE! Use e.g. style.FrameBorderSize=1.0f to enable borders).
+    NoSavedSettings        = 1 << 8,   // Never load/save settings in .ini file
+    NoInputs               = 1 << 9,   // Disable catching mouse or keyboard inputs, hovering test with pass through.
+    MenuBar                = 1 << 10,  // Has a menu-bar
+    HorizontalScrollbar    = 1 << 11,  // Allow horizontal scrollbar to appear (off by default). You may use SetNextWindowContentSize(ImVec2(width,0.0f)); prior to calling Begin() to specify width. Read code in imgui_demo in the "Horizontal Scrolling" section.
+    NoFocusOnAppearing     = 1 << 12,  // Disable taking focus when transitioning from hidden to visible state
+    NoBringToFrontOnFocus  = 1 << 13,  // Disable bringing window to front when taking focus (e.g. clicking on it or programatically giving it focus)
+    AlwaysVerticalScrollbar= 1 << 14,  // Always show vertical scrollbar (even if ContentSize.y < Size.y)
+    AlwaysHorizontalScrollbar=1<< 15,  // Always show horizontal scrollbar (even if ContentSize.x < Size.x)
+    AlwaysUseWindowPadding = 1 << 16,  // Ensure child windows without border uses style.WindowPadding (ignored by default for non-bordered child windows, because more convenient)
+    ResizeFromAnySide      = 1 << 17,  // (WIP) Enable resize from any corners and borders. Your back-end needs to honor the different values of io.MouseCursor set by imgui.
+    NoNavInputs            = 1 << 18,  // No gamepad/keyboard navigation within the window
+    NoNavFocus             = 1 << 19,  // No focusing toward this window with gamepad/keyboard navigation (e.g. skipped by CTRL+TAB)
+    NoNav                  = NoNavInputs | NoNavFocus,
+
+    // [Internal]
+    NavFlattened           = 1 << 23,  // (WIP) Allow gamepad/keyboard navigation to cross over parent border to this child (only use on child that have no scrolling!)
+    ChildWindow            = 1 << 24,  // Don't use! For internal use by BeginChild()
+    Tooltip                = 1 << 25,  // Don't use! For internal use by BeginTooltip()
+    Popup                  = 1 << 26,  // Don't use! For internal use by BeginPopup()
+    Modal                  = 1 << 27,  // Don't use! For internal use by BeginPopupModal()
+    ChildMenu              = 1 << 28   // Don't use! For internal use by BeginMenu()
+}
+
+// Flags for ImGui::InputText()
+export { ImGuiInputTextFlags as InputTextFlags };
+export enum ImGuiInputTextFlags {
+    CharsDecimal        = 1 << 0,   // Allow 0123456789.+-*/
+    CharsHexadecimal    = 1 << 1,   // Allow 0123456789ABCDEFabcdef
+    CharsUppercase      = 1 << 2,   // Turn a..z into A..Z
+    CharsNoBlank        = 1 << 3,   // Filter out spaces, tabs
+    AutoSelectAll       = 1 << 4,   // Select entire text when first taking mouse focus
+    EnterReturnsTrue    = 1 << 5,   // Return 'true' when Enter is pressed (as opposed to when the value was modified)
+    CallbackCompletion  = 1 << 6,   // Call user function on pressing TAB (for completion handling)
+    CallbackHistory     = 1 << 7,   // Call user function on pressing Up/Down arrows (for history handling)
+    CallbackAlways      = 1 << 8,   // Call user function every time. User code may query cursor position, modify text buffer.
+    CallbackCharFilter  = 1 << 9,   // Call user function to filter character. Modify data->EventChar to replace/filter input, or return 1 to discard character.
+    AllowTabInput       = 1 << 10,  // Pressing TAB input a '\t' character into the text field
+    CtrlEnterForNewLine = 1 << 11,  // In multi-line mode, unfocus with Enter, add new line with Ctrl+Enter (default is opposite: unfocus with Ctrl+Enter, add line with Enter).
+    NoHorizontalScroll  = 1 << 12,  // Disable following the cursor horizontally
+    AlwaysInsertMode    = 1 << 13,  // Insert mode
+    ReadOnly            = 1 << 14,  // Read-only mode
+    Password            = 1 << 15,  // Password mode, display all characters as '*'
+    NoUndoRedo          = 1 << 16,  // Disable undo/redo. Note that input text owns the text data while active, if you want to provide your own undo/redo stack you need e.g. to call ClearActiveID().
+    // [Internal]
+    Multiline           = 1 << 20   // For internal use by InputTextMultiline()
+}
+
+// Flags for ImGui::TreeNodeEx(), ImGui::CollapsingHeader*()
+export { ImGuiTreeNodeFlags as TreeNodeFlags };
+export enum ImGuiTreeNodeFlags {
+    Selected             = 1 << 0,   // Draw as selected
+    Framed               = 1 << 1,   // Full colored frame (e.g. for CollapsingHeader)
+    AllowItemOverlap     = 1 << 2,   // Hit testing to allow subsequent widgets to overlap this one
+    NoTreePushOnOpen     = 1 << 3,   // Don't do a TreePush() when open (e.g. for CollapsingHeader) = no extra indent nor pushing on ID stack
+    NoAutoOpenOnLog      = 1 << 4,   // Don't automatically and temporarily open node when Logging is active (by default logging will automatically open tree nodes)
+    DefaultOpen          = 1 << 5,   // Default node to be open
+    OpenOnDoubleClick    = 1 << 6,   // Need double-click to open node
+    OpenOnArrow          = 1 << 7,   // Only open when clicking on the arrow part. If OpenOnDoubleClick is also set, single-click arrow or double-click all box to open.
+    Leaf                 = 1 << 8,   // No collapsing, no arrow (use as a convenience for leaf nodes). 
+    Bullet               = 1 << 9,   // Display a bullet instead of arrow
+    FramePadding         = 1 << 10,  // Use FramePadding (even for an unframed text node) to vertically align text baseline to regular widget height. Equivalent to calling AlignTextToFramePadding().
+    //SpanAllAvailWidth  = 1 << 11,  // FIXME: TODO: Extend hit box horizontally even if not framed
+    //NoScrollOnOpen     = 1 << 12,  // FIXME: TODO: Disable automatic scroll on TreePop() if node got just open and contents is not visible
+    NavCloseFromChild    = 1 << 13,  // (WIP) Nav: left direction may close this TreeNode() when focusing on any child (items submitted between TreeNode and TreePop)
+    CollapsingHeader     = Framed | NoAutoOpenOnLog
+}
+
+// Flags for ImGui::Selectable()
+export { ImGuiSelectableFlags as SelectableFlags };
+export enum ImGuiSelectableFlags {
+    DontClosePopups    = 1 << 0,   // Clicking this don't close parent popup window
+    SpanAllColumns     = 1 << 1,   // Selectable frame can span all columns (text will still fit in current column)
+    AllowDoubleClick   = 1 << 2    // Generate press events on double clicks too
+}
+
+// Flags for ImGui::BeginCombo()
+export { ImGuiComboFlags as ComboFlags };
+export enum ImGuiComboFlags {
+    PopupAlignLeft          = 1 << 0,   // Align the popup toward the left by default
+    HeightSmall             = 1 << 1,   // Max ~4 items visible. Tip: If you want your combo popup to be a specific size you can use SetNextWindowSizeConstraints() prior to calling BeginCombo()
+    HeightRegular           = 1 << 2,   // Max ~8 items visible (default)
+    HeightLarge             = 1 << 3,   // Max ~20 items visible
+    HeightLargest           = 1 << 4,   // As many fitting items as possible
+    HeightMask_             = HeightSmall | HeightRegular | HeightLarge | HeightLargest
+}
+
+// Flags for ImGui::IsWindowFocused()
+export { ImGuiFocusedFlags as FocusedFlags };
+export enum ImGuiFocusedFlags {
+    ChildWindows                  = 1 << 0,   // IsWindowFocused(): Return true if any children of the window is focused
+    RootWindow                    = 1 << 1,   // IsWindowFocused(): Test from root window (top most parent of the current hierarchy)
+    AnyWindow                     = 1 << 2,   // IsWindowFocused(): Return true if any window is focused
+    RootAndChildWindows           = RootWindow | ChildWindows
+}
+
+// Flags for ImGui::IsItemHovered(), ImGui::IsWindowHovered()
+export { ImGuiHoveredFlags as HoveredFlags };
+export enum ImGuiHoveredFlags {
+    Default                       = 0,        // Return true if directly over the item/window, not obstructed by another window, not obstructed by an active popup or modal blocking inputs under them.
+    ChildWindows                  = 1 << 0,   // IsWindowHovered() only: Return true if any children of the window is hovered
+    RootWindow                    = 1 << 1,   // IsWindowHovered() only: Test from root window (top most parent of the current hierarchy)
+    AnyWindow                     = 1 << 2,   // IsWindowHovered() only: Return true if any window is hovered
+    AllowWhenBlockedByPopup       = 1 << 3,   // Return true even if a popup window is normally blocking access to this item/window
+    //AllowWhenBlockedByModal     = 1 << 4,   // Return true even if a modal popup window is normally blocking access to this item/window. FIXME-TODO: Unavailable yet.
+    AllowWhenBlockedByActiveItem  = 1 << 5,   // Return true even if an active item is blocking access to this item/window. Useful for Drag and Drop patterns.
+    AllowWhenOverlapped           = 1 << 6,   // Return true even if the position is overlapped by another window
+    RectOnly                      = AllowWhenBlockedByPopup | AllowWhenBlockedByActiveItem | AllowWhenOverlapped,
+    RootAndChildWindows           = RootWindow | ChildWindows
+}
+
+// Flags for ImGui::BeginDragDropSource(), ImGui::AcceptDragDropPayload()
+export { ImGuiDragDropFlags as DragDropFlags };
+export enum ImGuiDragDropFlags {
+    // BeginDragDropSource() flags
+    SourceNoPreviewTooltip       = 1 << 0,       // By default, a successful call to BeginDragDropSource opens a tooltip so you can display a preview or description of the source contents. This flag disable this behavior.
+    SourceNoDisableHover         = 1 << 1,       // By default, when dragging we clear data so that IsItemHovered() will return true, to avoid subsequent user code submitting tooltips. This flag disable this behavior so you can still call IsItemHovered() on the source item.
+    SourceNoHoldToOpenOthers     = 1 << 2,       // Disable the behavior that allows to open tree nodes and collapsing header by holding over them while dragging a source item.
+    SourceAllowNullID            = 1 << 3,       // Allow items such as Text(), Image() that have no unique identifier to be used as drag source, by manufacturing a temporary identifier based on their window-relative position. This is extremely unusual within the dear imgui ecosystem and so we made it explicit.
+    SourceExtern                 = 1 << 4,       // External source (from outside of imgui), won't attempt to read current item/window info. Will always return true. Only one Extern source can be active simultaneously.
+    // AcceptDragDropPayload() flags
+    AcceptBeforeDelivery         = 1 << 10,      // AcceptDragDropPayload() will returns true even before the mouse button is released. You can then call IsDelivery() to test if the payload needs to be delivered.
+    AcceptNoDrawDefaultRect      = 1 << 11,      // Do not draw the default highlight rectangle when hovering over target.
+    AcceptPeekOnly               = AcceptBeforeDelivery | AcceptNoDrawDefaultRect  // For peeking ahead and inspecting the payload before delivery.
+}
+
+// Standard Drag and Drop payload types. You can define you own payload types using 12-characters long strings. Types starting with '_' are defined by Dear ImGui.
+export const IMGUI_PAYLOAD_TYPE_COLOR_3F: string = "_COL3F";    // float[3]     // Standard type for colors, without alpha. User code may use this type. 
+export const IMGUI_PAYLOAD_TYPE_COLOR_4F: string = "_COL4F";    // float[4]     // Standard type for colors. User code may use this type.
+
+// User fill ImGuiIO.KeyMap[] array with indices into the ImGuiIO.KeysDown[512] array
+export { ImGuiKey as Key };
+export enum ImGuiKey {
+    Tab,
+    LeftArrow,
+    RightArrow,
+    UpArrow,
+    DownArrow,
+    PageUp,
+    PageDown,
+    Home,
+    End,
+    Insert,
+    Delete,
+    Backspace,
+    Space,
+    Enter,
+    Escape,
+    A,         // for text edit CTRL+A: select all
+    C,         // for text edit CTRL+C: copy
+    V,         // for text edit CTRL+V: paste
+    X,         // for text edit CTRL+X: cut
+    Y,         // for text edit CTRL+Y: redo
+    Z,         // for text edit CTRL+Z: undo
+    COUNT
+}
+
+// [BETA] Gamepad/Keyboard directional navigation
+// Keyboard: Set io.NavFlags |= EnableKeyboard to enable. NewFrame() will automatically fill io.NavInputs[] based on your io.KeyDown[] + io.KeyMap[] arrays.
+// Gamepad:  Set io.NavFlags |= EnableGamepad to enable. Fill the io.NavInputs[] fields before calling NewFrame(). Note that io.NavInputs[] is cleared by EndFrame().
+// Read instructions in imgui.cpp for more details.
+export { ImGuiNavInput as NavInput };
+export enum ImGuiNavInput
+{
+    // Gamepad Mapping
+    Activate,      // activate / open / toggle / tweak value       // e.g. Circle (PS4), A (Xbox), B (Switch), Space (Keyboard)
+    Cancel,        // cancel / close / exit                        // e.g. Cross  (PS4), B (Xbox), A (Switch), Escape (Keyboard)
+    Input,         // text input / on-screen keyboard              // e.g. Triang.(PS4), Y (Xbox), X (Switch), Return (Keyboard)
+    Menu,          // tap: toggle menu / hold: focus, move, resize // e.g. Square (PS4), X (Xbox), Y (Switch), Alt (Keyboard)
+    DpadLeft,      // move / tweak / resize window (w/ PadMenu)    // e.g. D-pad Left/Right/Up/Down (Gamepads), Arrow keys (Keyboard)
+    DpadRight,     // 
+    DpadUp,        // 
+    DpadDown,      // 
+    LStickLeft,    // scroll / move window (w/ PadMenu)            // e.g. Left Analog Stick Left/Right/Up/Down
+    LStickRight,   // 
+    LStickUp,      // 
+    LStickDown,    // 
+    FocusPrev,     // next window (w/ PadMenu)                     // e.g. L1 or L2 (PS4), LB or LT (Xbox), L or ZL (Switch)
+    FocusNext,     // prev window (w/ PadMenu)                     // e.g. R1 or R2 (PS4), RB or RT (Xbox), R or ZL (Switch) 
+    TweakSlow,     // slower tweaks                                // e.g. L1 or L2 (PS4), LB or LT (Xbox), L or ZL (Switch)
+    TweakFast,     // faster tweaks                                // e.g. R1 or R2 (PS4), RB or RT (Xbox), R or ZL (Switch)
+
+    // [Internal] Don't use directly! This is used internally to differentiate keyboard from gamepad inputs for behaviors that require to differentiate them.
+    // Keyboard behavior that have no corresponding gamepad mapping (e.g. CTRL+TAB) may be directly reading from io.KeyDown[] instead of io.NavInputs[].
+    KeyMenu_,      // toggle menu                                  // = io.KeyAlt
+    KeyLeft_,      // move left                                    // = Arrow keys
+    KeyRight_,     // move right
+    KeyUp_,        // move up
+    KeyDown_,      // move down
+    COUNT,
+    InternalStart_ = KeyMenu_
+}
+
+// [BETA] Gamepad/Keyboard directional navigation options
+export { ImGuiNavFlags as NavFlags };
+export enum ImGuiNavFlags
+{
+    EnableKeyboard    = 1 << 0,   // Master keyboard navigation enable flag. NewFrame() will automatically fill io.NavInputs[] based on io.KeyDown[].
+    EnableGamepad     = 1 << 1,   // Master gamepad navigation enable flag. This is mostly to instruct your imgui back-end to fill io.NavInputs[].
+    MoveMouse         = 1 << 2,   // Request navigation to allow moving the mouse cursor. May be useful on TV/console systems where moving a virtual mouse is awkward. Will update io.MousePos and set io.WantMoveMouse=true. If enabled you MUST honor io.WantMoveMouse requests in your binding, otherwise ImGui will react as if the mouse is jumping around back and forth.
+    NoCaptureKeyboard = 1 << 3    // Do not set the io.WantCaptureKeyboard flag with io.NavActive is set. 
+}
+
+// Enumeration for PushStyleColor() / PopStyleColor()
+export { ImGuiCol as Col };
+export enum ImGuiCol {
+    Text,
+    TextDisabled,
+    WindowBg,              // Background of normal windows
+    ChildBg,               // Background of child windows
+    PopupBg,               // Background of popups, menus, tooltips windows
+    Border,
+    BorderShadow,
+    FrameBg,               // Background of checkbox, radio button, plot, slider, text input
+    FrameBgHovered,
+    FrameBgActive,
+    TitleBg,
+    TitleBgActive,
+    TitleBgCollapsed,
+    MenuBarBg,
+    ScrollbarBg,
+    ScrollbarGrab,
+    ScrollbarGrabHovered,
+    ScrollbarGrabActive,
+    CheckMark,
+    SliderGrab,
+    SliderGrabActive,
+    Button,
+    ButtonHovered,
+    ButtonActive,
+    Header,
+    HeaderHovered,
+    HeaderActive,
+    Separator,
+    SeparatorHovered,
+    SeparatorActive,
+    ResizeGrip,
+    ResizeGripHovered,
+    ResizeGripActive,
+    CloseButton,
+    CloseButtonHovered,
+    CloseButtonActive,
+    PlotLines,
+    PlotLinesHovered,
+    PlotHistogram,
+    PlotHistogramHovered,
+    TextSelectedBg,
+    ModalWindowDarkening,  // darken entire screen when a modal window is active
+    DragDropTarget,
+    NavHighlight,          // gamepad/keyboard: current highlighted item 
+    NavWindowingHighlight, // gamepad/keyboard: when holding NavMenu to focus/move/resize windows
+    COUNT
+}
+
+// Enumeration for PushStyleVar() / PopStyleVar() to temporarily modify the ImGuiStyle structure.
+// NB: the enum only refers to fields of ImGuiStyle which makes sense to be pushed/popped inside UI code. During initialization, feel free to just poke into ImGuiStyle directly.
+// NB: if changing this enum, you need to update the associated internal table GStyleVarInfo[] accordingly. This is where we link enum values to members offset/type.
+export { ImGuiStyleVar as StyleVar };
+export enum ImGuiStyleVar {
+    // Enum name ......................// Member in ImGuiStyle structure (see ImGuiStyle for descriptions)
+    Alpha,               // float     Alpha
+    WindowPadding,       // ImVec2    WindowPadding
+    WindowRounding,      // float     WindowRounding
+    WindowBorderSize,    // float     WindowBorderSize
+    WindowMinSize,       // ImVec2    WindowMinSize
+    WindowTitleAlign,    // ImVec2    WindowTitleAlign
+    ChildRounding,       // float     ChildRounding
+    ChildBorderSize,     // float     ChildBorderSize
+    PopupRounding,       // float     PopupRounding
+    PopupBorderSize,     // float     PopupBorderSize
+    FramePadding,        // ImVec2    FramePadding
+    FrameRounding,       // float     FrameRounding
+    FrameBorderSize,     // float     FrameBorderSize
+    ItemSpacing,         // ImVec2    ItemSpacing
+    ItemInnerSpacing,    // ImVec2    ItemInnerSpacing
+    IndentSpacing,       // float     IndentSpacing
+    ScrollbarSize,       // float     ScrollbarSize
+    ScrollbarRounding,   // float     ScrollbarRounding
+    GrabMinSize,         // float     GrabMinSize
+    GrabRounding,        // float     GrabRounding
+    ButtonTextAlign,     // ImVec2    ButtonTextAlign
+    Count_, COUNT = Count_
+}
+
+// Enumeration for ColorEdit3() / ColorEdit4() / ColorPicker3() / ColorPicker4() / ColorButton()
+export { ImGuiColorEditFlags as ColorEditFlags };
+export enum ImGuiColorEditFlags {
+    NoAlpha         = 1 << 1,   //              // ColorEdit, ColorPicker, ColorButton: ignore Alpha component (read 3 components from the input pointer).
+    NoPicker        = 1 << 2,   //              // ColorEdit: disable picker when clicking on colored square.
+    NoOptions       = 1 << 3,   //              // ColorEdit: disable toggling options menu when right-clicking on inputs/small preview.
+    NoSmallPreview  = 1 << 4,   //              // ColorEdit, ColorPicker: disable colored square preview next to the inputs. (e.g. to show only the inputs)
+    NoInputs        = 1 << 5,   //              // ColorEdit, ColorPicker: disable inputs sliders/text widgets (e.g. to show only the small preview colored square).
+    NoTooltip       = 1 << 6,   //              // ColorEdit, ColorPicker, ColorButton: disable tooltip when hovering the preview.
+    NoLabel         = 1 << 7,   //              // ColorEdit, ColorPicker: disable display of inline text label (the label is still forwarded to the tooltip and picker).
+    NoSidePreview   = 1 << 8,   //              // ColorPicker: disable bigger color preview on right side of the picker, use small colored square preview instead.
+    // User Options (right-click on widget to change some of them). You can set application defaults using SetColorEditOptions(). The idea is that you probably don't want to override them in most of your calls, let the user choose and/or call SetColorEditOptions() during startup.
+    AlphaBar        = 1 << 9,   //              // ColorEdit, ColorPicker: show vertical alpha bar/gradient in picker.
+    AlphaPreview    = 1 << 10,  //              // ColorEdit, ColorPicker, ColorButton: display preview as a transparent color over a checkerboard, instead of opaque.
+    AlphaPreviewHalf= 1 << 11,  //              // ColorEdit, ColorPicker, ColorButton: display half opaque / half checkerboard, instead of opaque.
+    HDR             = 1 << 12,  //              // (WIP) ColorEdit: Currently only disable 0.0f..1.0f limits in RGBA edition (note: you probably want to use Float flag as well).
+    RGB             = 1 << 13,  // [Inputs]     // ColorEdit: choose one among RGB/HSV/HEX. ColorPicker: choose any combination using RGB/HSV/HEX.
+    HSV             = 1 << 14,  // [Inputs]     // "
+    HEX             = 1 << 15,  // [Inputs]     // "
+    Uint8           = 1 << 16,  // [DataType]   // ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0..255. 
+    Float           = 1 << 17,  // [DataType]   // ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0.0f..1.0f floats instead of 0..255 integers. No round-trip of value via integers.
+    PickerHueBar    = 1 << 18,  // [PickerMode] // ColorPicker: bar for Hue, rectangle for Sat/Value.
+    PickerHueWheel  = 1 << 19,  // [PickerMode] // ColorPicker: wheel for Hue, triangle for Sat/Value.
+    // Internals/Masks
+    _InputsMask     = RGB|HSV|HEX,
+    _DataTypeMask   = Uint8|Float,
+    _PickerMask     = PickerHueWheel|PickerHueBar,
+    _OptionsDefault = Uint8|RGB|PickerHueBar    // Change application default using SetColorEditOptions()
+}
+
+// Enumeration for GetMouseCursor()
+export { ImGuiMouseCursor as MouseCursor };
+export enum ImGuiMouseCursor {
+    None = -1,
+    Arrow = 0,
+    TextInput,         // When hovering over InputText, etc.
+    Move,              // Unused
+    ResizeNS,          // When hovering over an horizontal border
+    ResizeEW,          // When hovering over a vertical border or a column
+    ResizeNESW,        // When hovering over the bottom-left corner of a window
+    ResizeNWSE,        // When hovering over the bottom-right corner of a window
+    Count_, COUNT = Count_
+}
+
+// Condition for ImGui::SetWindow***(), SetNextWindow***(), SetNextTreeNode***() functions
+// All those functions treat 0 as a shortcut to Always. From the point of view of the user use this as an enum (don't combine multiple values into flags).
+export { ImGuiCond as Cond };
+export enum ImGuiCond {
+    Always        = 1 << 0,   // Set the variable
+    Once          = 1 << 1,   // Set the variable once per runtime session (only the first call with succeed)
+    FirstUseEver  = 1 << 2,   // Set the variable if the window has no saved data (if doesn't exist in the .ini file)
+    Appearing     = 1 << 3    // Set the variable if the window is appearing after being hidden/inactive (or the first time)
+}
+
+export { ImDrawCornerFlags as wCornerFlags };
+export enum ImDrawCornerFlags
+{
+    TopLeft   = 1 << 0, // 0x1
+    TopRight  = 1 << 1, // 0x2
+    BotLeft   = 1 << 2, // 0x4
+    BotRight  = 1 << 3, // 0x8
+    Top       = TopLeft | TopRight,   // 0x3
+    Bot       = BotLeft | BotRight,   // 0xC
+    Left      = TopLeft | BotLeft,    // 0x5
+    Right     = TopRight | BotRight,  // 0xA
+    All       = 0xF     // In your function calls you may use ~0 (= all bits sets) instead of All, as a convenience
+}
+
+export { ImDrawListFlags as wListFlags };
+export enum ImDrawListFlags
+{
+    AntiAliasedLines = 1 << 0,
+    AntiAliasedFill  = 1 << 1
+}
 
 export { ImU32 } from "./bind-imgui";
 
@@ -455,9 +807,9 @@ export class ImGuiTextEditCallbackData {
     delete(): void { if (this.native) { this.native.delete(); delete this.native; } }
 
     // ImGuiInputTextFlags EventFlag;      // One of ImGuiInputTextFlags_Callback* // Read-only
-    public get EventFlag(): bind.ImGuiInputTextFlags { return this.native.EventFlag; }
+    public get EventFlag(): ImGuiInputTextFlags { return this.native.EventFlag; }
     // ImGuiInputTextFlags Flags;          // What user passed to InputText()      // Read-only
-    public get Flags(): bind.ImGuiInputTextFlags { return this.native.Flags; }
+    public get Flags(): ImGuiInputTextFlags { return this.native.Flags; }
     // void*               UserData;       // What user passed to InputText()      // Read-only
     // public get UserData(): any { return this.native.UserData; }
     // bool                ReadOnly;       // Read-only mode                       // Read-only
@@ -471,7 +823,7 @@ export class ImGuiTextEditCallbackData {
     // Completion,History,Always events:
     // If you modify the buffer contents make sure you update 'BufTextLen' and set 'BufDirty' to true.
     // ImGuiKey            EventKey;       // Key pressed (Up/Down/TAB)            // Read-only
-    public get EventKey(): bind.ImGuiKey { return this.native.EventKey; }
+    public get EventKey(): ImGuiKey { return this.native.EventKey; }
     // char*               Buf;            // Current text buffer                  // Read-write (pointed data only, can't replace the actual pointer)
     public get Buf(): string { return this.native.getBuf(); }
     public set Buf(value: string) { this.native.setBuf(value); }
@@ -638,9 +990,9 @@ export class ImDrawChannel
     // ImVector<ImDrawIdx>     IdxBuffer;
 }
 
-export { ImDrawCornerFlags } from "./bind-imgui";
+// export { ImDrawCornerFlags } from "./bind-imgui";
 
-export { ImDrawListFlags } from "./bind-imgui";
+// export { ImDrawListFlags } from "./bind-imgui";
 
 export class ImDrawListSharedData
 {
@@ -705,11 +1057,11 @@ export class ImDrawList
         this.native.AddLine(a, b, col, thickness);
     }
     // IMGUI_API void  AddRect(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All, float thickness = 1.0f);   // a: upper-left, b: lower-right, rounding_corners_flags: 4-bits corresponding to which corner to round
-    public AddRect(a: Readonly<bind.interface_ImVec2>, b: Readonly<bind.interface_ImVec2>, col: bind.ImU32, rounding: number = 0.0, rounding_corners_flags: bind.ImDrawCornerFlags = bind.ImDrawCornerFlags.All, thickness: number = 1.0): void {
+    public AddRect(a: Readonly<bind.interface_ImVec2>, b: Readonly<bind.interface_ImVec2>, col: bind.ImU32, rounding: number = 0.0, rounding_corners_flags: ImDrawCornerFlags = ImDrawCornerFlags.All, thickness: number = 1.0): void {
         this.native.AddRect(a, b, col, rounding, rounding_corners_flags, thickness);
     }
     // IMGUI_API void  AddRectFilled(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);                     // a: upper-left, b: lower-right
-    public AddRectFilled(a: Readonly<bind.interface_ImVec2>, b: Readonly<bind.interface_ImVec2>, col: bind.ImU32, rounding: number = 0.0, rounding_corners_flags: bind.ImDrawCornerFlags = bind.ImDrawCornerFlags.All): void {
+    public AddRectFilled(a: Readonly<bind.interface_ImVec2>, b: Readonly<bind.interface_ImVec2>, col: bind.ImU32, rounding: number = 0.0, rounding_corners_flags: ImDrawCornerFlags = ImDrawCornerFlags.All): void {
         this.native.AddRectFilled(a, b, col, rounding, rounding_corners_flags);
     }
     // IMGUI_API void  AddRectFilledMultiColor(const ImVec2& a, const ImVec2& b, ImU32 col_upr_left, ImU32 col_upr_right, ImU32 col_bot_right, ImU32 col_bot_left);
@@ -1069,7 +1421,7 @@ class script_ImGuiStyle implements bind.interface_ImGuiStyle {
     setColorsAt(index: number, color: Readonly<bind.interface_ImVec4>): boolean { this.Colors[index].Copy(color); return true; }
 
     constructor() {
-        for (let i = 0; i < bind.ImGuiCol.COUNT; ++i) {
+        for (let i = 0; i < ImGuiCol.COUNT; ++i) {
             this.Colors[i] = new ImVec4();
         }
         const _this = new ImGuiStyle(this);
@@ -1127,7 +1479,7 @@ export class ImGuiStyle
     get CurveTessellationTol(): number { return this.internal.CurveTessellationTol; } set CurveTessellationTol(value: number) { this.internal.CurveTessellationTol = value; }
     public Colors: bind.interface_ImVec4[] = new Proxy([], {
         get: (target: bind.interface_ImVec4[], key: PropertyKey): number | bind.interface_ImVec4 => {
-            if (key === "length") { return bind.ImGuiCol.COUNT; }
+            if (key === "length") { return ImGuiCol.COUNT; }
             return this.internal.getColorsAt(Number(key));
         },
         set: (target: bind.interface_ImVec4[], key: PropertyKey, value: Readonly<bind.interface_ImVec4>): boolean => {
@@ -1165,7 +1517,7 @@ export class ImGuiStyle
         this.AntiAliasedLines = other.AntiAliasedLines;
         this.AntiAliasedFill = other.AntiAliasedFill;
         this.CurveTessellationTol = other.CurveTessellationTol;
-        for (let i = 0; i < bind.ImGuiCol.COUNT; ++i) {
+        for (let i = 0; i < ImGuiCol.COUNT; ++i) {
             this.Colors[i].Copy(other.Colors[i]);
         }
         return this;
@@ -1195,15 +1547,15 @@ export class ImGuiIO
     // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
     // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
     // ImGuiNavFlags NavFlags;                 // = 0                  // See ImGuiNavFlags_. Gamepad/keyboard navigation options.
-    get NavFlags(): bind.ImGuiNavFlags { return this.native.NavFlags; }
-    set NavFlags(value: bind.ImGuiNavFlags) { this.native.NavFlags = value; }
+    get NavFlags(): ImGuiNavFlags { return this.native.NavFlags; }
+    set NavFlags(value: ImGuiNavFlags) { this.native.NavFlags = value; }
     // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
     // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
     // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging
     // int           KeyMap[ImGuiKey_COUNT];   // <unset>              // Map of indices into the KeysDown[512] entries array
     public KeyMap: number[] = new Proxy([], {
         get: (target: number[], key: PropertyKey): number => {
-            if (key === "length") { return bind.ImGuiKey.COUNT; }
+            if (key === "length") { return ImGuiKey.COUNT; }
             return this.native.getKeyMapAt(Number(key));
         },
         set: (target: number[], key: PropertyKey, value: number): boolean => {
@@ -1304,7 +1656,7 @@ export class ImGuiIO
     // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
     public NavInputs: number[] = new Proxy([], {
         get: (target: number[], key: PropertyKey): number => {
-            if (key === "length") { return bind.ImGuiNavInput.COUNT; }
+            if (key === "length") { return ImGuiNavInput.COUNT; }
             return this.native.getNavInputsAt(Number(key));
         },
         set: (target: number[], key: PropertyKey, value: number): boolean => {
@@ -1382,7 +1734,7 @@ export class ImGuiIO
     // float       NavInputsDownDuration[ImGuiNavInput_COUNT];
     public NavInputsDownDuration: number[] = new Proxy([], {
         get: (target: number[], key: PropertyKey): number => {
-            if (key === "length") { return bind.ImGuiNavInput.COUNT; }
+            if (key === "length") { return ImGuiNavInput.COUNT; }
             return this.native.getNavInputsDownDurationAt(Number(key));
         }
     });
@@ -1522,7 +1874,7 @@ export function StyleColorsLight(dst: ImGuiStyle | null = null): void {
 
 // Window
 // IMGUI_API bool          Begin(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0);                                                   // push window to the stack and start appending to it. see .cpp for details. return false when window is collapsed, so you can early out in your code. 'bool* p_open' creates a widget on the upper-right to close the window (which sets your bool to false).
-export function Begin(name: string, open: bind.ImScalar<boolean> | bind.ImAccess<boolean> | null = null, flags: bind.ImGuiWindowFlags = 0): boolean {
+export function Begin(name: string, open: bind.ImScalar<boolean> | bind.ImAccess<boolean> | null = null, flags: ImGuiWindowFlags = 0): boolean {
     if (open === null) {
         return bind.Begin(name, null, flags);
     } else if (Array.isArray(open)) {
@@ -1538,7 +1890,7 @@ export function Begin(name: string, open: bind.ImScalar<boolean> | bind.ImAccess
 export { End } from "./bind-imgui";
 // IMGUI_API bool          BeginChild(const char* str_id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags extra_flags = 0);    // begin a scrolling region. size==0.0f: use remaining window size, size<0.0f: use remaining window size minus abs(size). size>0.0f: fixed size. each axis can use a different mode, e.g. ImVec2(0,400).
 // IMGUI_API bool          BeginChild(ImGuiID id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags extra_flags = 0);            // "
-export function BeginChild(id: string | bind.ImGuiID, size: Readonly<bind.interface_ImVec2> = ImVec2.ZERO, border: boolean = false, extra_flags: bind.ImGuiWindowFlags = 0): boolean {
+export function BeginChild(id: string | bind.ImGuiID, size: Readonly<bind.interface_ImVec2> = ImVec2.ZERO, border: boolean = false, extra_flags: ImGuiWindowFlags = 0): boolean {
     return bind.BeginChild(id, size, border, extra_flags);
 }
 // IMGUI_API void          EndChild();
@@ -1589,11 +1941,11 @@ export { IsWindowAppearing } from "./bind-imgui";
 export { SetWindowFontScale } from "./bind-imgui";
 
 // IMGUI_API void          SetNextWindowPos(const ImVec2& pos, ImGuiCond cond = 0, const ImVec2& pivot = ImVec2(0,0)); // set next window position. call before Begin(). use pivot=(0.5f,0.5f) to center on given point, etc.
-export function SetNextWindowPos(pos: Readonly<bind.interface_ImVec2>, cond: bind.ImGuiCond = 0, pivot: Readonly<bind.interface_ImVec2> = ImVec2.ZERO): void {
+export function SetNextWindowPos(pos: Readonly<bind.interface_ImVec2>, cond: ImGuiCond = 0, pivot: Readonly<bind.interface_ImVec2> = ImVec2.ZERO): void {
     bind.SetNextWindowPos(pos, cond, pivot);
 }
 // IMGUI_API void          SetNextWindowSize(const ImVec2& size, ImGuiCond cond = 0);          // set next window size. set axis to 0.0f to force an auto-fit on this axis. call before Begin()
-export function SetNextWindowSize(pos: Readonly<bind.interface_ImVec2>, cond: bind.ImGuiCond = 0): void {
+export function SetNextWindowSize(pos: Readonly<bind.interface_ImVec2>, cond: ImGuiCond = 0): void {
     bind.SetNextWindowSize(pos, cond);
 }
 // IMGUI_API void          SetNextWindowSizeConstraints(const ImVec2& size_min, const ImVec2& size_max, ImGuiSizeConstraintCallback custom_callback = NULL, void* custom_callback_data = NULL); // set next window size limits. use -1,-1 on either X/Y axis to preserve the current size. Use callback to apply non-trivial programmatic constraints.
@@ -1614,7 +1966,7 @@ export function SetNextWindowContentSize(size: Readonly<bind.interface_ImVec2>):
     bind.SetNextWindowContentSize(size);
 }
 // IMGUI_API void          SetNextWindowCollapsed(bool collapsed, ImGuiCond cond = 0);         // set next window collapsed state. call before Begin()
-export function SetNextWindowCollapsed(collapsed: boolean, cond: bind.ImGuiCond = 0): void {
+export function SetNextWindowCollapsed(collapsed: boolean, cond: ImGuiCond = 0): void {
     bind.SetNextWindowCollapsed(collapsed, cond);
 }
 // IMGUI_API void          SetNextWindowFocus();                                               // set next window to be focused / front-most. call before Begin()
@@ -1629,26 +1981,26 @@ export { SetNextWindowBgAlpha } from "./bind-imgui";
 // IMGUI_API void          SetWindowSize(const char* name, const ImVec2& size, ImGuiCond cond = 0);    // set named window size. set axis to 0.0f to force an auto-fit on this axis.
 // IMGUI_API void          SetWindowCollapsed(const char* name, bool collapsed, ImGuiCond cond = 0);   // set named window collapsed state
 // IMGUI_API void          SetWindowFocus(const char* name);                                           // set named window to be focused / front-most. use NULL to remove focus.
-export function SetWindowPos(name_or_pos: string | Readonly<bind.interface_ImVec2>, pos_or_cond: Readonly<bind.interface_ImVec2> | bind.ImGuiCond = 0, cond: bind.ImGuiCond = 0): void {
+export function SetWindowPos(name_or_pos: string | Readonly<bind.interface_ImVec2>, pos_or_cond: Readonly<bind.interface_ImVec2> | ImGuiCond = 0, cond: ImGuiCond = 0): void {
     if (typeof(name_or_pos) === "string") {
         bind.SetWindowNamePos(name_or_pos, pos_or_cond as Readonly<bind.interface_ImVec2>, cond);
         return;
     } else {
-        bind.SetWindowPos(name_or_pos, pos_or_cond as bind.ImGuiCond);
+        bind.SetWindowPos(name_or_pos, pos_or_cond as ImGuiCond);
     }
 }
-export function SetWindowSize(name_or_size: string | Readonly<bind.interface_ImVec2>, size_or_cond: Readonly<bind.interface_ImVec2> | bind.ImGuiCond = 0, cond: bind.ImGuiCond = 0): void {
+export function SetWindowSize(name_or_size: string | Readonly<bind.interface_ImVec2>, size_or_cond: Readonly<bind.interface_ImVec2> | ImGuiCond = 0, cond: ImGuiCond = 0): void {
     if (typeof(name_or_size) === "string") {
         bind.SetWindowNamePos(name_or_size, size_or_cond as Readonly<bind.interface_ImVec2>, cond);
     } else {
-        bind.SetWindowSize(name_or_size, size_or_cond as bind.ImGuiCond);
+        bind.SetWindowSize(name_or_size, size_or_cond as ImGuiCond);
     }
 }
-export function SetWindowCollapsed(name_or_collapsed: string | boolean, collapsed_or_cond: boolean | bind.ImGuiCond = 0, cond: bind.ImGuiCond = 0): void {
+export function SetWindowCollapsed(name_or_collapsed: string | boolean, collapsed_or_cond: boolean | ImGuiCond = 0, cond: ImGuiCond = 0): void {
     if (typeof(name_or_collapsed) === "string") {
         bind.SetWindowNameCollapsed(name_or_collapsed, collapsed_or_cond as boolean, cond);
     } else {
-        bind.SetWindowCollapsed(name_or_collapsed, collapsed_or_cond as bind.ImGuiCond);
+        bind.SetWindowCollapsed(name_or_collapsed, collapsed_or_cond as ImGuiCond);
     }
 }
 export function SetWindowFocus(name?: string): void {
@@ -1689,7 +2041,7 @@ export function PushFont(font: ImFont): void {}
 export function PopFont(): void {}
 // IMGUI_API void          PushStyleColor(ImGuiCol idx, ImU32 col);
 // IMGUI_API void          PushStyleColor(ImGuiCol idx, const ImVec4& col);
-export function PushStyleColor(idx: bind.ImGuiCol, col: bind.ImU32 | Readonly<bind.interface_ImVec4> | Readonly<ImColor>): void {
+export function PushStyleColor(idx: ImGuiCol, col: bind.ImU32 | Readonly<bind.interface_ImVec4> | Readonly<ImColor>): void {
     if (col instanceof ImColor) {
         bind.PushStyleColor(idx, col.Value);
     } else {
@@ -1702,7 +2054,7 @@ export function PopStyleColor(count: number = 1): void {
 }
 // IMGUI_API void          PushStyleVar(ImGuiStyleVar idx, float val);
 // IMGUI_API void          PushStyleVar(ImGuiStyleVar idx, const ImVec2& val);
-export function PushStyleVar(idx: bind.ImGuiStyleVar, val: number | Readonly<bind.interface_ImVec2>): void {
+export function PushStyleVar(idx: ImGuiStyleVar, val: number | Readonly<bind.interface_ImVec2>): void {
     bind.PushStyleVar(idx, val);
 }
 // IMGUI_API void          PopStyleVar(int count = 1);
@@ -1710,7 +2062,7 @@ export function PopStyleVar(count: number = 1): void {
     bind.PopStyleVar(count);
 }
 // IMGUI_API const ImVec4& GetStyleColorVec4(ImGuiCol idx);                                    // retrieve style color as stored in ImGuiStyle structure. use to feed back into PushStyleColor(), otherwhise use GetColorU32() to get style color + style alpha.
-export function GetStyleColorVec4(idx: bind.ImGuiCol): Readonly<bind.reference_ImVec4> {
+export function GetStyleColorVec4(idx: ImGuiCol): Readonly<bind.reference_ImVec4> {
     return bind.GetStyleColorVec4(idx);
 }
 // IMGUI_API ImFont*       GetFont();                                                          // get current font
@@ -1726,7 +2078,7 @@ export function GetFontTexUvWhitePixel(out: bind.interface_ImVec2 = new ImVec2()
 // IMGUI_API ImU32         GetColorU32(ImGuiCol idx, float alpha_mul = 1.0f);                  // retrieve given style color with style alpha applied and optional extra alpha multiplier
 // IMGUI_API ImU32         GetColorU32(const ImVec4& col);                                     // retrieve given color with style alpha applied
 // IMGUI_API ImU32         GetColorU32(ImU32 col);                                             // retrieve given color with style alpha applied
-export function GetColorU32(idx: bind.ImGuiCol, alpha_mul: number = 1.0): bind.ImU32 {
+export function GetColorU32(idx: ImGuiCol, alpha_mul: number = 1.0): bind.ImU32 {
     return bind.GetColorU32(idx, alpha_mul);
 }
 
@@ -1959,7 +2311,7 @@ export function ProgressBar(fraction: number, size_arg: Readonly<bind.interface_
 // The new BeginCombo()/EndCombo() api allows you to manage your contents and selection state however you want it.
 // The old Combo() api are helpers over BeginCombo()/EndCombo() which are kept available for convenience purpose.
 // IMGUI_API bool          BeginCombo(const char* label, const char* preview_value, ImGuiComboFlags flags = 0);
-export function BeginCombo(label: string, preview_value: string | null, flags: bind.ImGuiComboFlags = 0): boolean {
+export function BeginCombo(label: string, preview_value: string | null, flags: ImGuiComboFlags = 0): boolean {
     return bind.BeginCombo(label, preview_value, flags);
 }
 // IMGUI_API void          EndCombo();
@@ -2133,7 +2485,7 @@ export function DragIntRange2(label: string, v_current_min: bind.ImAccess<number
 // Widgets: Input with Keyboard
 // IMGUI_API bool          InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
 let InputText_user_data: any = null;
-export function InputText(label: string, buf: ImStringBuffer | bind.ImAccess<string> | bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiTextEditDefaultSize, flags: bind.ImGuiInputTextFlags = 0, callback: ImGuiTextEditCallback | null = null, user_data: any = null): boolean {
+export function InputText(label: string, buf: ImStringBuffer | bind.ImAccess<string> | bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiTextEditDefaultSize, flags: ImGuiInputTextFlags = 0, callback: ImGuiTextEditCallback | null = null, user_data: any = null): boolean {
     InputText_user_data = user_data;
     function _callback(data: bind.ImGuiTextEditCallbackData): number {
         const _data: ImGuiTextEditCallbackData = new ImGuiTextEditCallbackData(data, InputText_user_data);
@@ -2158,7 +2510,7 @@ export function InputText(label: string, buf: ImStringBuffer | bind.ImAccess<str
 }
 // IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
 let InputTextMultiline_user_data: any = null;
-export function InputTextMultiline(label: string, buf: ImStringBuffer | bind.ImAccess<string> | bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiTextEditDefaultSize, size: Readonly<bind.interface_ImVec2> = ImVec2.ZERO, flags: bind.ImGuiInputTextFlags = 0, callback: ImGuiTextEditCallback | null = null, user_data: any = null): boolean {
+export function InputTextMultiline(label: string, buf: ImStringBuffer | bind.ImAccess<string> | bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiTextEditDefaultSize, size: Readonly<bind.interface_ImVec2> = ImVec2.ZERO, flags: ImGuiInputTextFlags = 0, callback: ImGuiTextEditCallback | null = null, user_data: any = null): boolean {
     InputTextMultiline_user_data = user_data;
     function _callback(data: bind.ImGuiTextEditCallbackData): number {
         const _data: ImGuiTextEditCallbackData = new ImGuiTextEditCallbackData(data, InputTextMultiline_user_data);
@@ -2182,7 +2534,7 @@ export function InputTextMultiline(label: string, buf: ImStringBuffer | bind.ImA
     }
 }
 // IMGUI_API bool          InputFloat(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, int decimal_precision = -1, ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat(label: string, v: bind.ImAccess<number> | bind.ImScalar<number> | bind.ImTuple2<number> | bind.ImTuple3<number> | bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, decimal_precision: number = -1, extra_flags: bind.ImGuiInputTextFlags = 0): boolean {
+export function InputFloat(label: string, v: bind.ImAccess<number> | bind.ImScalar<number> | bind.ImTuple2<number> | bind.ImTuple3<number> | bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, decimal_precision: number = -1, extra_flags: ImGuiInputTextFlags = 0): boolean {
     if (Array.isArray(v)) {
         return bind.InputFloat(label, v, step, step_fast, decimal_precision, extra_flags);
     } else {
@@ -2193,19 +2545,19 @@ export function InputFloat(label: string, v: bind.ImAccess<number> | bind.ImScal
     }
 }
 // IMGUI_API bool          InputFloat2(const char* label, float v[2], int decimal_precision = -1, ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat2(label: string, v: bind.ImTuple2<number> | bind.ImTuple3<number> | bind.ImTuple4<number>, decimal_precision: number = -1, extra_flags: bind.ImGuiInputTextFlags = 0): boolean {
+export function InputFloat2(label: string, v: bind.ImTuple2<number> | bind.ImTuple3<number> | bind.ImTuple4<number>, decimal_precision: number = -1, extra_flags: ImGuiInputTextFlags = 0): boolean {
     return bind.InputFloat2(label, v, decimal_precision, extra_flags);
 }
 // IMGUI_API bool          InputFloat3(const char* label, float v[3], int decimal_precision = -1, ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat3(label: string, v: bind.ImTuple3<number> | bind.ImTuple4<number>, decimal_precision: number = -1, extra_flags: bind.ImGuiInputTextFlags = 0): boolean {
+export function InputFloat3(label: string, v: bind.ImTuple3<number> | bind.ImTuple4<number>, decimal_precision: number = -1, extra_flags: ImGuiInputTextFlags = 0): boolean {
     return bind.InputFloat3(label, v, decimal_precision, extra_flags);
 }
 // IMGUI_API bool          InputFloat4(const char* label, float v[4], int decimal_precision = -1, ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat4(label: string, v: bind.ImTuple4<number>, decimal_precision: number = -1, extra_flags: bind.ImGuiInputTextFlags = 0): boolean {
+export function InputFloat4(label: string, v: bind.ImTuple4<number>, decimal_precision: number = -1, extra_flags: ImGuiInputTextFlags = 0): boolean {
     return bind.InputFloat4(label, v, decimal_precision, extra_flags);
 }
 // IMGUI_API bool          InputInt(const char* label, int* v, int step = 1, int step_fast = 100, ImGuiInputTextFlags extra_flags = 0);
-export function InputInt(label: string, v: bind.ImAccess<number> | bind.ImScalar<number> | bind.ImTuple2<number> | bind.ImTuple3<number> | bind.ImTuple4<number>, step: number = 1, step_fast: number = 100, extra_flags: bind.ImGuiInputTextFlags = 0): boolean {
+export function InputInt(label: string, v: bind.ImAccess<number> | bind.ImScalar<number> | bind.ImTuple2<number> | bind.ImTuple3<number> | bind.ImTuple4<number>, step: number = 1, step_fast: number = 100, extra_flags: ImGuiInputTextFlags = 0): boolean {
     if (Array.isArray(v)) {
         return bind.InputInt(label, v, step, step_fast, extra_flags);
     } else {
@@ -2216,15 +2568,15 @@ export function InputInt(label: string, v: bind.ImAccess<number> | bind.ImScalar
     }
 }
 // IMGUI_API bool          InputInt2(const char* label, int v[2], ImGuiInputTextFlags extra_flags = 0);
-export function InputInt2(label: string, v: bind.ImTuple2<number> | bind.ImTuple3<number> | bind.ImTuple4<number>, extra_flags: bind.ImGuiInputTextFlags = 0): boolean {
+export function InputInt2(label: string, v: bind.ImTuple2<number> | bind.ImTuple3<number> | bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
     return bind.InputInt2(label, v, extra_flags);
 }
 // IMGUI_API bool          InputInt3(const char* label, int v[3], ImGuiInputTextFlags extra_flags = 0);
-export function InputInt3(label: string, v: bind.ImTuple3<number> | bind.ImTuple4<number>, extra_flags: bind.ImGuiInputTextFlags = 0): boolean {
+export function InputInt3(label: string, v: bind.ImTuple3<number> | bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
     return bind.InputInt3(label, v, extra_flags);
 }
 // IMGUI_API bool          InputInt4(const char* label, int v[4], ImGuiInputTextFlags extra_flags = 0);
-export function InputInt4(label: string, v: bind.ImTuple4<number>, extra_flags: bind.ImGuiInputTextFlags = 0): boolean {
+export function InputInt4(label: string, v: bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
     return bind.InputInt4(label, v, extra_flags);
 }
 
@@ -2320,7 +2672,7 @@ export function VSliderInt(label: string, size: Readonly<bind.interface_ImVec2>,
 // Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little colored preview square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
 // Note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can the pass the address of a first float element out of a contiguous structure, e.g. &myvector.x
 // IMGUI_API bool          ColorEdit3(const char* label, float col[3], ImGuiColorEditFlags flags = 0);
-export function ColorEdit3(label: string, col: bind.ImTuple3<number> | bind.ImTuple4<number> | bind.interface_ImVec4, flags: bind.ImGuiColorEditFlags = 0): boolean {
+export function ColorEdit3(label: string, col: bind.ImTuple3<number> | bind.ImTuple4<number> | bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0): boolean {
     if (Array.isArray(col)) {
         return bind.ColorEdit3(label, col, flags);
     } else {
@@ -2331,7 +2683,7 @@ export function ColorEdit3(label: string, col: bind.ImTuple3<number> | bind.ImTu
     }
 }
 // IMGUI_API bool          ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flags = 0);
-export function ColorEdit4(label: string, col: bind.ImTuple4<number> | bind.interface_ImVec4, flags: bind.ImGuiColorEditFlags = 0): boolean {
+export function ColorEdit4(label: string, col: bind.ImTuple4<number> | bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0): boolean {
     if (Array.isArray(col)) {
         return bind.ColorEdit4(label, col, flags);
     } else {
@@ -2342,7 +2694,7 @@ export function ColorEdit4(label: string, col: bind.ImTuple4<number> | bind.inte
     }
 }
 // IMGUI_API bool          ColorPicker3(const char* label, float col[3], ImGuiColorEditFlags flags = 0);
-export function ColorPicker3(label: string, col: bind.ImTuple3<number> | bind.ImTuple4<number> | bind.interface_ImVec4, flags: bind.ImGuiColorEditFlags = 0): boolean {
+export function ColorPicker3(label: string, col: bind.ImTuple3<number> | bind.ImTuple4<number> | bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0): boolean {
     if (Array.isArray(col)) {
         return bind.ColorPicker3(label, col, flags);
     } else {
@@ -2353,7 +2705,7 @@ export function ColorPicker3(label: string, col: bind.ImTuple3<number> | bind.Im
     }
 }
 // IMGUI_API bool          ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags flags = 0, const float* ref_col = NULL);
-export function ColorPicker4(label: string, col: bind.ImTuple4<number> | bind.interface_ImVec4, flags: bind.ImGuiColorEditFlags = 0, ref_col: bind.ImTuple4<number> | ImVec4 | null = null): boolean {
+export function ColorPicker4(label: string, col: bind.ImTuple4<number> | bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0, ref_col: bind.ImTuple4<number> | ImVec4 | null = null): boolean {
     if (Array.isArray(col)) {
         return bind.ColorPicker4(label, col, flags, ref_col);
     } else {
@@ -2364,11 +2716,11 @@ export function ColorPicker4(label: string, col: bind.ImTuple4<number> | bind.in
     }
 }
 // IMGUI_API bool          ColorButton(const char* desc_id, const ImVec4& col, ImGuiColorEditFlags flags = 0, ImVec2 size = ImVec2(0,0));  // display a colored square/button, hover for details, return true when pressed.
-export function ColorButton(desc_id: string, col: Readonly<bind.interface_ImVec4>, flags: bind.ImGuiColorEditFlags = 0, size: Readonly<bind.interface_ImVec2> = ImVec2.ZERO): boolean {
+export function ColorButton(desc_id: string, col: Readonly<bind.interface_ImVec4>, flags: ImGuiColorEditFlags = 0, size: Readonly<bind.interface_ImVec2> = ImVec2.ZERO): boolean {
     return bind.ColorButton(desc_id, col, flags, size);
 }
 // IMGUI_API void          SetColorEditOptions(ImGuiColorEditFlags flags);                         // initialize current options (generally on application startup) if you want to select a default format, picker type, etc. User will be able to change many settings, unless you pass the _NoOptions flag to your calls.
-export function SetColorEditOptions(flags: bind.ImGuiColorEditFlags): void {
+export function SetColorEditOptions(flags: ImGuiColorEditFlags): void {
     bind.SetColorEditOptions(flags);
 }
 
@@ -2386,7 +2738,7 @@ export function TreeNode(label_or_id: string | number, fmt?: string): boolean {
 // IMGUI_API bool          TreeNodeEx(const void* ptr_id, ImGuiTreeNodeFlags flags, const char* fmt, ...) IM_FMTARGS(3);
 // IMGUI_API bool          TreeNodeExV(const char* str_id, ImGuiTreeNodeFlags flags, const char* fmt, va_list args) IM_FMTLIST(3);
 // IMGUI_API bool          TreeNodeExV(const void* ptr_id, ImGuiTreeNodeFlags flags, const char* fmt, va_list args) IM_FMTLIST(3);
-export function TreeNodeEx(label_or_id: string | number, flags: bind.ImGuiTreeNodeFlags = 0, fmt?: string): boolean {
+export function TreeNodeEx(label_or_id: string | number, flags: ImGuiTreeNodeFlags = 0, fmt?: string): boolean {
     return bind.TreeNodeEx(label_or_id, flags, fmt || ((typeof(label_or_id) === "string") ? label_or_id : ""));
 }
 // IMGUI_API void          TreePush(const char* str_id);                                           // ~ Indent()+PushId(). Already called by TreeNode() when returning true, but you can call Push/Pop yourself for layout purpose
@@ -2399,12 +2751,12 @@ export { TreeAdvanceToLabelPos } from "./bind-imgui";
 // IMGUI_API float         GetTreeNodeToLabelSpacing();                                            // horizontal distance preceding label when using TreeNode*() or Bullet() == (g.FontSize + style.FramePadding.x*2) for a regular unframed TreeNode
 export { GetTreeNodeToLabelSpacing } from "./bind-imgui";
 // IMGUI_API void          SetNextTreeNodeOpen(bool is_open, ImGuiCond cond = 0);                  // set next TreeNode/CollapsingHeader open state.
-export function SetNextTreeNodeOpen(is_open: boolean, cond: bind.ImGuiCond = 0): void {
+export function SetNextTreeNodeOpen(is_open: boolean, cond: ImGuiCond = 0): void {
     bind.SetNextTreeNodeOpen(is_open, cond);
 }
 // IMGUI_API bool          CollapsingHeader(const char* label, ImGuiTreeNodeFlags flags = 0);      // if returning 'true' the header is open. doesn't indent nor push on ID stack. user doesn't have to call TreePop().
 // IMGUI_API bool          CollapsingHeader(const char* label, bool* p_open, ImGuiTreeNodeFlags flags = 0); // when 'p_open' isn't NULL, display an additional small close button on upper right of the header
-export function CollapsingHeader(label: string, flags_or_p_open: bind.ImGuiTreeNodeFlags | bind.ImScalar<boolean> | bind.ImAccess<boolean> = 0, flags: bind.ImGuiTreeNodeFlags = 0): boolean {
+export function CollapsingHeader(label: string, flags_or_p_open: ImGuiTreeNodeFlags | bind.ImScalar<boolean> | bind.ImAccess<boolean> = 0, flags: ImGuiTreeNodeFlags = 0): boolean {
     if (Array.isArray(flags_or_p_open)) {
         return bind.CollapsingHeader(label, flags_or_p_open, flags);
     } else if (typeof(flags_or_p_open) === "number") {
@@ -2420,7 +2772,7 @@ export function CollapsingHeader(label: string, flags_or_p_open: bind.ImGuiTreeN
 // Widgets: Selectable / Lists
 // IMGUI_API bool          Selectable(const char* label, bool selected = false, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0,0));  // size.x==0.0: use remaining width, size.x>0.0: specify width. size.y==0.0: use label height, size.y>0.0: specify height
 // IMGUI_API bool          Selectable(const char* label, bool* p_selected, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0,0));
-export function Selectable(label: string, selected: boolean | bind.ImScalar<boolean> | bind.ImAccess<boolean> = false, flags: bind.ImGuiSelectableFlags = 0, size: Readonly<bind.interface_ImVec2> = ImVec2.ZERO): boolean {
+export function Selectable(label: string, selected: boolean | bind.ImScalar<boolean> | bind.ImAccess<boolean> = false, flags: ImGuiSelectableFlags = 0, size: Readonly<bind.interface_ImVec2> = ImVec2.ZERO): boolean {
     if (typeof(selected) === "boolean" || Array.isArray(selected)) {
         return bind.Selectable(label, selected, flags, size);
     } else {
@@ -2511,7 +2863,7 @@ export function OpenPopupOnItemClick(str_id: string = "", mouse_button: number =
 // IMGUI_API bool          BeginPopup(const char* str_id);                                     // return true if the popup is open, and you can start outputting to it. only call EndPopup() if BeginPopup() returned true!
 export { BeginPopup } from "./bind-imgui";
 // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags extra_flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
-export function BeginPopupModal(str_id: string = "", p_open: bind.ImScalar<boolean> | null = null, extra_flags: bind.ImGuiWindowFlags = 0): boolean {
+export function BeginPopupModal(str_id: string = "", p_open: bind.ImScalar<boolean> | null = null, extra_flags: ImGuiWindowFlags = 0): boolean {
     p_open = p_open || [ true ];
     return bind.BeginPopupModal(str_id, p_open, extra_flags);
 }
@@ -2559,11 +2911,11 @@ export function LogText(fmt: string): void {
 // Drag and Drop
 // [BETA API] Missing Demo code. API may evolve.
 // IMGUI_API bool          BeginDragDropSource(ImGuiDragDropFlags flags = 0, int mouse_button = 0);                // call when the current item is active. If this return true, you can call SetDragDropPayload() + EndDragDropSource()
-export function BeginDragDropSource(flags: bind.ImGuiDragDropFlags = 0, mouse_button: number = 0): boolean {
+export function BeginDragDropSource(flags: ImGuiDragDropFlags = 0, mouse_button: number = 0): boolean {
     return false;
 }
 // IMGUI_API bool          SetDragDropPayload(const char* type, const void* data, size_t size, ImGuiCond cond = 0);// type is a user defined string of maximum 8 characters. Strings starting with '_' are reserved for dear imgui internal types. Data is copied and held by imgui.
-export function SetDragDropPayload(type: string, data: any, size: number, cond: bind.ImGuiCond = 0): boolean {
+export function SetDragDropPayload(type: string, data: any, size: number, cond: ImGuiCond = 0): boolean {
     return false;
 }
 // IMGUI_API void          EndDragDropSource();
@@ -2574,7 +2926,7 @@ export function BeginDragDropTarget(): boolean {
     return false;
 }
 // IMGUI_API const ImGuiPayload* AcceptDragDropPayload(const char* type, ImGuiDragDropFlags flags = 0);            // accept contents of a given type. If ImGuiDragDropFlags_AcceptBeforeDelivery is set you can peek into the payload before the mouse button is released.
-export function AcceptDragDropPayload(type: string, flags: bind.ImGuiDragDropFlags = 0): any {
+export function AcceptDragDropPayload(type: string, flags: ImGuiDragDropFlags = 0): any {
     return null;
 }
 // IMGUI_API void          EndDragDropTarget();
@@ -2603,7 +2955,7 @@ export function SetKeyboardFocusHere(offset: number = 0): void {
 
 // Utilities
 // IMGUI_API bool          IsItemHovered(ImGuiHoveredFlags flags = 0);                         // is the last item hovered? (and usable, aka not blocked by a popup, etc.). See ImGuiHoveredFlags for more options.
-export function IsItemHovered(flags: bind.ImGuiHoveredFlags = 0): boolean {
+export function IsItemHovered(flags: ImGuiHoveredFlags = 0): boolean {
     return bind.IsItemHovered(flags);
 }
 // IMGUI_API bool          IsItemActive();                                                     // is the last item active? (e.g. button being held, text field being edited- items that don't interact will always return false)
@@ -2637,11 +2989,11 @@ export function GetItemRectSize(out: bind.interface_ImVec2 = new ImVec2()): type
 // IMGUI_API void          SetItemAllowOverlap();                                              // allow last item to be overlapped by a subsequent item. sometimes useful with invisible buttons, selectables, etc. to catch unused area.
 export { SetItemAllowOverlap } from "./bind-imgui";
 // IMGUI_API bool          IsWindowFocused(ImGuiFocusedFlags flags = 0);                       // is current window focused? or its root/child, depending on flags. see flags for options.
-export function IsWindowFocused(flags: bind.ImGuiFocusedFlags = 0): boolean {
+export function IsWindowFocused(flags: ImGuiFocusedFlags = 0): boolean {
     return bind.IsWindowFocused(flags);
 }
 // IMGUI_API bool          IsWindowHovered(ImGuiHoveredFlags flags = 0);                       // is current window hovered (and typically: not blocked by a popup/modal)? see flags for options.
-export function IsWindowHovered(flags: bind.ImGuiHoveredFlags = 0): boolean {
+export function IsWindowHovered(flags: ImGuiHoveredFlags = 0): boolean {
     return bind.IsWindowHovered(flags);
 }
 // IMGUI_API bool          IsRectVisible(const ImVec2& size);                                  // test if rectangle (of given size, starting from cursor position) is visible / not clipped.
@@ -2673,7 +3025,7 @@ export function CalcListClipping(items_count: number, items_height: number, out_
 }
 
 // IMGUI_API bool          BeginChildFrame(ImGuiID id, const ImVec2& size, ImGuiWindowFlags extra_flags = 0);    // helper to create a child window / scrolling region that looks like a normal widget frame
-export function BeginChildFrame(id: bind.ImGuiID, size: Readonly<bind.interface_ImVec2>, extra_flags: bind.ImGuiWindowFlags = 0): boolean {
+export function BeginChildFrame(id: bind.ImGuiID, size: Readonly<bind.interface_ImVec2>, extra_flags: ImGuiWindowFlags = 0): boolean {
     return bind.BeginChildFrame(id, size, extra_flags);
 }
 // IMGUI_API void          EndChildFrame();
@@ -2694,7 +3046,7 @@ export { ColorConvertHSVtoRGB } from "./bind-imgui";
 
 // Inputs
 // IMGUI_API int           GetKeyIndex(ImGuiKey imgui_key);                                    // map ImGuiKey_* values into user's key index. == io.KeyMap[key]
-export function GetKeyIndex(imgui_key: bind.ImGuiKey): number {
+export function GetKeyIndex(imgui_key: ImGuiKey): number {
     return bind.GetKeyIndex(imgui_key);
 }
 // IMGUI_API bool          IsKeyDown(int user_key_index);                                      // is key being held. == io.KeysDown[user_key_index]. note that imgui doesn't know the semantic of each entry of io.KeyDown[]. Use your own indices/enums according to how your backend/engine stored them into KeyDown[]!
