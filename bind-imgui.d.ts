@@ -414,8 +414,11 @@ export class reference_ImDrawList extends emscripten.EmscriptenClassReference {
     // - Use to simulate layers. By switching channels to can render out-of-order (e.g. submit foreground primitives before background primitives)
     // - Use to minimize draw calls (e.g. if going back-and-forth between multiple non-overlapping clipping rectangles, prefer to append into separate channels then merge at the end)
     // IMGUI_API void  ChannelsSplit(int channels_count);
+    public ChannelsSplit(channels_count: number): void;
     // IMGUI_API void  ChannelsMerge();
+    public ChannelsMerge(): void;
     // IMGUI_API void  ChannelsSetCurrent(int channel_index);
+    public ChannelsSetCurrent(channel_index: number): void;
 
     // Advanced
     // IMGUI_API void  AddCallback(ImDrawCallback callback, void* callback_data);  // Your rendering function must check for 'UserCallback' in ImDrawCmd and call the function instead of rendering triangles.
