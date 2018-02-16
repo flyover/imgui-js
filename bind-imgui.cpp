@@ -1230,7 +1230,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          PushStyleColor(ImGuiCol idx, const ImVec4& col);
     emscripten::function("PushStyleColor", FUNCTION(void, (ImGuiCol idx, emscripten::val col), {
         if (col.typeOf().as<std::string>() == "number") {
-            ImGui::PushStyleVar(idx, col.as<ImU32>());
+            ImGui::PushStyleColor(idx, col.as<ImU32>());
         } else {
             ImGui::PushStyleColor(idx, import_ImVec4(col));
         }
