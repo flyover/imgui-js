@@ -496,6 +496,10 @@ EMSCRIPTEN_BINDINGS(ImFont) {
     // 'max_width' stops rendering after a certain width (could be turned into a 2d size). FLT_MAX to disable.
     // 'wrap_width' enable automatic word-wrapping across multiple lines to fit into given width. 0.0f to disable.
     // IMGUI_API ImVec2            CalcTextSizeA(float size, float max_width, float wrap_width, const char* text_begin, const char* text_end = NULL, const char** remaining = NULL) const; // utf8
+    // CalcTextSizeA(size: number, max_width: number, wrap_width: number, text_begin: string, text_end: number | null, remaining: any, out: interface_ImVec2): interface_ImVec2;
+    .function("CalcTextSizeA", FUNCTION(emscripten::val, (const ImFont& that, float size, float max_width, float wrap_width, std::string text_begin, emscripten::val text_end, emscripten::val remaining, emscripten::val out), {
+        return export_ImVec2(that.CalcTextSizeA(size, max_width, wrap_width, text_begin.c_str(), NULL, NULL), out);
+    }))
     // IMGUI_API const char*       CalcWordWrapPositionA(float scale, const char* text, const char* text_end, float wrap_width) const;
     // IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, unsigned short c) const;
     // IMGUI_API void              RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
@@ -1333,7 +1337,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         return export_ImVec2(ImGui::GetCursorScreenPos(), out);
     }));
     // IMGUI_API void          SetCursorScreenPos(const ImVec2& pos);                              // cursor position in absolute screen coordinates [0..io.DisplaySize]
-    emscripten::function("SetCursorScreenPos", &ImGui::SetCursorScreenPos);
+    emscripten::function("SetCursorScreenPos", FUNCTION(void, (emscripten::val pos), {
+        ImGui::SetCursorScreenPos(import_ImVec2(pos));
+    }));
     // IMGUI_API void          AlignTextToFramePadding();                                          // vertically align/lower upcoming text to FramePadding.y so that it will aligns to upcoming widgets (call if you have text on a line before regular widgets)
     emscripten::function("AlignTextToFramePadding", &ImGui::AlignTextToFramePadding);
     // IMGUI_API float         GetTextLineHeight();                                                // ~ FontSize
