@@ -349,14 +349,58 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
 
         // Stateful path API, add points then finish with PathFill() or PathStroke()
         // inline    void  PathClear()                                                 { _Path.resize(0); }
+        .function("PathClear", &ImDrawList::PathClear)
         // inline    void  PathLineTo(const ImVec2& pos)                               { _Path.push_back(pos); }
+        .function("PathLineTo", FUNCTION(void, (ImDrawList& that, emscripten::val pos), {
+            that.PathLineTo(import_ImVec2(pos));
+        }))
         // inline    void  PathLineToMergeDuplicate(const ImVec2& pos)                 { if (_Path.Size == 0 || memcmp(&_Path[_Path.Size-1], &pos, 8) != 0) _Path.push_back(pos); }
+        .function("PathLineToMergeDuplicate", FUNCTION(void, (ImDrawList& that, emscripten::val pos), {
+            that.PathLineToMergeDuplicate(import_ImVec2(pos));
+        }))
         // inline    void  PathFillConvex(ImU32 col)                                   { AddConvexPolyFilled(_Path.Data, _Path.Size, col); PathClear(); }
+        .function("PathFillConvex", FUNCTION(void, (ImDrawList& that, ImU32 col), {
+            that.PathFillConvex(col);
+        }))
         // inline    void  PathStroke(ImU32 col, bool closed, float thickness = 1.0f)  { AddPolyline(_Path.Data, _Path.Size, col, closed, thickness); PathClear(); }
+        .function("PathStroke", FUNCTION(void, (ImDrawList& that, ImU32 col, bool closed, float thickness), {
+            that.PathStroke(col, closed, thickness);
+        }))
         // IMGUI_API void  PathArcTo(const ImVec2& centre, float radius, float a_min, float a_max, int num_segments = 10);
+        .function("PathArcTo", FUNCTION(void, (ImDrawList& that, emscripten::val centre, float radius, float a_min, float a_max, int num_segments), {
+            that.PathArcTo(import_ImVec2(centre), radius, a_min, a_max, num_segments);
+        }))
         // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
+        .function("PathArcToFast", FUNCTION(void, (ImDrawList& that, emscripten::val centre, float radius, int a_min_of_12, int a_max_of_12), {
+            that.PathArcToFast(import_ImVec2(centre), radius, a_min_of_12, a_max_of_12);
+        }))
         // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
+        .function("PathBezierCurveTo", FUNCTION(void, (ImDrawList& that, emscripten::val p1, emscripten::val p2, emscripten::val p3, int num_segments), {
+            that.PathBezierCurveTo(import_ImVec2(p1), import_ImVec2(p2), import_ImVec2(p3), num_segments);
+        }))
         // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
+        .function("PathRect", FUNCTION(void, (ImDrawList& that, emscripten::val rect_min, emscripten::val rect_max, float rounding, int rounding_corners_flags), {
+            that.PathRect(import_ImVec2(rect_min), import_ImVec2(rect_max), rounding, rounding_corners_flags);
+        }))
+
+    // // inline    void  PathClear()                                                 { _Path.resize(0); }
+    // public PathClear(): void;
+    // // inline    void  PathLineTo(const ImVec2& pos)                               { _Path.push_back(pos); }
+    // public PathLineTo(pos: Readonly<interface_ImVec2>): void;
+    // // inline    void  PathLineToMergeDuplicate(const ImVec2& pos)                 { if (_Path.Size == 0 || memcmp(&_Path[_Path.Size-1], &pos, 8) != 0) _Path.push_back(pos); }
+    // public PathLineToMergeDuplicate(pos: Readonly<interface_ImVec2>): void;
+    // // inline    void  PathFillConvex(ImU32 col)                                   { AddConvexPolyFilled(_Path.Data, _Path.Size, col); PathClear(); }
+    // public PathFillConvex(col: ImU32): void;
+    // // inline    void  PathStroke(ImU32 col, bool closed, float thickness = 1.0f)  { AddPolyline(_Path.Data, _Path.Size, col, closed, thickness); PathClear(); }
+    // public PathStroke(col: ImU32, closed: boolean, thickness: number): void;
+    // // IMGUI_API void  PathArcTo(const ImVec2& centre, float radius, float a_min, float a_max, int num_segments = 10);
+    // public PathArcTo(centre: Readonly<interface_ImVec2>, radius: number, a_min: number, a_max: number, num_segments: number): void;
+    // // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
+    // public PathArcToFast(centre: Readonly<interface_ImVec2>, radius: number, a_min_of_12: number, a_max_of_12: number): void;
+    // // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
+    // public PathBezierCurveTo(p1: Readonly<interface_ImVec2>, p2: Readonly<interface_ImVec2>, p3: Readonly<interface_ImVec2>, num_segments: number): void;
+    // // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
+    // public PathRect(rect_min: Readonly<interface_ImVec2>, rect_max: Readonly<interface_ImVec2>, rounding: number, rounding_corners_flags: ImDrawCornerFlags): void;
 
         // Channels
         // - Use to simulate layers. By switching channels to can render out-of-order (e.g. submit foreground primitives before background primitives)
@@ -2152,7 +2196,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         return export_ImVec4(ImGui::ColorConvertU32ToFloat4(in), out);
     }));
     // IMGUI_API ImU32         ColorConvertFloat4ToU32(const ImVec4& in);
-    emscripten::function("ColorConvertFloat4ToU32", &ImGui::ColorConvertFloat4ToU32);
+    emscripten::function("ColorConvertFloat4ToU32", FUNCTION(ImU32, (emscripten::val in), {
+        return ImGui::ColorConvertFloat4ToU32(import_ImVec4(in));
+    }));
     // IMGUI_API void          ColorConvertRGBtoHSV(float r, float g, float b, float& out_h, float& out_s, float& out_v);
     emscripten::function("ColorConvertRGBtoHSV", FUNCTION(void, (float r, float g, float b, emscripten::val out_h, emscripten::val out_s, emscripten::val out_v), {
         float h, s, v;

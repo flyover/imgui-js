@@ -1112,14 +1112,23 @@ export class ImDrawList
 
     // Stateful path API, add points then finish with PathFill() or PathStroke()
     // inline    void  PathClear()                                                 { _Path.resize(0); }
+    public PathClear(): void { this.native.PathClear(); }
     // inline    void  PathLineTo(const ImVec2& pos)                               { _Path.push_back(pos); }
+    public PathLineTo(pos: Readonly<bind.interface_ImVec2>): void { this.native.PathLineTo(pos); }
     // inline    void  PathLineToMergeDuplicate(const ImVec2& pos)                 { if (_Path.Size == 0 || memcmp(&_Path[_Path.Size-1], &pos, 8) != 0) _Path.push_back(pos); }
+    public PathLineToMergeDuplicate(pos: Readonly<bind.interface_ImVec2>): void { this.native.PathLineToMergeDuplicate(pos); }
     // inline    void  PathFillConvex(ImU32 col)                                   { AddConvexPolyFilled(_Path.Data, _Path.Size, col); PathClear(); }
+    public PathFillConvex(col: bind.ImU32): void { this.native.PathFillConvex(col); }
     // inline    void  PathStroke(ImU32 col, bool closed, float thickness = 1.0f)  { AddPolyline(_Path.Data, _Path.Size, col, closed, thickness); PathClear(); }
+    public PathStroke(col: bind.ImU32, closed: boolean, thickness: number = 1.0): void { this.native.PathStroke(col, closed, thickness); }
     // IMGUI_API void  PathArcTo(const ImVec2& centre, float radius, float a_min, float a_max, int num_segments = 10);
+    public PathArcTo(centre: Readonly<bind.interface_ImVec2>, radius: number, a_min: number, a_max: number, num_segments: number = 10): void { this.native.PathArcTo(centre, radius, a_min, a_max, num_segments); }
     // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
+    public PathArcToFast(centre: Readonly<bind.interface_ImVec2>, radius: number, a_min_of_12: number, a_max_of_12: number): void { this.native.PathArcToFast(centre, radius, a_min_of_12, a_max_of_12); }
     // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
+    public PathBezierCurveTo(p1: Readonly<bind.interface_ImVec2>, p2: Readonly<bind.interface_ImVec2>, p3: Readonly<bind.interface_ImVec2>, num_segments: number = 0): void { this.native.PathBezierCurveTo(p1, p2, p3, num_segments); }
     // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
+    public PathRect(rect_min: Readonly<bind.interface_ImVec2>, rect_max: Readonly<bind.interface_ImVec2>, rounding: number = 0.0, rounding_corners_flags: ImDrawCornerFlags = ImDrawCornerFlags.All): void { this.native.PathRect(rect_min, rect_max, rounding, rounding_corners_flags); }
 
     // Channels
     // - Use to simulate layers. By switching channels to can render out-of-order (e.g. submit foreground primitives before background primitives)
