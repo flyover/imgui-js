@@ -13,6 +13,7 @@ export default function main(): void {
     // Setup ImGui binding
     ImGui.CreateContext();
     const io: ImGuiIO = ImGui.GetIO();
+    let gl_texture: WebGLTexture | null = null;
     if (typeof(window) !== "undefined") {
         const output: HTMLElement = document.getElementById("output") || document.body;
         const canvas: HTMLCanvasElement = document.createElement("canvas");
@@ -41,6 +42,31 @@ export default function main(): void {
                 event.gamepad.index, event.gamepad.id);
         });
         ImGui_Impl.Init(canvas);
+
+        const width: number = 256;
+        const height: number = 256;
+        const pixels: Uint8Array = new Uint8Array(4 * width * height);
+        // const u32: Uint32Array = new Uint32Array(pixels.buffer);
+        // for (let y = 0; y < height; ++y) {
+        //     for (let x = 0; x < width; ++x) {
+        //         const r = x * 255 / width;
+        //         const g = 0;
+        //         const b = y * 255 / height;
+        //         u32[y * width + x] = ImGui.IM_COL32(r, g, b);
+        //     }
+        // }
+        const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
+        gl_texture = gl && gl.createTexture();
+        gl && gl.bindTexture(gl.TEXTURE_2D, gl_texture);
+        gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+        const image = new Image();
+        image.addEventListener("load", (event: Event) => {
+            gl && gl.bindTexture(gl.TEXTURE_2D, gl_texture);
+            gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        });
+        image.src = "../imgui/examples/apple_example/imguiex-ios/imgui_ex_icon.png";
     } else {
         ImGui_Impl.Init(null);
     }
@@ -189,6 +215,8 @@ export default function main(): void {
             ImGui.Checkbox("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window= value);
             if (show_gamepad_window)
                 ShowGamepadWindow("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window = value);
+            if (ImGui.ImageButton(gl_texture, new ImVec2(48, 48)))
+                show_demo_window = !show_demo_window;
         }
     
         // 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name your windows.
@@ -223,6 +251,9 @@ export default function main(): void {
     }
 
     function _done(): void {
+        const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
+        gl && gl.deleteTexture(gl_texture); gl_texture = null;
+
         // Cleanup
         ImGui_Impl.Shutdown();
         ImGui.DestroyContext();
