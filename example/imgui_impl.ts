@@ -237,7 +237,7 @@ export function Init(canvas: HTMLCanvasElement | null): void {
     gl && last_array_buffer && gl.bindBuffer(gl.ARRAY_BUFFER_BINDING, last_array_buffer);
 
     // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
-    // Note that this implementation is little overcomplicated because we are saving/setting up/restoring every OpenGL state explicitly, in order to be able to run within any OpenGL engine that doesn't do so. 
+    // Note that this implementation is little overcomplicated because we are saving/setting up/restoring every OpenGL state explicitly, in order to be able to run within any OpenGL engine that doesn't do so.
     // If text or lines are blurry when integrating ImGui in your engine: in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
     // io.RenderDrawListsFn = RenderDrawLists;
 }
@@ -256,7 +256,7 @@ export function Shutdown(): void {
     g_AttribLocationPosition = -1;
     g_AttribLocationUV = -1;
     g_AttribLocationColor = -1;
-    
+
     gl && gl.deleteProgram(g_ShaderHandle); g_ShaderHandle = null;
     gl && gl.deleteShader(g_VertHandle); g_VertHandle = null;
     gl && gl.deleteShader(g_FragHandle); g_FragHandle = null;
@@ -274,7 +274,7 @@ export function NewFrame(time: number): void {
     io.DisplayFramebufferScale.x = w > 0 ? (display_w / w) : 0;
     io.DisplayFramebufferScale.y = h > 0 ? (display_h / h) : 0;
 
-    let dt: number = time - prev_time;
+    const dt: number = time - prev_time;
     prev_time = time;
     io.DeltaTime = dt / 1000;
 
@@ -317,7 +317,7 @@ export function NewFrame(time: number): void {
                     io.NavInputs[NAV_NO] = 1.0;
             }
             function MAP_ANALOG(NAV_NO: number, AXIS_NO: number, V0: number, V1: number): void {
-                let v: number = (axes_count > AXIS_NO) ? gamepad.axes[AXIS_NO]: V0;
+                let v: number = (axes_count > AXIS_NO) ? gamepad.axes[AXIS_NO] : V0;
                 v = (v - V0) / (V1 - V0);
                 if (v > 1.0) v = 1.0;
                 if (io.NavInputs[NAV_NO] < v) io.NavInputs[NAV_NO] = v;
@@ -361,7 +361,7 @@ export function NewFrame(time: number): void {
             // id: 8Bitdo SN30 Pro  8Bitdo SN30 Pro (Vendor: 2dc8 Product: 6001)
         }
     }
-    
+
     ImGui.NewFrame();
 }
 
@@ -380,7 +380,7 @@ export function RenderDrawLists(draw_data: ImDrawData | null = ImGui.GetDrawData
     // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
     const fb_width: number = io.DisplaySize.x * io.DisplayFramebufferScale.x;
     const fb_height: number = io.DisplaySize.y * io.DisplayFramebufferScale.y;
-    if (fb_width == 0 || fb_height == 0) {
+    if (fb_width === 0 || fb_height === 0) {
         return;
     }
     draw_data.ScaleClipRects(io.DisplayFramebufferScale);

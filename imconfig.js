@@ -4,7 +4,7 @@
 // Most options (memory allocation, clipboard callbacks, etc.) can be set at runtime via the ImGuiIO structure - ImGui::GetIO().
 //-----------------------------------------------------------------------------
 // A) You may edit imconfig.h (and not overwrite it when updating imgui, or maintain a patch/branch with your modifications to imconfig.h)
-// B) or add configuration directives in your own file and compile with #define IMGUI_USER_CONFIG "myfilename.h" 
+// B) or add configuration directives in your own file and compile with #define IMGUI_USER_CONFIG "myfilename.h"
 // Note that options such as IMGUI_API, IM_VEC2_CLASS_EXTRA or ImDrawIdx needs to be defined consistently everywhere you include imgui.h, not only for the imgui*.cpp compilation units.
 //-----------------------------------------------------------------------------
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -51,4 +51,4 @@ namespace ImGui
     void MyFunction(const char* name, const MyMatrix44& v);
 }
 */
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW1jb25maWcuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJpbWNvbmZpZy50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO0FBQUEsK0VBQStFO0FBQy9FLHNDQUFzQztBQUN0QyxnSUFBZ0k7QUFDaEksK0VBQStFO0FBQy9FLDBJQUEwSTtBQUMxSSxpSEFBaUg7QUFDakgsd0xBQXdMO0FBQ3hMLCtFQUErRTs7QUFFL0UsZUFBZTtBQUVmLDhEQUE4RDtBQUM5RCwyQ0FBMkM7QUFFM0MscUZBQXFGO0FBQ3JGLDJDQUEyQztBQUMzQywyQ0FBMkM7QUFFM0MsZ0tBQWdLO0FBQ2hLLDBDQUEwQztBQUUxQyw4RkFBOEY7QUFDOUYseUlBQXlJO0FBQ3pJLDZIQUE2SDtBQUU3SCw0SEFBNEg7QUFDNUgsNkhBQTZIO0FBQzdILG9DQUFvQztBQUVwQyxnR0FBZ0c7QUFDaEcsK0NBQStDO0FBRS9DLGtFQUFrRTtBQUNsRSxvQ0FBb0M7QUFFcEMsa0dBQWtHO0FBQ2xHLHFDQUFxQztBQUN4QixRQUFBLDJCQUEyQixHQUFZLEtBQUssQ0FBQztBQUUxRCx1R0FBdUc7QUFDdkcsMENBQTBDO0FBRTFDLG9IQUFvSDtBQUNwSCx3RUFBd0U7QUFDeEU7Ozs7Ozs7O0VBUUU7QUFFRiw4SUFBOEk7QUFDOUksZ0NBQWdDO0FBRWhDLHdHQUF3RztBQUN4Rzs7Ozs7RUFLRSJ9
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW1jb25maWcuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJpbWNvbmZpZy50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO0FBQUEsK0VBQStFO0FBQy9FLHNDQUFzQztBQUN0QyxnSUFBZ0k7QUFDaEksK0VBQStFO0FBQy9FLDBJQUEwSTtBQUMxSSxnSEFBZ0g7QUFDaEgsd0xBQXdMO0FBQ3hMLCtFQUErRTs7QUFFL0UsZUFBZTtBQUVmLDhEQUE4RDtBQUM5RCwyQ0FBMkM7QUFFM0MscUZBQXFGO0FBQ3JGLDJDQUEyQztBQUMzQywyQ0FBMkM7QUFFM0MsZ0tBQWdLO0FBQ2hLLDBDQUEwQztBQUUxQyw4RkFBOEY7QUFDOUYseUlBQXlJO0FBQ3pJLDZIQUE2SDtBQUU3SCw0SEFBNEg7QUFDNUgsNkhBQTZIO0FBQzdILG9DQUFvQztBQUVwQyxnR0FBZ0c7QUFDaEcsK0NBQStDO0FBRS9DLGtFQUFrRTtBQUNsRSxvQ0FBb0M7QUFFcEMsa0dBQWtHO0FBQ2xHLHFDQUFxQztBQUN4QixRQUFBLDJCQUEyQixHQUFZLEtBQUssQ0FBQztBQUUxRCx1R0FBdUc7QUFDdkcsMENBQTBDO0FBRTFDLG9IQUFvSDtBQUNwSCx3RUFBd0U7QUFDeEU7Ozs7Ozs7O0VBUUU7QUFFRiw4SUFBOEk7QUFDOUksZ0NBQWdDO0FBRWhDLHdHQUF3RztBQUN4Rzs7Ozs7RUFLRSJ9

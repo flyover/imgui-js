@@ -1,6 +1,8 @@
 import * as ImGui from "imgui-js";
 import * as ImGui_Impl from "./imgui_impl";
+
 import * as bindImGui from "imgui-js/bind-imgui";
+
 import { ImVec2 } from "imgui-js";
 import { ImVec4 } from "imgui-js";
 import { ImGuiIO } from "imgui-js";
@@ -77,8 +79,8 @@ export default function main(): void {
     //ImGui.StyleColorsClassic();
 
     // Load Fonts
-    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them. 
-    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple. 
+    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
+    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
     // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
     // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
     // - Read 'misc/fonts/README.txt' for more instructions and details.
@@ -93,11 +95,11 @@ export default function main(): void {
 
     let show_demo_window: boolean = true;
     let show_another_window: boolean = false;
-    let clear_color: ImVec4 = new ImVec4(0.45, 0.55, 0.60, 1.00);
+    const clear_color: ImVec4 = new ImVec4(0.45, 0.55, 0.60, 1.00);
 
     /* static */ let f: number = 0.0;
     /* static */ let counter: number = 0;
-    
+
     const memory_editor: MemoryEditor = new MemoryEditor();
 
     let source: string = [
@@ -105,11 +107,11 @@ export default function main(): void {
         "ImGui.SliderFloat(\"float\",",
         "\t(value = f) => f = value,",
         "\t0.0, 1.0);",
-        ""
+        "",
     ].join("\n");
 
     function ShowSandboxWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
-        ImGui.SetNextWindowSize(new ImVec2(320,240), ImGui.Cond.FirstUseEver);
+        ImGui.SetNextWindowSize(new ImVec2(320, 240), ImGui.Cond.FirstUseEver);
         ImGui.Begin(title, p_open);
         ImGui.Text("Source");
         ImGui.SameLine();
@@ -128,7 +130,7 @@ export default function main(): void {
         try {
             eval(source);
         } catch (e) {
-            ImGui.TextColored(new ImVec4(1.0,0.0,0.0,1.0), "error: ");
+            ImGui.TextColored(new ImVec4(1.0, 0.0, 0.0, 1.0), "error: ");
             ImGui.SameLine();
             ImGui.Text(e.message);
         }
@@ -167,7 +169,7 @@ export default function main(): void {
     let show_gamepad_window: boolean = false;
 
     // Main loop
-    let done: boolean = false;
+    const done: boolean = false;
     function _loop(time: number): void {
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -182,7 +184,7 @@ export default function main(): void {
             // static int counter = 0;
 
             ImGui.Text("Hello, world!");                           // Display some text (you can use a format string too)
-            ImGui.SliderFloat("float", (value = f) => f = value, 0.0, 1.0);            // Edit 1 float using a slider from 0.0f to 1.0f    
+            ImGui.SliderFloat("float", (value = f) => f = value, 0.0, 1.0);            // Edit 1 float using a slider from 0.0f to 1.0f
             ImGui.ColorEdit3("clear color", clear_color); // Edit 3 floats representing a color
 
             ImGui.Checkbox("Demo Window", (value = show_demo_window) => show_demo_window = value);      // Edit bools storing our windows open/close state
@@ -197,7 +199,7 @@ export default function main(): void {
 
             ImGui.Checkbox("Memory Editor", (value = memory_editor.Open) => memory_editor.Open = value);
             if (memory_editor.Open)
-                memory_editor.DrawWindow("Memory Editor", bindImGui.buffer);        
+                memory_editor.DrawWindow("Memory Editor", bindImGui.buffer);
             const mi: bindImGui.mallinfo = bindImGui.mallinfo();
             // ImGui.Text(`Total non-mmapped bytes (arena):       ${mi.arena}`);
             // ImGui.Text(`# of free chunks (ordblks):            ${mi.ordblks}`);
@@ -209,16 +211,16 @@ export default function main(): void {
             ImGui.Text(`Total allocated space (uordblks):      ${mi.uordblks}`);
             ImGui.Text(`Total free space (fordblks):           ${mi.fordblks}`);
             // ImGui.Text(`Topmost releasable block (keepcost):   ${mi.keepcost}`);
-            ImGui.Checkbox("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window= value);
+            ImGui.Checkbox("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
             if (show_sandbox_window)
                 ShowSandboxWindow("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
-            ImGui.Checkbox("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window= value);
+            ImGui.Checkbox("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window = value);
             if (show_gamepad_window)
                 ShowGamepadWindow("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window = value);
             if (ImGui.ImageButton(gl_texture, new ImVec2(48, 48)))
                 show_demo_window = !show_demo_window;
         }
-    
+
         // 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name your windows.
         if (show_another_window) {
             ImGui.Begin("Another Window", (value = show_another_window) => show_another_window = value, ImGui.WindowFlags.AlwaysAutoResize);
@@ -227,22 +229,22 @@ export default function main(): void {
                 show_another_window = false;
             ImGui.End();
         }
-    
+
         // 3. Show the ImGui demo window. Most of the sample code is in ImGui::ShowDemoWindow(). Read its code to learn more about Dear ImGui!
         if (show_demo_window) {
-            ImGui.SetNextWindowPos(new ImVec2(650, 20), ImGui.Cond.FirstUseEver) // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
+            ImGui.SetNextWindowPos(new ImVec2(650, 20), ImGui.Cond.FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
             /*ImGui.*/ShowDemoWindow((value = show_demo_window) => show_demo_window = value);
         }
 
         ImGui_Impl.EndFrame();
-    
+
         // Rendering
         const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
         gl && gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl && gl.clearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         gl && gl.clear(gl.COLOR_BUFFER_BIT);
         //gl.useProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
-    
+
         ImGui_Impl.RenderDrawLists();
 
         if (typeof(window) !== "undefined") {
