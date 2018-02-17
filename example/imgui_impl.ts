@@ -448,9 +448,13 @@ export function RenderDrawLists(draw_data: ImDrawData | null = ImGui.GetDrawData
                 }
             }
 
-            gl && gl.bindTexture(gl.TEXTURE_2D, draw_cmd.TextureId);
-            gl && gl.scissor(draw_cmd.ClipRect.x, fb_height - draw_cmd.ClipRect.w, draw_cmd.ClipRect.z - draw_cmd.ClipRect.x, draw_cmd.ClipRect.w - draw_cmd.ClipRect.y);
-            gl && gl.drawElements(gl.TRIANGLES, draw_cmd.ElemCount, ElemType, ElemStart * ImGui.ImDrawIdxSize);
+            if (draw_cmd.UserCallback !== null) {
+                draw_cmd.UserCallback(draw_list, draw_cmd);
+            } else {
+                gl && gl.bindTexture(gl.TEXTURE_2D, draw_cmd.TextureId);
+                gl && gl.scissor(draw_cmd.ClipRect.x, fb_height - draw_cmd.ClipRect.w, draw_cmd.ClipRect.z - draw_cmd.ClipRect.x, draw_cmd.ClipRect.w - draw_cmd.ClipRect.y);
+                gl && gl.drawElements(gl.TRIANGLES, draw_cmd.ElemCount, ElemType, ElemStart * ImGui.ImDrawIdxSize);
+            }
 
             ElemStart += draw_cmd.ElemCount;
         });
