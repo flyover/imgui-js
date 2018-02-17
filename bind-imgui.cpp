@@ -223,7 +223,8 @@ EMSCRIPTEN_BINDINGS(ImDrawCmd) {
             const ImVec4* p = &that->ClipRect; return emscripten::val(p);    
         }), emscripten::allow_raw_pointers())
         .property("TextureId", FUNCTION(emscripten::val, (const ImDrawCmd& that), {
-            return (that.TextureId != NULL) ? *(emscripten::val*) that.TextureId : emscripten::val::null();
+            // return (that.TextureId != NULL) ? *(emscripten::val*) that.TextureId : emscripten::val::null();
+            return emscripten::val((int) that.TextureId);
         }))
     ;
 }
@@ -251,6 +252,7 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
 
         // [Internal, used while building lists]
         // ImDrawListFlags         Flags;              // Flags, you may poke into these to adjust anti-aliasing settings per-primitive.
+        .property("Flags", &ImDrawList::Flags)
         // const ImDrawListSharedData* _Data;          // Pointer to shared draw data (you can use ImGui::GetDrawListSharedData() to get the one from current ImGui context)
         // const char*             _OwnerName;         // Pointer to owner window's name for debugging
         // unsigned int            _VtxCurrentIdx;     // [Internal] == VtxBuffer.Size
@@ -274,9 +276,19 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
         // IMGUI_API void  PopClipRect();
         .function("PopClipRect", &ImDrawList::PopClipRect)
         // IMGUI_API void  PushTextureID(const ImTextureID& texture_id);
+        .function("PushTextureID", FUNCTION(void, (ImDrawList& that, emscripten::val texture_id), {
+            that.PushTextureID((ImTextureID) texture_id.as<int>());
+        }))
         // IMGUI_API void  PopTextureID();
+        .function("PopTextureID", &ImDrawList::PopTextureID)
         // inline ImVec2   GetClipRectMin() const { const ImVec4& cr = _ClipRectStack.back(); return ImVec2(cr.x, cr.y); }
+        .function("GetClipRectMin", FUNCTION(emscripten::val, (ImDrawList& that, emscripten::val out), {
+            return export_ImVec2(that.GetClipRectMin(), out);
+        }))
         // inline ImVec2   GetClipRectMax() const { const ImVec4& cr = _ClipRectStack.back(); return ImVec2(cr.z, cr.w); }
+        .function("GetClipRectMax", FUNCTION(emscripten::val, (ImDrawList& that, emscripten::val out), {
+            return export_ImVec2(that.GetClipRectMax(), out);
+        }))
 
         // Primitives
         // IMGUI_API void  AddLine(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness = 1.0f);
@@ -333,15 +345,27 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
             that.AddText(_font, font_size, import_ImVec2(pos), col, text_begin.c_str(), NULL, wrap_width, cpu_fine_clip_rect.isNull() ? NULL : &_cpu_fine_clip_rect);
         }))
         // IMGUI_API void  AddImage(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,1), ImU32 col = 0xFFFFFFFF);
-        // .function("AddImage", FUNCTION(void, (ImDrawList& that, ImTextureID user_texture_id, emscripten::val a, emscripten::val b, emscripten::val uv_a, emscripten::val uv_b, ImU32 col), {}))
+        .function("AddImage", FUNCTION(void, (ImDrawList& that, emscripten::val user_texture_id, emscripten::val a, emscripten::val b, emscripten::val uv_a, emscripten::val uv_b, ImU32 col), {
+            that.AddImage((ImTextureID) user_texture_id.as<int>(), import_ImVec2(a), import_ImVec2(b), import_ImVec2(uv_a), import_ImVec2(uv_b), col);
+        }))
         // IMGUI_API void  AddImageQuad(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,0), const ImVec2& uv_c = ImVec2(1,1), const ImVec2& uv_d = ImVec2(0,1), ImU32 col = 0xFFFFFFFF);
-        // .function("AddImageQuad", FUNCTION(void, (ImDrawList& that, ImTextureID user_texture_id, emscripten::val a, emscripten::val b, emscripten::val c, emscripten::val d, emscripten::val uv_a, emscripten::val uv_b, emscripten::val uv_c, emscripten::val uv_d, ImU32 col), {}))
+        .function("AddImageQuad", FUNCTION(void, (ImDrawList& that, emscripten::val user_texture_id, emscripten::val a, emscripten::val b, emscripten::val c, emscripten::val d, emscripten::val uv_a, emscripten::val uv_b, emscripten::val uv_c, emscripten::val uv_d, ImU32 col), {
+            that.AddImageQuad((ImTextureID) user_texture_id.as<int>(), import_ImVec2(a), import_ImVec2(b), import_ImVec2(c), import_ImVec2(d), import_ImVec2(uv_a), import_ImVec2(uv_b), import_ImVec2(uv_c), import_ImVec2(uv_d), col);
+        }))
         // IMGUI_API void  AddImageRounded(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col, float rounding, int rounding_corners = ImDrawCornerFlags_All);
-        // .function("AddImageRounded", FUNCTION(void, (ImDrawList& that, ImTextureID user_texture_id, emscripten::val a, emscripten::val b, emscripten::val uv_a, emscripten::val uv_b, ImU32 col, float rounding, int rounding_corners), {}))
+        .function("AddImageRounded", FUNCTION(void, (ImDrawList& that, emscripten::val user_texture_id, emscripten::val a, emscripten::val b, emscripten::val uv_a, emscripten::val uv_b, ImU32 col, float rounding, int rounding_corners), {
+            that.AddImageRounded((ImTextureID) user_texture_id.as<int>(), import_ImVec2(a), import_ImVec2(b), import_ImVec2(uv_a), import_ImVec2(uv_b), col, rounding, rounding_corners);
+        }))
         // IMGUI_API void  AddPolyline(const ImVec2* points, const int num_points, ImU32 col, bool closed, float thickness);
-        // .function("AddPolyline", FUNCTION(void, (const ImVec2* points, const int num_points, ImU32 col, bool closed, float thickness), {}))
+        // public AddPolyline(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32, closed: boolean, thickness: number): void;
+        .function("AddPolyline", FUNCTION(void, (emscripten::val points, const int num_points, ImU32 col, bool closed, float thickness), {
+            // TODO
+        }))
         // IMGUI_API void  AddConvexPolyFilled(const ImVec2* points, const int num_points, ImU32 col);
-        // .function("AddConvexPolyFilled", FUNCTION(void, (const ImVec2* points, const int num_points, ImU32 col), {}))
+        // public AddConvexPolyFilled(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32): void;
+        .function("AddConvexPolyFilled", FUNCTION(void, (emscripten::val points, const int num_points, ImU32 col), {
+            // TODO
+        }))
         // IMGUI_API void  AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
         .function("AddBezierCurve", FUNCTION(void, (ImDrawList& that, emscripten::val pos0, emscripten::val cp0, emscripten::val cp1, emscripten::val pos1, ImU32 col, float thickness, int num_segments), {
             that.AddBezierCurve(import_ImVec2(pos0), import_ImVec2(cp0), import_ImVec2(cp1), import_ImVec2(pos1), col, thickness, num_segments);
@@ -383,25 +407,6 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
             that.PathRect(import_ImVec2(rect_min), import_ImVec2(rect_max), rounding, rounding_corners_flags);
         }))
 
-    // // inline    void  PathClear()                                                 { _Path.resize(0); }
-    // public PathClear(): void;
-    // // inline    void  PathLineTo(const ImVec2& pos)                               { _Path.push_back(pos); }
-    // public PathLineTo(pos: Readonly<interface_ImVec2>): void;
-    // // inline    void  PathLineToMergeDuplicate(const ImVec2& pos)                 { if (_Path.Size == 0 || memcmp(&_Path[_Path.Size-1], &pos, 8) != 0) _Path.push_back(pos); }
-    // public PathLineToMergeDuplicate(pos: Readonly<interface_ImVec2>): void;
-    // // inline    void  PathFillConvex(ImU32 col)                                   { AddConvexPolyFilled(_Path.Data, _Path.Size, col); PathClear(); }
-    // public PathFillConvex(col: ImU32): void;
-    // // inline    void  PathStroke(ImU32 col, bool closed, float thickness = 1.0f)  { AddPolyline(_Path.Data, _Path.Size, col, closed, thickness); PathClear(); }
-    // public PathStroke(col: ImU32, closed: boolean, thickness: number): void;
-    // // IMGUI_API void  PathArcTo(const ImVec2& centre, float radius, float a_min, float a_max, int num_segments = 10);
-    // public PathArcTo(centre: Readonly<interface_ImVec2>, radius: number, a_min: number, a_max: number, num_segments: number): void;
-    // // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
-    // public PathArcToFast(centre: Readonly<interface_ImVec2>, radius: number, a_min_of_12: number, a_max_of_12: number): void;
-    // // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
-    // public PathBezierCurveTo(p1: Readonly<interface_ImVec2>, p2: Readonly<interface_ImVec2>, p3: Readonly<interface_ImVec2>, num_segments: number): void;
-    // // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
-    // public PathRect(rect_min: Readonly<interface_ImVec2>, rect_max: Readonly<interface_ImVec2>, rounding: number, rounding_corners_flags: ImDrawCornerFlags): void;
-
         // Channels
         // - Use to simulate layers. By switching channels to can render out-of-order (e.g. submit foreground primitives before background primitives)
         // - Use to minimize draw calls (e.g. if going back-and-forth between multiple non-overlapping clipping rectangles, prefer to append into separate channels then merge at the end)
@@ -414,21 +419,48 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
 
         // Advanced
         // IMGUI_API void  AddCallback(ImDrawCallback callback, void* callback_data);  // Your rendering function must check for 'UserCallback' in ImDrawCmd and call the function instead of rendering triangles.
+        .function("AddCallback", FUNCTION(void, (ImDrawList& that, emscripten::val callback, emscripten::val callback_data), {
+            // TODO
+        }))
         // IMGUI_API void  AddDrawCmd();                                               // This is useful if you need to forcefully create a new draw call (to allow for dependent rendering / blending). Otherwise primitives are merged into the same draw-call as much as possible
+        .function("AddDrawCmd", &ImDrawList::AddDrawCmd)
 
         // Internal helpers
         // NB: all primitives needs to be reserved via PrimReserve() beforehand!
         // IMGUI_API void  Clear();
+        .function("Clear", &ImDrawList::Clear)
         // IMGUI_API void  ClearFreeMemory();
+        .function("ClearFreeMemory", &ImDrawList::ClearFreeMemory)
         // IMGUI_API void  PrimReserve(int idx_count, int vtx_count);
+        .function("PrimReserve", &ImDrawList::PrimReserve)
         // IMGUI_API void  PrimRect(const ImVec2& a, const ImVec2& b, ImU32 col);      // Axis aligned rectangle (composed of two triangles)
+        .function("PrimRect", FUNCTION(void, (ImDrawList& that, emscripten::val a, emscripten::val b, ImU32 col), {
+            that.PrimRect(import_ImVec2(a), import_ImVec2(b), col);
+        }))
         // IMGUI_API void  PrimRectUV(const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col);
+        .function("PrimRectUV", FUNCTION(void, (ImDrawList& that, emscripten::val a, emscripten::val b, emscripten::val uv_a, emscripten::val uv_b, ImU32 col), {
+            that.PrimRectUV(import_ImVec2(a), import_ImVec2(b), import_ImVec2(uv_a), import_ImVec2(uv_b), col);
+        }))
         // IMGUI_API void  PrimQuadUV(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, const ImVec2& uv_a, const ImVec2& uv_b, const ImVec2& uv_c, const ImVec2& uv_d, ImU32 col);
+        .function("PrimQuadUV", FUNCTION(void, (ImDrawList& that, emscripten::val a, emscripten::val b, emscripten::val c, emscripten::val d, emscripten::val uv_a, emscripten::val uv_b, emscripten::val uv_c, emscripten::val uv_d, ImU32 col), {
+            that.PrimQuadUV(import_ImVec2(a), import_ImVec2(b), import_ImVec2(c), import_ImVec2(d), import_ImVec2(uv_a), import_ImVec2(uv_b), import_ImVec2(uv_c), import_ImVec2(uv_d), col);
+        }))
         // inline    void  PrimWriteVtx(const ImVec2& pos, const ImVec2& uv, ImU32 col){ _VtxWritePtr->pos = pos; _VtxWritePtr->uv = uv; _VtxWritePtr->col = col; _VtxWritePtr++; _VtxCurrentIdx++; }
+        .function("PrimWriteVtx", FUNCTION(void, (ImDrawList& that, emscripten::val pos, emscripten::val uv, ImU32 col), {
+            that.PrimWriteVtx(import_ImVec2(pos), import_ImVec2(uv), col);
+        }))
         // inline    void  PrimWriteIdx(ImDrawIdx idx)                                 { *_IdxWritePtr = idx; _IdxWritePtr++; }
+        .function("PrimWriteIdx", FUNCTION(void, (ImDrawList& that, ImDrawIdx idx), {
+            that.PrimWriteIdx(idx);
+        }))
         // inline    void  PrimVtx(const ImVec2& pos, const ImVec2& uv, ImU32 col)     { PrimWriteIdx((ImDrawIdx)_VtxCurrentIdx); PrimWriteVtx(pos, uv, col); }
+        .function("PrimVtx", FUNCTION(void, (ImDrawList& that, emscripten::val pos, emscripten::val uv, ImU32 col), {
+            that.PrimVtx(import_ImVec2(pos), import_ImVec2(uv), col);
+        }))
         // IMGUI_API void  UpdateClipRect();
+        .function("UpdateClipRect", &ImDrawList::UpdateClipRect)
         // IMGUI_API void  UpdateTextureID();
+        .function("UpdateTextureID", &ImDrawList::UpdateTextureID)
     ;
 }
 
@@ -454,6 +486,7 @@ EMSCRIPTEN_BINDINGS(ImDrawData) {
         // Functions
         // ImDrawData() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; }
         // IMGUI_API void DeIndexAllBuffers();               // For backward compatibility or convenience: convert all buffers from indexed to de-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
+        .function("DeIndexAllBuffers", &ImDrawData::DeIndexAllBuffers)
         // IMGUI_API void ScaleClipRects(const ImVec2& sc);  // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
         .function("ScaleClipRects", FUNCTION(void, (ImDrawData* that, emscripten::val sc), {
             that->ScaleClipRects(import_ImVec2(sc));
@@ -535,7 +568,20 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         // RGBA32 format is provided for convenience and compatibility, but note that unless you use CustomRect to draw color data, the RGB pixels emitted from Fonts will all be white (~75% of waste). 
         // Pitch = Width * BytesPerPixels
         // IMGUI_API bool              Build();                    // Build pixels data. This is called automatically for you by the GetTexData*** functions.
+        .function("Build", &ImFontAtlas::Build)
         // IMGUI_API void              GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 1 byte per-pixel
+        .function("GetTexDataAsAlpha8", FUNCTION(emscripten::val, (ImFontAtlas& that), {
+            unsigned char* pixels = NULL;
+            int width = -1;
+            int height = -1;
+            int bytes_per_pixel = -1;
+            that.GetTexDataAsAlpha8(&pixels, &width, &height, &bytes_per_pixel);
+            emscripten::val tex_data = emscripten::val::object();
+            tex_data.set(emscripten::val("pixels"), emscripten::val(emscripten::typed_memory_view(width * height * 4, pixels)));
+            tex_data.set(emscripten::val("width"), emscripten::val(width));
+            tex_data.set(emscripten::val("height"), emscripten::val(height));
+            return tex_data;
+        }))
         // IMGUI_API void              GetTexDataAsRGBA32(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 4 bytes-per-pixel
         .function("GetTexDataAsRGBA32", FUNCTION(emscripten::val, (ImFontAtlas& that), {
             unsigned char* pixels = NULL;
@@ -606,11 +652,10 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
 
         // ImTextureID                 TexID;              // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
         .function("getTexID", FUNCTION(emscripten::val, (const ImFontAtlas* that), {
-            return (that->TexID == NULL) ? emscripten::val::null() : *(emscripten::val*) that->TexID;
+            return emscripten::val((int) that->TexID);
         }), emscripten::allow_raw_pointers())
         .function("setTexID", FUNCTION(void, (ImFontAtlas* that, emscripten::val value), {
-            if (that->TexID) { delete (emscripten::val*) that->TexID; }
-            that->TexID = (value.isNull()) ? NULL : new emscripten::val(value);
+            that->TexID = (ImTextureID) value.as<int>();
         }), emscripten::allow_raw_pointers())
         // int                         TexDesiredWidth;    // Texture width desired by user before Build(). Must be a power-of-two. If have many glyphs your graphics API have texture size restrictions you may want to increase texture width to decrease height.
         // int                         TexGlyphPadding;    // Padding between glyphs within texture in pixels. Defaults to 1.
@@ -947,17 +992,18 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }), emscripten::allow_raw_pointers());
     // IMGUI_API void          DestroyContext(ImGuiContext* ctx = NULL);   // NULL = Destroy current context
     emscripten::function("DestroyContext", FUNCTION(void, (emscripten::val ctx), {
-        ImGuiContext* _ctx = ctx.isNull() ? NULL : ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
+        ImGuiContext* _ctx = ctx.isNull() ? NULL : (ImGuiContext*) ctx.as<int>();
         ImGui::DestroyContext(_ctx);
     }));
     // IMGUI_API ImGuiContext* GetCurrentContext();
     emscripten::function("GetCurrentContext", FUNCTION(emscripten::val, (), {
         ImGuiContext* ctx = ImGui::GetCurrentContext();
-        return (ctx == NULL) ? emscripten::val::null() : emscripten::val(ctx);
+        int p = (int)ctx;
+        return (ctx == NULL) ? emscripten::val::null() : emscripten::val(p);
     }), emscripten::allow_raw_pointers());
     // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
     emscripten::function("SetCurrentContext", FUNCTION(void, (emscripten::val ctx), {
-        ImGuiContext* _ctx = ctx.isNull() ? NULL : ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
+        ImGuiContext* _ctx = ctx.isNull() ? NULL : (ImGuiContext*) ctx.as<int>();
         ImGui::SetCurrentContext(_ctx);
     }));
 
@@ -1444,13 +1490,11 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("InvisibleButton", FUNCTION(bool, (std::string str_id, emscripten::val size), { return ImGui::InvisibleButton(str_id.c_str(), import_ImVec2(size)); }));
     // IMGUI_API void          Image(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0), const ImVec2& uv1 = ImVec2(1,1), const ImVec4& tint_col = ImVec4(1,1,1,1), const ImVec4& border_col = ImVec4(0,0,0,0));
     emscripten::function("Image", FUNCTION(void, (emscripten::val user_texture_id, emscripten::val size, emscripten::val uv0, emscripten::val uv1, emscripten::val tint_col, emscripten::val border_col), {
-        ImTextureID _user_texture_id = ImGui::GetIO().Fonts->TexID; // TODO: texture
-        ImGui::Image(_user_texture_id, import_ImVec2(size), import_ImVec2(uv0), import_ImVec2(uv1), import_ImVec4(tint_col), import_ImVec4(border_col));
+        ImGui::Image((ImTextureID) user_texture_id.as<int>(), import_ImVec2(size), import_ImVec2(uv0), import_ImVec2(uv1), import_ImVec4(tint_col), import_ImVec4(border_col));
     }));
     // IMGUI_API bool          ImageButton(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0),  const ImVec2& uv1 = ImVec2(1,1), int frame_padding = -1, const ImVec4& bg_col = ImVec4(0,0,0,0), const ImVec4& tint_col = ImVec4(1,1,1,1));    // <0 frame_padding uses default frame padding settings. 0 for no padding
     emscripten::function("ImageButton", FUNCTION(bool, (emscripten::val user_texture_id, emscripten::val size, emscripten::val uv0, emscripten::val uv1, int frame_padding, emscripten::val bg_col, emscripten::val tint_col), {
-        ImTextureID _user_texture_id = ImGui::GetIO().Fonts->TexID; // TODO: texture
-        return ImGui::ImageButton(_user_texture_id, import_ImVec2(size), import_ImVec2(uv0), import_ImVec2(uv1), frame_padding, import_ImVec4(bg_col), import_ImVec4(tint_col));
+        return ImGui::ImageButton((ImTextureID) user_texture_id.as<int>(), import_ImVec2(size), import_ImVec2(uv0), import_ImVec2(uv1), frame_padding, import_ImVec4(bg_col), import_ImVec4(tint_col));
     }));
     // IMGUI_API bool          Checkbox(const char* label, bool* v);
     emscripten::function("Checkbox", FUNCTION(bool, (std::string label, emscripten::val v), {

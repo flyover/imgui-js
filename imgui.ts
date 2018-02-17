@@ -23,6 +23,8 @@ export { ImTuple2 } from "./bind-imgui";
 export { ImTuple3 } from "./bind-imgui";
 export { ImTuple4 } from "./bind-imgui";
 
+export type ImTextureID = WebGLTexture;
+
 // Flags for ImGui::Begin()
 export { ImGuiWindowFlags as WindowFlags };
 export enum ImGuiWindowFlags {
@@ -939,9 +941,13 @@ export class ImDrawCmd
     // ImVec4          ClipRect;               // Clipping rectangle (x1, y1, x2, y2)
     get ClipRect(): Readonly<bind.reference_ImVec4> { return this.native.getClipRect(); }
     // ImTextureID     TextureId;              // User-provided texture ID. Set by user in ImfontAtlas::SetTexID() for fonts or passed to Image*() functions. Ignore if never using images or multiple fonts atlas.
-    get TextureId(): bind.ImTextureID { return this.native.TextureId; }
+    get TextureId(): ImTextureID | null {
+        return ImGuiContext.getTexture(this.native.TextureId);
+    }
     // ImDrawCallback  UserCallback;           // If != NULL, call the function instead of rendering the vertices. clip_rect and texture_id will be set normally.
+    readonly UserCallback: ImDrawCallback | null = null; // TODO
     // void*           UserCallbackData;       // The draw callback code can access this.
+    readonly UserCallbackData: any = null; // TODO
 
     // ImDrawCmd() { ElemCount = 0; ClipRect.x = ClipRect.y = ClipRect.z = ClipRect.w = 0.0f; TextureId = NULL; UserCallback = NULL; UserCallbackData = NULL; }
 }
@@ -990,10 +996,6 @@ export class ImDrawChannel
     // ImVector<ImDrawIdx>     IdxBuffer;
 }
 
-// export { ImDrawCornerFlags } from "./bind-imgui";
-
-// export { ImDrawListFlags } from "./bind-imgui";
-
 export class ImDrawListSharedData
 {
     constructor(public readonly native: bind.reference_ImDrawListSharedData) {}
@@ -1024,6 +1026,8 @@ export class ImDrawList
 
     // [Internal, used while building lists]
     // ImDrawListFlags         Flags;              // Flags, you may poke into these to adjust anti-aliasing settings per-primitive.
+    get Flags(): ImDrawListFlags { return this.native.Flags; }
+    set Flags(value: ImDrawListFlags) { this.native.Flags = value; }
     // const ImDrawListSharedData* _Data;          // Pointer to shared draw data (you can use ImGui::GetDrawListSharedData() to get the one from current ImGui context)
     // const char*             _OwnerName;         // Pointer to owner window's name for debugging
     // unsigned int            _VtxCurrentIdx;     // [Internal] == VtxBuffer.Size
@@ -1047,9 +1051,19 @@ export class ImDrawList
     // IMGUI_API void  PopClipRect();
     public PopClipRect(): void { this.native.PopClipRect(); }
     // IMGUI_API void  PushTextureID(const ImTextureID& texture_id);
+    public PushTextureID(texture_id: ImTextureID): void {
+        this.native.PushTextureID(ImGuiContext.setTexture(texture_id));
+    }
     // IMGUI_API void  PopTextureID();
+    public PopTextureID(): void { this.native.PopTextureID(); }
     // inline ImVec2   GetClipRectMin() const { const ImVec4& cr = _ClipRectStack.back(); return ImVec2(cr.x, cr.y); }
+    public GetClipRectMin(out: bind.interface_ImVec2 = new ImVec2()): typeof out {
+        return this.native.GetClipRectMin(out);
+    }
     // inline ImVec2   GetClipRectMax() const { const ImVec4& cr = _ClipRectStack.back(); return ImVec2(cr.z, cr.w); }
+    public GetClipRectMax(out: bind.interface_ImVec2 = new ImVec2()): typeof out {
+        return this.native.GetClipRectMax(out);
+    }
 
     // Primitives
     // IMGUI_API void  AddLine(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness = 1.0f);
@@ -1101,10 +1115,25 @@ export class ImDrawList
         this.native.AddText_Font(font.native, font_size, pos, col, text_begin, text_end, wrap_width, cpu_fine_clip_rect);
     }
     // IMGUI_API void  AddImage(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,1), ImU32 col = 0xFFFFFFFF);
+    public AddImage(user_texture_id: ImTextureID | null, a: Readonly<bind.interface_ImVec2>, b: Readonly<bind.interface_ImVec2>, uv_a: Readonly<bind.interface_ImVec2> = ImVec2.ZERO, uv_b: Readonly<bind.interface_ImVec2> = ImVec2.UNIT, col: bind.ImU32 = 0xFFFFFFFF): void {
+        this.native.AddImage(ImGuiContext.setTexture(user_texture_id), a, b, uv_a, uv_b, col);
+    }
     // IMGUI_API void  AddImageQuad(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,0), const ImVec2& uv_c = ImVec2(1,1), const ImVec2& uv_d = ImVec2(0,1), ImU32 col = 0xFFFFFFFF);
+    public AddImageQuad(user_texture_id: ImTextureID | null, a: Readonly<bind.interface_ImVec2>, b: Readonly<bind.interface_ImVec2>, c: Readonly<bind.interface_ImVec2>, d: Readonly<bind.interface_ImVec2>, uv_a: Readonly<bind.interface_ImVec2> = ImVec2.ZERO, uv_b: Readonly<bind.interface_ImVec2> = ImVec2.UNIT_X, uv_c: Readonly<bind.interface_ImVec2> = ImVec2.UNIT, uv_d: Readonly<bind.interface_ImVec2> = ImVec2.UNIT_Y, col: bind.ImU32 = 0xFFFFFFFF): void {
+        this.native.AddImageQuad(ImGuiContext.setTexture(user_texture_id), a, b, c, d, uv_a, uv_b, uv_c, uv_d, col);
+    }
     // IMGUI_API void  AddImageRounded(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col, float rounding, int rounding_corners = ImDrawCornerFlags_All);
+    public AddImageRounded(user_texture_id: ImTextureID | null, a: Readonly<bind.interface_ImVec2>, b: Readonly<bind.interface_ImVec2>, uv_a: Readonly<bind.interface_ImVec2>, uv_b: Readonly<bind.interface_ImVec2>, col: bind.ImU32, rounding: number, rounding_corners: ImDrawCornerFlags = ImDrawCornerFlags.All): void {
+        this.native.AddImageRounded(ImGuiContext.setTexture(user_texture_id), a, b, uv_a, uv_b, col, rounding, rounding_corners);
+    }
     // IMGUI_API void  AddPolyline(const ImVec2* points, const int num_points, ImU32 col, bool closed, float thickness);
+    public AddPolyline(points: Readonly<bind.interface_ImVec2>[], num_points: number, col: bind.ImU32, closed: boolean, thickness: number): void {
+        this.native.AddPolyline(points, num_points, col, closed, thickness);
+    }
     // IMGUI_API void  AddConvexPolyFilled(const ImVec2* points, const int num_points, ImU32 col);
+    public AddConvexPolyFilled(points: Readonly<bind.interface_ImVec2>[], num_points: number, col: bind.ImU32): void {
+        this.native.AddConvexPolyFilled(points, num_points, col);
+    }
     // IMGUI_API void  AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
     public AddBezierCurve(pos0: Readonly<bind.interface_ImVec2>, cp0: Readonly<bind.interface_ImVec2>, cp1: Readonly<bind.interface_ImVec2>, pos1: Readonly<bind.interface_ImVec2>, col: bind.ImU32, thickness: number = 1.0, num_segments: number = 0): void {
         this.native.AddBezierCurve(pos0, cp0, cp1, pos1, col, thickness, num_segments);
@@ -1142,21 +1171,39 @@ export class ImDrawList
 
     // Advanced
     // IMGUI_API void  AddCallback(ImDrawCallback callback, void* callback_data);  // Your rendering function must check for 'UserCallback' in ImDrawCmd and call the function instead of rendering triangles.
+    public AddCallback(callback: ImDrawCallback, callback_data: any): void {
+        const _callback: bind.ImDrawCallback = (parent_list: Readonly<bind.reference_ImDrawList>, draw_cmd: Readonly<bind.reference_ImDrawCmd>): void => {
+            callback(new ImDrawList(parent_list), new ImDrawCmd(draw_cmd));
+        };
+        this.native.AddCallback(_callback, callback_data);
+    }
     // IMGUI_API void  AddDrawCmd();                                               // This is useful if you need to forcefully create a new draw call (to allow for dependent rendering / blending). Otherwise primitives are merged into the same draw-call as much as possible
+    public AddDrawCmd(): void { this.native.AddDrawCmd(); }
 
     // Internal helpers
     // NB: all primitives needs to be reserved via PrimReserve() beforehand!
     // IMGUI_API void  Clear();
+    public Clear(): void { this.native.Clear(); }
     // IMGUI_API void  ClearFreeMemory();
+    public ClearFreeMemory(): void { this.native.ClearFreeMemory(); }
     // IMGUI_API void  PrimReserve(int idx_count, int vtx_count);
+    public PrimReserve(idx_count: number, vtx_count: number): void { this.native.PrimReserve(idx_count, vtx_count); }
     // IMGUI_API void  PrimRect(const ImVec2& a, const ImVec2& b, ImU32 col);      // Axis aligned rectangle (composed of two triangles)
+    public PrimRect(a: Readonly<bind.interface_ImVec2>, b: Readonly<bind.interface_ImVec2>, col: bind.ImU32): void { this.native.PrimRect(a, b, col); }
     // IMGUI_API void  PrimRectUV(const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col);
+    public PrimRectUV(a: Readonly<bind.interface_ImVec2>, b: Readonly<bind.interface_ImVec2>, uv_a: Readonly<bind.interface_ImVec2>, uv_b: Readonly<bind.interface_ImVec2>, col: bind.ImU32): void { this.native.PrimRectUV(a, b, uv_a, uv_b, col); }
     // IMGUI_API void  PrimQuadUV(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, const ImVec2& uv_a, const ImVec2& uv_b, const ImVec2& uv_c, const ImVec2& uv_d, ImU32 col);
+    public PrimQuadUV(a: Readonly<bind.interface_ImVec2>, b: Readonly<bind.interface_ImVec2>, c: Readonly<bind.interface_ImVec2>, d: Readonly<bind.interface_ImVec2>, uv_a: Readonly<bind.interface_ImVec2>, uv_b: Readonly<bind.interface_ImVec2>, uv_c: Readonly<bind.interface_ImVec2>, uv_d: Readonly<bind.interface_ImVec2>, col: bind.ImU32): void { this.native.PrimQuadUV(a, b, c, d, uv_a, uv_b, uv_c, uv_d, col); }
     // inline    void  PrimWriteVtx(const ImVec2& pos, const ImVec2& uv, ImU32 col){ _VtxWritePtr->pos = pos; _VtxWritePtr->uv = uv; _VtxWritePtr->col = col; _VtxWritePtr++; _VtxCurrentIdx++; }
+    public PrimWriteVtx(pos: Readonly<bind.interface_ImVec2>, uv: Readonly<bind.interface_ImVec2>, col: bind.ImU32): void { this.native.PrimWriteVtx(pos, uv, col); }
     // inline    void  PrimWriteIdx(ImDrawIdx idx)                                 { *_IdxWritePtr = idx; _IdxWritePtr++; }
+    public PrimWriteIdx(idx: ImDrawIdx): void { this.native.PrimWriteIdx(idx); }
     // inline    void  PrimVtx(const ImVec2& pos, const ImVec2& uv, ImU32 col)     { PrimWriteIdx((ImDrawIdx)_VtxCurrentIdx); PrimWriteVtx(pos, uv, col); }
+    public PrimVtx(pos: Readonly<bind.interface_ImVec2>, uv: Readonly<bind.interface_ImVec2>, col: bind.ImU32): void { this.native.PrimVtx(pos, uv, col); }
     // IMGUI_API void  UpdateClipRect();
+    public UpdateClipRect(): void { this.native.UpdateClipRect(); }
     // IMGUI_API void  UpdateTextureID();
+    public UpdateTextureID(): void { this.native.UpdateTextureID(); }
 }
 
 // All draw data to render an ImGui frame
@@ -1183,6 +1230,7 @@ export class ImDrawData
     // Functions
     // ImDrawData() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; }
     // IMGUI_API void DeIndexAllBuffers();               // For backward compatibility or convenience: convert all buffers from indexed to de-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
+    public DeIndexAllBuffers(): void { this.native.DeIndexAllBuffers(); }
     // IMGUI_API void ScaleClipRects(const ImVec2& sc);  // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
     public ScaleClipRects(sc: Readonly<bind.interface_ImVec2>): void {
         this.native.ScaleClipRects(sc);
@@ -1221,7 +1269,11 @@ export class ImFontGlyph
     // float           U0, V0, U1, V1;     // Texture coordinates
 }
 
-export { ImFontAtlasFlags } from "./bind-imgui";
+export enum ImFontAtlasFlags
+{
+    NoPowerOfTwoHeight = 1 << 0,   // Don't round the height to next power of two
+    NoMouseCursors     = 1 << 1    // Don't build software mouse cursors into the atlas
+}
 
 // Load and rasterize multiple TTF/OTF fonts into a same texture.
 // Sharing a texture for multiple fonts allows us to reduce the number of draw calls during rendering.
@@ -1253,12 +1305,17 @@ export class ImFontAtlas
     // RGBA32 format is provided for convenience and compatibility, but note that unless you use CustomRect to draw color data, the RGB pixels emitted from Fonts will all be white (~75% of waste).
     // Pitch = Width * BytesPerPixels
     // IMGUI_API bool              Build();                    // Build pixels data. This is called automatically for you by the GetTexData*** functions.
+    Build(): boolean { return this.native.Build(); }
     // IMGUI_API void              GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 1 byte per-pixel
+    GetTexDataAsAlpha8(): { pixels: Uint8Array, width: number, height: number } {
+        return this.native.GetTexDataAsAlpha8();
+    }
     // IMGUI_API void              GetTexDataAsRGBA32(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 4 bytes-per-pixel
     GetTexDataAsRGBA32(): { pixels: Uint8Array, width: number, height: number } {
         return this.native.GetTexDataAsRGBA32();
     }
     // void                        SetTexID(ImTextureID id)    { TexID = id; }
+    SetTexID(id: ImTextureID | null): void { this.TexID = id; }
 
     //-------------------------------------------
     // Glyph Ranges
@@ -1314,8 +1371,12 @@ export class ImFontAtlas
     //-------------------------------------------
 
     // ImTextureID                 TexID;              // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
-    get TexID(): bind.ImTextureID { return this.native.getTexID(); }
-    set TexID(value: bind.ImTextureID) { this.native.setTexID(value); }
+    get TexID(): ImTextureID | null {
+        return ImGuiContext.getTexture(this.native.getTexID());
+    }
+    set TexID(value: ImTextureID | null) {
+        this.native.setTexID(ImGuiContext.setTexture(value));
+    }
     // int                         TexDesiredWidth;    // Texture width desired by user before Build(). Must be a power-of-two. If have many glyphs your graphics API have texture size restrictions you may want to increase texture width to decrease height.
     // int                         TexGlyphPadding;    // Padding between glyphs within texture in pixels. Defaults to 1.
 
@@ -1761,18 +1822,69 @@ export class ImGuiIO
 // Context creation and access, if you want to use multiple context, share context between modules (e.g. DLL). 
 // All contexts share a same ImFontAtlas by default. If you want different font atlas, you can new() them and overwrite the GetIO().Fonts variable of an ImGui context.
 // All those functions are not reliant on the current context.
+export class ImGuiContext {
+    static current_ctx: ImGuiContext | null = null;
+    static getTexture(index: number): ImTextureID | null {
+        if (ImGuiContext.current_ctx === null) { throw new Error(); }
+        return ImGuiContext.current_ctx._getTexture(index);
+    }
+    static setTexture(texture: ImTextureID | null): number {
+        if (ImGuiContext.current_ctx === null) { throw new Error(); }
+        return ImGuiContext.current_ctx._setTexture(texture);
+    }
+
+    private textures: (ImTextureID | null)[] = [];
+    constructor(public native: bind.ImGuiContext) {}
+    delete(): void {
+        this.textures.length = 0;
+    }
+    private _getTexture(index: number): ImTextureID | null {
+        return this.textures[index] || null;
+    }
+    private _setTexture(texture: ImTextureID | null): number {
+        let index = this.textures.indexOf(texture);
+        if (index === -1) {
+            for (let i = 0; i < this.textures.length; ++i) {
+                if (this.textures[i] === null) {
+                    this.textures[i] = texture;
+                    return i;
+                }
+            }
+            index = this.textures.length;
+            this.textures.push(texture);
+        }
+        return index;
+    }
+}
 // IMGUI_API ImGuiContext* CreateContext(ImFontAtlas* shared_font_atlas = NULL);
-export function CreateContext(shared_font_atlas: ImFontAtlas | null = null): bind.ImGuiContext | null {
-    return bind.CreateContext();
+export function CreateContext(shared_font_atlas: ImFontAtlas | null = null): ImGuiContext | null {
+    const ctx_native: bind.ImGuiContext | null = bind.CreateContext();
+    if (ctx_native === null) { throw new Error(); }
+    const ctx: ImGuiContext = new ImGuiContext(ctx_native);
+    if (ImGuiContext.current_ctx === null) {
+        ImGuiContext.current_ctx = ctx;
+    }
+    return ctx;
 }
 // IMGUI_API void          DestroyContext(ImGuiContext* ctx = NULL);   // NULL = Destroy current context
-export function DestroyContext(ctx: bind.ImGuiContext | null = null): void {
-    return bind.DestroyContext(ctx);
+export function DestroyContext(ctx: ImGuiContext | null = null): void {
+    if (ctx === null) {
+        ctx = ImGuiContext.current_ctx;
+        ImGuiContext.current_ctx = null;
+    }
+    bind.DestroyContext((ctx === null) ? null : ctx.native);
+    if (ctx) { ctx.delete(); }
 }
 // IMGUI_API ImGuiContext* GetCurrentContext();
-export { GetCurrentContext } from "./bind-imgui";
+export function GetCurrentContext(): ImGuiContext | null {
+    // const ctx_native: bind.ImGuiContext | null = bind.GetCurrentContext();
+    return ImGuiContext.current_ctx;
+}
 // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
-export { SetCurrentContext } from "./bind-imgui";
+export function SetCurrentContext(ctx: ImGuiContext | null): void {
+    bind.SetCurrentContext((ctx === null) ? null : ctx.native);
+    ImGuiContext.current_ctx = ctx;
+}
 
 // Main
 // IMGUI_API ImGuiIO&      GetIO();
@@ -2248,12 +2360,12 @@ export function InvisibleButton(str_id: string, size: Readonly<bind.interface_Im
     return bind.InvisibleButton(str_id, size);
 }
 // IMGUI_API void          Image(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0), const ImVec2& uv1 = ImVec2(1,1), const ImVec4& tint_col = ImVec4(1,1,1,1), const ImVec4& border_col = ImVec4(0,0,0,0));
-export function Image(user_texture_id: any, size: Readonly<bind.interface_ImVec2>, uv0: Readonly<bind.interface_ImVec2> = ImVec2.ZERO, uv1: Readonly<bind.interface_ImVec2> = ImVec2.UNIT, tint_col: Readonly<bind.interface_ImVec4> = ImVec4.WHITE, border_col: Readonly<bind.interface_ImVec4> = ImVec4.ZERO): void {
-    bind.Image(user_texture_id, size, uv0, uv1, tint_col, border_col);
+export function Image(user_texture_id: ImTextureID | null, size: Readonly<bind.interface_ImVec2>, uv0: Readonly<bind.interface_ImVec2> = ImVec2.ZERO, uv1: Readonly<bind.interface_ImVec2> = ImVec2.UNIT, tint_col: Readonly<bind.interface_ImVec4> = ImVec4.WHITE, border_col: Readonly<bind.interface_ImVec4> = ImVec4.ZERO): void {
+    bind.Image(ImGuiContext.setTexture(user_texture_id), size, uv0, uv1, tint_col, border_col);
 }
 // IMGUI_API bool          ImageButton(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0),  const ImVec2& uv1 = ImVec2(1,1), int frame_padding = -1, const ImVec4& bg_col = ImVec4(0,0,0,0), const ImVec4& tint_col = ImVec4(1,1,1,1));    // <0 frame_padding uses default frame padding settings. 0 for no padding
-export function ImageButton(user_texture_id: any, size: Readonly<bind.interface_ImVec2>, uv0: Readonly<bind.interface_ImVec2> = ImVec2.ZERO, uv1: Readonly<bind.interface_ImVec2> = ImVec2.UNIT, frame_padding: number = -1, bg_col: Readonly<bind.interface_ImVec4> = ImVec4.ZERO, tint_col: Readonly<bind.interface_ImVec4> = ImVec4.WHITE): void {
-    return bind.ImageButton(user_texture_id, size, uv0, uv1, frame_padding, bg_col, tint_col);
+export function ImageButton(user_texture_id: ImTextureID | null, size: Readonly<bind.interface_ImVec2>, uv0: Readonly<bind.interface_ImVec2> = ImVec2.ZERO, uv1: Readonly<bind.interface_ImVec2> = ImVec2.UNIT, frame_padding: number = -1, bg_col: Readonly<bind.interface_ImVec4> = ImVec4.ZERO, tint_col: Readonly<bind.interface_ImVec4> = ImVec4.WHITE): void {
+    return bind.ImageButton(ImGuiContext.setTexture(user_texture_id), size, uv0, uv1, frame_padding, bg_col, tint_col);
 }
 // IMGUI_API bool          Checkbox(const char* label, bool* v);
 export function Checkbox(label: string, v: bind.ImScalar<boolean> | bind.ImAccess<boolean>): boolean {

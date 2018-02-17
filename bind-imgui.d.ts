@@ -38,7 +38,7 @@ export type ImGuiID = number;
 // typedef unsigned short ImWchar;     // character for keyboard input/display
 export type ImWchar = number;
 // typedef void* ImTextureID;          // user data to identify a texture (this is whatever to you want it to be! read the FAQ about ImTextureID in imgui.cpp)
-export type ImTextureID = any;
+export type ImTextureID = number;
 
 type ImGuiWindowFlags = number;
 type ImGuiInputTextFlags = number;
@@ -60,7 +60,7 @@ type ImGuiCond = number;
 type ImDrawCornerFlags = number;
 type ImDrawListFlags = number;
 
-export type ImGuiContext = any;
+export class ImGuiContext extends emscripten.EmscriptenClass {}
 
 export interface interface_ImVec2 {
     x: number;
@@ -309,6 +309,8 @@ export class ImGuiStyle extends emscripten.EmscriptenClass implements interface_
     public ScaleAllSizes(scale_factor: number): void;
 }
 
+export type ImDrawCallback = (parent_list: Readonly<reference_ImDrawList>, cmd: Readonly<reference_ImDrawCmd>) => void;
+
 // export class ImDrawCmd extends NativeClass {
 export class reference_ImDrawCmd extends emscripten.EmscriptenClassReference {
     // unsigned int    ElemCount;              // Number of indices (multiple of 3) to be rendered as triangles. Vertices are stored in the callee ImDrawList's vtx_buffer[] array, indices in idx_buffer[].
@@ -340,6 +342,7 @@ export class reference_ImDrawList extends emscripten.EmscriptenClassReference {
 
     // [Internal, used while building lists]
     // ImDrawListFlags         Flags;              // Flags, you may poke into these to adjust anti-aliasing settings per-primitive.
+    public Flags: ImDrawListFlags;
     // const ImDrawListSharedData* _Data;          // Pointer to shared draw data (you can use ImGui::GetDrawListSharedData() to get the one from current ImGui context)
     // const char*             _OwnerName;         // Pointer to owner window's name for debugging
     // unsigned int            _VtxCurrentIdx;     // [Internal] == VtxBuffer.Size
@@ -362,9 +365,13 @@ export class reference_ImDrawList extends emscripten.EmscriptenClassReference {
     // IMGUI_API void  PopClipRect();
     public PopClipRect(): void;
     // IMGUI_API void  PushTextureID(const ImTextureID& texture_id);
+    public PushTextureID(texture_id: ImTextureID): void;
     // IMGUI_API void  PopTextureID();
+    public PopTextureID(): void;
     // inline ImVec2   GetClipRectMin() const { const ImVec4& cr = _ClipRectStack.back(); return ImVec2(cr.x, cr.y); }
+    public GetClipRectMin(out: interface_ImVec2): typeof out;
     // inline ImVec2   GetClipRectMax() const { const ImVec4& cr = _ClipRectStack.back(); return ImVec2(cr.z, cr.w); }
+    public GetClipRectMax(out: interface_ImVec2): typeof out;
 
     // Primitives
     // IMGUI_API void  AddLine(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness = 1.0f);
@@ -392,10 +399,15 @@ export class reference_ImDrawList extends emscripten.EmscriptenClassReference {
     // IMGUI_API void  AddText(const ImFont* font, float font_size, const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL, float wrap_width = 0.0f, const ImVec4* cpu_fine_clip_rect = NULL);
     public AddText_Font(font: reference_ImFont, font_size: number, pos: Readonly<interface_ImVec2>, col: ImU32, text_begin: string, text_end: number | null, wrap_width: number, cpu_fine_clip_rect: Readonly<interface_ImVec4> | null): void;
     // IMGUI_API void  AddImage(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,1), ImU32 col = 0xFFFFFFFF);
+    public AddImage(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  AddImageQuad(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,0), const ImVec2& uv_c = ImVec2(1,1), const ImVec2& uv_d = ImVec2(0,1), ImU32 col = 0xFFFFFFFF);
+    public AddImageQuad(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, d: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, uv_c: Readonly<interface_ImVec2>, uv_d: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  AddImageRounded(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col, float rounding, int rounding_corners = ImDrawCornerFlags_All);
+    public AddImageRounded(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, rounding_corners: ImDrawCornerFlags): void;
     // IMGUI_API void  AddPolyline(const ImVec2* points, const int num_points, ImU32 col, bool closed, float thickness);
+    public AddPolyline(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32, closed: boolean, thickness: number): void;
     // IMGUI_API void  AddConvexPolyFilled(const ImVec2* points, const int num_points, ImU32 col);
+    public AddConvexPolyFilled(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32): void;
     // IMGUI_API void  AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
     public AddBezierCurve(pos0: Readonly<interface_ImVec2>, cp0: Readonly<interface_ImVec2>, cp1: Readonly<interface_ImVec2>, pos1: Readonly<interface_ImVec2>, col: ImU32, thickness: number, num_segments: number): void;
 
@@ -431,21 +443,34 @@ export class reference_ImDrawList extends emscripten.EmscriptenClassReference {
 
     // Advanced
     // IMGUI_API void  AddCallback(ImDrawCallback callback, void* callback_data);  // Your rendering function must check for 'UserCallback' in ImDrawCmd and call the function instead of rendering triangles.
+    public AddCallback(callback: ImDrawCallback, callback_data: any): void;
     // IMGUI_API void  AddDrawCmd();                                               // This is useful if you need to forcefully create a new draw call (to allow for dependent rendering / blending). Otherwise primitives are merged into the same draw-call as much as possible
+    public AddDrawCmd(): void;
 
     // Internal helpers
     // NB: all primitives needs to be reserved via PrimReserve() beforehand!
     // IMGUI_API void  Clear();
+    public Clear(): void;
     // IMGUI_API void  ClearFreeMemory();
+    public ClearFreeMemory(): void;
     // IMGUI_API void  PrimReserve(int idx_count, int vtx_count);
+    public PrimReserve(idx_count: number, vtx_count: number): void;
     // IMGUI_API void  PrimRect(const ImVec2& a, const ImVec2& b, ImU32 col);      // Axis aligned rectangle (composed of two triangles)
+    public PrimRect(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  PrimRectUV(const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col);
+    public PrimRectUV(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  PrimQuadUV(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, const ImVec2& uv_a, const ImVec2& uv_b, const ImVec2& uv_c, const ImVec2& uv_d, ImU32 col);
+    public PrimQuadUV(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, d: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, uv_c: Readonly<interface_ImVec2>, uv_d: Readonly<interface_ImVec2>, col: ImU32): void;
     // inline    void  PrimWriteVtx(const ImVec2& pos, const ImVec2& uv, ImU32 col){ _VtxWritePtr->pos = pos; _VtxWritePtr->uv = uv; _VtxWritePtr->col = col; _VtxWritePtr++; _VtxCurrentIdx++; }
+    public PrimWriteVtx(pos: Readonly<interface_ImVec2>, us: Readonly<interface_ImVec2>, col: ImU32): void;
     // inline    void  PrimWriteIdx(ImDrawIdx idx)                                 { *_IdxWritePtr = idx; _IdxWritePtr++; }
+    public PrimWriteIdx(idx: number): void;
     // inline    void  PrimVtx(const ImVec2& pos, const ImVec2& uv, ImU32 col)     { PrimWriteIdx((ImDrawIdx)_VtxCurrentIdx); PrimWriteVtx(pos, uv, col); }
+    public PrimVtx(pos: Readonly<interface_ImVec2>, uv: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  UpdateClipRect();
+    public UpdateClipRect(): void;
     // IMGUI_API void  UpdateTextureID();
+    public UpdateTextureID(): void;
 }
 
 // export class ImDrawData extends NativeClass {
@@ -466,6 +491,7 @@ export class reference_ImDrawData extends emscripten.EmscriptenClassReference {
     // ImDrawData() { Clear(); }
     // void Clear() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; } // Draw lists are owned by the ImGuiContext and only pointed to here.
     // IMGUI_API void DeIndexAllBuffers();               // For backward compatibility or convenience: convert all buffers from indexed to de-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
+    public DeIndexAllBuffers(): void;
     // IMGUI_API void ScaleClipRects(const ImVec2& sc);  // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
     public ScaleClipRects(sc: Readonly<interface_ImVec2>): void;
 }
@@ -520,11 +546,7 @@ export class reference_ImFont extends emscripten.EmscriptenClassReference {
     // #endif
 }
 
-export enum ImFontAtlasFlags
-{
-    NoPowerOfTwoHeight = 1 << 0,   // Don't round the height to next power of two
-    NoMouseCursors     = 1 << 1    // Don't build software mouse cursors into the atlas
-}
+export type ImFontAtlasFlags = number;
 
 export class reference_ImFontAtlas extends emscripten.EmscriptenClassReference {
     // IMGUI_API ImFontAtlas();
@@ -545,7 +567,9 @@ export class reference_ImFontAtlas extends emscripten.EmscriptenClassReference {
     // RGBA32 format is provided for convenience and compatibility, but note that unless you use CustomRect to draw color data, the RGB pixels emitted from Fonts will all be white (~75% of waste). 
     // Pitch = Width * BytesPerPixels
     // IMGUI_API bool              Build();                    // Build pixels data. This is called automatically for you by the GetTexData*** functions.
+    Build(): boolean;
     // IMGUI_API void              GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 1 byte per-pixel
+    GetTexDataAsAlpha8(): { pixels: Uint8Array, width: number, height: number };
     // IMGUI_API void              GetTexDataAsRGBA32(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 4 bytes-per-pixel
     GetTexDataAsRGBA32(): { pixels: Uint8Array, width: number, height: number };
     // void                        SetTexID(ImTextureID id)    { TexID = id; }
@@ -608,8 +632,8 @@ export class reference_ImFontAtlas extends emscripten.EmscriptenClassReference {
 
     // ImFontAtlasFlags            Flags;              // Build flags (see ImFontAtlasFlags_)
     // ImTextureID                 TexID;              // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
-    getTexID(): WebGLTexture | null;
-    setTexID(value: WebGLTexture | null): void;
+    getTexID(): ImTextureID;
+    setTexID(value: ImTextureID): void;
     // int                         TexDesiredWidth;    // Texture width desired by user before Build(). Must be a power-of-two. If have many glyphs your graphics API have texture size restrictions you may want to increase texture width to decrease height.
     // int                         TexGlyphPadding;    // Padding between glyphs within texture in pixels. Defaults to 1.
 
