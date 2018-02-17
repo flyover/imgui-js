@@ -643,8 +643,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 ImGui.Text(`Max: (${(focus_x + focus_sz).toFixed(2)}, ${(focus_y + focus_sz).toFixed(2)})`);
                 const uv0: ImVec2 = new ImVec2((focus_x) / my_tex_w, (focus_y) / my_tex_h);
                 const uv1: ImVec2 = new ImVec2((focus_x + focus_sz) / my_tex_w, (focus_y + focus_sz) / my_tex_h);
-                // ImGui.Image(my_tex_id, ImVec2(128,128), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
-                ImGui.Image(my_tex_id, new ImVec2(128,128), uv0, uv1, new ImVec4(1.0,1.0,1.0,1.0), new ImVec4(1.0,1.0,1.0,0.5));
+                ImGui.Image(my_tex_id, new ImVec2(128,128), uv0, uv1, new ImColor(255,255,255,255).toImVec4(), new ImColor(255,255,255,128).toImVec4());
                 ImGui.EndTooltip();
             }
             ImGui.TextWrapped("And now some textured buttons..");
@@ -2015,9 +2014,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 // Draw a line between the button and the mouse cursor
                 const draw_list: ImGui.ImDrawList = ImGui.GetWindowDrawList();
                 draw_list.PushClipRectFullScreen();
-                // draw_list->AddLine(io.MouseClickedPos[0], io.MousePos, ImGui::GetColorU32(ImGuiCol_Button), 4.0f);
                 draw_list.AddLine(io.MouseClickedPos[0], io.MousePos, ImGui.GetColorU32(ImGuiCol.Button), 4.0);
-                // draw_list.AddLine(ImGui.CalcItemRectClosestPoint(io.MousePos, true, -2.0), io.MousePos, ImGui.ColorConvertFloat4ToU32(ImGui.GetStyle().Colors[ImGuiCol.Button]), 4.0);
                 draw_list.PopClipRect();
 
                 // Drag operations gets "unlocked" when the mouse has moved past a certain threshold (the default threshold is stored in io.MouseDragThreshold)
@@ -2545,7 +2542,6 @@ function ShowExampleAppCustomRendering(p_open: ImAccess<boolean>): void
     // Define IM_VEC2_CLASS_EXTRA in imconfig.h to create implicit conversions between your types and ImVec2/ImVec4.
     // ImGui defines overloaded operators but they are internal to imgui.cpp and not exposed outside (to avoid messing with your types)
     // In this example we are not using the maths operators!
-    // ImDrawList* draw_list = ImGui.GetWindowDrawList();
     const draw_list: ImDrawList = ImGui.GetWindowDrawList();
 
     // Primitives
