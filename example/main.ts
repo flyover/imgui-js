@@ -325,6 +325,7 @@ let video_time: number = 0;
 function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
     ImGui.Begin("Movie Window", p_open, ImGui.WindowFlags.AlwaysAutoResize);
     if (video_element !== null) {
+        ImGui.Text(video_element.src);
         const w: number = video_element.videoWidth;
         const h: number = video_element.videoHeight;
         if (ImGui.ImageButton(video_gl_texture, new ImVec2(w, h))) {
