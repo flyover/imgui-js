@@ -11,11 +11,25 @@ import { ShowDemoWindow } from "imgui-js/imgui_demo";
 
 import { MemoryEditor } from "imgui-js/imgui_memory_editor";
 
+let show_demo_window: boolean = true;
+let show_another_window: boolean = false;
+const clear_color: ImVec4 = new ImVec4(0.45, 0.55, 0.60, 1.00);
+
+const memory_editor: MemoryEditor = new MemoryEditor();
+
+let show_sandbox_window: boolean = false;
+let show_gamepad_window: boolean = false;
+let show_movie_window: boolean = false;
+
+/* static */ let f: number = 0.0;
+/* static */ let counter: number = 0;
+
+const done: boolean = false;
+
 export default function main(): void {
     // Setup ImGui binding
     ImGui.CreateContext();
     const io: ImGuiIO = ImGui.GetIO();
-    let gl_texture: WebGLTexture | null = null;
     if (typeof(window) !== "undefined") {
         const output: HTMLElement = document.getElementById("output") || document.body;
         const canvas: HTMLCanvasElement = document.createElement("canvas");
@@ -44,31 +58,8 @@ export default function main(): void {
                 event.gamepad.index, event.gamepad.id);
         });
         ImGui_Impl.Init(canvas);
-
-        const width: number = 256;
-        const height: number = 256;
-        const pixels: Uint8Array = new Uint8Array(4 * width * height);
-        // const u32: Uint32Array = new Uint32Array(pixels.buffer);
-        // for (let y = 0; y < height; ++y) {
-        //     for (let x = 0; x < width; ++x) {
-        //         const r = x * 255 / width;
-        //         const g = 0;
-        //         const b = y * 255 / height;
-        //         u32[y * width + x] = ImGui.IM_COL32(r, g, b);
-        //     }
-        // }
-        const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
-        gl_texture = gl && gl.createTexture();
-        gl && gl.bindTexture(gl.TEXTURE_2D, gl_texture);
-        gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-        const image = new Image();
-        image.addEventListener("load", (event: Event) => {
-            gl && gl.bindTexture(gl.TEXTURE_2D, gl_texture);
-            gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-        });
-        image.src = "../imgui/examples/apple_example/imguiex-ios/imgui_ex_icon.png";
+        StartUpImage();
+        StartUpVideo();
     } else {
         ImGui_Impl.Init(null);
     }
@@ -93,83 +84,7 @@ export default function main(): void {
     //const font: ImFont = io.Fonts.AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
     //IM_ASSERT(font !== null);
 
-    let show_demo_window: boolean = true;
-    let show_another_window: boolean = false;
-    const clear_color: ImVec4 = new ImVec4(0.45, 0.55, 0.60, 1.00);
-
-    /* static */ let f: number = 0.0;
-    /* static */ let counter: number = 0;
-
-    const memory_editor: MemoryEditor = new MemoryEditor();
-
-    let source: string = [
-        "ImGui.Text(\"Hello, world!\");",
-        "ImGui.SliderFloat(\"float\",",
-        "\t(value = f) => f = value,",
-        "\t0.0, 1.0);",
-        "",
-    ].join("\n");
-
-    function ShowSandboxWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
-        ImGui.SetNextWindowSize(new ImVec2(320, 240), ImGui.Cond.FirstUseEver);
-        ImGui.Begin(title, p_open);
-        ImGui.Text("Source");
-        ImGui.SameLine();
-        ImGui.TextDisabled("(?)");
-        if (ImGui.IsItemHovered())
-        {
-            ImGui.BeginTooltip();
-            ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35.0);
-            ImGui.TextUnformatted("Contents evaluated and appended to the window.");
-            ImGui.PopTextWrapPos();
-            ImGui.EndTooltip();
-        }
-        ImGui.PushItemWidth(-1);
-        ImGui.InputTextMultiline("##source", (_ = source) => (source = _), 1024, ImVec2.ZERO, ImGui.InputTextFlags.AllowTabInput);
-        ImGui.PopItemWidth();
-        try {
-            eval(source);
-        } catch (e) {
-            ImGui.TextColored(new ImVec4(1.0, 0.0, 0.0, 1.0), "error: ");
-            ImGui.SameLine();
-            ImGui.Text(e.message);
-        }
-        ImGui.End();
-    }
-
-    let show_sandbox_window: boolean = false;
-
-    function ShowGamepadWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
-        ImGui.Begin(title, p_open, ImGui.WindowFlags.AlwaysAutoResize);
-        const gamepads: Gamepad[] = typeof(navigator) !== "undefined" && typeof(navigator.getGamepads) === "function" ? navigator.getGamepads() : [];
-        if (gamepads.length > 0) {
-            for (let i = 0; i < gamepads.length; ++i) {
-                const gamepad: Gamepad = gamepads[i];
-                ImGui.Text(`gamepad ${i} ${gamepad && gamepad.id}`);
-                if (!gamepad) { continue; }
-                ImGui.Text(`       `);
-                for (let button = 0; button < gamepad.buttons.length; ++button) {
-                    ImGui.SameLine(); ImGui.Text(`${button.toString(16)}`);
-                }
-                ImGui.Text(`buttons`);
-                for (let button = 0; button < gamepad.buttons.length; ++button) {
-                    ImGui.SameLine(); ImGui.Text(`${gamepad.buttons[button].value}`);
-                }
-                ImGui.Text(`axes`);
-                for (let axis = 0; axis < gamepad.axes.length; ++axis) {
-                    ImGui.Text(`${axis}: ${gamepad.axes[axis].toFixed(2)}`);
-                }
-            }
-        } else {
-            ImGui.Text("connect a gamepad");
-        }
-        ImGui.End();
-    }
-
-    let show_gamepad_window: boolean = false;
-
     // Main loop
-    const done: boolean = false;
     function _loop(time: number): void {
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -211,14 +126,17 @@ export default function main(): void {
             ImGui.Text(`Total allocated space (uordblks):      ${mi.uordblks}`);
             ImGui.Text(`Total free space (fordblks):           ${mi.fordblks}`);
             // ImGui.Text(`Topmost releasable block (keepcost):   ${mi.keepcost}`);
+            if (ImGui.ImageButton(image_gl_texture, new ImVec2(48, 48)))
+                show_demo_window = !show_demo_window;
             ImGui.Checkbox("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
             if (show_sandbox_window)
                 ShowSandboxWindow("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
             ImGui.Checkbox("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window = value);
             if (show_gamepad_window)
                 ShowGamepadWindow("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window = value);
-            if (ImGui.ImageButton(gl_texture, new ImVec2(48, 48)))
-                show_demo_window = !show_demo_window;
+            ImGui.Checkbox("Movie Window", (value = show_movie_window) => show_movie_window = value);
+            if (show_movie_window)
+                ShowMovieWindow("Movie Window", (value = show_movie_window) => show_movie_window = value);
         }
 
         // 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name your windows.
@@ -245,6 +163,8 @@ export default function main(): void {
         gl && gl.clear(gl.COLOR_BUFFER_BIT);
         //gl.useProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
 
+        UpdateVideo();
+
         ImGui_Impl.RenderDrawLists();
 
         if (typeof(window) !== "undefined") {
@@ -253,8 +173,8 @@ export default function main(): void {
     }
 
     function _done(): void {
-        const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
-        gl && gl.deleteTexture(gl_texture); gl_texture = null;
+        CleanUpImage();
+        CleanUpVideo();
 
         // Cleanup
         ImGui_Impl.Shutdown();
@@ -267,4 +187,164 @@ export default function main(): void {
         _loop(1.0 / 60.0);
         _done();
     }
+}
+
+let source: string = [
+    "ImGui.Text(\"Hello, world!\");",
+    "ImGui.SliderFloat(\"float\",",
+    "\t(value = f) => f = value,",
+    "\t0.0, 1.0);",
+    "",
+].join("\n");
+
+function ShowSandboxWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
+    ImGui.SetNextWindowSize(new ImVec2(320, 240), ImGui.Cond.FirstUseEver);
+    ImGui.Begin(title, p_open);
+    ImGui.Text("Source");
+    ImGui.SameLine();
+    ImGui.TextDisabled("(?)");
+    if (ImGui.IsItemHovered())
+    {
+        ImGui.BeginTooltip();
+        ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35.0);
+        ImGui.TextUnformatted("Contents evaluated and appended to the window.");
+        ImGui.PopTextWrapPos();
+        ImGui.EndTooltip();
+    }
+    ImGui.PushItemWidth(-1);
+    ImGui.InputTextMultiline("##source", (_ = source) => (source = _), 1024, ImVec2.ZERO, ImGui.InputTextFlags.AllowTabInput);
+    ImGui.PopItemWidth();
+    try {
+        eval(source);
+    } catch (e) {
+        ImGui.TextColored(new ImVec4(1.0, 0.0, 0.0, 1.0), "error: ");
+        ImGui.SameLine();
+        ImGui.Text(e.message);
+    }
+    ImGui.End();
+}
+
+function ShowGamepadWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
+    ImGui.Begin(title, p_open, ImGui.WindowFlags.AlwaysAutoResize);
+    const gamepads: Gamepad[] = typeof(navigator) !== "undefined" && typeof(navigator.getGamepads) === "function" ? navigator.getGamepads() : [];
+    if (gamepads.length > 0) {
+        for (let i = 0; i < gamepads.length; ++i) {
+            const gamepad: Gamepad = gamepads[i];
+            ImGui.Text(`gamepad ${i} ${gamepad && gamepad.id}`);
+            if (!gamepad) { continue; }
+            ImGui.Text(`       `);
+            for (let button = 0; button < gamepad.buttons.length; ++button) {
+                ImGui.SameLine(); ImGui.Text(`${button.toString(16)}`);
+            }
+            ImGui.Text(`buttons`);
+            for (let button = 0; button < gamepad.buttons.length; ++button) {
+                ImGui.SameLine(); ImGui.Text(`${gamepad.buttons[button].value}`);
+            }
+            ImGui.Text(`axes`);
+            for (let axis = 0; axis < gamepad.axes.length; ++axis) {
+                ImGui.Text(`${axis}: ${gamepad.axes[axis].toFixed(2)}`);
+            }
+        }
+    } else {
+        ImGui.Text("connect a gamepad");
+    }
+    ImGui.End();
+}
+
+let image_element: HTMLImageElement | null = null;
+let image_gl_texture: WebGLTexture | null = null;
+
+function StartUpImage(): void {
+    const width: number = 256;
+    const height: number = 256;
+    const pixels: Uint8Array = new Uint8Array(4 * width * height);
+    const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
+    image_gl_texture = gl && gl.createTexture();
+    gl && gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
+    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+
+    const image: HTMLImageElement = image_element = new Image();
+    image.addEventListener("load", (event: Event) => {
+        gl && gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
+        gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    });
+    image.src = "../imgui/examples/apple_example/imguiex-ios/imgui_ex_icon.png";
+}
+
+function CleanUpImage(): void {
+    const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
+    gl && gl.deleteTexture(image_gl_texture); image_gl_texture = null;
+
+    image_element = null;
+}
+
+let video_element: HTMLVideoElement | null = null;
+let video_gl_texture: WebGLTexture | null = null;
+
+function StartUpVideo(): void {
+    video_element = document.createElement("video");
+    video_element.src = "https://threejs.org/examples/textures/sintel.ogv";
+    video_element.crossOrigin = "anonymous";
+    video_element.load();
+
+    const width: number = 256;
+    const height: number = 256;
+    const pixels: Uint8Array = new Uint8Array(4 * width * height);
+    const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
+    video_gl_texture = gl && gl.createTexture();
+    gl && gl.bindTexture(gl.TEXTURE_2D, video_gl_texture);
+    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+}
+
+function CleanUpVideo(): void {
+    const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
+    gl && gl.deleteTexture(video_gl_texture); video_gl_texture = null;
+
+    video_element = null;
+}
+
+function UpdateVideo(): void {
+    if (video_element && video_element.readyState >= video_element.HAVE_CURRENT_DATA) {
+        const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
+        gl && gl.bindTexture(gl.TEXTURE_2D, video_gl_texture);
+        gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video_element);
+    }
+}
+
+let video_time_active: boolean = false;
+let video_time: number = 0;
+
+function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
+    ImGui.Begin("Movie Window", p_open, ImGui.WindowFlags.AlwaysAutoResize);
+    if (video_element !== null) {
+        const w: number = video_element.videoWidth;
+        const h: number = video_element.videoHeight;
+        if (ImGui.ImageButton(video_gl_texture, new ImVec2(w, h))) {
+            video_element.paused ? video_element.play() : video_element.pause();
+        }
+        if (ImGui.Button(video_element.paused ? "Play" : "Stop")) {
+            video_element.paused ? video_element.play() : video_element.pause();
+        }
+        ImGui.SameLine();
+        if (!video_time_active) {
+            video_time = video_element.currentTime;
+        }
+        ImGui.SliderFloat("Time", (value = video_time) => video_time = value, 0, video_element.duration);
+        const video_time_was_active: boolean = video_time_active;
+        video_time_active = ImGui.IsItemActive();
+        if (!video_time_active && video_time_was_active) {
+            video_element.currentTime = video_time;
+        }
+    } else {
+        ImGui.Text("No Video Element");
+    }
+    ImGui.End();
 }
