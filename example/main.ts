@@ -128,6 +128,11 @@ export default function main(): void {
             // ImGui.Text(`Topmost releasable block (keepcost):   ${mi.keepcost}`);
             if (ImGui.ImageButton(image_gl_texture, new ImVec2(48, 48)))
                 show_demo_window = !show_demo_window;
+            if (ImGui.IsItemHovered()) {
+                ImGui.BeginTooltip();
+                ImGui.Text(image_url);
+                ImGui.EndTooltip();
+            }
             ImGui.Checkbox("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
             if (show_sandbox_window)
                 ShowSandboxWindow("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
@@ -165,7 +170,7 @@ export default function main(): void {
 
         UpdateVideo();
 
-        ImGui_Impl.RenderDrawLists();
+        ImGui_Impl.RenderDrawData(ImGui.GetDrawData());
 
         if (typeof(window) !== "undefined") {
             window.requestAnimationFrame(done ? _done : _loop);
@@ -189,6 +194,19 @@ export default function main(): void {
     }
 }
 
+function ShowHelpMarker(desc: string): void
+{
+    ImGui.TextDisabled("(?)");
+    if (ImGui.IsItemHovered())
+    {
+        ImGui.BeginTooltip();
+        ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35.0);
+        ImGui.TextUnformatted(desc);
+        ImGui.PopTextWrapPos();
+        ImGui.EndTooltip();
+    }
+}
+
 let source: string = [
     "ImGui.Text(\"Hello, world!\");",
     "ImGui.SliderFloat(\"float\",",
@@ -201,16 +219,7 @@ function ShowSandboxWindow(title: string, p_open: ImGui.ImAccess<boolean> | null
     ImGui.SetNextWindowSize(new ImVec2(320, 240), ImGui.Cond.FirstUseEver);
     ImGui.Begin(title, p_open);
     ImGui.Text("Source");
-    ImGui.SameLine();
-    ImGui.TextDisabled("(?)");
-    if (ImGui.IsItemHovered())
-    {
-        ImGui.BeginTooltip();
-        ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35.0);
-        ImGui.TextUnformatted("Contents evaluated and appended to the window.");
-        ImGui.PopTextWrapPos();
-        ImGui.EndTooltip();
-    }
+    ImGui.SameLine(); ShowHelpMarker("Contents evaluated and appended to the window.");
     ImGui.PushItemWidth(-1);
     ImGui.InputTextMultiline("##source", (_ = source) => (source = _), 1024, ImVec2.ZERO, ImGui.InputTextFlags.AllowTabInput);
     ImGui.PopItemWidth();
@@ -251,6 +260,7 @@ function ShowGamepadWindow(title: string, p_open: ImGui.ImAccess<boolean> | null
     ImGui.End();
 }
 
+const image_url: string = "../imgui/examples/apple_example/imguiex-ios/imgui_ex_icon.png";
 let image_element: HTMLImageElement | null = null;
 let image_gl_texture: WebGLTexture | null = null;
 
@@ -272,7 +282,7 @@ function StartUpImage(): void {
         gl && gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
         gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     });
-    image.src = "../imgui/examples/apple_example/imguiex-ios/imgui_ex_icon.png";
+    image.src = image_url;
 }
 
 function CleanUpImage(): void {
@@ -282,12 +292,13 @@ function CleanUpImage(): void {
     image_element = null;
 }
 
+let video_url: string = "https://threejs.org/examples/textures/sintel.ogv";
 let video_element: HTMLVideoElement | null = null;
 let video_gl_texture: WebGLTexture | null = null;
 
 function StartUpVideo(): void {
     video_element = document.createElement("video");
-    video_element.src = "https://threejs.org/examples/textures/sintel.ogv";
+    video_element.src = video_url;
     video_element.crossOrigin = "anonymous";
     video_element.load();
 
@@ -325,7 +336,12 @@ let video_time: number = 0;
 function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
     ImGui.Begin("Movie Window", p_open, ImGui.WindowFlags.AlwaysAutoResize);
     if (video_element !== null) {
-        ImGui.Text(video_element.src);
+        ImGui.PushItemWidth(-1);
+        if (ImGui.InputText("", (value = video_url) => video_url = value)) {
+            console.log(video_url);
+            video_element.src = video_url;
+        }
+        ImGui.PopItemWidth();
         const w: number = video_element.videoWidth;
         const h: number = video_element.videoHeight;
         if (ImGui.ImageButton(video_gl_texture, new ImVec2(w, h))) {
