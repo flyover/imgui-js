@@ -730,11 +730,6 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // Settings (User Functions)
         //------------------------------------------------------------------
 
-        // Rendering function, will be called in Render().
-        // Alternatively you can keep this to NULL and call GetDrawData() after Render() to get the same pointer.
-        // See example applications if you are unsure of how to implement this.
-        // void        (*RenderDrawListsFn)(ImDrawData* data);
-
         // Optional: access OS clipboard
         // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
         // const char* (*GetClipboardTextFn)(void* user_data);
@@ -1029,17 +1024,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          NewFrame();                                 // start a new ImGui frame, you can submit any command from this point until Render()/EndFrame().
     emscripten::function("NewFrame", &ImGui::NewFrame);
     // IMGUI_API void          Render();                                   // ends the ImGui frame, finalize the draw data, then call your io.RenderDrawListsFn() function if set.
-    emscripten::function("Render", FUNCTION(void, (), {
-        // static emscripten::val g_wrapRenderDrawListsFn = emscripten::val::undefined();
-        // ImGuiIO& io = ImGui::GetIO();
-        // io.RenderDrawListsFn = FUNCTION(void, (ImDrawData* draw_data), {
-        //     if (!g_wrapRenderDrawListsFn.isUndefined()) {
-        //         g_wrapRenderDrawListsFn(emscripten::val(draw_data));
-        //     }
-        // });
-        ImGui::Render();
-        // io.RenderDrawListsFn = NULL;
-    }));
+    emscripten::function("Render", &ImGui::Render);
     // IMGUI_API void          EndFrame();                                 // ends the ImGui frame. automatically called by Render(), so most likely don't need to ever call that yourself directly. If you don't need to render you may call EndFrame() but you'll have wasted CPU already. If you don't need to render, better to not create any imgui windows instead!
     emscripten::function("EndFrame", &ImGui::EndFrame);
 

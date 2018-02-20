@@ -696,11 +696,6 @@ export class reference_ImGuiIO extends emscripten.EmscriptenClassReference {
     // Settings (User Functions)
     //------------------------------------------------------------------
 
-    // Rendering function, will be called in Render().
-    // Alternatively you can keep this to NULL and call GetDrawData() after Render() to get the same pointer.
-    // See example applications if you are unsure of how to implement this.
-    // void        (*RenderDrawListsFn)(ImDrawData* data);
-
     // Optional: access OS clipboard
     // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
     // const char* (*GetClipboardTextFn)(void* user_data);

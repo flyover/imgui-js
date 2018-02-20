@@ -235,11 +235,6 @@ export function Init(canvas: HTMLCanvasElement | null): void {
     // Restore modified GL state
     gl && last_texture && gl.bindTexture(gl.TEXTURE_2D, last_texture);
     gl && last_array_buffer && gl.bindBuffer(gl.ARRAY_BUFFER_BINDING, last_array_buffer);
-
-    // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
-    // Note that this implementation is little overcomplicated because we are saving/setting up/restoring every OpenGL state explicitly, in order to be able to run within any OpenGL engine that doesn't do so.
-    // If text or lines are blurry when integrating ImGui in your engine: in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
-    // io.RenderDrawListsFn = RenderDrawLists;
 }
 
 export function Shutdown(): void {
@@ -386,7 +381,7 @@ export function EndFrame(): void {
     ImGui.Render();
 }
 
-export function RenderDrawLists(draw_data: ImDrawData | null = ImGui.GetDrawData()): void {
+export function RenderDrawData(draw_data: ImDrawData | null = ImGui.GetDrawData()): void {
     const io: ImGuiIO = ImGui.GetIO();
     if (draw_data === null) { throw new Error(); }
 

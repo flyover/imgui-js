@@ -1606,8 +1606,6 @@ export class ImGuiStyle
 // Read 'Programmer guide' section in .cpp file for general usage.
 export class ImGuiIO
 {
-    public static RenderDrawListsFn: (draw_data: ImDrawData) => void;
-
     constructor(public readonly native: bind.reference_ImGuiIO) {}
 
     //------------------------------------------------------------------
@@ -1662,13 +1660,6 @@ export class ImGuiIO
     //------------------------------------------------------------------
     // Settings (User Functions)
     //------------------------------------------------------------------
-
-    // Rendering function, will be called in Render().
-    // Alternatively you can keep this to NULL and call GetDrawData() after Render() to get the same pointer.
-    // See example applications if you are unsure of how to implement this.
-    // void        (*RenderDrawListsFn)(ImDrawData* data);
-    get RenderDrawListsFn(): (draw_data: ImDrawData) => void { return ImGuiIO.RenderDrawListsFn; }
-    set RenderDrawListsFn(value: (draw_data: ImDrawData) => void) { ImGuiIO.RenderDrawListsFn = value; }
 
     // Optional: access OS clipboard
     // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
@@ -1899,16 +1890,7 @@ export function GetDrawData(): ImDrawData | null {
 // IMGUI_API void          NewFrame();                                 // start a new ImGui frame, you can submit any command from this point until Render()/EndFrame().
 export function NewFrame(): void { bind.NewFrame(); }
 // IMGUI_API void          Render();                                   // ends the ImGui frame, finalize the draw data, then call your io.RenderDrawListsFn() function if set.
-export function Render(): void {
-    bind.Render();
-    const io: ImGuiIO = GetIO();
-    if (io.RenderDrawListsFn) {
-        const draw_data: bind.reference_ImDrawData | null = bind.GetDrawData();
-        if (draw_data) {
-            io.RenderDrawListsFn(new ImDrawData(draw_data));
-        }
-    }
-}
+export function Render(): void { bind.Render(); }
 // IMGUI_API void          EndFrame();                                 // ends the ImGui frame. automatically called by Render(), so most likely don't need to ever call that yourself directly. If you don't need to render you may call EndFrame() but you'll have wasted CPU already. If you don't need to render, better to not create any imgui windows instead!
 export function EndFrame(): void { bind.EndFrame(); }
 
