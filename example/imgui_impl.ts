@@ -322,8 +322,7 @@ export function NewFrame(time: number): void {
             const vendor: string = match && match[1] || "0000";
             const product: string = match && match[2] || "0000";
             switch (vendor + product) {
-                case "046dc216":
-                // id: Logitech Logitech Dual Action (Vendor: 046d Product: c216)
+                case "046dc216": // Logitech Logitech Dual Action (Vendor: 046d Product: c216)
                 MAP_BUTTON(ImGuiNavInput.Activate,    1); // Cross / A
                 MAP_BUTTON(ImGuiNavInput.Cancel,      2); // Circle / B
                 MAP_BUTTON(ImGuiNavInput.Menu,        0); // Square / X
@@ -341,8 +340,7 @@ export function NewFrame(time: number): void {
                 MAP_ANALOG(ImGuiNavInput.LStickUp,    1, -0.3, -0.9);
                 MAP_ANALOG(ImGuiNavInput.LStickDown,  1, +0.3, +0.9);
                 break;
-                case "046dc21d":
-                // id: Logitech Gamepad F310 (STANDARD GAMEPAD Vendor: 046d Product: c21d)
+                case "046dc21d": // Logitech Gamepad F310 (STANDARD GAMEPAD Vendor: 046d Product: c21d)
                 MAP_BUTTON(ImGuiNavInput.Activate,    0); // Cross / A
                 MAP_BUTTON(ImGuiNavInput.Cancel,      1); // Circle / B
                 MAP_BUTTON(ImGuiNavInput.Menu,        2); // Square / X
@@ -360,8 +358,8 @@ export function NewFrame(time: number): void {
                 MAP_ANALOG(ImGuiNavInput.LStickUp,    1, -0.3, -0.9);
                 MAP_ANALOG(ImGuiNavInput.LStickDown,  1, +0.3, +0.9);
                 break;
-                case "2dc86001":
-                // id: 8Bitdo SN30 Pro  8Bitdo SN30 Pro (Vendor: 2dc8 Product: 6001)
+                case "2dc86001": // 8Bitdo SN30 Pro  8Bitdo SN30 Pro (Vendor: 2dc8 Product: 6001)
+                case "2dc86101": // 8Bitdo SN30 Pro (Vendor: 2dc8 Product: 6101)
                 MAP_BUTTON(ImGuiNavInput.Activate,    1); // Cross / A
                 MAP_BUTTON(ImGuiNavInput.Cancel,      0); // Circle / B
                 MAP_BUTTON(ImGuiNavInput.Menu,        4); // Square / X
@@ -379,8 +377,7 @@ export function NewFrame(time: number): void {
                 MAP_ANALOG(ImGuiNavInput.LStickUp,    1, -0.3, -0.9);
                 MAP_ANALOG(ImGuiNavInput.LStickDown,  1, +0.3, +0.9);
                 break;
-                default:
-                // standard gamepad: https://w3c.github.io/gamepad/#remapping
+                default: // standard gamepad: https://w3c.github.io/gamepad/#remapping
                 MAP_BUTTON(ImGuiNavInput.Activate,    0); // Cross / A
                 MAP_BUTTON(ImGuiNavInput.Cancel,      1); // Circle / B
                 MAP_BUTTON(ImGuiNavInput.Menu,        2); // Square / X
