@@ -234,7 +234,7 @@ export function Init(canvas: HTMLCanvasElement | null): void {
 
     // Restore modified GL state
     gl && last_texture && gl.bindTexture(gl.TEXTURE_2D, last_texture);
-    gl && last_array_buffer && gl.bindBuffer(gl.ARRAY_BUFFER_BINDING, last_array_buffer);
+    gl && last_array_buffer && gl.bindBuffer(gl.ARRAY_BUFFER, last_array_buffer);
 }
 
 export function Shutdown(): void {
