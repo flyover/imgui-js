@@ -1176,8 +1176,8 @@ LogText(fmt: string): void;
 
 // Drag and Drop
 // [BETA API] Missing Demo code. API may evolve.
-// IMGUI_API bool          BeginDragDropSource(ImGuiDragDropFlags flags = 0, int mouse_button = 0);                // call when the current item is active. If this return true, you can call SetDragDropPayload() + EndDragDropSource()
-BeginDragDropSource(flags: ImGuiDragDropFlags/* = 0 */, mouse_button: number/* = 0 */): boolean;
+// IMGUI_API bool          BeginDragDropSource(ImGuiDragDropFlags flags = 0);                // call when the current item is active. If this return true, you can call SetDragDropPayload() + EndDragDropSource()
+BeginDragDropSource(flags: ImGuiDragDropFlags/* = 0 */): boolean;
 // IMGUI_API bool          SetDragDropPayload(const char* type, const void* data, size_t size, ImGuiCond cond = 0);// type is a user defined string of maximum 8 characters. Strings starting with '_' are reserved for dear imgui internal types. Data is copied and held by imgui.
 SetDragDropPayload(type: string, data: any, size: number, cond: ImGuiCond/* = 0 */): boolean;
 // IMGUI_API void          EndDragDropSource();
