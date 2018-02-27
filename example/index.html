@@ -3,24 +3,11 @@
     <title>ImGui JavaScript+WebGL example</title>
     <!-- <script type="text/javascript" src="../node_modules/systemjs/dist/system.js"></script> -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.20.19/system.js"></script>
+    <script type="text/javascript" src="system.config.js"></script>
     <script type="text/javascript">
-    window.addEventListener("load", function(event) {
-      SystemJS.config({
-        paths: {
-          "imgui-js": ".."
-        },
-        packages: {
-          "imgui-js": {
-            main: "imgui.js",
-            defaultExtension: 'js',
-            meta: { "bind-imgui.js": { exports: "Module" } }
-          }
-        }
-      });
-      SystemJS.import("./main")
-      .then(function (main) { main.default(); })
-      .catch(console.error);
-    });
+    SystemJS.import("./main")
+    .then(function (main) { main.default(); })
+    .catch(console.error);
     </script>
   </head>
   <body>

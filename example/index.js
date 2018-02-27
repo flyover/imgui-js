@@ -5,18 +5,7 @@ process.chdir(__dirname);
 
 global["SystemJS"] = require("systemjs");
 
-SystemJS.config({
-    paths: {
-        "imgui-js": "..",
-    },
-    packages: {
-        "imgui-js": {
-            main: "imgui.js",
-            defaultExtension: 'js',
-            meta: { "bind-imgui.js": { exports: "Module" } }
-        }
-    }
-});
+module.require("./system.config");
 
 SystemJS.import("./main")
 .then(function (main) { main.default(); })

@@ -17,7 +17,7 @@ export declare class EmscriptenRegisteredClass {
 }
 
 export declare class EmscriptenRegisteredPointer {
-    destructorFunction: (() => void) | null;
+    destructorFunction: ((ptr: number) => void) | null;
     isConst: boolean;
     isReference: boolean;
     isSmartPointer: boolean;
@@ -29,7 +29,8 @@ export declare class EmscriptenRegisteredPointer {
     rawShare: any;
     registeredClass: EmscriptenRegisteredClass;
     sharingPolicy: any;
-    toWireType: (destructors: any[], handle: EmscriptenClass) => number;
+    fromWireType: (value: any) => any;
+    toWireType: (destructors: any[], value: any) => number;
 }
 
 export declare class EmscriptenWireType {
@@ -46,19 +47,34 @@ export declare class EmscriptenClass extends EmscriptenClassReference {
     delete(): void;
 }
 
-export const buffer: ArrayBuffer;
-export const HEAP8: Int8Array;
-export const HEAP16: Int16Array;
-export const HEAP32: Int32Array;
-export const HEAPU8: Uint8Array;
-export const HEAPU16: Uint16Array;
-export const HEAPU32: Uint32Array;
-export const HEAPF32: Float32Array;
-export const HEAPF64: Float64Array;
+export interface EmscriptenModule {
+    ENVIRONMENT?: "WEB" | "WORKER" | "NODE" | "SHELL";
 
-export const TOTAL_STACK: number;
-export const TOTAL_MEMORY: number;
+    "arguments": any[];
+    thisProgram: string;
+    quit(status: number, toThrow: Error): void;
+    preRun: (() => void)[];
+    postRun: (() => void)[];
 
-export function count_emval_handles(): number;
+    buffer: ArrayBuffer;
+    HEAP8: Int8Array;
+    HEAP16: Int16Array;
+    HEAP32: Int32Array;
+    HEAPU8: Uint8Array;
+    HEAPU16: Uint16Array;
+    HEAPU32: Uint32Array;
+    HEAPF32: Float32Array;
+    HEAPF64: Float64Array;
 
-export let onRuntimeInitialized: () => void;
+    TOTAL_STACK: number;
+    TOTAL_MEMORY: number;
+
+    count_emval_handles(): number;
+
+    onRuntimeInitialized: () => void;
+
+    _malloc(size: number): number;
+    _free(ptr: number): number;
+    _memcpy(dst: number, src: number, num: number): number;
+    _memset(ptr: number, val: number, num: number): number;
+}

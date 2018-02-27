@@ -1,8 +1,6 @@
 import * as ImGui from "imgui-js";
 import * as ImGui_Impl from "./imgui_impl";
 
-import * as bindImGui from "imgui-js/bind-imgui";
-
 import { ImVec2 } from "imgui-js";
 import { ImVec4 } from "imgui-js";
 import { ImGuiIO } from "imgui-js";
@@ -114,8 +112,8 @@ export default function main(): void {
 
             ImGui.Checkbox("Memory Editor", (value = memory_editor.Open) => memory_editor.Open = value);
             if (memory_editor.Open)
-                memory_editor.DrawWindow("Memory Editor", bindImGui.buffer);
-            const mi: bindImGui.mallinfo = bindImGui.mallinfo();
+                memory_editor.DrawWindow("Memory Editor", ImGui.bind.buffer);
+            const mi: ImGui.Bind.mallinfo = ImGui.bind.mallinfo();
             // ImGui.Text(`Total non-mmapped bytes (arena):       ${mi.arena}`);
             // ImGui.Text(`# of free chunks (ordblks):            ${mi.ordblks}`);
             // ImGui.Text(`# of free fastbin blocks (smblks):     ${mi.smblks}`);
