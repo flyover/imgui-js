@@ -18,11 +18,11 @@ If you find this useful, please consider donating to this and the [Dear ImGui](h
 ## Notes
 All functions in the C++ ImGui namespace are exported at the top level at the module.
 ```typescript
-import * as ImGui from "imgui";
+import * as ImGui from "imgui-js";
 ```
 Individual exports can be imported as well.
 ```typescript
-import { ImVec2 } from "imgui";
+import { ImVec2 } from "imgui-js";
 ```
 
 In general, functions that take an address of a variable in C++ have been changed to take an access function in JavaScript.  Calling the access function with no arguments returns the variable, calling with a value sets the variable.
@@ -57,7 +57,7 @@ void draw() {
 ```
 
 ```typescript
-import * as ImGui from "imgui";
+import * as ImGui from "imgui-js";
 let show: boolean = true;
 function draw(): void {
     if (ImGui.Button("Toggle")) { show = !show; }
@@ -71,11 +71,11 @@ function draw(): void {
 
 Enumerations that begin with ImGui* are also exported with ImGui removed.  So the following examples are equivalent.
 ```typescript
-import * as ImGui from "imgui";
+import * as ImGui from "imgui-js";
 const flags: ImGui.WindowFlags = ImGui.WindowFlags.AlwaysAutoResize;
 ```
 ```typescript
-import { ImGuiWindowFlags } from "imgui";
+import { ImGuiWindowFlags } from "imgui-js";
 const flags: ImGuiWindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
 ```
 
