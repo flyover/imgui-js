@@ -12,10 +12,10 @@
   "license": "MIT",
   "devDependencies": {
     "@types/emscripten": "0.0.31",
-    "@types/node": "^4.0.36",
+    "@types/node": "^9.4.6",
     "@types/systemjs": "^0.20.6",
     "http-server": "^0.11.1",
-    "systemjs": "^0.20.19",
+    "systemjs": "^0.21.0",
     "typescript": "^2.7.1"
   }
 }
