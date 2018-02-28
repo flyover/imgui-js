@@ -691,8 +691,8 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
         // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
         // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
-        // ImGuiNavFlags NavFlags;                 // = 0                  // See ImGuiNavFlags_. Gamepad/keyboard navigation options.
-        .property("NavFlags", &ImGuiIO::NavFlags)
+        // ImGuiConfigFlags ConfigFlags;           // = 0                  // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
+        .property("ConfigFlags", &ImGuiIO::ConfigFlags)
         // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
         // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
         // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging

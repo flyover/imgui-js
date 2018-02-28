@@ -1870,9 +1870,9 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
 
         ImGui.Checkbox("io.MouseDrawCursor", (value = io.MouseDrawCursor) => io.MouseDrawCursor = value);
         ImGui.SameLine(); ShowHelpMarker("Request ImGui to render a mouse cursor for you in software. Note that a mouse cursor rendered via your application GPU rendering path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
-        ImGui.CheckboxFlags("io.NavFlags: EnableGamepad", (value = io.NavFlags) => io.NavFlags = value, ImGui.ImGuiNavFlags.EnableGamepad);
-        ImGui.CheckboxFlags("io.NavFlags: EnableKeyboard", (value = io.NavFlags) => io.NavFlags = value, ImGui.ImGuiNavFlags.EnableKeyboard);
-        ImGui.CheckboxFlags("io.NavFlags: MoveMouse", (value = io.NavFlags) => io.NavFlags = value, ImGui.ImGuiNavFlags.MoveMouse);
+        ImGui.CheckboxFlags("io.ConfigFlags: EnableGamepad", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.EnableGamepad);
+        ImGui.CheckboxFlags("io.ConfigFlags: EnableKeyboard", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.EnableKeyboard);
+        ImGui.CheckboxFlags("io.ConfigFlags: MoveMouse", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.MoveMouse);
         ImGui.SameLine(); ShowHelpMarker("Request ImGui to move your move cursor when using gamepad/keyboard navigation. NewFrame() will change io.MousePos and set the io.WantMoveMouse flag, your backend will need to apply the new mouse position.");
 
         if (ImGui.TreeNode("Keyboard, Mouse & Navigation State"))

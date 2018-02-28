@@ -4,7 +4,7 @@ import * as ImGui_Impl from "./imgui_impl";
 import { ImVec2 } from "imgui-js";
 import { ImVec4 } from "imgui-js";
 import { ImGuiIO } from "imgui-js";
-import { ImGuiNavFlags } from "imgui-js";
+import { ImGuiConfigFlags } from "imgui-js";
 import { ShowDemoWindow } from "imgui-js/imgui_demo";
 
 import { MemoryEditor } from "imgui-js/imgui_memory_editor";
@@ -61,7 +61,7 @@ export default function main(): void {
     } else {
         ImGui_Impl.Init(null);
     }
-    //io.NavFlags |= ImGuiNavFlags.EnableKeyboard;  // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags.EnableKeyboard;  // Enable Keyboard Controls
 
     // Setup style
     ImGui.StyleColorsDark();

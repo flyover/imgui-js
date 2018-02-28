@@ -198,8 +198,8 @@ export enum ImGuiKey {
 }
 
 // [BETA] Gamepad/Keyboard directional navigation
-// Keyboard: Set io.NavFlags |= EnableKeyboard to enable. NewFrame() will automatically fill io.NavInputs[] based on your io.KeyDown[] + io.KeyMap[] arrays.
-// Gamepad:  Set io.NavFlags |= EnableGamepad to enable. Fill the io.NavInputs[] fields before calling NewFrame(). Note that io.NavInputs[] is cleared by EndFrame().
+// Keyboard: Set io.ConfigFlags |= EnableKeyboard to enable. NewFrame() will automatically fill io.NavInputs[] based on your io.KeyDown[] + io.KeyMap[] arrays.
+// Gamepad:  Set io.ConfigFlags |= EnableGamepad to enable. Fill the io.NavInputs[] fields before calling NewFrame(). Note that io.NavInputs[] is cleared by EndFrame().
 // Read instructions in imgui.cpp for more details.
 export { ImGuiNavInput as NavInput };
 export enum ImGuiNavInput
@@ -233,9 +233,9 @@ export enum ImGuiNavInput
     InternalStart_ = KeyMenu_,
 }
 
-// [BETA] Gamepad/Keyboard directional navigation flags, stored in io.NavFlags
-export { ImGuiNavFlags as NavFlags };
-export enum ImGuiNavFlags
+// [BETA] Gamepad/Keyboard directional navigation flags, stored in io.ConfigFlags
+export { ImGuiConfigFlags as ConfigFlags };
+export enum ImGuiConfigFlags
 {
     EnableKeyboard    = 1 << 0,   // Master keyboard navigation enable flag. NewFrame() will automatically fill io.NavInputs[] based on io.KeyDown[].
     EnableGamepad     = 1 << 1,   // Master gamepad navigation enable flag. This is mostly to instruct your imgui back-end to fill io.NavInputs[].
@@ -1622,9 +1622,9 @@ export class ImGuiIO
     // float         DeltaTime;                // = 1.0f/60.0f         // Time elapsed since last frame, in seconds.
     get DeltaTime(): number { return this.native.DeltaTime; }
     set DeltaTime(value: number) { this.native.DeltaTime = value; }
-    // ImGuiNavFlags NavFlags;                 // = 0x00               // See ImGuiNavFlags_. Gamepad/keyboard navigation options.
-    get NavFlags(): ImGuiNavFlags { return this.native.NavFlags; }
-    set NavFlags(value: ImGuiNavFlags) { this.native.NavFlags = value; }
+    // ImGuiConfigFlags ConfigFlags;                 // = 0x00               // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
+    get ConfigFlags(): ImGuiConfigFlags { return this.native.ConfigFlags; }
+    set ConfigFlags(value: ImGuiConfigFlags) { this.native.ConfigFlags = value; }
     // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
     // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
     // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).

@@ -45,7 +45,7 @@ type ImGuiHoveredFlags = number;
 type ImGuiDragDropFlags = number;
 type ImGuiKey = number;
 type ImGuiNavInput = number;
-type ImGuiNavFlags = number;
+type ImGuiConfigFlags = number;
 type ImGuiCol = number;
 type ImGuiStyleVar = number;
 type ImGuiColorEditFlags = number;
@@ -660,8 +660,8 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
     // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
     // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
-    // ImGuiNavFlags NavFlags;                 // = 0                  // See ImGuiNavFlags_. Gamepad/keyboard navigation options.
-    public NavFlags: ImGuiNavFlags;
+    // ImGuiConfigFlags ConfigFlags;                 // = 0                  // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
+    public ConfigFlags: ImGuiConfigFlags;
     // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
     // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
     // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging.
@@ -749,7 +749,7 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     public WantCaptureKeyboard: boolean;
     // bool        WantTextInput;              // Mobile/console: when io.WantTextInput is true, you may display an on-screen keyboard. This is set by ImGui when it wants textual keyboard input to happen (e.g. when a InputText widget is active).
     public WantTextInput: boolean;
-    // bool        WantMoveMouse;              // MousePos has been altered, back-end should reposition mouse on next frame. Set only when ImGuiNavFlags_MoveMouse flag is enabled in io.NavFlags.
+    // bool        WantMoveMouse;              // MousePos has been altered, back-end should reposition mouse on next frame. Set only when ImGuiConfigFlags_MoveMouse flag is enabled in io.ConfigFlags.
     public WantMoveMouse: boolean;
     // bool        NavActive;                  // Directional navigation is currently allowed (will handle ImGuiKey_NavXXX events) = a window is focused and it doesn't use the ImGuiWindowFlags_NoNavInputs flag.
     public NavActive: boolean;

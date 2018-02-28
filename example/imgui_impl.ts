@@ -1,6 +1,6 @@
 import * as ImGui from "../imgui";
 import { ImGuiKey } from "../imgui";
-import { ImGuiNavFlags } from "../imgui";
+import { ImGuiConfigFlags } from "../imgui";
 import { ImGuiNavInput } from "../imgui";
 import { ImGuiIO } from "../imgui";
 import { ImDrawCmd } from "../imgui";
@@ -298,7 +298,7 @@ export function NewFrame(time: number): void {
     for (let i = 0; i < io.NavInputs.length; ++i) {
         io.NavInputs[i] = 0.0;
     }
-    if (io.NavFlags & ImGuiNavFlags.EnableGamepad)
+    if (io.ConfigFlags & ImGuiConfigFlags.EnableGamepad)
     {
         // Update gamepad inputs
         const gamepads: Gamepad[] = typeof(navigator) !== "undefined" && typeof(navigator.getGamepads) === "function" ? navigator.getGamepads() : [];
