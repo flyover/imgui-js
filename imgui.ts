@@ -890,7 +890,7 @@ export class ImGuiListClipper
     // If you don't specify an items_height, you NEED to call Step(). If you specify items_height you may call the old Begin()/End() api directly, but prefer calling Step().
     // ImGuiListClipper(int items_count = -1, float items_height = -1.0f)  { Begin(items_count, items_height); } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
     constructor(items_count: number = -1, items_height: number = -1.0) {
-        this.native = new Bind.ImGuiListClipper(items_count, items_height);
+        this.native = new bind.ImGuiListClipper(items_count, items_height);
     }
     // ~ImGuiListClipper()                                                 { IM_ASSERT(ItemsCount == -1); }      // Assert if user forgot to call End() or Step() until false.
     public delete(): void {
@@ -912,7 +912,7 @@ export class ImGuiListClipper
     // IMGUI_API void Begin(int items_count, float items_height = -1.0f);  // Automatically called by constructor if you passed 'items_count' or by Step() in Step 1.
     public Begin(items_count: number, items_height: number): void {
         if (!this.native) {
-            this.native = new Bind.ImGuiListClipper(items_count, items_height);
+            this.native = new bind.ImGuiListClipper(items_count, items_height);
         }
         this.native.Begin(items_count, items_height);
     }
