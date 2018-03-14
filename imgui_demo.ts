@@ -2274,30 +2274,30 @@ export function ShowStyleEditor(ref: ImGuiStyle | null = null): void
         //                     count += font->FindGlyph((ImWchar)(base + n)) ? 1 : 0;
         //                 if (count > 0 && ImGui.TreeNode((void*)(intptr_t)base, "U+%04X..U+%04X (%d %s)", base, base+255, count, count > 1 ? "glyphs" : "glyph"))
         //                 {
+        //                     float cell_size = font->FontSize * 1;
         //                     float cell_spacing = style.ItemSpacing.y;
-        //                     ImVec2 cell_size(font->FontSize * 1, font->FontSize * 1);
-        //                     ImVec2 base_pos = ImGui.GetCursorScreenPos();
-        //                     ImDrawList* draw_list = ImGui.GetWindowDrawList();
-        //                     for (let n = 0; n < 256; n++)
+        //                     ImVec2 base_pos = ImGui::GetCursorScreenPos();
+        //                     ImDrawList* draw_list = ImGui::GetWindowDrawList();
+        //                     for (int n = 0; n < 256; n++)
         //                     {
-        //                         ImVec2 cell_p1(base_pos.x + (n % 16) * (cell_size.x + cell_spacing), base_pos.y + (n / 16) * (cell_size.y + cell_spacing));
-        //                         ImVec2 cell_p2(cell_p1.x + cell_size.x, cell_p1.y + cell_size.y);
-        //                         const ImFontGlyph* glyph = font->FindGlyph((ImWchar)(base+n));;
+        //                         ImVec2 cell_p1(base_pos.x + (n % 16) * (cell_size + cell_spacing), base_pos.y + (n / 16) * (cell_size + cell_spacing));
+        //                         ImVec2 cell_p2(cell_p1.x + cell_size, cell_p1.y + cell_size);
+        //                         const ImFontGlyph* glyph = font->FindGlyphNoFallback((ImWchar)(base+n));
         //                         draw_list->AddRect(cell_p1, cell_p2, glyph ? IM_COL32(255,255,255,100) : IM_COL32(255,255,255,50));
-        //                         font->RenderChar(draw_list, cell_size.x, cell_p1, ImGui.GetColorU32(ImGuiCol.Text), (ImWchar)(base+n)); // We use ImFont::RenderChar as a shortcut because we don't have UTF-8 conversion functions available to generate a string.
-        //                         if (glyph && ImGui.IsMouseHoveringRect(cell_p1, cell_p2))
+        //                         font->RenderChar(draw_list, cell_size, cell_p1, ImGui::GetColorU32(ImGuiCol_Text), (ImWchar)(base+n)); // We use ImFont::RenderChar as a shortcut because we don't have UTF-8 conversion functions available to generate a string.
+        //                         if (glyph && ImGui::IsMouseHoveringRect(cell_p1, cell_p2))
         //                         {
-        //                             ImGui.BeginTooltip();
-        //                             ImGui.Text("Codepoint: U+%04X", base+n);
-        //                             ImGui.Separator();
-        //                             ImGui.Text("AdvanceX: %.1f", glyph->AdvanceX);
-        //                             ImGui.Text("Pos: (%.2f,%.2f)->(%.2f,%.2f)", glyph->X0, glyph->Y0, glyph->X1, glyph->Y1);
-        //                             ImGui.Text("UV: (%.3f,%.3f)->(%.3f,%.3f)", glyph->U0, glyph->V0, glyph->U1, glyph->V1);
-        //                             ImGui.EndTooltip();
+        //                             ImGui::BeginTooltip();
+        //                             ImGui::Text("Codepoint: U+%04X", base+n);
+        //                             ImGui::Separator();
+        //                             ImGui::Text("AdvanceX: %.1f", glyph->AdvanceX);
+        //                             ImGui::Text("Pos: (%.2f,%.2f)->(%.2f,%.2f)", glyph->X0, glyph->Y0, glyph->X1, glyph->Y1);
+        //                             ImGui::Text("UV: (%.3f,%.3f)->(%.3f,%.3f)", glyph->U0, glyph->V0, glyph->U1, glyph->V1);
+        //                             ImGui::EndTooltip();
         //                         }
         //                     }
-        //                     ImGui.Dummy(ImVec2((cell_size.x + cell_spacing) * 16, (cell_size.y + cell_spacing) * 16));
-        //                     ImGui.TreePop();
+        //                     ImGui::Dummy(ImVec2((cell_size + cell_spacing) * 16, (cell_size + cell_spacing) * 16));
+        //                     ImGui::TreePop();
         //                 }
         //             }
         //             font->FallbackGlyph = glyph_fallback;
