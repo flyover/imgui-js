@@ -4,7 +4,7 @@ import * as Emscripten from "./emscripten";
 // declare const Module: ImGuiModule; export default Module;
 
 // emcc -s MODULARIZE=1
-export default function Module(Module?: Module): Module;
+export default function Module(Module?: Partial<Module>): Module;
 
 export interface mallinfo {
     arena: number;
@@ -801,6 +801,11 @@ ImDrawIdxSize: number;
 ImDrawVertPosOffset: number;
 ImDrawVertUVOffset: number;
 ImDrawVertColOffset: number;
+
+ImGuiTextEditCallbackData: { new(): ImGuiTextEditCallbackData; };
+ImGuiSizeCallbackData: { new(): ImGuiSizeCallbackData; };
+ImGuiListClipper: { new(items_count: number, items_height: number): ImGuiListClipper; };
+ImGuiStyle: { new(): ImGuiStyle; };
 
 // Context creation and access, if you want to use multiple context, share context between modules (e.g. DLL). 
 // All contexts share a same ImFontAtlas by default. If you want different font atlas, you can new() them and overwrite the GetIO().Fonts variable of an ImGui context.
