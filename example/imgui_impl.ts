@@ -318,9 +318,11 @@ export function NewFrame(time: number): void {
                 if (io.NavInputs[NAV_NO] < v) io.NavInputs[NAV_NO] = v;
             }
             // TODO: map input based on vendor and product id
-            const match: RegExpMatchArray | null = gamepad.id.match(/^.*\(.*Vendor: ([0-9a-f]{4}) Product: ([0-9a-f]{4})\).*/);
-            const vendor: string = match && match[1] || "0000";
-            const product: string = match && match[2] || "0000";
+            // https://developer.mozilla.org/en-US/docs/Web/API/Gamepad/id
+            const match: RegExpMatchArray | null = gamepad.id.match(/^([0-9a-f]{4})-([0-9a-f]{4})-.*$/);
+            const match_chrome: RegExpMatchArray | null = gamepad.id.match(/^.*\(.*Vendor: ([0-9a-f]{4}) Product: ([0-9a-f]{4})\).*$/);
+            const vendor: string = (match && match[1]) || (match_chrome && match_chrome[1]) || "0000";
+            const product: string = (match && match[2]) || (match_chrome && match_chrome[2]) || "0000";
             switch (vendor + product) {
                 case "046dc216": // Logitech Logitech Dual Action (Vendor: 046d Product: c216)
                 MAP_BUTTON(ImGuiNavInput.Activate,    1); // Cross / A
