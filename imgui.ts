@@ -890,7 +890,7 @@ export class ImGuiListClipper
     // If you don't specify an items_height, you NEED to call Step(). If you specify items_height you may call the old Begin()/End() api directly, but prefer calling Step().
     // ImGuiListClipper(int items_count = -1, float items_height = -1.0f)  { Begin(items_count, items_height); } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
     constructor(items_count: number = -1, items_height: number = -1.0) {
-        this.native = new Bind.ImGuiListClipper(items_count, items_height);
+        this.native = new bind.ImGuiListClipper(items_count, items_height);
     }
     // ~ImGuiListClipper()                                                 { IM_ASSERT(ItemsCount == -1); }      // Assert if user forgot to call End() or Step() until false.
     public delete(): void {
@@ -1506,7 +1506,7 @@ class script_ImGuiStyle implements Bind.interface_ImGuiStyle {
             this.Colors[i] = new ImVec4();
         }
         const _this = new ImGuiStyle(this);
-        const native = new Bind.ImGuiStyle();
+        const native = new bind.ImGuiStyle();
         const _that = new ImGuiStyle(native);
         _that.Copy(_this);
         bind.StyleColorsClassic(native);
@@ -1516,7 +1516,7 @@ class script_ImGuiStyle implements Bind.interface_ImGuiStyle {
 
     public ScaleAllSizes(scale_factor: number): void {
         const _this = new ImGuiStyle(this);
-        const native = new Bind.ImGuiStyle();
+        const native = new bind.ImGuiStyle();
         const _that = new ImGuiStyle(native);
         _that.Copy(_this);
         native.ScaleAllSizes(scale_factor);
@@ -1919,10 +1919,10 @@ export function ShowMetricsWindow(p_open: Bind.ImScalar<boolean> | Bind.ImAccess
 export function ShowStyleEditor(ref: ImGuiStyle | null = null): void {
     if (ref === null) {
         bind.ShowStyleEditor(null);
-    } else if (ref.internal instanceof Bind.ImGuiStyle) {
+    } else if (ref.internal instanceof bind.ImGuiStyle) {
         bind.ShowStyleEditor(ref.internal);
     } else {
-        const native = new Bind.ImGuiStyle();
+        const native = new bind.ImGuiStyle();
         const wrap = new ImGuiStyle(native);
         wrap.Copy(ref);
         bind.ShowStyleEditor(native);
@@ -1944,10 +1944,10 @@ export const GetVersion = bind.GetVersion;
 export function StyleColorsClassic(dst: ImGuiStyle | null = null): void {
     if (dst === null) {
         bind.StyleColorsClassic(null);
-    } else if (dst.internal instanceof Bind.ImGuiStyle) {
+    } else if (dst.internal instanceof bind.ImGuiStyle) {
         bind.StyleColorsClassic(dst.internal);
     } else {
-        const native = new Bind.ImGuiStyle();
+        const native = new bind.ImGuiStyle();
         const wrap = new ImGuiStyle(native);
         wrap.Copy(dst);
         bind.StyleColorsClassic(native);
@@ -1959,10 +1959,10 @@ export function StyleColorsClassic(dst: ImGuiStyle | null = null): void {
 export function StyleColorsDark(dst: ImGuiStyle | null = null): void {
     if (dst === null) {
         bind.StyleColorsDark(null);
-    } else if (dst.internal instanceof Bind.ImGuiStyle) {
+    } else if (dst.internal instanceof bind.ImGuiStyle) {
         bind.StyleColorsDark(dst.internal);
     } else {
-        const native = new Bind.ImGuiStyle();
+        const native = new bind.ImGuiStyle();
         const wrap = new ImGuiStyle(native);
         wrap.Copy(dst);
         bind.StyleColorsDark(native);
@@ -1974,10 +1974,10 @@ export function StyleColorsDark(dst: ImGuiStyle | null = null): void {
 export function StyleColorsLight(dst: ImGuiStyle | null = null): void {
     if (dst === null) {
         bind.StyleColorsLight(null);
-    } else if (dst.internal instanceof Bind.ImGuiStyle) {
+    } else if (dst.internal instanceof bind.ImGuiStyle) {
         bind.StyleColorsLight(dst.internal);
     } else {
-        const native = new Bind.ImGuiStyle();
+        const native = new bind.ImGuiStyle();
         const wrap = new ImGuiStyle(native);
         wrap.Copy(dst);
         bind.StyleColorsLight(native);
