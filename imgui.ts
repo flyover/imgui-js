@@ -912,7 +912,7 @@ export class ImGuiListClipper
     // IMGUI_API void Begin(int items_count, float items_height = -1.0f);  // Automatically called by constructor if you passed 'items_count' or by Step() in Step 1.
     public Begin(items_count: number, items_height: number): void {
         if (!this.native) {
-            this.native = new Bind.ImGuiListClipper(items_count, items_height);
+            this.native = new bind.ImGuiListClipper(items_count, items_height);
         }
         this.native.Begin(items_count, items_height);
     }

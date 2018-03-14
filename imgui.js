@@ -2241,7 +2241,7 @@ System.register(["./bind-imgui", "./imconfig"], function (exports_1, context_1) 
                 // IMGUI_API void Begin(int items_count, float items_height = -1.0f);  // Automatically called by constructor if you passed 'items_count' or by Step() in Step 1.
                 Begin(items_count, items_height) {
                     if (!this.native) {
-                        this.native = new Bind.ImGuiListClipper(items_count, items_height);
+                        this.native = new bind.ImGuiListClipper(items_count, items_height);
                     }
                     this.native.Begin(items_count, items_height);
                 }
