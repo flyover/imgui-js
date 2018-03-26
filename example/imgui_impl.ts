@@ -78,8 +78,9 @@ export function Init(canvas: HTMLCanvasElement | null): void {
 
         canvas.addEventListener("mousemove", (event: MouseEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
-            io.MousePos.x = event.offsetX;
-            io.MousePos.y = event.offsetY;
+            const devicePixelRatio: number = window.devicePixelRatio || 1;
+            io.MousePos.x = event.offsetX * devicePixelRatio;
+            io.MousePos.y = event.offsetY * devicePixelRatio;
             if (io.WantCaptureMouse) {
                 event.preventDefault();
             }
