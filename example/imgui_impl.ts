@@ -302,17 +302,19 @@ export function NewFrame(time: number): void {
     if (io.ConfigFlags & ImGuiConfigFlags.EnableGamepad)
     {
         // Update gamepad inputs
-        const gamepads: Gamepad[] = typeof(navigator) !== "undefined" && typeof(navigator.getGamepads) === "function" ? navigator.getGamepads() : [];
+        const gamepads: (Gamepad | null)[] = (typeof(navigator) !== "undefined" && typeof(navigator.getGamepads) === "function") ? navigator.getGamepads() : [];
         for (let i = 0; i < gamepads.length; ++i) {
-            const gamepad: Gamepad = gamepads[i];
+            const gamepad: Gamepad | null = gamepads[i];
             if (!gamepad) { continue; }
             const buttons_count: number = gamepad.buttons.length;
             const axes_count: number = gamepad.axes.length;
             function MAP_BUTTON(NAV_NO: number, BUTTON_NO: number): void {
+                if (!gamepad) { return; }
                 if (buttons_count > BUTTON_NO && gamepad.buttons[BUTTON_NO].pressed)
                     io.NavInputs[NAV_NO] = 1.0;
             }
             function MAP_ANALOG(NAV_NO: number, AXIS_NO: number, V0: number, V1: number): void {
+                if (!gamepad) { return; }
                 let v: number = (axes_count > AXIS_NO) ? gamepad.axes[AXIS_NO] : V0;
                 v = (v - V0) / (V1 - V0);
                 if (v > 1.0) v = 1.0;

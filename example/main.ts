@@ -235,10 +235,10 @@ function ShowSandboxWindow(title: string, p_open: ImGui.ImAccess<boolean> | null
 
 function ShowGamepadWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
     ImGui.Begin(title, p_open, ImGui.WindowFlags.AlwaysAutoResize);
-    const gamepads: Gamepad[] = typeof(navigator) !== "undefined" && typeof(navigator.getGamepads) === "function" ? navigator.getGamepads() : [];
+    const gamepads: (Gamepad | null)[] = (typeof(navigator) !== "undefined" && typeof(navigator.getGamepads) === "function") ? navigator.getGamepads() : [];
     if (gamepads.length > 0) {
         for (let i = 0; i < gamepads.length; ++i) {
-            const gamepad: Gamepad = gamepads[i];
+            const gamepad: Gamepad | null = gamepads[i];
             ImGui.Text(`gamepad ${i} ${gamepad && gamepad.id}`);
             if (!gamepad) { continue; }
             ImGui.Text(`       `);
