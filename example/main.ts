@@ -41,12 +41,12 @@ export default function main(): void {
         canvas.style.width = "100%";
         canvas.style.height = "100%";
         const devicePixelRatio: number = window.devicePixelRatio || 1;
-        canvas.width = canvas.clientWidth * devicePixelRatio;
-        canvas.height = canvas.clientHeight * devicePixelRatio;
+        canvas.width = canvas.scrollWidth * devicePixelRatio;
+        canvas.height = canvas.scrollHeight * devicePixelRatio;
         window.addEventListener("resize", (): void => {
             const devicePixelRatio: number = window.devicePixelRatio || 1;
-            canvas.width = canvas.clientWidth * devicePixelRatio;
-            canvas.height = canvas.clientHeight * devicePixelRatio;
+            canvas.width = canvas.scrollWidth * devicePixelRatio;
+            canvas.height = canvas.scrollHeight * devicePixelRatio;
         });
         window.addEventListener("gamepadconnected", (event: any /* GamepadEvent */): void => {
             console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",

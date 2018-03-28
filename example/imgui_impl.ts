@@ -116,6 +116,40 @@ export function Init(canvas: HTMLCanvasElement | null): void {
             }
         });
 
+        canvas.addEventListener("touchmove", (event: any /*TouchEvent*/): void => {
+            const io: ImGuiIO = ImGui.GetIO();
+            // const devicePixelRatio: number = window.devicePixelRatio || 1;
+            io.MousePos.x = event.touches[0].clientX; // * devicePixelRatio;
+            io.MousePos.y = event.touches[0].clientY; // * devicePixelRatio;
+            if (io.WantCaptureMouse) {
+                event.preventDefault();
+            }
+        });
+
+        canvas.addEventListener("touchstart", (event: any /*TouchEvent*/): void => {
+            const io: ImGuiIO = ImGui.GetIO();
+            // const devicePixelRatio: number = window.devicePixelRatio || 1;
+            io.MousePos.x = event.touches[0].clientX; // * devicePixelRatio;
+            io.MousePos.y = event.touches[0].clientY; // * devicePixelRatio;
+            io.MouseDown[0] = true;
+            if (io.WantCaptureMouse) {
+                event.preventDefault();
+            }
+        });
+
+        canvas.addEventListener("touchend", (event: any /*TouchEvent*/): void => {
+            const io: ImGuiIO = ImGui.GetIO();
+            // const devicePixelRatio: number = window.devicePixelRatio || 1;
+            // io.MousePos.x = event.touches[0].clientX; // * devicePixelRatio;
+            // io.MousePos.y = event.touches[0].clientY; // * devicePixelRatio;
+            // io.MousePos.x = Number.MIN_VALUE;
+            // io.MousePos.y = Number.MIN_VALUE;
+            io.MouseDown[0] = false;
+            if (io.WantCaptureMouse) {
+                event.preventDefault();
+            }
+        });
+
         canvas.addEventListener("wheel", (event: WheelEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
             let scale: number = 1.0;
@@ -261,8 +295,8 @@ export function Shutdown(): void {
 export function NewFrame(time: number): void {
     const io: ImGuiIO = ImGui.GetIO();
 
-    const w: number = gl && gl.canvas.width || 640;
-    const h: number = gl && gl.canvas.height || 480;
+    const w: number = gl && gl.canvas.scrollWidth || 640;
+    const h: number = gl && gl.canvas.scrollHeight || 480;
     const display_w: number = gl && gl.drawingBufferWidth || w;
     const display_h: number = gl && gl.drawingBufferHeight || h;
     io.DisplaySize.x = w;
