@@ -10,10 +10,12 @@
   },
   "author": "",
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
     "@types/emscripten": "0.0.31",
     "@types/node": "^9.6.1",
-    "@types/systemjs": "^0.20.6",
+    "@types/systemjs": "^0.20.6"
+  },
+  "devDependencies": {
     "http-server": "^0.11.1",
     "systemjs": "^0.21.0",
     "typescript": "^2.8.1"
