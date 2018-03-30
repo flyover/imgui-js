@@ -76,11 +76,12 @@ export function Init(canvas: HTMLCanvasElement | null): void {
             }
         });
 
-        canvas.addEventListener("mousemove", (event: MouseEvent): void => {
+        canvas.style.touchAction = "none"; // Disable browser handling of all panning and zooming gestures.
+
+        canvas.addEventListener("pointermove", (event: PointerEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
-            // const devicePixelRatio: number = window.devicePixelRatio || 1;
-            io.MousePos.x = event.offsetX; // * devicePixelRatio;
-            io.MousePos.y = event.offsetY; // * devicePixelRatio;
+            io.MousePos.x = event.offsetX;
+            io.MousePos.y = event.offsetY;
             if (io.WantCaptureMouse) {
                 event.preventDefault();
             }
@@ -95,8 +96,10 @@ export function Init(canvas: HTMLCanvasElement | null): void {
         // 4: Fifth button, typically the Browser Forward button
         const mouse_button_map: number[] = [ 0, 2, 1, 3, 4 ];
 
-        canvas.addEventListener("mousedown", (event: MouseEvent): void => {
+        canvas.addEventListener("pointerdown", (event: PointerEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
+            io.MousePos.x = event.offsetX;
+            io.MousePos.y = event.offsetY;
             io.MouseDown[mouse_button_map[event.button]] = true;
             // if (io.WantCaptureMouse) {
             //     event.preventDefault();
@@ -108,43 +111,9 @@ export function Init(canvas: HTMLCanvasElement | null): void {
             }
         });
 
-        canvas.addEventListener("mouseup", (event: MouseEvent): void => {
+        canvas.addEventListener("pointerup", (event: PointerEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
             io.MouseDown[mouse_button_map[event.button]] = false;
-            if (io.WantCaptureMouse) {
-                event.preventDefault();
-            }
-        });
-
-        canvas.addEventListener("touchmove", (event: any /*TouchEvent*/): void => {
-            const io: ImGuiIO = ImGui.GetIO();
-            // const devicePixelRatio: number = window.devicePixelRatio || 1;
-            io.MousePos.x = event.touches[0].clientX; // * devicePixelRatio;
-            io.MousePos.y = event.touches[0].clientY; // * devicePixelRatio;
-            if (io.WantCaptureMouse) {
-                event.preventDefault();
-            }
-        });
-
-        canvas.addEventListener("touchstart", (event: any /*TouchEvent*/): void => {
-            const io: ImGuiIO = ImGui.GetIO();
-            // const devicePixelRatio: number = window.devicePixelRatio || 1;
-            io.MousePos.x = event.touches[0].clientX; // * devicePixelRatio;
-            io.MousePos.y = event.touches[0].clientY; // * devicePixelRatio;
-            io.MouseDown[0] = true;
-            if (io.WantCaptureMouse) {
-                event.preventDefault();
-            }
-        });
-
-        canvas.addEventListener("touchend", (event: any /*TouchEvent*/): void => {
-            const io: ImGuiIO = ImGui.GetIO();
-            // const devicePixelRatio: number = window.devicePixelRatio || 1;
-            // io.MousePos.x = event.touches[0].clientX; // * devicePixelRatio;
-            // io.MousePos.y = event.touches[0].clientY; // * devicePixelRatio;
-            // io.MousePos.x = Number.MIN_VALUE;
-            // io.MousePos.y = Number.MIN_VALUE;
-            io.MouseDown[0] = false;
             if (io.WantCaptureMouse) {
                 event.preventDefault();
             }
