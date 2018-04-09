@@ -370,37 +370,16 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 ImGui.EndTooltip();
             }
 
-            // Testing ImGuiOnceUponAFrame helper.
-            //static ImGuiOnceUponAFrame once;
-            //for (let i = 0; i < 5; i++)
-            //    if (once)
-            //        ImGui.Text("This will be displayed only once.");
-
             ImGui.Separator();
 
             ImGui.LabelText("label", "Value");
 
             {
-                // Simplified one-liner Combo() API, using values packed in a single constant string
-                /* static */ const current_item_1: Static<number> = STATIC("current_item_1", 1);
-                ImGui.Combo("combo", (value = current_item_1.value) => current_item_1.value = value, "aaaa\0bbbb\0cccc\0dddd\0eeee\0\0");
-                //ImGui.Combo("combo w/ array of char*", &current_item_2_idx, items, IM_ARRAYSIZE(items));   // Combo using proper array. You can also pass a callback to retrieve array value, no need to create/copy an array just for that.
-
-                // General BeginCombo() API, you have full control over your selection data and display type
-                const items: string[] = [ "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO", "PPPP", "QQQQQQQQQQ", "RRR", "SSSS" ];
-                /* static */ const current_item_2: Static<string | null> = STATIC("current_item_2", null);
-                if (ImGui.BeginCombo("combo 2", current_item_2.value)) // The second parameter is the label previewed before opening the combo.
-                {
-                    for (let n = 0; n < IM_ARRAYSIZE(items); n++)
-                    {
-                        const is_selected: boolean = (current_item_2.value === items[n]); // You can store your selection however you want, outside or inside your objects
-                        if (ImGui.Selectable(items[n], is_selected))
-                            current_item_2.value = items[n];
-                        if (is_selected)
-                            ImGui.SetItemDefaultFocus();   // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
-                    }
-                    ImGui.EndCombo();
-                }
+                // Using the _simplified_ one-liner Combo() api here
+                const items: string[] = [ "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" ];
+                /* static */ const item_current: Static<number> = STATIC("item_current", 0);
+                ImGui.Combo("combo", (value = item_current.value) => item_current.value = value, items, IM_ARRAYSIZE(items));
+                ImGui.SameLine(); ShowHelpMarker("Refer to the \"Combo\" section below for an explanation of the full BeginCombo/EndCombo API, and demonstration of various flags.\n");
             }
 
             {
@@ -415,6 +394,12 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
 
                 ImGui.InputFloat("input float", (value = f0.value) => f0.value = value, 0.01, 1.0);
 
+                // NB: You can use the %e notation as well.
+                /* static */ const d0: Static<number> = STATIC("d0", 999999.000001);
+                ImGui.InputDouble("input double", (value = d0.value) => d0.value = value, 0.01, 1.0, "%.6f");
+                ImGui.SameLine(); ShowHelpMarker("You can input value using the scientific notation,\n  e.g. \"1e+8\" becomes \"100000000\".\n");
+
+                
                 /* static */ const vec4a: Static<ImTuple4<number>> = STATIC<ImTuple4<number>>("vec4a", [ 0.10, 0.20, 0.30, 0.44 ]);
                 ImGui.InputFloat3("input float3", vec4a.value);
             }
@@ -443,24 +428,35 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 ImGui.SliderAngle("slider angle", (value = angle.value) => angle.value = value);
             }
 
-            /* static */ const col1: Static<ImTuple3<number>> = STATIC<ImTuple3<number>>("col1", [ 1.0, 0.0, 0.2 ]);
-            /* static */ const col2: Static<ImTuple4<number>> = STATIC<ImTuple4<number>>("col2", [ 0.4, 0.7, 0.0, 0.5 ]);
-            ImGui.ColorEdit3("color 1", col1.value);
-            ImGui.SameLine(); ShowHelpMarker("Click on the colored square to open a color picker.\nRight-click on the colored square to show options.\nCTRL+click on individual component to input value.\n");
+            {
+                /* static */ const col1: Static<ImTuple3<number>> = STATIC<ImTuple3<number>>("col1", [ 1.0, 0.0, 0.2 ]);
+                /* static */ const col2: Static<ImTuple4<number>> = STATIC<ImTuple4<number>>("col2", [ 0.4, 0.7, 0.0, 0.5 ]);
+                ImGui.ColorEdit3("color 1", col1.value);
+                ImGui.SameLine(); ShowHelpMarker("Click on the colored square to open a color picker.\nRight-click on the colored square to show options.\nCTRL+click on individual component to input value.\n");
 
-            ImGui.ColorEdit4("color 2", col2.value);
+                ImGui.ColorEdit4("color 2", col2.value);
+            }
 
-            const listbox_items: string[] = [ "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" ];
-            /* static */ const listbox_item_current: Static<number> = STATIC("listbox_item_current", 1);
-            ImGui.ListBox("listbox\n(single select)", (value = listbox_item_current.value) => listbox_item_current.value = value, listbox_items, IM_ARRAYSIZE(listbox_items), 4);
-
-            /* static */ const listbox_item_current2: Static<number> = STATIC("listbox_item_current2", 2);
-            ImGui.PushItemWidth(-1);
-            ImGui.ListBox("##listbox2", (value = listbox_item_current2.value) => listbox_item_current2.value = value, listbox_items, IM_ARRAYSIZE(listbox_items), 4);
-            ImGui.PopItemWidth();
+            {
+                // List box
+                const listbox_items: string[] = [ "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" ];
+                /* static */ const listbox_item_current: Static<number> = STATIC("listbox_item_current", 1);
+                ImGui.ListBox("listbox\n(single select)", (value = listbox_item_current.value) => listbox_item_current.value = value, listbox_items, IM_ARRAYSIZE(listbox_items), 4);
+    
+                // /* static */ const listbox_item_current2: Static<number> = STATIC("listbox_item_current2", 2);
+                // ImGui.PushItemWidth(-1);
+                // ImGui.ListBox("##listbox2", (value = listbox_item_current2.value) => listbox_item_current2.value = value, listbox_items, IM_ARRAYSIZE(listbox_items), 4);
+                // ImGui.PopItemWidth();
+            }
 
             ImGui.TreePop();
         }
+
+        // Testing ImGuiOnceUponAFrame helper.
+        //static ImGuiOnceUponAFrame once;
+        //for (let i = 0; i < 5; i++)
+        //    if (once)
+        //        ImGui.Text("This will be displayed only once.");
 
         if (ImGui.TreeNode("Trees"))
         {
@@ -619,8 +615,8 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
 
         if (ImGui.TreeNode("Images"))
         {
-            ImGui.TextWrapped("Below we are displaying the font texture (which is the only texture we have access to in this demo). Use the 'ImTextureID' type as storage to pass pointers or identifier to your own texture data. Hover the texture for a zoomed view!");
             const io: ImGuiIO = ImGui.GetIO();
+            ImGui.TextWrapped("Below we are displaying the font texture (which is the only texture we have access to in this demo). Use the 'ImTextureID' type as storage to pass pointers or identifier to your own texture data. Hover the texture for a zoomed view!");
 
             // Here we are grabbing the font texture because that's the only one we have access to inside the demo code.
             // Remember that ImTextureID is just storage for whatever you want it to be, it is essentially a value that will be passed to the render function inside the ImDrawCmd structure.
@@ -639,14 +635,15 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             if (ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
-                const focus_sz: number = 32.0;
-                let focus_x = io.MousePos.x - pos.x - focus_sz * 0.5; if (focus_x < 0.0) focus_x = 0.0; else if (focus_x > my_tex_w - focus_sz) focus_x = my_tex_w - focus_sz;
-                let focus_y = io.MousePos.y - pos.y - focus_sz * 0.5; if (focus_y < 0.0) focus_y = 0.0; else if (focus_y > my_tex_h - focus_sz) focus_y = my_tex_h - focus_sz;
-                ImGui.Text(`Min: (${focus_x.toFixed(2)}, ${focus_y.toFixed(2)})`);
-                ImGui.Text(`Max: (${(focus_x + focus_sz).toFixed(2)}, ${(focus_y + focus_sz).toFixed(2)})`);
-                const uv0: ImVec2 = new ImVec2((focus_x) / my_tex_w, (focus_y) / my_tex_h);
-                const uv1: ImVec2 = new ImVec2((focus_x + focus_sz) / my_tex_w, (focus_y + focus_sz) / my_tex_h);
-                ImGui.Image(my_tex_id, new ImVec2(128, 128), uv0, uv1, new ImColor(255, 255, 255, 255).toImVec4(), new ImColor(255, 255, 255, 128).toImVec4());
+                const region_sz: number = 32.0;
+                let region_x: number = io.MousePos.x - pos.x - region_sz * 0.5; if (region_x < 0.0) region_x = 0.0; else if (region_x > my_tex_w - region_sz) region_x = my_tex_w - region_sz;
+                let region_y: number = io.MousePos.y - pos.y - region_sz * 0.5; if (region_y < 0.0) region_y = 0.0; else if (region_y > my_tex_h - region_sz) region_y = my_tex_h - region_sz;
+                let zoom: number = 4.0;
+                ImGui.Text(`Min: (${region_x.toFixed(2)}, ${region_y.toFixed(2)})`);
+                ImGui.Text(`Max: (${(region_x + region_sz).toFixed(2)}, ${(region_y + region_sz).toFixed(2)})`);
+                const uv0: ImVec2 = new ImVec2((region_x) / my_tex_w, (region_y) / my_tex_h);
+                const uv1: ImVec2 = new ImVec2((region_x + region_sz) / my_tex_w, (region_y + region_sz) / my_tex_h);
+                ImGui.Image(my_tex_id, new ImVec2(region_sz * zoom, region_sz * zoom), uv0, uv1, new ImColor(255, 255, 255, 255).toImVec4(), new ImColor(255, 255, 255, 128).toImVec4());
                 ImGui.EndTooltip();
             }
             ImGui.TextWrapped("And now some textured buttons..");
@@ -662,6 +659,52 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             }
             ImGui.NewLine();
             ImGui.Text(`Pressed ${pressed_count.value} times.`);
+            ImGui.TreePop();
+        }
+
+        if (ImGui.TreeNode("Combo"))
+        {
+            // Expose flags as checkbox for the demo
+            /* static */ const flags: Static<ImGui.ImGuiComboFlags> = STATIC("flags#669", 0);
+            ImGui.CheckboxFlags("ImGuiComboFlags_PopupAlignLeft", (value = flags.value) => flags.value = value, ImGui.ImGuiComboFlags.PopupAlignLeft);
+            if (ImGui.CheckboxFlags("ImGuiComboFlags_NoArrowButton", (value = flags.value) => flags.value = value, ImGui.ImGuiComboFlags.NoArrowButton))
+                flags.value &= ~ImGui.ImGuiComboFlags.NoPreview;     // Clear the other flag, as we cannot combine both
+            if (ImGui.CheckboxFlags("ImGuiComboFlags_NoPreview", (value = flags.value) => flags.value = value, ImGui.ImGuiComboFlags.NoPreview))
+                flags.value &= ~ImGui.ImGuiComboFlags.NoArrowButton; // Clear the other flag, as we cannot combine both
+
+            // General BeginCombo() API, you have full control over your selection data and display type.
+            // (your selection data could be an index, a pointer to the object, an id for the object, a flag stored in the object itself, etc.)
+            const items: string[] = [ "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" ];
+            /* static */ const item_current: Static<string> = STATIC("item_current", items[0]);// Here our selection is a single pointer stored outside the object.
+            if (ImGui.BeginCombo("combo 1", item_current.value, flags.value)) // The second parameter is the label previewed before opening the combo.
+            {
+                for (let n = 0; n < IM_ARRAYSIZE(items); n++)
+                {
+                    // bool is_selected = (item_current == items[n]);
+                    const is_selected: boolean = (item_current.value === items[n]);
+                    // if (ImGui::Selectable(items[n], is_selected))
+                    if (ImGui.Selectable(items[n], is_selected))
+                        item_current.value = items[n];
+                    if (is_selected)
+                        ImGui.SetItemDefaultFocus();   // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+                }
+                ImGui.EndCombo();
+            }
+
+            // Simplified one-liner Combo() API, using values packed in a single constant string
+            /* static */ const item_current_2: Static<number> = STATIC("item_current_2", 0);
+            ImGui.Combo("combo 2", (value = item_current_2.value) => item_current_2.value = value, "aaaa\0bbbb\0cccc\0dddd\0eeee\0\0");
+
+            // Simplified one-liner Combo() using an array of const char*
+            /* static */ const item_current_3: Static<number> = STATIC("item_current_3", -1); // If the selection isn't within 0..count, Combo won't display a preview
+            ImGui.Combo("combo 3 (array)", (value = item_current_3.value) => item_current_3.value = value, items, IM_ARRAYSIZE(items));
+
+            // Simplified one-liner Combo() using an accessor function
+            // struct FuncHolder { static bool ItemGetter(void* data, int idx, const char** out_str) { *out_str = ((const char**)data)[idx]; return true; } };
+            // class FuncHolder { public static ItemGetter(data: any, idx: number, out_str: string[]): boolean { return true; } }
+            // /* static */ const item_current_4: Static<number> = STATIC("item_current_4", 0);
+            // ImGui.Combo("combo 4 (function)", (value = item_current_4.value) => item_current_4.value = value, FuncHolder.ItemGetter, items, IM_ARRAYSIZE(items));
+
             ImGui.TreePop();
         }
 
@@ -1865,15 +1908,18 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
         ImGui.Text(`WantCaptureMouse: ${io.WantCaptureMouse}`);
         ImGui.Text(`WantCaptureKeyboard: ${io.WantCaptureKeyboard}`);
         ImGui.Text(`WantTextInput: ${io.WantTextInput}`);
-        ImGui.Text(`WantMoveMouse: ${io.WantMoveMouse}`);
+        ImGui.Text(`WantSetMousePos: ${io.WantSetMousePos}`);
         ImGui.Text(`NavActive: ${io.NavActive}, NavVisible: ${io.NavVisible}`);
 
         ImGui.Checkbox("io.MouseDrawCursor", (value = io.MouseDrawCursor) => io.MouseDrawCursor = value);
-        ImGui.SameLine(); ShowHelpMarker("Request ImGui to render a mouse cursor for you in software. Note that a mouse cursor rendered via your application GPU rendering path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
-        ImGui.CheckboxFlags("io.ConfigFlags: EnableGamepad", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.EnableGamepad);
-        ImGui.CheckboxFlags("io.ConfigFlags: EnableKeyboard", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.EnableKeyboard);
-        ImGui.CheckboxFlags("io.ConfigFlags: MoveMouse", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.MoveMouse);
-        ImGui.SameLine(); ShowHelpMarker("Request ImGui to move your move cursor when using gamepad/keyboard navigation. NewFrame() will change io.MousePos and set the io.WantMoveMouse flag, your backend will need to apply the new mouse position.");
+        ImGui.SameLine(); ShowHelpMarker("Instruct ImGui to render a mouse cursor for you in software. Note that a mouse cursor rendered via your application GPU rendering path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
+
+        ImGui.CheckboxFlags("io.ConfigFlags: EnableGamepad", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.NavEnableGamepad);
+        ImGui.CheckboxFlags("io.ConfigFlags: EnableKeyboard", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.NavEnableKeyboard);
+        ImGui.CheckboxFlags("io.ConfigFlags: NavEnableSetMousePos", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.NavEnableSetMousePos); 
+        ImGui.SameLine(); ShowHelpMarker("Instruct navigation to move the mouse cursor. See comment for ImGuiConfigFlags_NavEnableSetMousePos.");
+        ImGui.CheckboxFlags("io.ConfigFlags: NoMouseCursorChange", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.NoMouseCursorChange);   
+        ImGui.SameLine(); ShowHelpMarker("Instruct back-end to not alter mouse cursor shape and visibility.");
 
         if (ImGui.TreeNode("Keyboard, Mouse & Navigation State"))
         {

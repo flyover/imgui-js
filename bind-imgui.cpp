@@ -249,10 +249,10 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
         .property("VtxBuffer", FUNCTION(emscripten::val, (const ImDrawList& that), {
             return emscripten::val(emscripten::typed_memory_view((size_t)(that.VtxBuffer.size() * sizeof(ImDrawVert)), (char *) &that.VtxBuffer.front()));
         }))
-
-        // [Internal, used while building lists]
         // ImDrawListFlags         Flags;              // Flags, you may poke into these to adjust anti-aliasing settings per-primitive.
         .property("Flags", &ImDrawList::Flags)
+
+        // [Internal, used while building lists]
         // const ImDrawListSharedData* _Data;          // Pointer to shared draw data (you can use ImGui::GetDrawListSharedData() to get the one from current ImGui context)
         // const char*             _OwnerName;         // Pointer to owner window's name for debugging
         // unsigned int            _VtxCurrentIdx;     // [Internal] == VtxBuffer.Size
@@ -424,6 +424,7 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
         }))
         // IMGUI_API void  AddDrawCmd();                                               // This is useful if you need to forcefully create a new draw call (to allow for dependent rendering / blending). Otherwise primitives are merged into the same draw-call as much as possible
         .function("AddDrawCmd", &ImDrawList::AddDrawCmd)
+        // IMGUI_API ImDrawList* CloneOutput() const;                                  // Create a clone of the CmdBuffer/IdxBuffer/VtxBuffer.
 
         // Internal helpers
         // NB: all primitives needs to be reserved via PrimReserve() beforehand!
@@ -478,10 +479,10 @@ EMSCRIPTEN_BINDINGS(ImDrawData) {
         // ImDrawList**    CmdLists;
         // int             CmdListsCount;
         .property("CmdListsCount", &ImDrawData::CmdListsCount)
-        // int             TotalVtxCount;          // For convenience, sum of all cmd_lists vtx_buffer.Size
-        .property("TotalVtxCount", &ImDrawData::TotalVtxCount)
         // int             TotalIdxCount;          // For convenience, sum of all cmd_lists idx_buffer.Size
         .property("TotalIdxCount", &ImDrawData::TotalIdxCount)
+        // int             TotalVtxCount;          // For convenience, sum of all cmd_lists vtx_buffer.Size
+        .property("TotalVtxCount", &ImDrawData::TotalVtxCount)
 
         // Functions
         // ImDrawData() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; }
@@ -682,6 +683,10 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // Settings (fill once)                 // Default value:
         //------------------------------------------------------------------
 
+        // ImGuiConfigFlags ConfigFlags;           // = 0                  // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
+        .property("ConfigFlags", &ImGuiIO::ConfigFlags)
+        // ImGuiConfigFlags BackendFlags;          // = 0                  // Set ImGuiBackendFlags_ enum. Set by imgui_impl_xxx files or custom back-end.
+        .property("BackendFlags", &ImGuiIO::BackendFlags)
         // ImVec2        DisplaySize;              // <unset>              // Display size, in pixels. For clamping windows positions.
         .function("getDisplaySize", FUNCTION(emscripten::val, (ImGuiIO* that), {
             ImVec2* p = &that->DisplaySize; return emscripten::val(p);
@@ -691,8 +696,6 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
         // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
         // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
-        // ImGuiConfigFlags ConfigFlags;           // = 0                  // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
-        .property("ConfigFlags", &ImGuiIO::ConfigFlags)
         // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
         // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
         // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging
@@ -805,8 +808,8 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         .property("WantCaptureKeyboard", &ImGuiIO::WantCaptureKeyboard)
         // bool        WantTextInput;              // Mobile/console: when io.WantTextInput is true, you may display an on-screen keyboard. This is set by ImGui when it wants textual keyboard input to happen (e.g. when a InputText widget is active).
         .property("WantTextInput", &ImGuiIO::WantTextInput)
-        // bool        WantMoveMouse;              // [BETA-NAV] MousePos has been altered, back-end should reposition mouse on next frame. Set only when 'NavMovesMouse=true'.
-        .property("WantMoveMouse", &ImGuiIO::WantMoveMouse)
+        // bool        WantSetMousePos;            // [BETA-NAV] MousePos has been altered, back-end should reposition mouse on next frame. Set only when 'NavMovesMouse=true'.
+        .property("WantSetMousePos", &ImGuiIO::WantSetMousePos)
         // bool        NavActive;                  // Directional navigation is currently allowed (will handle ImGuiKey_NavXXX events) = a window is focused and it doesn't use the ImGuiWindowFlags_NoNavInputs flag.
         .property("NavActive", &ImGuiIO::NavActive)
         // bool        NavVisible;                 // Directional navigation is visible and allowed (will handle ImGuiKey_NavXXX events).
@@ -1766,6 +1769,13 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         v.set(1, emscripten::val(_v[1]));
         v.set(2, emscripten::val(_v[2]));
         v.set(3, emscripten::val(_v[3]));
+        return ret;
+    }));
+    // IMGUI_API bool          InputDouble(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* display_format = "%.6f", ImGuiInputTextFlags extra_flags = 0);
+    emscripten::function("InputDouble", FUNCTION(bool, (std::string label, emscripten::val v, float step, float step_fast, std::string display_format, ImGuiInputTextFlags extra_flags), {
+        double _v = v[0].as<double>();
+        bool ret = ImGui::InputDouble(label.c_str(), &_v, step, step_fast, display_format.c_str(), extra_flags);
+        v.set(0, emscripten::val(_v));
         return ret;
     }));
 

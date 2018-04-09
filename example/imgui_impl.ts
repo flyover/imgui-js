@@ -1,6 +1,7 @@
 import * as ImGui from "../imgui";
 import { ImGuiKey } from "../imgui";
 import { ImGuiConfigFlags } from "../imgui";
+import { ImGuiBackendFlags } from "../imgui";
 import { ImGuiNavInput } from "../imgui";
 import { ImGuiIO } from "../imgui";
 import { ImDrawCmd } from "../imgui";
@@ -138,6 +139,9 @@ export function Init(canvas: HTMLCanvasElement | null): void {
     // io.SetClipboardTextFn = ImGui_Impl_SetClipboardText;
     // io.GetClipboardTextFn = ImGui_Impl_GetClipboardText;
     // io.ClipboardUserData = NULL;
+
+    // Setup back-end capabilities flags
+    io.BackendFlags |= ImGuiBackendFlags.HasMouseCursors;   // We can honor GetMouseCursor() values (optional)
 
     // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
     io.KeyMap[ImGuiKey.Tab] = 9;
@@ -277,7 +281,7 @@ export function NewFrame(time: number): void {
     prev_time = time;
     io.DeltaTime = dt / 1000;
 
-    if (io.WantMoveMouse) {
+    if (io.WantSetMousePos) {
         console.log("TODO: MousePos", io.MousePos.x, io.MousePos.y);
     }
 
@@ -302,7 +306,7 @@ export function NewFrame(time: number): void {
     for (let i = 0; i < io.NavInputs.length; ++i) {
         io.NavInputs[i] = 0.0;
     }
-    if (io.ConfigFlags & ImGuiConfigFlags.EnableGamepad)
+    if (io.ConfigFlags & ImGuiConfigFlags.NavEnableGamepad)
     {
         // Update gamepad inputs
         const gamepads: (Gamepad | null)[] = (typeof(navigator) !== "undefined" && typeof(navigator.getGamepads) === "function") ? navigator.getGamepads() : [];

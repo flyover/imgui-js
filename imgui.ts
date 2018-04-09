@@ -84,6 +84,7 @@ export enum ImGuiInputTextFlags {
     ReadOnly            = 1 << 14,  // Read-only mode
     Password            = 1 << 15,  // Password mode, display all characters as '*'
     NoUndoRedo          = 1 << 16,  // Disable undo/redo. Note that input text owns the text data while active, if you want to provide your own undo/redo stack you need e.g. to call ClearActiveID().
+    CharsScientific     = 1 << 17,  // Allow 0123456789.+-*/eE (Scientific notation input)
     // [Internal]
     Multiline           = 1 << 20,   // For internal use by InputTextMultiline()
 }
@@ -124,6 +125,8 @@ export enum ImGuiComboFlags {
     HeightRegular           = 1 << 2,   // Max ~8 items visible (default)
     HeightLarge             = 1 << 3,   // Max ~20 items visible
     HeightLargest           = 1 << 4,   // As many fitting items as possible
+    NoArrowButton           = 1 << 5,   // Display on the preview box without the square arrow button
+    NoPreview               = 1 << 6,   // Display only a square arrow button
     HeightMask_             = HeightSmall | HeightRegular | HeightLarge | HeightLargest,
 }
 
@@ -237,10 +240,15 @@ export enum ImGuiNavInput
 export { ImGuiConfigFlags as ConfigFlags };
 export enum ImGuiConfigFlags
 {
-    EnableKeyboard    = 1 << 0,   // Master keyboard navigation enable flag. NewFrame() will automatically fill io.NavInputs[] based on io.KeyDown[].
-    EnableGamepad     = 1 << 1,   // Master gamepad navigation enable flag. This is mostly to instruct your imgui back-end to fill io.NavInputs[].
-    MoveMouse         = 1 << 2,   // Request navigation to allow moving the mouse cursor. May be useful on TV/console systems where moving a virtual mouse is awkward. Will update io.MousePos and set io.WantMoveMouse=true. If enabled you MUST honor io.WantMoveMouse requests in your binding, otherwise ImGui will react as if the mouse is jumping around back and forth.
-    NoCaptureKeyboard = 1 << 3,    // Do not set the io.WantCaptureKeyboard flag with io.NavActive is set.
+    NavEnableKeyboard    = 1 << 0,   // Master keyboard navigation enable flag. NewFrame() will automatically fill io.NavInputs[] based on io.KeyDown[].
+    NavEnableGamepad     = 1 << 1,   // Master gamepad navigation enable flag. This is mostly to instruct your imgui back-end to fill io.NavInputs[].
+    NavEnableSetMousePos = 1 << 2,   // Request navigation to allow moving the mouse cursor. May be useful on TV/console systems where moving a virtual mouse is awkward. Will update io.MousePos and set io.WantMoveMouse=true. If enabled you MUST honor io.WantMoveMouse requests in your binding, otherwise ImGui will react as if the mouse is jumping around back and forth.
+    NavNoCaptureKeyboard = 1 << 3,    // Do not set the io.WantCaptureKeyboard flag with io.NavActive is set.
+    NoMouse              = 1 << 4,   // Instruct imgui to clear mouse position/buttons in NewFrame(). This allows ignoring the mouse information back-end
+    NoMouseCursorChange  = 1 << 5,   // Instruct back-end to not alter mouse cursor shape and visibility.
+
+    IsSRGB               = 1 << 20,  // Application is SRGB-aware.
+    IsTouchScreen        = 1 << 21   // Application is using a touch screen instead of a mouse.
 }
 
 // Enumeration for PushStyleColor() / PopStyleColor()
@@ -319,6 +327,14 @@ export enum ImGuiStyleVar {
     GrabRounding,        // float     GrabRounding
     ButtonTextAlign,     // ImVec2    ButtonTextAlign
     Count_, COUNT = Count_,
+}
+
+// Back-end capabilities flags stored in io.BackendFlags. Set by imgui_impl_xxx or custom back-end.
+export { ImGuiBackendFlags as BackendFlags };
+export enum ImGuiBackendFlags {
+    HasGamepad            = 1 << 0,   // Back-end has a connected gamepad.
+    HasMouseCursors       = 1 << 1,   // Back-end can honor GetMouseCursor() values and change the OS cursor shape.
+    HasSetMousePos        = 1 << 2    // Back-end can honor io.WantSetMousePos and reposition the mouse (only used if ImGuiConfigFlags_NavEnableSetMousePos is set).
 }
 
 // Enumeration for ColorEdit3() / ColorEdit4() / ColorPicker3() / ColorPicker4() / ColorButton()
@@ -1025,11 +1041,11 @@ export class ImDrawList
     get IdxBuffer(): Uint8Array { return this.native.IdxBuffer; }
     // ImVector<ImDrawVert>    VtxBuffer;          // Vertex buffer.
     get VtxBuffer(): Uint8Array { return this.native.VtxBuffer; }
-
-    // [Internal, used while building lists]
     // ImDrawListFlags         Flags;              // Flags, you may poke into these to adjust anti-aliasing settings per-primitive.
     get Flags(): ImDrawListFlags { return this.native.Flags; }
     set Flags(value: ImDrawListFlags) { this.native.Flags = value; }
+
+    // [Internal, used while building lists]
     // const ImDrawListSharedData* _Data;          // Pointer to shared draw data (you can use ImGui::GetDrawListSharedData() to get the one from current ImGui context)
     // const char*             _OwnerName;         // Pointer to owner window's name for debugging
     // unsigned int            _VtxCurrentIdx;     // [Internal] == VtxBuffer.Size
@@ -1224,10 +1240,10 @@ export class ImDrawData
     // ImDrawList**    CmdLists;
     // int             CmdListsCount;
     get CmdListsCount(): number { return this.native.CmdListsCount; }
-    // int             TotalVtxCount;          // For convenience, sum of all cmd_lists vtx_buffer.Size
-    get TotalVtxCount(): number { return this.native.TotalVtxCount; }
     // int             TotalIdxCount;          // For convenience, sum of all cmd_lists idx_buffer.Size
     get TotalIdxCount(): number { return this.native.TotalIdxCount; }
+    // int             TotalVtxCount;          // For convenience, sum of all cmd_lists vtx_buffer.Size
+    get TotalVtxCount(): number { return this.native.TotalVtxCount; }
 
     // Functions
     // ImDrawData() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; }
@@ -1614,14 +1630,17 @@ export class ImGuiIO
     // Settings (fill once)                 // Default value:
     //------------------------------------------------------------------
 
+    // ImGuiConfigFlags ConfigFlags;                 // = 0x00               // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
+    get ConfigFlags(): ImGuiConfigFlags { return this.native.ConfigFlags; }
+    set ConfigFlags(value: ImGuiConfigFlags) { this.native.ConfigFlags = value; }
+    // ImGuiConfigFlags ConfigFlags;                 // = 0x00               // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
+    get BackendFlags(): ImGuiBackendFlags { return this.native.BackendFlags; }
+    set BackendFlags(value: ImGuiBackendFlags) { this.native.BackendFlags = value; }
     // ImVec2        DisplaySize;              // <unset>              // Display size, in pixels. For clamping windows positions.
     get DisplaySize(): Bind.reference_ImVec2 { return this.native.getDisplaySize(); }
     // float         DeltaTime;                // = 1.0f/60.0f         // Time elapsed since last frame, in seconds.
     get DeltaTime(): number { return this.native.DeltaTime; }
     set DeltaTime(value: number) { this.native.DeltaTime = value; }
-    // ImGuiConfigFlags ConfigFlags;                 // = 0x00               // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
-    get ConfigFlags(): ImGuiConfigFlags { return this.native.ConfigFlags; }
-    set ConfigFlags(value: ImGuiConfigFlags) { this.native.ConfigFlags = value; }
     // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
     // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
     // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
@@ -1749,8 +1768,8 @@ export class ImGuiIO
     get WantCaptureKeyboard(): boolean { return this.native.WantCaptureKeyboard; } set WantCaptureKeyboard(value: boolean) { this.native.WantCaptureKeyboard = value; }
     // bool        WantTextInput;              // Mobile/console: when io.WantTextInput is true, you may display an on-screen keyboard. This is set by ImGui when it wants textual keyboard input to happen (e.g. when a InputText widget is active).
     get WantTextInput(): boolean { return this.native.WantTextInput; } set WantTextInput(value: boolean) { this.native.WantTextInput = value; }
-    // bool        WantMoveMouse;              // [BETA-NAV] MousePos has been altered, back-end should reposition mouse on next frame. Set only when 'NavMovesMouse=true'.
-    get WantMoveMouse(): boolean { return this.native.WantMoveMouse; } set WantMoveMouse(value: boolean) { this.native.WantMoveMouse = value; }
+    // bool        WantSetMousePos;              // [BETA-NAV] MousePos has been altered, back-end should reposition mouse on next frame. Set only when 'NavMovesMouse=true'.
+    get WantSetMousePos(): boolean { return this.native.WantSetMousePos; } set WantSetMousePos(value: boolean) { this.native.WantSetMousePos = value; }
     // bool        NavActive;                  // Directional navigation is currently allowed (will handle ImGuiKey_NavXXX events) = a window is focused and it doesn't use the ImGuiWindowFlags_NoNavInputs flag.
     get NavActive(): boolean { return this.native.NavActive; } set NavActive(value: boolean) { this.native.NavActive = value; }
     // bool        NavVisible;                 // Directional navigation is visible and allowed (will handle ImGuiKey_NavXXX events).
@@ -2691,6 +2710,17 @@ export function InputInt3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple
 // IMGUI_API bool          InputInt4(const char* label, int v[4], ImGuiInputTextFlags extra_flags = 0);
 export function InputInt4(label: string, v: Bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
     return bind.InputInt4(label, v, extra_flags);
+}
+// IMGUI_API bool          InputDouble(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* display_format = "%.6f", ImGuiInputTextFlags extra_flags = 0);
+export function InputDouble(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, display_format: string = "%.6f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+    if (Array.isArray(v)) {
+        return bind.InputDouble(label, v, step, step_fast, display_format, extra_flags);
+    } else {
+        const ref_v: Bind.ImScalar<number> = [ v() ];
+        const ret = bind.InputDouble(label, ref_v, step, step_fast, display_format, extra_flags);
+        v(ref_v[0]);
+        return ret;
+    }
 }
 
 // Widgets: Sliders (tip: ctrl+click on a slider to input with keyboard. manually input values aren't clamped, can go off-bounds)

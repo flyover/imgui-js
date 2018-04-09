@@ -46,6 +46,7 @@ type ImGuiDragDropFlags = number;
 type ImGuiKey = number;
 type ImGuiNavInput = number;
 type ImGuiConfigFlags = number;
+type ImGuiBackendFlags = number;
 type ImGuiCol = number;
 type ImGuiStyleVar = number;
 type ImGuiColorEditFlags = number;
@@ -653,6 +654,10 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // Settings (fill once)                 // Default value:
     //------------------------------------------------------------------
 
+    // ImGuiConfigFlags ConfigFlags;                 // = 0                  // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
+    public ConfigFlags: ImGuiConfigFlags;
+    // ImGuiBackendFlags BackendFlags;               // = 0                  // Set ImGuiBackendFlags_ enum. Set by imgui_impl_xxx files or custom back-end.
+    public BackendFlags: ImGuiBackendFlags;
     // ImVec2        DisplaySize;              // <unset>              // Display size, in pixels. For clamping windows positions.
     public getDisplaySize(): reference_ImVec2;
     // float         DeltaTime;                // = 1.0f/60.0f         // Time elapsed since last frame, in seconds.
@@ -660,8 +665,6 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
     // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
     // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
-    // ImGuiConfigFlags ConfigFlags;                 // = 0                  // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
-    public ConfigFlags: ImGuiConfigFlags;
     // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
     // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
     // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging.
@@ -749,8 +752,8 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     public WantCaptureKeyboard: boolean;
     // bool        WantTextInput;              // Mobile/console: when io.WantTextInput is true, you may display an on-screen keyboard. This is set by ImGui when it wants textual keyboard input to happen (e.g. when a InputText widget is active).
     public WantTextInput: boolean;
-    // bool        WantMoveMouse;              // MousePos has been altered, back-end should reposition mouse on next frame. Set only when ImGuiConfigFlags_MoveMouse flag is enabled in io.ConfigFlags.
-    public WantMoveMouse: boolean;
+    // bool        WantSetMousePos;              // MousePos has been altered, back-end should reposition mouse on next frame. Set only when ImGuiConfigFlags_MoveMouse flag is enabled in io.ConfigFlags.
+    public WantSetMousePos: boolean;
     // bool        NavActive;                  // Directional navigation is currently allowed (will handle ImGuiKey_NavXXX events) = a window is focused and it doesn't use the ImGuiWindowFlags_NoNavInputs flag.
     public NavActive: boolean;
     // bool        NavVisible;                 // Directional navigation is visible and allowed (will handle ImGuiKey_NavXXX events).
@@ -1066,6 +1069,7 @@ InputInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number
 InputInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 InputInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 InputInt4(label: string, v: ImTuple4<number>, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
+InputDouble(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number/* = 0.0f */, step_fast: number/* = 0.0f */, display_format: string/* = "%0.6f" */, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 
 // Widgets: Sliders (tip: ctrl+click on a slider to input with keyboard. manually input values aren't clamped, can go off-bounds)
 SliderFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
