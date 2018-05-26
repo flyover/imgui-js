@@ -61,6 +61,7 @@ export class ImGuiContext extends Emscripten.EmscriptenClass {}
 export interface interface_ImVec2 {
     x: number;
     y: number;
+    Set(x: number, y: number): this;
     Copy(other: Readonly<interface_ImVec2>): this;
     Equals(other: Readonly<interface_ImVec2>): boolean;
 }
@@ -68,6 +69,7 @@ export interface interface_ImVec2 {
 export class reference_ImVec2 extends Emscripten.EmscriptenClassReference implements interface_ImVec2 {
     public x: number;
     public y: number;
+    public Set(x: number, y: number): this;
     public Copy(other: Readonly<interface_ImVec2>): this;
     public Equals(other: Readonly<interface_ImVec2>): boolean;
 }
@@ -86,6 +88,7 @@ export interface interface_ImVec4 {
     y: number;
     z: number;
     w: number;
+    Set(x: number, y: number, z: number, w: number): this;
     Copy(other: Readonly<interface_ImVec4>): this;
     Equals(other: Readonly<interface_ImVec4>): boolean;
 }
@@ -95,6 +98,7 @@ export class reference_ImVec4 extends Emscripten.EmscriptenClassReference implem
     public y: number;
     public z: number;
     public w: number;
+    public Set(x: number, y: number, z: number, w: number): this;
     public Copy(other: Readonly<interface_ImVec4>): this;
     public Equals(other: Readonly<interface_ImVec4>): boolean;
 }

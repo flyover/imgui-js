@@ -53,6 +53,12 @@ emscripten::val export_ImVec2(const ImVec2& v, emscripten::val out) {
     return out;
 }
 
+emscripten::val ImVec2_Set(emscripten::val that, float x, float y) {
+    that.set("x", x);
+    that.set("y", y);
+    return emscripten::val(that);
+}
+
 emscripten::val ImVec2_Copy(emscripten::val that, emscripten::val other) {
     that.set("x", other["x"].as<float>());
     that.set("y", other["y"].as<float>());
@@ -71,6 +77,7 @@ EMSCRIPTEN_BINDINGS(ImVec2) {
         .constructor<float, float>()
         .property("x", &ImVec2::x)
         .property("y", &ImVec2::y)
+        .function("Set", &ImVec2_Set)
         .function("Copy", &ImVec2_Copy)
         .function("Equals", &ImVec2_Equals)
     ;
@@ -91,6 +98,14 @@ emscripten::val export_ImVec4(const ImVec4& v, emscripten::val out) {
     out.set("z", v.z);
     out.set("w", v.w);
     return out;
+}
+
+emscripten::val ImVec4_Set(emscripten::val that, float x, float y, float z, float w) {
+    that.set("x", x);
+    that.set("y", y);
+    that.set("z", z);
+    that.set("w", w);
+    return emscripten::val(that);
 }
 
 emscripten::val ImVec4_Copy(emscripten::val that, emscripten::val other) {
@@ -117,6 +132,7 @@ EMSCRIPTEN_BINDINGS(ImVec4) {
         .property("y", &ImVec4::y)
         .property("z", &ImVec4::z)
         .property("w", &ImVec4::w)
+        .function("Set", &ImVec4_Set)
         .function("Copy", &ImVec4_Copy)
         .function("Equals", &ImVec4_Equals)
     ;
@@ -1357,7 +1373,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API float         GetCursorPosY();                                                    // "
     emscripten::function("GetCursorPosY", &ImGui::GetCursorPosY);
     // IMGUI_API void          SetCursorPos(const ImVec2& local_pos);                              // "
-    emscripten::function("SetCursorPos", &ImGui::SetCursorPos);
+    emscripten::function("SetCursorPos", FUNCTION(void, (emscripten::val local_pos), {
+        ImGui::SetCursorPos(import_ImVec2(local_pos));
+    }));
     // IMGUI_API void          SetCursorPosX(float x);                                             // "
     emscripten::function("SetCursorPosX", &ImGui::SetCursorPosX);
     // IMGUI_API void          SetCursorPosY(float y);                                             // "

@@ -425,6 +425,12 @@ export class ImVec2 implements Bind.interface_ImVec2 {
 
     constructor(public x: number = 0.0, public y: number = 0.0) {}
 
+    public Set(x: number, y: number): this {
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+
     public Copy(other: Readonly<Bind.interface_ImVec2>): this {
         this.x = other.x;
         this.y = other.y;
@@ -452,6 +458,14 @@ export class ImVec4 implements Bind.interface_ImVec4 {
     public static readonly WHITE: Readonly<ImVec4> = new ImVec4(1.0, 1.0, 1.0, 1.0);
 
     constructor(public x: number = 0.0, public y: number = 0.0, public z: number = 0.0, public w: number = 1.0) {}
+
+    public Set(x: number, y: number, z: number, w: number): this {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+        return this;
+    }
 
     public Copy(other: Readonly<Bind.interface_ImVec4>): this {
         this.x = other.x;
@@ -1685,8 +1699,11 @@ export class ImGuiIO
     // Optional: access OS clipboard
     // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
     // const char* (*GetClipboardTextFn)(void* user_data);
+    // public GetClipboardTextFn: (user_data: any) => string = (user_data: any) => "";
     // void        (*SetClipboardTextFn)(void* user_data, const char* text);
+    // public SetClipboardTextFn: (user_data: any, text: string) => void = (user_data: any, text: string) => {};
     // void*       ClipboardUserData;
+    // public ClipboardUserData: any;
 
     // Optional: override memory allocations. MemFreeFn() may be called with a NULL pointer.
     // (default to posix malloc/free)
