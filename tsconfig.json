@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2016",
     "module": "system",
     "moduleResolution": "node",
     "inlineSourceMap": true,
@@ -10,6 +10,8 @@
     "imconfig.ts",
     "imgui.ts",
     "imgui_demo.ts",
-    "imgui_memory_editor.ts"
+    "imgui_memory_editor.ts",
+    "imgui_node_graph_test.ts",
+    "imgui_pie_menu_test.ts"
   ]
 }
