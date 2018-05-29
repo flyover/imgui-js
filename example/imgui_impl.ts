@@ -23,15 +23,21 @@ let g_FontTexture: WebGLTexture | null = null;
 
 let prev_time: number = 0;
 
-export function Init(canvas: HTMLCanvasElement | null): void {
+export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): void {
+    if (value instanceof(HTMLCanvasElement)) {
+        gl = value.getContext("webgl", { alpha: false });
+    } else if (value instanceof(WebGLRenderingContext)) {
+        gl = value;
+    }
+
     const io: ImGuiIO = ImGui.GetIO();
 
     if (typeof(navigator) !== "undefined") {
         io.OptMacOSXBehaviors = navigator.platform.match(/Mac/) !== null;
     }
 
-    if (canvas !== null) {
-        gl = canvas.getContext("webgl", { alpha: false });
+    if (gl !== null) {
+        const canvas: HTMLCanvasElement = gl.canvas;
 
         canvas.addEventListener("blur", (event: FocusEvent): void => {
             const io: ImGuiIO = ImGui.GetIO();
