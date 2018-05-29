@@ -743,6 +743,7 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
 
         // Advanced/subtle behaviors
         // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
+        .property("OptMacOSXBehaviors", &ImGuiIO::OptMacOSXBehaviors)
         // bool          OptCursorBlink;           // = true               // Enable blinking cursor, for users who consider it annoying.
 
         //------------------------------------------------------------------

@@ -26,6 +26,10 @@ let prev_time: number = 0;
 export function Init(canvas: HTMLCanvasElement | null): void {
     const io: ImGuiIO = ImGui.GetIO();
 
+    if (typeof(navigator) !== "undefined") {
+        io.OptMacOSXBehaviors = navigator.platform.match(/Mac/) !== null;
+    }
+
     if (canvas !== null) {
         gl = canvas.getContext("webgl", { alpha: false });
 
