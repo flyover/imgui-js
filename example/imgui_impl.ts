@@ -24,9 +24,9 @@ let g_FontTexture: WebGLTexture | null = null;
 let prev_time: number = 0;
 
 export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): void {
-    if (value instanceof(HTMLCanvasElement)) {
+    if (value && value instanceof(HTMLCanvasElement)) {
         gl = value.getContext("webgl", { alpha: false });
-    } else if (value instanceof(WebGLRenderingContext)) {
+    } else if (value && value instanceof(WebGLRenderingContext)) {
         gl = value;
     }
 
