@@ -693,6 +693,11 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
     ;
 }
 
+static std::string _ClipboardText = std::string("");
+static emscripten::val _GetClipboardTextFn = emscripten::val::null();
+static emscripten::val _SetClipboardTextFn = emscripten::val::null();
+static emscripten::val _ClipboardUserData = emscripten::val::null();
+
 EMSCRIPTEN_BINDINGS(ImGuiIO) {
     emscripten::class_<ImGuiIO>("ImGuiIO")
         //------------------------------------------------------------------
@@ -753,8 +758,32 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // Optional: access OS clipboard
         // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
         // const char* (*GetClipboardTextFn)(void* user_data);
+        // public getGetClipboardTextFn(): (user_data: any) => string;
+        .function("getGetClipboardTextFn", FUNCTION(emscripten::val, (ImGuiIO* that), {
+            return _GetClipboardTextFn;
+        }), emscripten::allow_raw_pointers())
+        // public setGetClipboardTextFn(value: (user_data: any) => string): void;
+        .function("setGetClipboardTextFn", FUNCTION(void, (ImGuiIO* that, emscripten::val value), {
+            _GetClipboardTextFn = value;
+        }), emscripten::allow_raw_pointers())
         // void        (*SetClipboardTextFn)(void* user_data, const char* text);
+        // public getSetClipboardTextFn(): (user_data: any, text: string) => void;
+        .function("getSetClipboardTextFn", FUNCTION(emscripten::val, (ImGuiIO* that), {
+            return _SetClipboardTextFn;
+        }), emscripten::allow_raw_pointers())
+        // public setSetClipboardTextFn(value: (user_data: any, text: string) => void): void;
+        .function("setSetClipboardTextFn", FUNCTION(void, (ImGuiIO* that, emscripten::val value), {
+            _SetClipboardTextFn = value;
+        }), emscripten::allow_raw_pointers())
         // void*       ClipboardUserData;
+        // public getClipboardUserData(): any;
+        .function("getClipboardUserData", FUNCTION(emscripten::val, (ImGuiIO* that), {
+            return _ClipboardUserData;
+        }), emscripten::allow_raw_pointers())
+        // public setClipboardUserData(value: any): void;
+        .function("setClipboardUserData", FUNCTION(void, (ImGuiIO* that, emscripten::val value), {
+            _ClipboardUserData = value;
+        }), emscripten::allow_raw_pointers())
 
         // Optional: override memory allocations. MemFreeFn() may be called with a NULL pointer.
         // (default to posix malloc/free)
@@ -1002,6 +1031,22 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API ImGuiContext* CreateContext(ImFontAtlas* shared_font_atlas = NULL);
     emscripten::function("CreateContext", FUNCTION(emscripten::val, (), {
         ImGuiContext* ctx = ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        io.IniFilename = NULL;
+        io.LogFilename = NULL;
+        io.GetClipboardTextFn = FUNCTION(const char*, (void* user_data), {
+            if (!_GetClipboardTextFn.isNull()) {
+                _ClipboardText = _GetClipboardTextFn(_ClipboardUserData).as<std::string>();
+            }
+            return _ClipboardText.c_str();
+        });
+        io.SetClipboardTextFn = FUNCTION(void, (void* user_data, const char* text), {
+            _ClipboardText = text;
+            if (!_SetClipboardTextFn.isNull()) {
+                _SetClipboardTextFn(_ClipboardUserData, _ClipboardText);
+            }
+        });
+        io.ClipboardUserData = NULL;
         int p = (int)ctx;
         return (ctx == NULL) ? emscripten::val::null() : emscripten::val(p);
     }), emscripten::allow_raw_pointers());
@@ -1025,12 +1070,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // Main
     // IMGUI_API ImGuiIO&      GetIO();
     emscripten::function("GetIO", FUNCTION(emscripten::val, (), {
-        static bool once = false;
-        if (!once) {
-            once = true;
-            ImGui::GetIO().IniFilename = NULL;
-            ImGui::GetIO().LogFilename = NULL;
-        }
         ImGuiIO* p = &ImGui::GetIO(); return emscripten::val(p);
     }), emscripten::allow_raw_pointers());
     // IMGUI_API ImGuiStyle&   GetStyle();
@@ -2352,7 +2391,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API const char*   GetClipboardText();
     emscripten::function("GetClipboardText", FUNCTION(std::string, (), {
-        return ImGui::GetClipboardText();
+        const char* text = ImGui::GetClipboardText();
+        return (text != NULL) ? text : "";
     }));
     // IMGUI_API void          SetClipboardText(const char* text);
     emscripten::function("SetClipboardText", FUNCTION(void, (emscripten::val text), {

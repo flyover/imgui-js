@@ -1701,11 +1701,14 @@ export class ImGuiIO
     // Optional: access OS clipboard
     // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
     // const char* (*GetClipboardTextFn)(void* user_data);
-    // public GetClipboardTextFn: (user_data: any) => string = (user_data: any) => "";
+    get GetClipboardTextFn(): ((user_data: any) => string) | null { return this.native.getGetClipboardTextFn(); }
+    set GetClipboardTextFn(value: ((user_data: any) => string) | null) { this.native.setGetClipboardTextFn(value); }
     // void        (*SetClipboardTextFn)(void* user_data, const char* text);
-    // public SetClipboardTextFn: (user_data: any, text: string) => void = (user_data: any, text: string) => {};
+    get SetClipboardTextFn(): ((user_data: any, text: string) => void) | null { return this.native.getSetClipboardTextFn(); }
+    set SetClipboardTextFn(value: ((user_data: any, text: string) => void) | null) { this.native.setSetClipboardTextFn(value); }
     // void*       ClipboardUserData;
-    // public ClipboardUserData: any;
+    get ClipboardUserData(): any { return this.native.getClipboardUserData(); }
+    set ClipboardUserData(value: any) { this.native.setClipboardUserData(value); }
 
     // Optional: override memory allocations. MemFreeFn() may be called with a NULL pointer.
     // (default to posix malloc/free)

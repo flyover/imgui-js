@@ -138,11 +138,42 @@ export function Init(canvas: HTMLCanvasElement | null): void {
                 event.preventDefault();
             }
         });
-    }
 
-    // io.SetClipboardTextFn = ImGui_Impl_SetClipboardText;
-    // io.GetClipboardTextFn = ImGui_Impl_GetClipboardText;
-    // io.ClipboardUserData = NULL;
+        let clipboard_text: string = "";
+
+        // io.SetClipboardTextFn = ImGui_Impl_SetClipboardText;
+        io.SetClipboardTextFn = (user_data: any, text: string): void => {
+            // TODO: write to system clipboard
+            clipboard_text = text;
+            console.log("set system clipboard", clipboard_text);
+        };
+        // io.GetClipboardTextFn = ImGui_Impl_GetClipboardText;
+        io.GetClipboardTextFn = (user_data: any): string => {
+            // TODO: read from system clipboard
+            console.log("get system clipboard", clipboard_text);
+            return clipboard_text;
+        };
+        // io.ClipboardUserData = NULL;
+        io.ClipboardUserData = null;
+
+        document.body.addEventListener("copy", (event: ClipboardEvent): void => {
+            const data: string = event.clipboardData.getData("text/plain");
+            console.log(event.type, clipboard_text, data);
+            event.preventDefault();
+        });
+
+        document.body.addEventListener("cut", (event: ClipboardEvent): void => {
+            const data: string = event.clipboardData.getData("text/plain");
+            console.log(event.type, clipboard_text, data);
+            event.preventDefault();
+        });
+
+        document.body.addEventListener("paste", (event: ClipboardEvent): void => {
+            const data: string = event.clipboardData.getData("text/plain");
+            console.log(event.type, clipboard_text, data);
+            event.preventDefault();
+        });
+    }
 
     // Setup back-end capabilities flags
     io.BackendFlags |= ImGuiBackendFlags.HasMouseCursors;   // We can honor GetMouseCursor() values (optional)

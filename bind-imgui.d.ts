@@ -702,8 +702,14 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // Optional: access OS clipboard
     // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
     // const char* (*GetClipboardTextFn)(void* user_data);
+    public getGetClipboardTextFn(): ((user_data: any) => string) | null;
+    public setGetClipboardTextFn(value: ((user_data: any) => string) | null): void;
     // void        (*SetClipboardTextFn)(void* user_data, const char* text);
+    public getSetClipboardTextFn(): ((user_data: any, text: string) => void) | null;
+    public setSetClipboardTextFn(value: ((user_data: any, text: string) => void) | null): void;
     // void*       ClipboardUserData;
+    public getClipboardUserData(): any;
+    public setClipboardUserData(value: any): void;
 
     // Optional: notify OS Input Method Editor of the screen position of your cursor for text input position (e.g. when using Japanese/Chinese IME in Windows)
     // (default to use native imm32 api on Windows)
