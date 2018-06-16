@@ -4,7 +4,7 @@ import * as ImGui_Impl from "./imgui_impl";
 import { ImVec2 } from "imgui-js";
 import { ImVec4 } from "imgui-js";
 import { ImGuiIO } from "imgui-js";
-import { ImGuiConfigFlags } from "imgui-js";
+// import { ImGuiConfigFlags } from "imgui-js";
 import { ShowDemoWindow } from "imgui-js/imgui_demo";
 
 import { MemoryEditor } from "imgui-js/imgui_memory_editor";
@@ -24,10 +24,37 @@ let show_movie_window: boolean = false;
 
 const done: boolean = false;
 
-export default function main(): void {
+async function LoadArrayBuffer(url: string): Promise<ArrayBuffer> {
+    const response: Response = await fetch(url);
+    return response.arrayBuffer();
+}
+
+export default async function main(): Promise<void> {
     // Setup ImGui binding
     ImGui.CreateContext();
+
     const io: ImGuiIO = ImGui.GetIO();
+    //io.ConfigFlags |= ImGuiConfigFlags.EnableKeyboard;  // Enable Keyboard Controls
+
+    // Setup style
+    ImGui.StyleColorsDark();
+    //ImGui.StyleColorsClassic();
+
+    // Load Fonts
+    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
+    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
+    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
+    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
+    // - Read 'misc/fonts/README.txt' for more instructions and details.
+    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
+    // io.Fonts.AddFontDefault();
+    // io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/Roboto-Medium.ttf"), 16.0);
+    // io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/Cousine-Regular.ttf"), 15.0);
+    // io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/DroidSans.ttf"), 16.0);
+    // io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/ProggyTiny.ttf"), 10.0);
+    // const font: ImFont = io.Fonts.AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
+    // IM_ASSERT(font !== null);
+
     if (typeof(window) !== "undefined") {
         const output: HTMLElement = document.getElementById("output") || document.body;
         const canvas: HTMLCanvasElement = document.createElement("canvas");
@@ -63,26 +90,6 @@ export default function main(): void {
     } else {
         ImGui_Impl.Init(null);
     }
-    //io.ConfigFlags |= ImGuiConfigFlags.EnableKeyboard;  // Enable Keyboard Controls
-
-    // Setup style
-    ImGui.StyleColorsDark();
-    //ImGui.StyleColorsClassic();
-
-    // Load Fonts
-    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-    // - Read 'misc/fonts/README.txt' for more instructions and details.
-    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-    //io.Fonts.AddFontDefault();
-    //io.Fonts.AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 16.0);
-    //io.Fonts.AddFontFromFileTTF("../imgui/misc/fonts/Cousine-Regular.ttf", 15.0);
-    //io.Fonts.AddFontFromFileTTF("../imgui/misc/fonts/DroidSans.ttf", 16.0);
-    //io.Fonts.AddFontFromFileTTF("../imgui/misc/fonts/ProggyTiny.ttf", 10.0);
-    //const font: ImFont = io.Fonts.AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
-    //IM_ASSERT(font !== null);
 
     // Main loop
     function _loop(time: number): void {
