@@ -1088,26 +1088,34 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             // const ImU64   u64_zero = 0,   u64_one = 1,   u64_fifty = 50, u64_min = 0,           u64_max = ULLONG_MAX/2, u64_hi_a = ULLONG_MAX/2 - 100, u64_hi_b = ULLONG_MAX/2;
             // const float   f32_zero = 0.f, f32_one = 1.f, f32_lo_a = -10000000000.0f, f32_hi_a = +10000000000.0f;
             // const double  f64_zero = 0.,  f64_one = 1.,  f64_lo_a = -1000000000000000, f64_hi_a = +1000000000000000;
-            const s32_zero = 0, s32_one = 1, s32_fifty = 50, s32_min = Number.MIN_SAFE_INTEGER / 2,   s32_max = Number.MAX_SAFE_INTEGER / 2,    s32_hi_a = Number.MAX_SAFE_INTEGER / 2 - 100,    s32_hi_b = Number.MAX_SAFE_INTEGER / 2;
-            const u32_zero = 0, u32_one = 1, u32_fifty = 50, u32_min = 0,           u32_max = Number.MAX_SAFE_INTEGER / 2,   u32_hi_a = Number.MAX_SAFE_INTEGER / 2 - 100,   u32_hi_b = Number.MAX_SAFE_INTEGER / 2;
-            const s64_zero = 0, s64_one = 1, s64_fifty = 50, s64_min = Number.MIN_SAFE_INTEGER / 2, s64_max = Number.MAX_SAFE_INTEGER / 2,  s64_hi_a = Number.MAX_SAFE_INTEGER / 2 - 100,  s64_hi_b = Number.MAX_SAFE_INTEGER / 2;
-            const u64_zero = 0, u64_one = 1, u64_fifty = 50, u64_min = 0,           u64_max = Number.MAX_SAFE_INTEGER / 2, u64_hi_a = Number.MAX_SAFE_INTEGER / 2 - 100, u64_hi_b = Number.MAX_SAFE_INTEGER / 2;
-            const f32_zero = 0, f32_one = 1, f32_lo_a = -10000000000.0, f32_hi_a = +10000000000.0;
-            const f64_zero = 0, f64_one = 1, f64_lo_a = -1000000000000000.0, f64_hi_a = +1000000000000000.0;
+
+            const INT_MIN = -2147483648; // 0x80000000
+            const INT_MAX = +2147483647; // 0x7fffffff
+            const UINT_MAX = +4294967295; // 0xffffffff
+            // const LLONG_MIN = -9223372036854775808; // 0x8000000000000000
+            // const LLONG_MAX = +9223372036854775807; // 0x7fffffffffffffff
+            // const ULLONG_MAX = +18446744073709551615; // 0xffffffffffffffff
+
+            const s32_zero = 0,   s32_one = 1,   s32_fifty = 50, s32_min = INT_MIN / 2,   s32_max = INT_MAX / 2,    s32_hi_a = INT_MAX / 2 - 100,    s32_hi_b = INT_MAX / 2;
+            const u32_zero = 0,   u32_one = 1,   u32_fifty = 50, u32_min = 0,             u32_max = UINT_MAX / 2,   u32_hi_a = UINT_MAX / 2 - 100,   u32_hi_b = UINT_MAX / 2;
+            // const s64_zero = 0,   s64_one = 1,   s64_fifty = 50, s64_min = LLONG_MIN / 2, s64_max = LLONG_MAX / 2,  s64_hi_a = LLONG_MAX / 2 - 100,  s64_hi_b = LLONG_MAX / 2;
+            // const u64_zero = 0,   u64_one = 1,   u64_fifty = 50, u64_min = 0,             u64_max = ULLONG_MAX / 2, u64_hi_a = ULLONG_MAX / 2 - 100, u64_hi_b = ULLONG_MAX / 2;
+            const f32_zero = 0.0, f32_one = 1.0, f32_lo_a = -10000000000.0, f32_hi_a = +10000000000.0;
+            const f64_zero = 0.0, f64_one = 1.0, f64_lo_a = -1000000000000000.0, f64_hi_a = +1000000000000000.0;
 
             // State
             // static ImS32  s32_v = -1;
-            /* static */ const s32_v: Static<number> = STATIC("s32_v", -1);
             // static ImU32  u32_v = (ImU32)-1;
-            /* static */ const u32_v: Static<number> = STATIC("u32_v", -1);
             // static ImS64  s64_v = -1;
-            /* static */ const s64_v: Static<number> = STATIC("s64_v", -1);
             // static ImU64  u64_v = (ImU64)-1;
-            /* static */ const u64_v: Static<number> = STATIC("u64_v", -1);
             // static float  f32_v = 0.123f;
-            /* static */ const f32_v: Static<number> = STATIC("f32_v", 0.123);
             // static double f64_v = 90000.01234567890123456789;
-            /* static */ const f64_v: Static<number> = STATIC("f64_v", 90000.01234567890123456789);
+            /* static */ const s32_v = STATIC("s32_v", new Int32Array([-1]));
+            /* static */ const u32_v = STATIC("u32_v", new Uint32Array([-1]));
+            // /* static */ const s64_v = STATIC("s64_v", new Int64Array([-1]));
+            // /* static */ const u64_v = STATIC("u64_v", new Uint64Array([-1]));
+            /* static */ const f32_v = STATIC("f32_v", new Float32Array([0.123]));
+            /* static */ const f64_v = STATIC("f64_v", new Float64Array([90000.01234567890123456789]));
 
             const drag_speed = 0.2;
             /* static */ const drag_clamp: Static<boolean> = STATIC("drag_clamp", false);
@@ -1121,14 +1129,14 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             // ImGui.DragScalar("drag float ^2",  ImGuiDataType_Float,  &f32_v, 0.005f,  &f32_zero, &f32_one, "%f", 2.0f); ImGui.SameLine(); ShowHelpMarker("You can use the 'power' parameter to increase tweaking precision on one side of the range.");
             // ImGui.DragScalar("drag double",    ImGuiDataType_Double, &f64_v, 0.0005f, &f64_zero, null,     "%.10f grams", 1.0f);
             // ImGui.DragScalar("drag double ^2", ImGuiDataType_Double, &f64_v, 0.0005f, &f64_zero, &f64_one, "0 < %.10f < 1", 2.0f);
-            ImGui.DragScalar("drag s32",       ImGuiDataType.S32,    (value = s32_v.value) => s32_v.value = value, drag_speed, drag_clamp.value ? s32_zero : null, drag_clamp.value ? s32_fifty : null);
-            ImGui.DragScalar("drag u32",       ImGuiDataType.U32,    (value = u32_v.value) => u32_v.value = value, drag_speed, drag_clamp.value ? u32_zero : null, drag_clamp.value ? u32_fifty : null, "%u ms");
-            ImGui.DragScalar("drag s64",       ImGuiDataType.S64,    (value = s64_v.value) => s64_v.value = value, drag_speed, drag_clamp.value ? s64_zero : null, drag_clamp.value ? s64_fifty : null);
-            ImGui.DragScalar("drag u64",       ImGuiDataType.U64,    (value = u64_v.value) => u64_v.value = value, drag_speed, drag_clamp.value ? u64_zero : null, drag_clamp.value ? u64_fifty : null);
-            ImGui.DragScalar("drag float",     ImGuiDataType.Float,  (value = f32_v.value) => f32_v.value = value, 0.005,  f32_zero, f32_one, "%f", 1.0);
-            ImGui.DragScalar("drag float ^2",  ImGuiDataType.Float,  (value = f32_v.value) => f32_v.value = value, 0.005,  f32_zero, f32_one, "%f", 2.0); ImGui.SameLine(); ShowHelpMarker("You can use the 'power' parameter to increase tweaking precision on one side of the range.");
-            ImGui.DragScalar("drag double",    ImGuiDataType.Double, (value = f64_v.value) => f64_v.value = value, 0.0005, f64_zero, null,    "%.10f grams", 1.0);
-            ImGui.DragScalar("drag double ^2", ImGuiDataType.Double, (value = f64_v.value) => f64_v.value = value, 0.0005, f64_zero, f64_one, "0 < %.10f < 1", 2.0);
+            ImGui.DragScalar("drag s32",       s32_v.value, drag_speed, drag_clamp.value ? s32_zero : null, drag_clamp.value ? s32_fifty : null);
+            ImGui.DragScalar("drag u32",       u32_v.value, drag_speed, drag_clamp.value ? u32_zero : null, drag_clamp.value ? u32_fifty : null, "%u ms");
+            // ImGui.DragScalar("drag s64",       s64_v.value, drag_speed, drag_clamp.value ? s64_zero : null, drag_clamp.value ? s64_fifty : null);
+            // ImGui.DragScalar("drag u64",       u64_v.value, drag_speed, drag_clamp.value ? u64_zero : null, drag_clamp.value ? u64_fifty : null);
+            ImGui.DragScalar("drag float",     f32_v.value, 0.005, f32_zero, f32_one, "%f", 1.0);
+            ImGui.DragScalar("drag float ^2",  f32_v.value, 0.005, f32_zero, f32_one, "%f", 2.0);
+            ImGui.DragScalar("drag double",    f64_v.value, 0.0005, f64_zero, null,    "%.10f grams", 1.0);
+            ImGui.DragScalar("drag double ^2", f64_v.value, 0.0005, f64_zero, f64_one, "0 < %.10f < 1", 2.0);
 
             ImGui.Text("Sliders");
             // ImGui.SliderScalar("slider s32 low",     ImGuiDataType_S32,    &s32_v, &s32_zero, &s32_fifty,"%d");
@@ -1149,24 +1157,24 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             // ImGui.SliderScalar("slider double low",  ImGuiDataType_Double, &f64_v, &f64_zero, &f64_one,  "%.10f grams", 1.0f);
             // ImGui.SliderScalar("slider double low^2",ImGuiDataType_Double, &f64_v, &f64_zero, &f64_one,  "%.10f", 2.0f);
             // ImGui.SliderScalar("slider double high", ImGuiDataType_Double, &f64_v, &f64_lo_a, &f64_hi_a, "%e grams", 1.0f);
-            ImGui.SliderScalar("slider s32 low",     ImGuiDataType.S32,    (value = s32_v.value) => s32_v.value = value, s32_zero, s32_fifty,"%d");
-            ImGui.SliderScalar("slider s32 high",    ImGuiDataType.S32,    (value = s32_v.value) => s32_v.value = value, s32_hi_a, s32_hi_b, "%d");
-            ImGui.SliderScalar("slider s32 full",    ImGuiDataType.S32,    (value = s32_v.value) => s32_v.value = value, s32_min,  s32_max,  "%d");
-            ImGui.SliderScalar("slider u32 low",     ImGuiDataType.U32,    (value = u32_v.value) => u32_v.value = value, u32_zero, u32_fifty,"%u");
-            ImGui.SliderScalar("slider u32 high",    ImGuiDataType.U32,    (value = u32_v.value) => u32_v.value = value, u32_hi_a, u32_hi_b, "%u");
-            ImGui.SliderScalar("slider u32 full",    ImGuiDataType.U32,    (value = u32_v.value) => u32_v.value = value, u32_min,  u32_max,  "%u");
-            ImGui.SliderScalar("slider s64 low",     ImGuiDataType.S64,    (value = s64_v.value) => s64_v.value = value, s64_zero, s64_fifty,"%I64d");
-            ImGui.SliderScalar("slider s64 high",    ImGuiDataType.S64,    (value = s64_v.value) => s64_v.value = value, s64_hi_a, s64_hi_b, "%I64d");
-            ImGui.SliderScalar("slider s64 full",    ImGuiDataType.S64,    (value = s64_v.value) => s64_v.value = value, s64_min,  s64_max,  "%I64d");
-            ImGui.SliderScalar("slider u64 low",     ImGuiDataType.U64,    (value = u64_v.value) => u64_v.value = value, u64_zero, u64_fifty,"%I64u ms");
-            ImGui.SliderScalar("slider u64 high",    ImGuiDataType.U64,    (value = u64_v.value) => u64_v.value = value, u64_hi_a, u64_hi_b, "%I64u ms");
-            ImGui.SliderScalar("slider u64 full",    ImGuiDataType.U64,    (value = u64_v.value) => u64_v.value = value, u64_min,  u64_max,  "%I64u ms");
-            ImGui.SliderScalar("slider float low",   ImGuiDataType.Float,  (value = f32_v.value) => f32_v.value = value, f32_zero, f32_one);
-            ImGui.SliderScalar("slider float low^2", ImGuiDataType.Float,  (value = f32_v.value) => f32_v.value = value, f32_zero, f32_one,  "%.10f", 2.0);
-            ImGui.SliderScalar("slider float high",  ImGuiDataType.Float,  (value = f32_v.value) => f32_v.value = value, f32_lo_a, f32_hi_a, "%e");
-            ImGui.SliderScalar("slider double low",  ImGuiDataType.Double, (value = f64_v.value) => f64_v.value = value, f64_zero, f64_one,  "%.10f grams", 1.0);
-            ImGui.SliderScalar("slider double low^2",ImGuiDataType.Double, (value = f64_v.value) => f64_v.value = value, f64_zero, f64_one,  "%.10f", 2.0);
-            ImGui.SliderScalar("slider double high", ImGuiDataType.Double, (value = f64_v.value) => f64_v.value = value, f64_lo_a, f64_hi_a, "%e grams", 1.0);
+            ImGui.SliderScalar("slider s32 low",     s32_v.value, s32_zero, s32_fifty,"%d");
+            ImGui.SliderScalar("slider s32 high",    s32_v.value, s32_hi_a, s32_hi_b, "%d");
+            ImGui.SliderScalar("slider s32 full",    s32_v.value, s32_min,  s32_max,  "%d");
+            ImGui.SliderScalar("slider u32 low",     u32_v.value, u32_zero, u32_fifty,"%u");
+            ImGui.SliderScalar("slider u32 high",    u32_v.value, u32_hi_a, u32_hi_b, "%u");
+            ImGui.SliderScalar("slider u32 full",    u32_v.value, u32_min,  u32_max,  "%u");
+            // ImGui.SliderScalar("slider s64 low",     s64_v.value, s64_zero, s64_fifty,"%I64d");
+            // ImGui.SliderScalar("slider s64 high",    s64_v.value, s64_hi_a, s64_hi_b, "%I64d");
+            // ImGui.SliderScalar("slider s64 full",    s64_v.value, s64_min,  s64_max,  "%I64d");
+            // ImGui.SliderScalar("slider u64 low",     u64_v.value, u64_zero, u64_fifty,"%I64u ms");
+            // ImGui.SliderScalar("slider u64 high",    u64_v.value, u64_hi_a, u64_hi_b, "%I64u ms");
+            // ImGui.SliderScalar("slider u64 full",    u64_v.value, u64_min,  u64_max,  "%I64u ms");
+            ImGui.SliderScalar("slider float low",   f32_v.value, f32_zero, f32_one);
+            ImGui.SliderScalar("slider float low^2", f32_v.value, f32_zero, f32_one,  "%.10f", 2.0);
+            ImGui.SliderScalar("slider float high",  f32_v.value, f32_lo_a, f32_hi_a, "%e");
+            ImGui.SliderScalar("slider double low",  f64_v.value, f64_zero, f64_one,  "%.10f grams", 1.0);
+            ImGui.SliderScalar("slider double low^2",f64_v.value, f64_zero, f64_one,  "%.10f", 2.0);
+            ImGui.SliderScalar("slider double high", f64_v.value, f64_lo_a, f64_hi_a, "%e grams", 1.0);
 
             /* static */ const inputs_step: Static<boolean> = STATIC("inputs_step", true)
             ImGui.Text("Inputs");
@@ -1179,14 +1187,14 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             // ImGui.InputScalar("input u64",     ImGuiDataType_U64,    &u64_v, inputs_step ? &u64_one : NULL);
             // ImGui.InputScalar("input float",   ImGuiDataType_Float,  &f32_v, inputs_step ? &f32_one : NULL);
             // ImGui.InputScalar("input double",  ImGuiDataType_Double, &f64_v, inputs_step ? &f64_one : NULL);
-            ImGui.InputScalar("input s32",     ImGuiDataType.S32,    (value = s32_v.value) => s32_v.value = value, inputs_step.value ? s32_one : null, null, "%d");
-            ImGui.InputScalar("input s32 hex", ImGuiDataType.S32,    (value = s32_v.value) => s32_v.value = value, inputs_step.value ? s32_one : null, null, "%08X", ImGuiInputTextFlags.CharsHexadecimal);
-            ImGui.InputScalar("input u32",     ImGuiDataType.U32,    (value = u32_v.value) => u32_v.value = value, inputs_step.value ? u32_one : null, null, "%u");
-            ImGui.InputScalar("input u32 hex", ImGuiDataType.U32,    (value = u32_v.value) => u32_v.value = value, inputs_step.value ? u32_one : null, null, "%08X", ImGuiInputTextFlags.CharsHexadecimal);
-            ImGui.InputScalar("input s64",     ImGuiDataType.S64,    (value = s64_v.value) => s64_v.value = value, inputs_step.value ? s64_one : null);
-            ImGui.InputScalar("input u64",     ImGuiDataType.U64,    (value = u64_v.value) => u64_v.value = value, inputs_step.value ? u64_one : null);
-            ImGui.InputScalar("input float",   ImGuiDataType.Float,  (value = f32_v.value) => f32_v.value = value, inputs_step.value ? f32_one : null);
-            ImGui.InputScalar("input double",  ImGuiDataType.Double, (value = f64_v.value) => f64_v.value = value, inputs_step.value ? f64_one : null);
+            ImGui.InputScalar("input s32",     s32_v.value, inputs_step.value ? s32_one : null, null, "%d");
+            ImGui.InputScalar("input s32 hex", s32_v.value, inputs_step.value ? s32_one : null, null, "%08X", ImGuiInputTextFlags.CharsHexadecimal);
+            ImGui.InputScalar("input u32",     u32_v.value, inputs_step.value ? u32_one : null, null, "%u");
+            ImGui.InputScalar("input u32 hex", u32_v.value, inputs_step.value ? u32_one : null, null, "%08X", ImGuiInputTextFlags.CharsHexadecimal);
+            // ImGui.InputScalar("input s64",     s64_v.value, inputs_step.value ? s64_one : null);
+            // ImGui.InputScalar("input u64",     u64_v.value, inputs_step.value ? u64_one : null);
+            ImGui.InputScalar("input float",   f32_v.value, inputs_step.value ? f32_one : null);
+            ImGui.InputScalar("input double",  f64_v.value, inputs_step.value ? f64_one : null);
 
             ImGui.TreePop();
         }

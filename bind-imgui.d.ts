@@ -1076,8 +1076,8 @@ DragInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_speed: number/
 DragInt4(label: string, v: ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */): boolean;
 DragIntRange2(label: string, v_current_min: ImScalar<number>, v_current_max: ImScalar<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */, display_format_max: string | null/* = NULL */): boolean;
 // IMGUI_API bool          DragScalar(const char* label, ImGuiDataType data_type, void* v, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
-DragScalar(label: string, data_type: ImGuiDataType, v: ImScalar<number>, v_speed: number, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
 // IMGUI_API bool          DragScalarN(const char* label, ImGuiDataType data_type, void* v, int components, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
+DragScalar(label: string, data_type: ImGuiDataType, v: Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
 
 // Widgets: Input with Keyboard
 InputText(label: string, buf: [ string ], buf_size: number, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiTextEditCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
@@ -1093,8 +1093,8 @@ InputInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, extra_flags: Im
 InputInt4(label: string, v: ImTuple4<number>, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 InputDouble(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number/* = 0.0f */, step_fast: number/* = 0.0f */, display_format: string/* = "%0.6f" */, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 // IMGUI_API bool          InputScalar(const char* label, ImGuiDataType data_type, void* v, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
-InputScalar(label: string, data_type: ImGuiDataType, v: ImScalar<number>, step: number | null, step_fast: number | null, format: string | null, extra_flags: ImGuiInputTextFlags): boolean;
 // IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
+InputScalar(label: string, data_type: ImGuiDataType, v: Int32Array | Uint32Array | Float32Array | Float64Array, step: number | null, step_fast: number | null, format: string | null, extra_flags: ImGuiInputTextFlags): boolean;
 
 // Widgets: Sliders (tip: ctrl+click on a slider to input with keyboard. manually input values aren't clamped, can go off-bounds)
 SliderFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
@@ -1107,8 +1107,8 @@ SliderInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<numb
 SliderInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
 SliderInt4(label: string, v: ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
 // IMGUI_API bool          SliderScalar(const char* label, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
-SliderScalar(label: string, data_type: ImGuiDataType, v: ImScalar<number>, v_min: number, v_max: number, format: string | null, power: number): boolean;
 // IMGUI_API bool          SliderScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
+SliderScalar(label: string, data_type: ImGuiDataType, v: Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
 VSliderFloat(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
 VSliderInt(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
 

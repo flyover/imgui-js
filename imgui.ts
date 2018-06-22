@@ -2690,20 +2690,15 @@ export function DragIntRange2(label: string, v_current_min: Bind.ImAccess<number
     return ret;
 }
 // IMGUI_API bool          DragScalar(const char* label, ImGuiDataType data_type, void* v, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
-export function DragScalar(label: string, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, v_speed: number, v_min: number | null = null, v_max: number | null = null, format: string | null = null, power: number = 1.0): boolean {
-    if (Array.isArray(v)) {
-        return bind.DragScalar(label, data_type, v, v_speed, v_min, v_max, format, power);
-    } else {
-        const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret = bind.DragScalar(label, data_type, ref_v, v_speed, v_min, v_max, format, power);
-        v(ref_v[0]);
-        return ret;
-    }
-}
 // IMGUI_API bool          DragScalarN(const char* label, ImGuiDataType data_type, void* v, int components, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
-export function DragScalarN(label: string, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, components: number, v_speed: number, v_min: number | null = null, v_max: number | null = null, format: string | null = null, power: number = 1.0): boolean {
-    bind.Text(`TODO: DragScalarN ${label}`);
-    return false;
+export function DragScalar(label: string, v: Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min: number | null = null, v_max: number | null = null, format: string | null = null, power: number = 1.0): boolean {
+    if (v instanceof Int32Array) { return bind.DragScalar(label, ImGuiDataType.S32, v, v_speed, v_min, v_max, format, power); }
+    if (v instanceof Uint32Array) { return bind.DragScalar(label, ImGuiDataType.U32, v, v_speed, v_min, v_max, format, power); }
+    // if (v instanceof Int64Array) { return bind.DragScalar(label, ImGuiDataType.S64, v, v_speed, v_min, v_max, format, power); }
+    // if (v instanceof Uint64Array) { return bind.DragScalar(label, ImGuiDataType.U64, v, v_speed, v_min, v_max, format, power); }
+    if (v instanceof Float32Array) { return bind.DragScalar(label, ImGuiDataType.Float, v, v_speed, v_min, v_max, format, power); }
+    if (v instanceof Float64Array) { return bind.DragScalar(label, ImGuiDataType.Double, v, v_speed, v_min, v_max, format, power); }
+    throw new Error();
 }
 
 // Widgets: Input with Keyboard
@@ -2815,20 +2810,15 @@ export function InputDouble(label: string, v: Bind.ImAccess<number> | Bind.ImSca
     }
 }
 // IMGUI_API bool          InputScalar(const char* label, ImGuiDataType data_type, void* v, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
-export function InputScalar(label: string, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, step: number | null = null, step_fast: number | null = null, format: string | null = null, extra_flags: ImGuiInputTextFlags = 0): boolean {
-    if (Array.isArray(v)) {
-        return bind.InputScalar(label, data_type, v, step, step_fast, format, extra_flags);
-    } else {
-        const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret = bind.InputScalar(label, data_type, ref_v, step, step_fast, format, extra_flags);
-        v(ref_v[0]);
-        return ret;
-    }
-}
 // IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
-export function InputScalarN(label: string, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, components: number, step: number | null = null, step_fast: number | null = null, format: string | null = null, extra_flags: ImGuiInputTextFlags = 0): boolean {
-    bind.Text(`TODO: InputScalarN ${label}`);
-    return false;
+export function InputScalar(label: string, v: Int32Array | Uint32Array | Float32Array | Float64Array, step: number | null = null, step_fast: number | null = null, format: string | null = null, extra_flags: ImGuiInputTextFlags = 0): boolean {
+    if (v instanceof Int32Array) { return bind.InputScalar(label, ImGuiDataType.S32, v, step, step_fast, format, extra_flags); }
+    if (v instanceof Uint32Array) { return bind.InputScalar(label, ImGuiDataType.U32, v, step, step_fast, format, extra_flags); }
+    // if (v instanceof Int64Array) { return bind.InputScalar(label, ImGuiDataType.S64, v, step, step_fast, format, extra_flags); }
+    // if (v instanceof Uint64Array) { return bind.InputScalar(label, ImGuiDataType.U64, v, step, step_fast, format, extra_flags); }
+    if (v instanceof Float32Array) { return bind.InputScalar(label, ImGuiDataType.Float, v, step, step_fast, format, extra_flags); }
+    if (v instanceof Float64Array) { return bind.InputScalar(label, ImGuiDataType.Double, v, step, step_fast, format, extra_flags); }
+    throw new Error();
 }
 
 // Widgets: Sliders (tip: ctrl+click on a slider to input with keyboard. manually input values aren't clamped, can go off-bounds)
@@ -2898,20 +2888,15 @@ export function SliderInt4(label: string, v: Bind.ImTuple4<number>, v_min: numbe
     return bind.SliderInt4(label, v, v_min, v_max, format);
 }
 // IMGUI_API bool          SliderScalar(const char* label, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
-export function SliderScalar(label: string, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, v_min: number, v_max: number, format: string | null = null, power: number = 1.0): boolean {
-    if (Array.isArray(v)) {
-        return bind.SliderScalar(label, data_type, v, v_min, v_max, format, power);
-    } else {
-        const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret = bind.SliderScalar(label, data_type, ref_v, v_min, v_max, format, power);
-        v(ref_v[0]);
-        return ret;
-    }
-}
 // IMGUI_API bool          SliderScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
-export function SliderScalarN(label: string, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, components: number, v_min: number, v_max: number, format: string | null = null, power: number = 1.0): boolean {
-    bind.Text(`TODO: SliderScalarN ${label}`);
-    return false;
+export function SliderScalar(label: string, v: Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number, v_max: number, format: string | null = null, power: number = 1.0): boolean {
+    if (v instanceof Int32Array) { return bind.SliderScalar(label, ImGuiDataType.S32, v, v_min, v_max, format, power); }
+    if (v instanceof Uint32Array) { return bind.SliderScalar(label, ImGuiDataType.U32, v, v_min, v_max, format, power); }
+    // if (v instanceof Int64Array) { return bind.SliderScalar(label, ImGuiDataType.S64, v, v_min, v_max, format, power); }
+    // if (v instanceof Uint64Array) { return bind.SliderScalar(label, ImGuiDataType.U64, v, v_min, v_max, format, power); }
+    if (v instanceof Float32Array) { return bind.SliderScalar(label, ImGuiDataType.Float, v, v_min, v_max, format, power); }
+    if (v instanceof Float64Array) { return bind.SliderScalar(label, ImGuiDataType.Double, v, v_min, v_max, format, power); }
+    throw new Error();
 }
 // IMGUI_API bool          VSliderFloat(const char* label, const ImVec2& size, float* v, float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
 export function VSliderFloat(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
