@@ -1179,14 +1179,14 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             // ImGui.InputScalar("input u64",     ImGuiDataType_U64,    &u64_v, inputs_step ? &u64_one : NULL);
             // ImGui.InputScalar("input float",   ImGuiDataType_Float,  &f32_v, inputs_step ? &f32_one : NULL);
             // ImGui.InputScalar("input double",  ImGuiDataType_Double, &f64_v, inputs_step ? &f64_one : NULL);
-            ImGui.InputScalar("input s32",     ImGuiDataType.S32,    (value = s32_v.value) => s32_v.value = value, inputs_step ? s32_one : null, null, "%d");
-            ImGui.InputScalar("input s32 hex", ImGuiDataType.S32,    (value = s32_v.value) => s32_v.value = value, inputs_step ? s32_one : null, null, "%08X", ImGuiInputTextFlags.CharsHexadecimal);
-            ImGui.InputScalar("input u32",     ImGuiDataType.U32,    (value = u32_v.value) => u32_v.value = value, inputs_step ? u32_one : null, null, "%u");
-            ImGui.InputScalar("input u32 hex", ImGuiDataType.U32,    (value = u32_v.value) => u32_v.value = value, inputs_step ? u32_one : null, null, "%08X", ImGuiInputTextFlags.CharsHexadecimal);
-            ImGui.InputScalar("input s64",     ImGuiDataType.S64,    (value = s64_v.value) => s64_v.value = value, inputs_step ? s64_one : null);
-            ImGui.InputScalar("input u64",     ImGuiDataType.U64,    (value = u64_v.value) => u64_v.value = value, inputs_step ? u64_one : null);
-            ImGui.InputScalar("input float",   ImGuiDataType.Float,  (value = f32_v.value) => f32_v.value = value, inputs_step ? f32_one : null);
-            ImGui.InputScalar("input double",  ImGuiDataType.Double, (value = f64_v.value) => f64_v.value = value, inputs_step ? f64_one : null);
+            ImGui.InputScalar("input s32",     ImGuiDataType.S32,    (value = s32_v.value) => s32_v.value = value, inputs_step.value ? s32_one : null, null, "%d");
+            ImGui.InputScalar("input s32 hex", ImGuiDataType.S32,    (value = s32_v.value) => s32_v.value = value, inputs_step.value ? s32_one : null, null, "%08X", ImGuiInputTextFlags.CharsHexadecimal);
+            ImGui.InputScalar("input u32",     ImGuiDataType.U32,    (value = u32_v.value) => u32_v.value = value, inputs_step.value ? u32_one : null, null, "%u");
+            ImGui.InputScalar("input u32 hex", ImGuiDataType.U32,    (value = u32_v.value) => u32_v.value = value, inputs_step.value ? u32_one : null, null, "%08X", ImGuiInputTextFlags.CharsHexadecimal);
+            ImGui.InputScalar("input s64",     ImGuiDataType.S64,    (value = s64_v.value) => s64_v.value = value, inputs_step.value ? s64_one : null);
+            ImGui.InputScalar("input u64",     ImGuiDataType.U64,    (value = u64_v.value) => u64_v.value = value, inputs_step.value ? u64_one : null);
+            ImGui.InputScalar("input float",   ImGuiDataType.Float,  (value = f32_v.value) => f32_v.value = value, inputs_step.value ? f32_one : null);
+            ImGui.InputScalar("input double",  ImGuiDataType.Double, (value = f64_v.value) => f64_v.value = value, inputs_step.value ? f64_one : null);
 
             ImGui.TreePop();
         }
