@@ -861,6 +861,8 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         .property("WantTextInput", &ImGuiIO::WantTextInput)
         // bool        WantSetMousePos;            // [BETA-NAV] MousePos has been altered, back-end should reposition mouse on next frame. Set only when 'NavMovesMouse=true'.
         .property("WantSetMousePos", &ImGuiIO::WantSetMousePos)
+        // bool        WantSaveIniSettings;        // When manual .ini load/save is active (io.IniFilename == NULL), this will be set to notify your application that you can call SaveIniSettingsToMemory() and save yourself. IMPORTANT: You need to clear io.WantSaveIniSettings yourself.
+        .property("WantSaveIniSettings", &ImGuiIO::WantSaveIniSettings)
         // bool        NavActive;                  // Directional navigation is currently allowed (will handle ImGuiKey_NavXXX events) = a window is focused and it doesn't use the ImGuiWindowFlags_NoNavInputs flag.
         .property("NavActive", &ImGuiIO::NavActive)
         // bool        NavVisible;                 // Directional navigation is visible and allowed (will handle ImGuiKey_NavXXX events).
@@ -1023,6 +1025,8 @@ static emscripten::val _PlotHistogram_data = emscripten::val::undefined();
 
 EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::constant("IMGUI_VERSION", std::string(IMGUI_VERSION));
+
+    emscripten::function("IMGUI_CHECKVERSION", FUNCTION(bool, (), { return IMGUI_CHECKVERSION(); }));
 
     emscripten::constant("ImDrawVertSize", sizeof(ImDrawVert));
     emscripten::constant("ImDrawIdxSize", sizeof(ImDrawIdx));
@@ -1537,6 +1541,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API bool          SmallButton(const char* label);                                         // button with FramePadding=(0,0) to easily embed within text
     emscripten::function("SmallButton", FUNCTION(bool, (std::string label), { return ImGui::SmallButton(label.c_str()); }));
+    // IMGUI_API bool          ArrowButton(const char* str_id, ImGuiDir dir);                  // square button with an arrow shape
+    emscripten::function("ArrowButton", FUNCTION(bool, (std::string label, int dir), { return ImGui::ArrowButton(label.c_str(), dir); }));
     // IMGUI_API bool          InvisibleButton(const char* str_id, const ImVec2& size);                // button behavior without the visuals, useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.)
     emscripten::function("InvisibleButton", FUNCTION(bool, (std::string str_id, emscripten::val size), { return ImGui::InvisibleButton(str_id.c_str(), import_ImVec2(size)); }));
     // IMGUI_API void          Image(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0), const ImVec2& uv1 = ImVec2(1,1), const ImVec4& tint_col = ImVec4(1,1,1,1), const ImVec4& border_col = ImVec4(0,0,0,0));
@@ -1638,94 +1644,105 @@ EMSCRIPTEN_BINDINGS(ImGui) {
 
     // Widgets: Drags (tip: ctrl+click on a drag box to input with keyboard. manually input values aren't clamped, can go off-bounds)
     // For all the Float2/Float3/Float4/Int2/Int3/Int4 versions of every functions, note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can pass address of your first element out of a contiguous set, e.g. &myvector.x
-    // IMGUI_API bool          DragFloat(const char* label, float* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);     // If v_min >= v_max we have no bound
-    emscripten::function("DragFloat", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, emscripten::val display_format, float power), {
+    // IMGUI_API bool          DragFloat(const char* label, float* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);     // If v_min >= v_max we have no bound
+    emscripten::function("DragFloat", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, emscripten::val format, float power), {
         float _v = v[0].as<float>();
-        bool ret = ImGui::DragFloat(label.c_str(), &_v, v_speed, v_min, v_max, display_format.isNull() ? NULL : display_format.as<std::string>().c_str(), power);
+        bool ret = ImGui::DragFloat(label.c_str(), &_v, v_speed, v_min, v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
         v.set(0, emscripten::val(_v));
         return ret;
     }));
-    // IMGUI_API bool          DragFloat2(const char* label, float v[2], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);
-    emscripten::function("DragFloat2", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, std::string display_format, float power), {
+    // IMGUI_API bool          DragFloat2(const char* label, float v[2], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);
+    emscripten::function("DragFloat2", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, std::string format, float power), {
         float _v[2] = { v[0].as<float>(), v[1].as<float>() };
-        bool ret = ImGui::DragFloat2(label.c_str(), _v, v_speed, v_min, v_max, display_format.c_str(), power);
+        bool ret = ImGui::DragFloat2(label.c_str(), _v, v_speed, v_min, v_max, format.c_str(), power);
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         return ret;
     }));
-    // IMGUI_API bool          DragFloat3(const char* label, float v[3], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);
-    emscripten::function("DragFloat3", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, std::string display_format, float power), {
+    // IMGUI_API bool          DragFloat3(const char* label, float v[3], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);
+    emscripten::function("DragFloat3", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, std::string format, float power), {
         float _v[3] = { v[0].as<float>(), v[1].as<float>(), v[2].as<float>() };
-        bool ret = ImGui::DragFloat3(label.c_str(), _v, v_speed, v_min, v_max, display_format.c_str(), power);
+        bool ret = ImGui::DragFloat3(label.c_str(), _v, v_speed, v_min, v_max, format.c_str(), power);
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         v.set(2, emscripten::val(_v[2]));
         return ret;
     }));
-    // IMGUI_API bool          DragFloat4(const char* label, float v[4], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);
-    emscripten::function("DragFloat4", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, std::string display_format, float power), {
+    // IMGUI_API bool          DragFloat4(const char* label, float v[4], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);
+    emscripten::function("DragFloat4", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, std::string format, float power), {
         float _v[4] = { v[0].as<float>(), v[1].as<float>(), v[2].as<float>(), v[3].as<float>() };
-        bool ret = ImGui::DragFloat4(label.c_str(), _v, v_speed, v_min, v_max, display_format.c_str(), power);
+        bool ret = ImGui::DragFloat4(label.c_str(), _v, v_speed, v_min, v_max, format.c_str(), power);
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         v.set(2, emscripten::val(_v[2]));
         v.set(3, emscripten::val(_v[3]));
         return ret;
     }));
-    // IMGUI_API bool          DragFloatRange2(const char* label, float* v_current_min, float* v_current_max, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", const char* display_format_max = NULL, float power = 1.0f);
-    emscripten::function("DragFloatRange2", FUNCTION(bool, (std::string label, emscripten::val v_current_min, emscripten::val v_current_max, float v_speed, float v_min, float v_max, std::string display_format, emscripten::val display_format_max, float power), {
+    // IMGUI_API bool          DragFloatRange2(const char* label, float* v_current_min, float* v_current_max, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", const char* display_format_max = NULL, float power = 1.0f);
+    emscripten::function("DragFloatRange2", FUNCTION(bool, (std::string label, emscripten::val v_current_min, emscripten::val v_current_max, float v_speed, float v_min, float v_max, std::string format, emscripten::val display_format_max, float power), {
         float _v_current_min = v_current_min[0].as<float>();
         float _v_current_max = v_current_max[0].as<float>();
         std::string _display_format_max = display_format_max.isNull() ? NULL : display_format_max.as<std::string>();
-        bool ret = ImGui::DragFloatRange2(label.c_str(), &_v_current_min, &_v_current_max, v_speed, v_min, v_max, display_format.c_str(), _display_format_max.c_str(), power);
+        bool ret = ImGui::DragFloatRange2(label.c_str(), &_v_current_min, &_v_current_max, v_speed, v_min, v_max, format.c_str(), _display_format_max.c_str(), power);
         v_current_min.set(0, emscripten::val(_v_current_min));
         v_current_max.set(0, emscripten::val(_v_current_max));
         return ret;
     }));
-    // IMGUI_API bool          DragInt(const char* label, int* v, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%.0f");                                       // If v_min >= v_max we have no bound
-    emscripten::function("DragInt", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, int v_min, int v_max, std::string display_format), {
+    // IMGUI_API bool          DragInt(const char* label, int* v, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%.0f");                                       // If v_min >= v_max we have no bound
+    emscripten::function("DragInt", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, int v_min, int v_max, std::string format), {
         int _v = v[0].as<int>();
-        bool ret = ImGui::DragInt(label.c_str(), &_v, v_speed, v_min, v_max, display_format.c_str());
+        bool ret = ImGui::DragInt(label.c_str(), &_v, v_speed, v_min, v_max, format.c_str());
         v.set(0, emscripten::val(_v));
         return ret;
     }));
-    // IMGUI_API bool          DragInt2(const char* label, int v[2], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%.0f");
-    emscripten::function("DragInt2", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, int v_min, int v_max, std::string display_format), {
+    // IMGUI_API bool          DragInt2(const char* label, int v[2], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%.0f");
+    emscripten::function("DragInt2", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, int v_min, int v_max, std::string format), {
         int _v[] = { v[0].as<int>(), v[1].as<int>() };
-        bool ret = ImGui::DragInt2(label.c_str(), _v, v_speed, v_min, v_max, display_format.c_str());
+        bool ret = ImGui::DragInt2(label.c_str(), _v, v_speed, v_min, v_max, format.c_str());
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         return ret;
     }));
-    // IMGUI_API bool          DragInt3(const char* label, int v[3], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%.0f");
-    emscripten::function("DragInt3", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, int v_min, int v_max, std::string display_format), {
+    // IMGUI_API bool          DragInt3(const char* label, int v[3], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%.0f");
+    emscripten::function("DragInt3", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, int v_min, int v_max, std::string format), {
         int _v[] = { v[0].as<int>(), v[1].as<int>(), v[2].as<int>() };
-        bool ret = ImGui::DragInt3(label.c_str(), _v, v_speed, v_min, v_max, display_format.c_str());
+        bool ret = ImGui::DragInt3(label.c_str(), _v, v_speed, v_min, v_max, format.c_str());
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         v.set(2, emscripten::val(_v[2]));
         return ret;
     }));
-    // IMGUI_API bool          DragInt4(const char* label, int v[4], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%.0f");
-    emscripten::function("DragInt4", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, int v_min, int v_max, std::string display_format), {
+    // IMGUI_API bool          DragInt4(const char* label, int v[4], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%.0f");
+    emscripten::function("DragInt4", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, int v_min, int v_max, std::string format), {
         int _v[4] = { v[0].as<int>(), v[1].as<int>(), v[2].as<int>(), v[3].as<int>() };
-        bool ret = ImGui::DragInt4(label.c_str(), _v, v_speed, v_min, v_max, display_format.c_str());
+        bool ret = ImGui::DragInt4(label.c_str(), _v, v_speed, v_min, v_max, format.c_str());
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         v.set(2, emscripten::val(_v[2]));
         v.set(3, emscripten::val(_v[3]));
         return ret;
     }));
-    // IMGUI_API bool          DragIntRange2(const char* label, int* v_current_min, int* v_current_max, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%.0f", const char* display_format_max = NULL);
-    emscripten::function("DragIntRange2", FUNCTION(bool, (std::string label, emscripten::val v_current_min, emscripten::val v_current_max, float v_speed, float v_min, float v_max, std::string display_format, emscripten::val display_format_max), {
+    // IMGUI_API bool          DragIntRange2(const char* label, int* v_current_min, int* v_current_max, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%.0f", const char* display_format_max = NULL);
+    emscripten::function("DragIntRange2", FUNCTION(bool, (std::string label, emscripten::val v_current_min, emscripten::val v_current_max, float v_speed, float v_min, float v_max, std::string format, emscripten::val display_format_max), {
         int _v_current_min = v_current_min[0].as<int>();
         int _v_current_max = v_current_max[0].as<int>();
         std::string _display_format_max = display_format_max.isNull() ? NULL : display_format_max.as<std::string>();
-        bool ret = ImGui::DragIntRange2(label.c_str(), &_v_current_min, &_v_current_max, v_speed, v_min, v_max, display_format.c_str(), _display_format_max.c_str());
+        bool ret = ImGui::DragIntRange2(label.c_str(), &_v_current_min, &_v_current_max, v_speed, v_min, v_max, format.c_str(), _display_format_max.c_str());
         v_current_min.set(0, emscripten::val(_v_current_min));
         v_current_max.set(0, emscripten::val(_v_current_max));
         return ret;
     }));
+    // IMGUI_API bool          DragScalar(const char* label, ImGuiDataType data_type, void* v, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
+    emscripten::function("DragScalar", FUNCTION(bool, (std::string label, ImGuiDataType data_type, emscripten::val v, float v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, float power), {
+        if (data_type != ImGuiDataType_Double) { ImGui::Text("TODO: DragScalar %s", label.c_str()); return false; }
+        double _v = v[0].as<double>();
+        double _v_min = v_min.isNull() ? 0.0 : v_min.as<double>();
+        double _v_max = v_max.isNull() ? 1.0 : v_max.as<double>();
+        bool ret = ImGui::DragScalar(label.c_str(), data_type, &_v, v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+        v.set(0, emscripten::val(_v));
+        return ret;
+    }));
+    // IMGUI_API bool          DragScalarN(const char* label, ImGuiDataType data_type, void* v, int components, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
 
     // Widgets: Input with Keyboard
     // IMGUI_API bool          InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
@@ -1766,34 +1783,34 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         buf.set(0, emscripten::val(_buf.c_str()));
         return ret;
     }));
-    // IMGUI_API bool          InputFloat(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, int decimal_precision = -1, ImGuiInputTextFlags extra_flags = 0);
-    emscripten::function("InputFloat", FUNCTION(bool, (std::string label, emscripten::val v, float step, float step_fast, int decimal_precision, ImGuiInputTextFlags extra_flags), {
+    // IMGUI_API bool          InputFloat(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
+    emscripten::function("InputFloat", FUNCTION(bool, (std::string label, emscripten::val v, float step, float step_fast, std::string format, ImGuiInputTextFlags extra_flags), {
         float _v = v[0].as<float>();
-        bool ret = ImGui::InputFloat(label.c_str(), &_v, step, step_fast, decimal_precision, extra_flags);
+        bool ret = ImGui::InputFloat(label.c_str(), &_v, step, step_fast, format.c_str(), extra_flags);
         v.set(0, emscripten::val(_v));
         return ret;
     }));
-    // IMGUI_API bool          InputFloat2(const char* label, float v[2], int decimal_precision = -1, ImGuiInputTextFlags extra_flags = 0);
-    emscripten::function("InputFloat2", FUNCTION(bool, (std::string label, emscripten::val v, int decimal_precision, ImGuiInputTextFlags extra_flags), {
+    // IMGUI_API bool          InputFloat2(const char* label, float v[2], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
+    emscripten::function("InputFloat2", FUNCTION(bool, (std::string label, emscripten::val v, std::string format, ImGuiInputTextFlags extra_flags), {
         float _v[] = { v[0].as<float>(), v[1].as<float>() };
-        bool ret = ImGui::InputFloat2(label.c_str(), _v, decimal_precision, extra_flags);
+        bool ret = ImGui::InputFloat2(label.c_str(), _v, format.c_str(), extra_flags);
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         return ret;
     }));
-    // IMGUI_API bool          InputFloat3(const char* label, float v[3], int decimal_precision = -1, ImGuiInputTextFlags extra_flags = 0);
-    emscripten::function("InputFloat3", FUNCTION(bool, (std::string label, emscripten::val v, int decimal_precision, ImGuiInputTextFlags extra_flags), {
+    // IMGUI_API bool          InputFloat3(const char* label, float v[3], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
+    emscripten::function("InputFloat3", FUNCTION(bool, (std::string label, emscripten::val v, std::string format, ImGuiInputTextFlags extra_flags), {
         float _v[] = { v[0].as<float>(), v[1].as<float>(), v[2].as<float>() };
-        bool ret = ImGui::InputFloat3(label.c_str(), _v, decimal_precision, extra_flags);
+        bool ret = ImGui::InputFloat3(label.c_str(), _v, format.c_str(), extra_flags);
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         v.set(2, emscripten::val(_v[2]));
         return ret;
     }));
-    // IMGUI_API bool          InputFloat4(const char* label, float v[4], int decimal_precision = -1, ImGuiInputTextFlags extra_flags = 0);
-    emscripten::function("InputFloat4", FUNCTION(bool, (std::string label, emscripten::val v, int decimal_precision, ImGuiInputTextFlags extra_flags), {
+    // IMGUI_API bool          InputFloat4(const char* label, float v[4], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
+    emscripten::function("InputFloat4", FUNCTION(bool, (std::string label, emscripten::val v, std::string format, ImGuiInputTextFlags extra_flags), {
         float _v[] = { v[0].as<float>(), v[1].as<float>(), v[2].as<float>(), v[3].as<float>() };
-        bool ret = ImGui::InputFloat4(label.c_str(), _v, decimal_precision, extra_flags);
+        bool ret = ImGui::InputFloat4(label.c_str(), _v, format.c_str(), extra_flags);
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         v.set(2, emscripten::val(_v[2]));
@@ -1834,43 +1851,54 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         v.set(3, emscripten::val(_v[3]));
         return ret;
     }));
-    // IMGUI_API bool          InputDouble(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* display_format = "%.6f", ImGuiInputTextFlags extra_flags = 0);
-    emscripten::function("InputDouble", FUNCTION(bool, (std::string label, emscripten::val v, float step, float step_fast, std::string display_format, ImGuiInputTextFlags extra_flags), {
+    // IMGUI_API bool          InputDouble(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.6f", ImGuiInputTextFlags extra_flags = 0);
+    emscripten::function("InputDouble", FUNCTION(bool, (std::string label, emscripten::val v, float step, float step_fast, std::string format, ImGuiInputTextFlags extra_flags), {
         double _v = v[0].as<double>();
-        bool ret = ImGui::InputDouble(label.c_str(), &_v, step, step_fast, display_format.c_str(), extra_flags);
+        bool ret = ImGui::InputDouble(label.c_str(), &_v, step, step_fast, format.c_str(), extra_flags);
         v.set(0, emscripten::val(_v));
         return ret;
     }));
+    // IMGUI_API bool          InputScalar(const char* label, ImGuiDataType data_type, void* v, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
+    emscripten::function("InputScalar", FUNCTION(bool, (std::string label, ImGuiDataType data_type, emscripten::val v, emscripten::val step, emscripten::val step_fast, emscripten::val format, ImGuiInputTextFlags extra_flags), {
+        if (data_type != ImGuiDataType_Double) { ImGui::Text("TODO: InputScalar %s", label.c_str()); return false; }
+        double _v = v[0].as<double>();
+        double _step = step.isNull() ? 0.0 : step.as<double>();
+        double _step_fast = step_fast.isNull() ? 0.0 : step_fast.as<double>();
+        bool ret = ImGui::InputScalar(label.c_str(), data_type, &_v, step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, format.isNull() ? NULL : format.as<std::string>().c_str(), extra_flags);
+        v.set(0, emscripten::val(_v));
+        return ret;
+    }));
+    // IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
 
     // Widgets: Sliders (tip: ctrl+click on a slider to input with keyboard. manually input values aren't clamped, can go off-bounds)
-    // IMGUI_API bool          SliderFloat(const char* label, float* v, float v_min, float v_max, const char* display_format = "%.3f", float power = 1.0f);     // adjust display_format to decorate the value with a prefix or a suffix for in-slider labels or unit display. Use power!=1.0 for logarithmic sliders
-    emscripten::function("SliderFloat", FUNCTION(bool, (std::string label, emscripten::val v, float v_min, float v_max, std::string display_format, float power), {
+    // IMGUI_API bool          SliderFloat(const char* label, float* v, float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);     // adjust format to decorate the value with a prefix or a suffix for in-slider labels or unit display. Use power!=1.0 for logarithmic sliders
+    emscripten::function("SliderFloat", FUNCTION(bool, (std::string label, emscripten::val v, float v_min, float v_max, std::string format, float power), {
         float _v = v[0].as<float>();
-        bool ret = ImGui::SliderFloat(label.c_str(), &_v, v_min, v_max, display_format.c_str(), power);
+        bool ret = ImGui::SliderFloat(label.c_str(), &_v, v_min, v_max, format.c_str(), power);
         v.set(0, emscripten::val(_v));
         return ret;
     }));
-    // IMGUI_API bool          SliderFloat2(const char* label, float v[2], float v_min, float v_max, const char* display_format = "%.3f", float power = 1.0f);
-    emscripten::function("SliderFloat2", FUNCTION(bool, (std::string label, emscripten::val v, float v_min, float v_max, std::string display_format, float power), {
+    // IMGUI_API bool          SliderFloat2(const char* label, float v[2], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
+    emscripten::function("SliderFloat2", FUNCTION(bool, (std::string label, emscripten::val v, float v_min, float v_max, std::string format, float power), {
         float _v[] = { v[0].as<float>(), v[1].as<float>() };
-        bool ret = ImGui::SliderFloat2(label.c_str(), _v, v_min, v_max, display_format.c_str(), power);
+        bool ret = ImGui::SliderFloat2(label.c_str(), _v, v_min, v_max, format.c_str(), power);
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         return ret;
     }));
-    // IMGUI_API bool          SliderFloat3(const char* label, float v[3], float v_min, float v_max, const char* display_format = "%.3f", float power = 1.0f);
-    emscripten::function("SliderFloat3", FUNCTION(bool, (std::string label, emscripten::val v, float v_min, float v_max, std::string display_format, float power), {
+    // IMGUI_API bool          SliderFloat3(const char* label, float v[3], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
+    emscripten::function("SliderFloat3", FUNCTION(bool, (std::string label, emscripten::val v, float v_min, float v_max, std::string format, float power), {
         float _v[] = { v[0].as<float>(), v[1].as<float>(), v[2].as<float>() };
-        bool ret = ImGui::SliderFloat3(label.c_str(), _v, v_min, v_max, display_format.c_str(), power);
+        bool ret = ImGui::SliderFloat3(label.c_str(), _v, v_min, v_max, format.c_str(), power);
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         v.set(2, emscripten::val(_v[2]));
         return ret;
     }));
-    // IMGUI_API bool          SliderFloat4(const char* label, float v[4], float v_min, float v_max, const char* display_format = "%.3f", float power = 1.0f);
-    emscripten::function("SliderFloat4", FUNCTION(bool, (std::string label, emscripten::val v, float v_min, float v_max, std::string display_format, float power), {
+    // IMGUI_API bool          SliderFloat4(const char* label, float v[4], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
+    emscripten::function("SliderFloat4", FUNCTION(bool, (std::string label, emscripten::val v, float v_min, float v_max, std::string format, float power), {
         float _v[] = { v[0].as<float>(), v[1].as<float>(), v[2].as<float>(), v[3].as<float>() };
-        bool ret = ImGui::SliderFloat4(label.c_str(), _v, v_min, v_max, display_format.c_str(), power);
+        bool ret = ImGui::SliderFloat4(label.c_str(), _v, v_min, v_max, format.c_str(), power);
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         v.set(2, emscripten::val(_v[2]));
@@ -1884,51 +1912,62 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         v_rad.set(0, emscripten::val(_v_rad));
         return ret;
     }));
-    // IMGUI_API bool          SliderInt(const char* label, int* v, int v_min, int v_max, const char* display_format = "%.0f");
-    emscripten::function("SliderInt", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, std::string display_format), {
+    // IMGUI_API bool          SliderInt(const char* label, int* v, int v_min, int v_max, const char* format = "%.0f");
+    emscripten::function("SliderInt", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, std::string format), {
         int _v = v[0].as<int>();
-        bool ret = ImGui::SliderInt(label.c_str(), &_v, v_min, v_max, display_format.c_str());
+        bool ret = ImGui::SliderInt(label.c_str(), &_v, v_min, v_max, format.c_str());
         v.set(0, emscripten::val(_v));
         return ret;
     }));
-    // IMGUI_API bool          SliderInt2(const char* label, int v[2], int v_min, int v_max, const char* display_format = "%.0f");
-    emscripten::function("SliderInt2", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, std::string display_format), {
+    // IMGUI_API bool          SliderInt2(const char* label, int v[2], int v_min, int v_max, const char* format = "%.0f");
+    emscripten::function("SliderInt2", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, std::string format), {
         int _v[] = { v[0].as<int>(), v[1].as<int>() };
-        bool ret = ImGui::SliderInt2(label.c_str(), _v, v_min, v_max, display_format.c_str());
+        bool ret = ImGui::SliderInt2(label.c_str(), _v, v_min, v_max, format.c_str());
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         return ret;
     }));
-    // IMGUI_API bool          SliderInt3(const char* label, int v[3], int v_min, int v_max, const char* display_format = "%.0f");
-    emscripten::function("SliderInt3", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, std::string display_format), {
+    // IMGUI_API bool          SliderInt3(const char* label, int v[3], int v_min, int v_max, const char* format = "%.0f");
+    emscripten::function("SliderInt3", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, std::string format), {
         int _v[] = { v[0].as<int>(), v[1].as<int>(), v[2].as<int>() };
-        bool ret = ImGui::SliderInt3(label.c_str(), _v, v_min, v_max, display_format.c_str());
+        bool ret = ImGui::SliderInt3(label.c_str(), _v, v_min, v_max, format.c_str());
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         v.set(2, emscripten::val(_v[2]));
         return ret;
     }));
-    // IMGUI_API bool          SliderInt4(const char* label, int v[4], int v_min, int v_max, const char* display_format = "%.0f");
-    emscripten::function("SliderInt4", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, std::string display_format), {
+    // IMGUI_API bool          SliderInt4(const char* label, int v[4], int v_min, int v_max, const char* format = "%.0f");
+    emscripten::function("SliderInt4", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, std::string format), {
         int _v[] = { v[0].as<int>(), v[1].as<int>(), v[2].as<int>(), v[3].as<int>() };
-        bool ret = ImGui::SliderInt4(label.c_str(), _v, v_min, v_max, display_format.c_str());
+        bool ret = ImGui::SliderInt4(label.c_str(), _v, v_min, v_max, format.c_str());
         v.set(0, emscripten::val(_v[0]));
         v.set(1, emscripten::val(_v[1]));
         v.set(2, emscripten::val(_v[2]));
         v.set(3, emscripten::val(_v[3]));
         return ret;
     }));
-    // IMGUI_API bool          VSliderFloat(const char* label, const ImVec2& size, float* v, float v_min, float v_max, const char* display_format = "%.3f", float power = 1.0f);
-    emscripten::function("VSliderFloat", FUNCTION(bool, (std::string label, emscripten::val size, emscripten::val v, float v_min, float v_max, std::string display_format, float power), {
-        float _v = v[0].as<float>();
-        bool ret = ImGui::VSliderFloat(label.c_str(), import_ImVec2(size), &_v, v_min, v_max, display_format.c_str(), power);
+    // IMGUI_API bool          SliderScalar(const char* label, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
+    emscripten::function("SliderScalar", FUNCTION(bool, (std::string label, ImGuiDataType data_type, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, float power), {
+        if (data_type != ImGuiDataType_Double) { ImGui::Text("TODO: SliderScalar %s", label.c_str()); return false; }
+        double _v = v[0].as<double>();
+        double _v_min = v_min.isNull() ? 0.0 : v_min.as<double>();
+        double _v_max = v_max.isNull() ? 1.0 : v_max.as<double>();
+        bool ret = ImGui::SliderScalar(label.c_str(), data_type, &_v, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
         v.set(0, emscripten::val(_v));
         return ret;
     }));
-    // IMGUI_API bool          VSliderInt(const char* label, const ImVec2& size, int* v, int v_min, int v_max, const char* display_format = "%.0f");
-    emscripten::function("VSliderInt", FUNCTION(bool, (std::string label, emscripten::val size, emscripten::val v, int v_min, int v_max, std::string display_format), {
+    // IMGUI_API bool          SliderScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
+    // IMGUI_API bool          VSliderFloat(const char* label, const ImVec2& size, float* v, float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
+    emscripten::function("VSliderFloat", FUNCTION(bool, (std::string label, emscripten::val size, emscripten::val v, float v_min, float v_max, std::string format, float power), {
+        float _v = v[0].as<float>();
+        bool ret = ImGui::VSliderFloat(label.c_str(), import_ImVec2(size), &_v, v_min, v_max, format.c_str(), power);
+        v.set(0, emscripten::val(_v));
+        return ret;
+    }));
+    // IMGUI_API bool          VSliderInt(const char* label, const ImVec2& size, int* v, int v_min, int v_max, const char* format = "%.0f");
+    emscripten::function("VSliderInt", FUNCTION(bool, (std::string label, emscripten::val size, emscripten::val v, int v_min, int v_max, std::string format), {
         int _v = v[0].as<int>();
-        bool ret = ImGui::VSliderInt(label.c_str(), import_ImVec2(size), &_v, v_min, v_max, display_format.c_str());
+        bool ret = ImGui::VSliderInt(label.c_str(), import_ImVec2(size), &_v, v_min, v_max, format.c_str());
         v.set(0, emscripten::val(_v));
         return ret;
     }));
@@ -2234,6 +2273,10 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsItemClicked", &ImGui::IsItemClicked);
     // IMGUI_API bool          IsItemVisible();                                                    // is the last item visible? (aka not out of sight due to clipping/scrolling.)
     emscripten::function("IsItemVisible", &ImGui::IsItemVisible);
+    // IMGUI_API bool          IsItemDeactivated();                                                // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that requires continuous editing.
+    emscripten::function("IsItemDeactivated", &ImGui::IsItemDeactivated);
+    // IMGUI_API bool          IsItemDeactivatedAfterChange();                                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
+    emscripten::function("IsItemDeactivatedAfterChange", &ImGui::IsItemDeactivatedAfterChange);
     // IMGUI_API bool          IsAnyItemHovered();
     emscripten::function("IsAnyItemHovered", &ImGui::IsAnyItemHovered);
     // IMGUI_API bool          IsAnyItemActive();

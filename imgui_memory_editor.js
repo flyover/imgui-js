@@ -35,8 +35,8 @@
 // - Arrows are being sent to the InputText() about to disappear which for LeftArrow makes the text cursor appear at position 1 for one frame.
 System.register(["./imgui"], function (exports_1, context_1) {
     "use strict";
-    var __moduleName = context_1 && context_1.id;
     var ImGui, imgui_1, imgui_2, imgui_3, imgui_4, imgui_5, imgui_6, MemoryEditor;
+    var __moduleName = context_1 && context_1.id;
     return {
         setters: [
             function (ImGui_1) {

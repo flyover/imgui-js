@@ -267,7 +267,7 @@ function ShowGamepadWindow(title: string, p_open: ImGui.ImAccess<boolean> | null
     ImGui.End();
 }
 
-const image_url: string = "../imgui/examples/apple_example/imguiex-ios/imgui_ex_icon.png";
+const image_url: string = "../imgui/examples/example_apple/imguiex-ios/imgui_ex_icon.png";
 let image_element: HTMLImageElement | null = null;
 let image_gl_texture: WebGLTexture | null = null;
 

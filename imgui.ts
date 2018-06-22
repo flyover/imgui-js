@@ -8,6 +8,8 @@ import * as config from "./imconfig";
 
 export const IMGUI_VERSION: string = bind.IMGUI_VERSION;
 
+export function IMGUI_CHECKVERSION(): boolean { return bind.IMGUI_CHECKVERSION(); }
+
 export function IM_ASSERT(_EXPR: boolean | number): void { if (!_EXPR) { throw new Error(); } }
 
 export function IM_ARRAYSIZE(_ARR: ArrayLike<any> | ImStringBuffer): number {
@@ -33,6 +35,7 @@ export type ImTextureID = WebGLTexture;
 // Flags for ImGui::Begin()
 export { ImGuiWindowFlags as WindowFlags };
 export enum ImGuiWindowFlags {
+    None                   = 0,
     NoTitleBar             = 1 << 0,   // Disable title-bar
     NoResize               = 1 << 1,   // Disable user resizing with the lower-right grip
     NoMove                 = 1 << 2,   // Disable user moving the window
@@ -67,6 +70,7 @@ export enum ImGuiWindowFlags {
 // Flags for ImGui::InputText()
 export { ImGuiInputTextFlags as InputTextFlags };
 export enum ImGuiInputTextFlags {
+    None                = 0,
     CharsDecimal        = 1 << 0,   // Allow 0123456789.+-*/
     CharsHexadecimal    = 1 << 1,   // Allow 0123456789ABCDEFabcdef
     CharsUppercase      = 1 << 2,   // Turn a..z into A..Z
@@ -92,6 +96,7 @@ export enum ImGuiInputTextFlags {
 // Flags for ImGui::TreeNodeEx(), ImGui::CollapsingHeader*()
 export { ImGuiTreeNodeFlags as TreeNodeFlags };
 export enum ImGuiTreeNodeFlags {
+    None                 = 0,
     Selected             = 1 << 0,   // Draw as selected
     Framed               = 1 << 1,   // Full colored frame (e.g. for CollapsingHeader)
     AllowItemOverlap     = 1 << 2,   // Hit testing to allow subsequent widgets to overlap this one
@@ -106,12 +111,13 @@ export enum ImGuiTreeNodeFlags {
     //SpanAllAvailWidth  = 1 << 11,  // FIXME: TODO: Extend hit box horizontally even if not framed
     //NoScrollOnOpen     = 1 << 12,  // FIXME: TODO: Disable automatic scroll on TreePop() if node got just open and contents is not visible
     NavLeftJumpsBackHere = 1 << 13,  // (WIP) Nav: left direction may move to this TreeNode() from any of its child (items submitted between TreeNode and TreePop)
-    CollapsingHeader     = Framed | NoAutoOpenOnLog,
+    CollapsingHeader     = Framed | NoTreePushOnOpen | NoAutoOpenOnLog,
 }
 
 // Flags for ImGui::Selectable()
 export { ImGuiSelectableFlags as SelectableFlags };
 export enum ImGuiSelectableFlags {
+    None               = 0,
     DontClosePopups    = 1 << 0,   // Clicking this don't close parent popup window
     SpanAllColumns     = 1 << 1,   // Selectable frame can span all columns (text will still fit in current column)
     AllowDoubleClick   = 1 << 2,    // Generate press events on double clicks too
@@ -120,6 +126,7 @@ export enum ImGuiSelectableFlags {
 // Flags for ImGui::BeginCombo()
 export { ImGuiComboFlags as ComboFlags };
 export enum ImGuiComboFlags {
+    None                    = 0,
     PopupAlignLeft          = 1 << 0,   // Align the popup toward the left by default
     HeightSmall             = 1 << 1,   // Max ~4 items visible. Tip: If you want your combo popup to be a specific size you can use SetNextWindowSizeConstraints() prior to calling BeginCombo()
     HeightRegular           = 1 << 2,   // Max ~8 items visible (default)
@@ -133,6 +140,7 @@ export enum ImGuiComboFlags {
 // Flags for ImGui::IsWindowFocused()
 export { ImGuiFocusedFlags as FocusedFlags };
 export enum ImGuiFocusedFlags {
+    None                          = 0,
     ChildWindows                  = 1 << 0,   // IsWindowFocused(): Return true if any children of the window is focused
     RootWindow                    = 1 << 1,   // IsWindowFocused(): Test from root window (top most parent of the current hierarchy)
     AnyWindow                     = 1 << 2,   // IsWindowFocused(): Return true if any window is focused
@@ -142,7 +150,7 @@ export enum ImGuiFocusedFlags {
 // Flags for ImGui::IsItemHovered(), ImGui::IsWindowHovered()
 export { ImGuiHoveredFlags as HoveredFlags };
 export enum ImGuiHoveredFlags {
-    Default                       = 0,        // Return true if directly over the item/window, not obstructed by another window, not obstructed by an active popup or modal blocking inputs under them.
+    None                          = 0,        // Return true if directly over the item/window, not obstructed by another window, not obstructed by an active popup or modal blocking inputs under them.
     ChildWindows                  = 1 << 0,   // IsWindowHovered() only: Return true if any children of the window is hovered
     RootWindow                    = 1 << 1,   // IsWindowHovered() only: Test from root window (top most parent of the current hierarchy)
     AnyWindow                     = 1 << 2,   // IsWindowHovered() only: Return true if any window is hovered
@@ -158,6 +166,7 @@ export enum ImGuiHoveredFlags {
 export { ImGuiDragDropFlags as DragDropFlags };
 export enum ImGuiDragDropFlags {
     // BeginDragDropSource() flags
+    None                         = 0,
     SourceNoPreviewTooltip       = 1 << 0,       // By default, a successful call to BeginDragDropSource opens a tooltip so you can display a preview or description of the source contents. This flag disable this behavior.
     SourceNoDisableHover         = 1 << 1,       // By default, when dragging we clear data so that IsItemHovered() will return true, to avoid subsequent user code submitting tooltips. This flag disable this behavior so you can still call IsItemHovered() on the source item.
     SourceNoHoldToOpenOthers     = 1 << 2,       // Disable the behavior that allows to open tree nodes and collapsing header by holding over them while dragging a source item.
@@ -166,12 +175,36 @@ export enum ImGuiDragDropFlags {
     // AcceptDragDropPayload() flags
     AcceptBeforeDelivery         = 1 << 10,      // AcceptDragDropPayload() will returns true even before the mouse button is released. You can then call IsDelivery() to test if the payload needs to be delivered.
     AcceptNoDrawDefaultRect      = 1 << 11,      // Do not draw the default highlight rectangle when hovering over target.
+    AcceptNoPreviewTooltip       = 1 << 12,      // Request hiding the BeginDragDropSource tooltip from the BeginDragDropTarget site.
     AcceptPeekOnly               = AcceptBeforeDelivery | AcceptNoDrawDefaultRect,  // For peeking ahead and inspecting the payload before delivery.
 }
 
 // Standard Drag and Drop payload types. You can define you own payload types using 12-characters long strings. Types starting with '_' are defined by Dear ImGui.
 export const IMGUI_PAYLOAD_TYPE_COLOR_3F: string = "_COL3F";    // float[3]     // Standard type for colors, without alpha. User code may use this type.
 export const IMGUI_PAYLOAD_TYPE_COLOR_4F: string = "_COL4F";    // float[4]     // Standard type for colors. User code may use this type.
+
+// A primary data type
+export { ImGuiDataType as DataType };
+export enum ImGuiDataType {
+    S32,      // int
+    U32,      // unsigned int
+    S64,      // long long, __int64
+    U64,      // unsigned long long, unsigned __int64
+    Float,    // float
+    Double,   // double
+    COUNT
+}
+
+// A cardinal direction
+export { ImGuiDir as Dir };
+export enum ImGuiDir {
+    None    = -1,
+    Left    = 0,
+    Right   = 1,
+    Up      = 2,
+    Down    = 3,
+    COUNT
+}
 
 // User fill ImGuiIO.KeyMap[] array with indices into the ImGuiIO.KeysDown[512] array
 export { ImGuiKey as Key };
@@ -340,6 +373,7 @@ export enum ImGuiBackendFlags {
 // Enumeration for ColorEdit3() / ColorEdit4() / ColorPicker3() / ColorPicker4() / ColorButton()
 export { ImGuiColorEditFlags as ColorEditFlags };
 export enum ImGuiColorEditFlags {
+    None            = 0,
     NoAlpha         = 1 << 1,   //              // ColorEdit, ColorPicker, ColorButton: ignore Alpha component (read 3 components from the input pointer).
     NoPicker        = 1 << 2,   //              // ColorEdit: disable picker when clicking on colored square.
     NoOptions       = 1 << 3,   //              // ColorEdit: disable toggling options menu when right-clicking on inputs/small preview.
@@ -348,18 +382,19 @@ export enum ImGuiColorEditFlags {
     NoTooltip       = 1 << 6,   //              // ColorEdit, ColorPicker, ColorButton: disable tooltip when hovering the preview.
     NoLabel         = 1 << 7,   //              // ColorEdit, ColorPicker: disable display of inline text label (the label is still forwarded to the tooltip and picker).
     NoSidePreview   = 1 << 8,   //              // ColorPicker: disable bigger color preview on right side of the picker, use small colored square preview instead.
+    NoDragDrop      = 1 << 9,   //              // ColorEdit: disable drag and drop target. ColorButton: disable drag and drop source.
     // User Options (right-click on widget to change some of them). You can set application defaults using SetColorEditOptions(). The idea is that you probably don't want to override them in most of your calls, let the user choose and/or call SetColorEditOptions() during startup.
-    AlphaBar        = 1 << 9,   //              // ColorEdit, ColorPicker: show vertical alpha bar/gradient in picker.
-    AlphaPreview    = 1 << 10,  //              // ColorEdit, ColorPicker, ColorButton: display preview as a transparent color over a checkerboard, instead of opaque.
-    AlphaPreviewHalf= 1 << 11,  //              // ColorEdit, ColorPicker, ColorButton: display half opaque / half checkerboard, instead of opaque.
-    HDR             = 1 << 12,  //              // (WIP) ColorEdit: Currently only disable 0.0f..1.0f limits in RGBA edition (note: you probably want to use Float flag as well).
-    RGB             = 1 << 13,  // [Inputs]     // ColorEdit: choose one among RGB/HSV/HEX. ColorPicker: choose any combination using RGB/HSV/HEX.
-    HSV             = 1 << 14,  // [Inputs]     // "
-    HEX             = 1 << 15,  // [Inputs]     // "
-    Uint8           = 1 << 16,  // [DataType]   // ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0..255.
-    Float           = 1 << 17,  // [DataType]   // ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0.0f..1.0f floats instead of 0..255 integers. No round-trip of value via integers.
-    PickerHueBar    = 1 << 18,  // [PickerMode] // ColorPicker: bar for Hue, rectangle for Sat/Value.
-    PickerHueWheel  = 1 << 19,  // [PickerMode] // ColorPicker: wheel for Hue, triangle for Sat/Value.
+    AlphaBar        = 1 << 16,   //              // ColorEdit, ColorPicker: show vertical alpha bar/gradient in picker.
+    AlphaPreview    = 1 << 17,  //              // ColorEdit, ColorPicker, ColorButton: display preview as a transparent color over a checkerboard, instead of opaque.
+    AlphaPreviewHalf= 1 << 18,  //              // ColorEdit, ColorPicker, ColorButton: display half opaque / half checkerboard, instead of opaque.
+    HDR             = 1 << 19,  //              // (WIP) ColorEdit: Currently only disable 0.0f..1.0f limits in RGBA edition (note: you probably want to use Float flag as well).
+    RGB             = 1 << 20,  // [Inputs]     // ColorEdit: choose one among RGB/HSV/HEX. ColorPicker: choose any combination using RGB/HSV/HEX.
+    HSV             = 1 << 21,  // [Inputs]     // "
+    HEX             = 1 << 22,  // [Inputs]     // "
+    Uint8           = 1 << 23,  // [DataType]   // ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0..255.
+    Float           = 1 << 24,  // [DataType]   // ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0.0f..1.0f floats instead of 0..255 integers. No round-trip of value via integers.
+    PickerHueBar    = 1 << 25,  // [PickerMode] // ColorPicker: bar for Hue, rectangle for Sat/Value.
+    PickerHueWheel  = 1 << 26,  // [PickerMode] // ColorPicker: wheel for Hue, triangle for Sat/Value.
     // Internals/Masks
     _InputsMask     = RGB | HSV | HEX,
     _DataTypeMask   = Uint8 | Float,
@@ -549,6 +584,8 @@ export class ImVector<T>
     // inline void                 push_front(const value_type& v) { if (Size == 0) push_back(v); else insert(Data, v); }
 
     // inline iterator             erase(const_iterator it)                        { IM_ASSERT(it >= Data && it < Data+Size); const ptrdiff_t off = it - Data; memmove(Data + off, Data + off + 1, ((size_t)Size - (size_t)off - 1) * sizeof(value_type)); Size--; return Data + off; }
+    // inline iterator             erase(const_iterator it, const_iterator it_last){ IM_ASSERT(it >= Data && it < Data+Size && it_last > it && it_last <= Data+Size); const ptrdiff_t count = it_last - it; const ptrdiff_t off = it - Data; memmove(Data + off, Data + off + count, ((size_t)Size - (size_t)off - count) * sizeof(value_type)); Size -= (int)count; return Data + off; }
+    // inline iterator             erase_unsorted(const_iterator it)               { IM_ASSERT(it >= Data && it < Data+Size);  const ptrdiff_t off = it - Data; if (it < Data+Size-1) memcpy(Data + off, Data + Size - 1, sizeof(value_type)); Size--; return Data + off; }
     // inline iterator             insert(const_iterator it, const value_type& v)  { IM_ASSERT(it >= Data && it <= Data+Size); const ptrdiff_t off = it - Data; if (Size == Capacity) reserve(_grow_capacity(Size + 1)); if (off < (int)Size) memmove(Data + off + 1, Data + off, ((size_t)Size - (size_t)off) * sizeof(value_type)); Data[off] = v; Size++; return Data + off; }
     // inline bool                 contains(const value_type& v) const             { const T* data = Data;  const T* data_end = Data + Size; while (data < data_end) if (*data++ == v) return true; return false; }
 }
@@ -735,7 +772,7 @@ export class ImGuiStorage
 export class ImGuiPayload
 {
     // Members
-    // const void*     Data;               // Data (copied and owned by dear imgui)
+    // void*           Data;               // Data (copied and owned by dear imgui)
     // int             DataSize;           // Data size
 
     // [Internal]
@@ -1258,6 +1295,8 @@ export class ImDrawData
     get TotalIdxCount(): number { return this.native.TotalIdxCount; }
     // int             TotalVtxCount;          // For convenience, sum of all cmd_lists vtx_buffer.Size
     get TotalVtxCount(): number { return this.native.TotalVtxCount; }
+    // ImVec2          DisplayPos;             // Upper-left position of the viewport to render (== upper-left of the orthogonal projection matrix to use)
+    // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
 
     // Functions
     // ImDrawData() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; }
@@ -1281,6 +1320,8 @@ export class ImFontConfig
     // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
+    // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
+    // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
     // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
     // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
     // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
@@ -1341,6 +1382,7 @@ export class ImFontAtlas
     // Pitch = Width * BytesPerPixels
     // IMGUI_API bool              Build();                    // Build pixels data. This is called automatically for you by the GetTexData*** functions.
     public Build(): boolean { return this.native.Build(); }
+    // IMGUI_API bool              IsBuilt()                   { return Fonts.Size > 0 && (TexPixelsAlpha8 != NULL || TexPixelsRGBA32 != NULL); }
     // IMGUI_API void              GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 1 byte per-pixel
     public GetTexDataAsAlpha8(): { pixels: Uint8Array, width: number, height: number } {
         return this.native.GetTexDataAsAlpha8();
@@ -1361,7 +1403,8 @@ export class ImFontAtlas
     // IMGUI_API const ImWchar*    GetGlyphRangesDefault();    // Basic Latin, Extended Latin
     // IMGUI_API const ImWchar*    GetGlyphRangesKorean();     // Default + Korean characters
     // IMGUI_API const ImWchar*    GetGlyphRangesJapanese();   // Default + Hiragana, Katakana, Half-Width, Selection of 1946 Ideographs
-    // IMGUI_API const ImWchar*    GetGlyphRangesChinese();    // Default + Japanese + full set of about 21000 CJK Unified Ideographs
+    // IMGUI_API const ImWchar*    GetGlyphRangesChineseFull();            // Default + Half-Width + Japanese Hiragana/Katakana + full set of about 21000 CJK Unified Ideographs
+    // IMGUI_API const ImWchar*    GetGlyphRangesChineseSimplifiedCommon();// Default + Half-Width + Japanese Hiragana/Katakana + set of 2500 CJK Unified Ideographs for common simplified Chinese
     // IMGUI_API const ImWchar*    GetGlyphRangesCyrillic();   // Default + about 400 Cyrillic characters
     // IMGUI_API const ImWchar*    GetGlyphRangesThai();       // Default + Thai characters
 
@@ -1370,7 +1413,7 @@ export class ImFontAtlas
     // {
     //     ImVector<unsigned char> UsedChars;  // Store 1-bit per Unicode code point (0=unused, 1=used)
     //     GlyphRangesBuilder()                { UsedChars.resize(0x10000 / 8); memset(UsedChars.Data, 0, 0x10000 / 8); }
-    //     bool           GetBit(int n)        { return (UsedChars[n >> 3] & (1 << (n & 7))) != 0; }
+    //     bool           GetBit(int n) const  { return (UsedChars[n >> 3] & (1 << (n & 7))) != 0; }
     //     void           SetBit(int n)        { UsedChars[n >> 3] |= 1 << (n & 7); }  // Set bit 'c' in the array
     //     void           AddChar(ImWchar c)   { SetBit(c); }                          // Add character
     //     IMGUI_API void AddText(const char* text, const char* text_end = NULL);      // Add string (each character of the UTF-8 string are added)
@@ -1795,6 +1838,8 @@ export class ImGuiIO
     get WantTextInput(): boolean { return this.native.WantTextInput; } set WantTextInput(value: boolean) { this.native.WantTextInput = value; }
     // bool        WantSetMousePos;              // [BETA-NAV] MousePos has been altered, back-end should reposition mouse on next frame. Set only when 'NavMovesMouse=true'.
     get WantSetMousePos(): boolean { return this.native.WantSetMousePos; } set WantSetMousePos(value: boolean) { this.native.WantSetMousePos = value; }
+    // bool        WantSaveIniSettings;        // When manual .ini load/save is active (io.IniFilename == NULL), this will be set to notify your application that you can call SaveIniSettingsToMemory() and save yourself. IMPORTANT: You need to clear io.WantSaveIniSettings yourself.
+    get WantSaveIniSettings(): boolean { return this.native.WantSaveIniSettings; } set WantSaveIniSettings(value: boolean) { this.native.WantSaveIniSettings = value; }
     // bool        NavActive;                  // Directional navigation is currently allowed (will handle ImGuiKey_NavXXX events) = a window is focused and it doesn't use the ImGuiWindowFlags_NoNavInputs flag.
     get NavActive(): boolean { return this.native.NavActive; } set NavActive(value: boolean) { this.native.NavActive = value; }
     // bool        NavVisible;                 // Directional navigation is visible and allowed (will handle ImGuiKey_NavXXX events).
@@ -1923,22 +1968,26 @@ export function SetCurrentContext(ctx: ImGuiContext | null): void {
     ImGuiContext.current_ctx = ctx;
 }
 
+export function DebugCheckVersionAndDataLayout(): boolean {
+    return true; // TODO
+}
+
 // Main
 // IMGUI_API ImGuiIO&      GetIO();
 export function GetIO(): ImGuiIO { return new ImGuiIO(bind.GetIO()); }
 // IMGUI_API ImGuiStyle&   GetStyle();
 export function GetStyle(): ImGuiStyle { return new ImGuiStyle(bind.GetStyle()); }
+// IMGUI_API void          NewFrame();                                 // start a new ImGui frame, you can submit any command from this point until Render()/EndFrame().
+export function NewFrame(): void { bind.NewFrame(); }
+// IMGUI_API void          EndFrame();                                 // ends the ImGui frame. automatically called by Render(), so most likely don't need to ever call that yourself directly. If you don't need to render you may call EndFrame() but you'll have wasted CPU already. If you don't need to render, better to not create any imgui windows instead!
+export function EndFrame(): void { bind.EndFrame(); }
+// IMGUI_API void          Render();                                   // ends the ImGui frame, finalize the draw data, then call your io.RenderDrawListsFn() function if set.
+export function Render(): void { bind.Render(); }
 // IMGUI_API ImDrawData*   GetDrawData();                              // same value as passed to your io.RenderDrawListsFn() function. valid after Render() and until the next call to NewFrame()
 export function GetDrawData(): ImDrawData | null {
     const draw_data: Bind.reference_ImDrawData | null = bind.GetDrawData();
     return (draw_data === null) ? null : new ImDrawData(draw_data);
 }
-// IMGUI_API void          NewFrame();                                 // start a new ImGui frame, you can submit any command from this point until Render()/EndFrame().
-export function NewFrame(): void { bind.NewFrame(); }
-// IMGUI_API void          Render();                                   // ends the ImGui frame, finalize the draw data, then call your io.RenderDrawListsFn() function if set.
-export function Render(): void { bind.Render(); }
-// IMGUI_API void          EndFrame();                                 // ends the ImGui frame. automatically called by Render(), so most likely don't need to ever call that yourself directly. If you don't need to render you may call EndFrame() but you'll have wasted CPU already. If you don't need to render, better to not create any imgui windows instead!
-export function EndFrame(): void { bind.EndFrame(); }
 
 // Demo, Debug, Informations
 // IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create demo/test window (previously called ShowTestWindow). demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
@@ -2385,6 +2434,8 @@ export function Button(label: string, size: Readonly<Bind.interface_ImVec2> = Im
 }
 // IMGUI_API bool          SmallButton(const char* label);                                         // button with FramePadding=(0,0) to easily embed within text
 export const SmallButton = bind.SmallButton;
+// IMGUI_API bool          ArrowButton(const char* str_id, ImGuiDir dir);                  // square button with an arrow shape
+export const ArrowButton = bind.ArrowButton;
 // IMGUI_API bool          InvisibleButton(const char* str_id, const ImVec2& size);                // button behavior without the visuals, useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.)
 export function InvisibleButton(str_id: string, size: Readonly<Bind.interface_ImVec2>): boolean {
     return bind.InvisibleButton(str_id, size);
@@ -2606,37 +2657,53 @@ export function DragFloatRange2(label: string, v_current_min: Bind.ImAccess<numb
     return ret;
 
 }
-// IMGUI_API bool          DragInt(const char* label, int* v, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%.0f");                                       // If v_min >= v_max we have no bound
-export function DragInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, display_format: string = "%.0f"): boolean {
+// IMGUI_API bool          DragInt(const char* label, int* v, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%d");                                       // If v_min >= v_max we have no bound
+export function DragInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d"): boolean {
     if (Array.isArray(v)) {
-        return bind.DragInt(label, v, v_speed, v_min, v_max, display_format);
+        return bind.DragInt(label, v, v_speed, v_min, v_max, format);
     } else {
         const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret = bind.DragInt(label, ref_v, v_speed, v_min, v_max, display_format);
+        const ret = bind.DragInt(label, ref_v, v_speed, v_min, v_max, format);
         v(ref_v[0]);
         return ret;
     }
 }
-// IMGUI_API bool          DragInt2(const char* label, int v[2], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%.0f");
-export function DragInt2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, display_format: string = "%.0f"): boolean {
-    return bind.DragInt2(label, v, v_speed, v_min, v_max, display_format);
+// IMGUI_API bool          DragInt2(const char* label, int v[2], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%d");
+export function DragInt2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d"): boolean {
+    return bind.DragInt2(label, v, v_speed, v_min, v_max, format);
 }
-// IMGUI_API bool          DragInt3(const char* label, int v[3], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%.0f");
-export function DragInt3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, display_format: string = "%.0f"): boolean {
-    return bind.DragInt3(label, v, v_speed, v_min, v_max, display_format);
+// IMGUI_API bool          DragInt3(const char* label, int v[3], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%d");
+export function DragInt3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d"): boolean {
+    return bind.DragInt3(label, v, v_speed, v_min, v_max, format);
 }
-// IMGUI_API bool          DragInt4(const char* label, int v[4], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%.0f");
-export function DragInt4(label: string, v: Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, display_format: string = "%.0f"): boolean {
-    return bind.DragInt4(label, v, v_speed, v_min, v_max, display_format);
+// IMGUI_API bool          DragInt4(const char* label, int v[4], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%d");
+export function DragInt4(label: string, v: Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d"): boolean {
+    return bind.DragInt4(label, v, v_speed, v_min, v_max, format);
 }
 // IMGUI_API bool          DragIntRange2(const char* label, int* v_current_min, int* v_current_max, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%.0f", const char* display_format_max = NULL);
-export function DragIntRange2(label: string, v_current_min: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_current_max: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, display_format: string = "%.0f", display_format_max: string | null = null): boolean {
+export function DragIntRange2(label: string, v_current_min: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_current_max: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d", format_max: string | null = null): boolean {
     const ref_v_current_min: Bind.ImScalar<number> = Array.isArray(v_current_min) ? v_current_min as any : [ v_current_min() ];
     const ref_v_current_max: Bind.ImScalar<number> = Array.isArray(v_current_max) ? v_current_max as any : [ v_current_max() ];
-    const ret = bind.DragIntRange2(label, ref_v_current_min, ref_v_current_max, v_speed, v_min, v_max, display_format, display_format_max);
+    const ret = bind.DragIntRange2(label, ref_v_current_min, ref_v_current_max, v_speed, v_min, v_max, format, format_max);
     if (!Array.isArray(v_current_min)) { v_current_min(ref_v_current_min[0]); }
     if (!Array.isArray(v_current_max)) { v_current_max(ref_v_current_max[0]); }
     return ret;
+}
+// IMGUI_API bool          DragScalar(const char* label, ImGuiDataType data_type, void* v, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
+export function DragScalar(label: string, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, v_speed: number, v_min: number | null = null, v_max: number | null = null, format: string | null = null, power: number = 1.0): boolean {
+    if (Array.isArray(v)) {
+        return bind.DragScalar(label, data_type, v, v_speed, v_min, v_max, format, power);
+    } else {
+        const ref_v: Bind.ImScalar<number> = [ v() ];
+        const ret = bind.DragScalar(label, data_type, ref_v, v_speed, v_min, v_max, format, power);
+        v(ref_v[0]);
+        return ret;
+    }
+}
+// IMGUI_API bool          DragScalarN(const char* label, ImGuiDataType data_type, void* v, int components, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
+export function DragScalarN(label: string, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, components: number, v_speed: number, v_min: number | null = null, v_max: number | null = null, format: string | null = null, power: number = 1.0): boolean {
+    bind.Text(`TODO: DragScalarN ${label}`);
+    return false;
 }
 
 // Widgets: Input with Keyboard
@@ -2690,28 +2757,28 @@ export function InputTextMultiline(label: string, buf: ImStringBuffer | Bind.ImA
         return ret;
     }
 }
-// IMGUI_API bool          InputFloat(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, int decimal_precision = -1, ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, decimal_precision: number = -1, extra_flags: ImGuiInputTextFlags = 0): boolean {
+// IMGUI_API bool          InputFloat(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
+export function InputFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
     if (Array.isArray(v)) {
-        return bind.InputFloat(label, v, step, step_fast, decimal_precision, extra_flags);
+        return bind.InputFloat(label, v, step, step_fast, format, extra_flags);
     } else {
         const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret = bind.InputFloat(label, ref_v, step, step_fast, decimal_precision, extra_flags);
+        const ret = bind.InputFloat(label, ref_v, step, step_fast, format, extra_flags);
         v(ref_v[0]);
         return ret;
     }
 }
-// IMGUI_API bool          InputFloat2(const char* label, float v[2], int decimal_precision = -1, ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, decimal_precision: number = -1, extra_flags: ImGuiInputTextFlags = 0): boolean {
-    return bind.InputFloat2(label, v, decimal_precision, extra_flags);
+// IMGUI_API bool          InputFloat2(const char* label, float v[2], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
+export function InputFloat2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+    return bind.InputFloat2(label, v, format, extra_flags);
 }
-// IMGUI_API bool          InputFloat3(const char* label, float v[3], int decimal_precision = -1, ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, decimal_precision: number = -1, extra_flags: ImGuiInputTextFlags = 0): boolean {
-    return bind.InputFloat3(label, v, decimal_precision, extra_flags);
+// IMGUI_API bool          InputFloat3(const char* label, float v[3], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
+export function InputFloat3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+    return bind.InputFloat3(label, v, format, extra_flags);
 }
-// IMGUI_API bool          InputFloat4(const char* label, float v[4], int decimal_precision = -1, ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat4(label: string, v: Bind.ImTuple4<number>, decimal_precision: number = -1, extra_flags: ImGuiInputTextFlags = 0): boolean {
-    return bind.InputFloat4(label, v, decimal_precision, extra_flags);
+// IMGUI_API bool          InputFloat4(const char* label, float v[4], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
+export function InputFloat4(label: string, v: Bind.ImTuple4<number>, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+    return bind.InputFloat4(label, v, format, extra_flags);
 }
 // IMGUI_API bool          InputInt(const char* label, int* v, int step = 1, int step_fast = 100, ImGuiInputTextFlags extra_flags = 0);
 export function InputInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 1, step_fast: number = 100, extra_flags: ImGuiInputTextFlags = 0): boolean {
@@ -2736,49 +2803,65 @@ export function InputInt3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple
 export function InputInt4(label: string, v: Bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
     return bind.InputInt4(label, v, extra_flags);
 }
-// IMGUI_API bool          InputDouble(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* display_format = "%.6f", ImGuiInputTextFlags extra_flags = 0);
-export function InputDouble(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, display_format: string = "%.6f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+// IMGUI_API bool          InputDouble(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.6f", ImGuiInputTextFlags extra_flags = 0);
+export function InputDouble(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, format: string = "%.6f", extra_flags: ImGuiInputTextFlags = 0): boolean {
     if (Array.isArray(v)) {
-        return bind.InputDouble(label, v, step, step_fast, display_format, extra_flags);
+        return bind.InputDouble(label, v, step, step_fast, format, extra_flags);
     } else {
         const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret = bind.InputDouble(label, ref_v, step, step_fast, display_format, extra_flags);
+        const ret = bind.InputDouble(label, ref_v, step, step_fast, format, extra_flags);
         v(ref_v[0]);
         return ret;
     }
+}
+// IMGUI_API bool          InputScalar(const char* label, ImGuiDataType data_type, void* v, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
+export function InputScalar(label: string, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, step: number | null = null, step_fast: number | null = null, format: string | null = null, extra_flags: ImGuiInputTextFlags = 0): boolean {
+    if (Array.isArray(v)) {
+        return bind.InputScalar(label, data_type, v, step, step_fast, format, extra_flags);
+    } else {
+        const ref_v: Bind.ImScalar<number> = [ v() ];
+        const ret = bind.InputScalar(label, data_type, ref_v, step, step_fast, format, extra_flags);
+        v(ref_v[0]);
+        return ret;
+    }
+}
+// IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
+export function InputScalarN(label: string, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, components: number, step: number | null = null, step_fast: number | null = null, format: string | null = null, extra_flags: ImGuiInputTextFlags = 0): boolean {
+    bind.Text(`TODO: InputScalarN ${label}`);
+    return false;
 }
 
 // Widgets: Sliders (tip: ctrl+click on a slider to input with keyboard. manually input values aren't clamped, can go off-bounds)
-// IMGUI_API bool          SliderFloat(const char* label, float* v, float v_min, float v_max, const char* display_format = "%.3f", float power = 1.0f);     // adjust display_format to decorate the value with a prefix or a suffix for in-slider labels or unit display. Use power!=1.0 for logarithmic sliders
-export function SliderFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, display_format: string = "%.3f", power: number = 1.0): boolean {
+// IMGUI_API bool          SliderFloat(const char* label, float* v, float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);     // adjust format to decorate the value with a prefix or a suffix for in-slider labels or unit display. Use power!=1.0 for logarithmic sliders
+export function SliderFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
     if (Array.isArray(v)) {
-        return bind.SliderFloat(label, v, v_min, v_max, display_format, power);
+        return bind.SliderFloat(label, v, v_min, v_max, format, power);
     } else {
         const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret: boolean = bind.SliderFloat(label, ref_v, v_min, v_max, display_format, power);
+        const ret: boolean = bind.SliderFloat(label, ref_v, v_min, v_max, format, power);
         v(ref_v[0]);
         return ret;
     }
 }
-// IMGUI_API bool          SliderFloat2(const char* label, float v[2], float v_min, float v_max, const char* display_format = "%.3f", float power = 1.0f);
-export function SliderFloat2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec2, v_min: number, v_max: number, display_format: string = "%.3f", power: number = 1.0): boolean {
+// IMGUI_API bool          SliderFloat2(const char* label, float v[2], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
+export function SliderFloat2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec2, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
     if (Array.isArray(v)) {
-        return bind.SliderFloat2(label, v, v_min, v_max, display_format, power);
+        return bind.SliderFloat2(label, v, v_min, v_max, format, power);
     } else {
         const _v: Bind.ImTuple2<number> = [ v.x, v.y ];
-        const ret = bind.SliderFloat2(label, _v, v_min, v_max, display_format, power);
+        const ret = bind.SliderFloat2(label, _v, v_min, v_max, format, power);
         v.x = _v[0];
         v.y = _v[1];
         return ret;
     }
 }
-// IMGUI_API bool          SliderFloat3(const char* label, float v[3], float v_min, float v_max, const char* display_format = "%.3f", float power = 1.0f);
-export function SliderFloat3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, display_format: string = "%.3f", power: number = 1.0): boolean {
-    return bind.SliderFloat3(label, v, v_min, v_max, display_format, power);
+// IMGUI_API bool          SliderFloat3(const char* label, float v[3], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
+export function SliderFloat3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
+    return bind.SliderFloat3(label, v, v_min, v_max, format, power);
 }
-// IMGUI_API bool          SliderFloat4(const char* label, float v[4], float v_min, float v_max, const char* display_format = "%.3f", float power = 1.0f);
-export function SliderFloat4(label: string, v: Bind.ImTuple4<number>, v_min: number, v_max: number, display_format: string = "%.3f", power: number = 1.0): boolean {
-    return bind.SliderFloat4(label, v, v_min, v_max, display_format, power);
+// IMGUI_API bool          SliderFloat4(const char* label, float v[4], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
+export function SliderFloat4(label: string, v: Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
+    return bind.SliderFloat4(label, v, v_min, v_max, format, power);
 }
 // IMGUI_API bool          SliderAngle(const char* label, float* v_rad, float v_degrees_min = -360.0f, float v_degrees_max = +360.0f);
 export function SliderAngle(label: string, v_rad: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_degrees_min: number = -360.0, v_degrees_max: number = +360.0): boolean {
@@ -2791,50 +2874,70 @@ export function SliderAngle(label: string, v_rad: Bind.ImAccess<number> | Bind.I
         return ret;
     }
 }
-// IMGUI_API bool          SliderInt(const char* label, int* v, int v_min, int v_max, const char* display_format = "%.0f");
-export function SliderInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, display_format: string = "%.0f"): boolean {
+// IMGUI_API bool          SliderInt(const char* label, int* v, int v_min, int v_max, const char* format = "%d");
+export function SliderInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
     if (Array.isArray(v)) {
-        return bind.SliderInt(label, v, v_min, v_max, display_format);
+        return bind.SliderInt(label, v, v_min, v_max, format);
     } else {
         const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret: boolean = bind.SliderInt(label, ref_v, v_min, v_max, display_format);
+        const ret: boolean = bind.SliderInt(label, ref_v, v_min, v_max, format);
         v(ref_v[0]);
         return ret;
     }
 }
-// IMGUI_API bool          SliderInt2(const char* label, int v[2], int v_min, int v_max, const char* display_format = "%.0f");
-export function SliderInt2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, display_format: string = "%.0f"): boolean {
-    return bind.SliderInt2(label, v, v_min, v_max, display_format);
+// IMGUI_API bool          SliderInt2(const char* label, int v[2], int v_min, int v_max, const char* format = "%d");
+export function SliderInt2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
+    return bind.SliderInt2(label, v, v_min, v_max, format);
 }
-// IMGUI_API bool          SliderInt3(const char* label, int v[3], int v_min, int v_max, const char* display_format = "%.0f");
-export function SliderInt3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, display_format: string = "%.0f"): boolean {
-    return bind.SliderInt3(label, v, v_min, v_max, display_format);
+// IMGUI_API bool          SliderInt3(const char* label, int v[3], int v_min, int v_max, const char* format = "%d");
+export function SliderInt3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
+    return bind.SliderInt3(label, v, v_min, v_max, format);
 }
-// IMGUI_API bool          SliderInt4(const char* label, int v[4], int v_min, int v_max, const char* display_format = "%.0f");
-export function SliderInt4(label: string, v: Bind.ImTuple4<number>, v_min: number, v_max: number, display_format: string = "%.0f"): boolean {
-    return bind.SliderInt4(label, v, v_min, v_max, display_format);
+// IMGUI_API bool          SliderInt4(const char* label, int v[4], int v_min, int v_max, const char* format = "%d");
+export function SliderInt4(label: string, v: Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
+    return bind.SliderInt4(label, v, v_min, v_max, format);
 }
-// IMGUI_API bool          VSliderFloat(const char* label, const ImVec2& size, float* v, float v_min, float v_max, const char* display_format = "%.3f", float power = 1.0f);
-export function VSliderFloat(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, display_format: string = "%.3f", power: number = 1.0): boolean {
+// IMGUI_API bool          SliderScalar(const char* label, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
+export function SliderScalar(label: string, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, v_min: number, v_max: number, format: string | null = null, power: number = 1.0): boolean {
     if (Array.isArray(v)) {
-        return bind.VSliderFloat(label, size, v, v_min, v_max, display_format, power);
+        return bind.SliderScalar(label, data_type, v, v_min, v_max, format, power);
     } else {
         const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret: boolean = bind.VSliderFloat(label, size, ref_v, v_min, v_max, display_format, power);
+        const ret = bind.SliderScalar(label, data_type, ref_v, v_min, v_max, format, power);
         v(ref_v[0]);
         return ret;
     }
 }
-// IMGUI_API bool          VSliderInt(const char* label, const ImVec2& size, int* v, int v_min, int v_max, const char* display_format = "%.0f");
-export function VSliderInt(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, display_format: string = "%.0f"): boolean {
+// IMGUI_API bool          SliderScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
+export function SliderScalarN(label: string, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, components: number, v_min: number, v_max: number, format: string | null = null, power: number = 1.0): boolean {
+    bind.Text(`TODO: SliderScalarN ${label}`);
+    return false;
+}
+// IMGUI_API bool          VSliderFloat(const char* label, const ImVec2& size, float* v, float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
+export function VSliderFloat(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
     if (Array.isArray(v)) {
-        return bind.VSliderInt(label, size, v, v_min, v_max, display_format);
+        return bind.VSliderFloat(label, size, v, v_min, v_max, format, power);
     } else {
         const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret: boolean = bind.VSliderInt(label, size, ref_v, v_min, v_max, display_format);
+        const ret: boolean = bind.VSliderFloat(label, size, ref_v, v_min, v_max, format, power);
         v(ref_v[0]);
         return ret;
     }
+}
+// IMGUI_API bool          VSliderInt(const char* label, const ImVec2& size, int* v, int v_min, int v_max, const char* format = "%d");
+export function VSliderInt(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
+    if (Array.isArray(v)) {
+        return bind.VSliderInt(label, size, v, v_min, v_max, format);
+    } else {
+        const ref_v: Bind.ImScalar<number> = [ v() ];
+        const ret: boolean = bind.VSliderInt(label, size, ref_v, v_min, v_max, format);
+        v(ref_v[0]);
+        return ret;
+    }
+}
+// IMGUI_API bool          VSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
+export function VSliderScalar(label: string, size: Readonly<Bind.interface_ImVec2>, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, v_min: number, v_max: number, format: string | null = null, power: number = 1.0): boolean {
+    return false; // TODO
 }
 
 // Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little colored preview square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
@@ -2981,15 +3084,15 @@ export function Value(prefix: string, ...args: any[]): void {
 }
 
 // Tooltips
+// IMGUI_API void          BeginTooltip();                                                     // begin/append a tooltip window. to create full-featured tooltip (with any kind of contents).
+export const BeginTooltip = bind.BeginTooltip;
+// IMGUI_API void          EndTooltip();
+export const EndTooltip = bind.EndTooltip;
 // IMGUI_API void          SetTooltip(const char* fmt, ...) IM_FMTARGS(1);                     // set text tooltip under mouse-cursor, typically use with ImGui::IsItemHovered(). overidde any previous call to SetTooltip().
 // IMGUI_API void          SetTooltipV(const char* fmt, va_list args) IM_FMTLIST(1);
 export function SetTooltip(fmt: string): void {
     bind.SetTooltip(fmt);
 }
-// IMGUI_API void          BeginTooltip();                                                     // begin/append a tooltip window. to create full-featured tooltip (with any kind of contents).
-export const BeginTooltip = bind.BeginTooltip;
-// IMGUI_API void          EndTooltip();
-export const EndTooltip = bind.EndTooltip;
 
 // Menus
 // IMGUI_API bool          BeginMainMenuBar();                                                 // create and append to a full screen menu-bar. only call EndMainMenuBar() if this returns true!
@@ -3136,6 +3239,10 @@ export function IsItemClicked(mouse_button: number = 0): boolean {
 }
 // IMGUI_API bool          IsItemVisible();                                                    // is the last item visible? (aka not out of sight due to clipping/scrolling.)
 export const IsItemVisible = bind.IsItemVisible;
+// IMGUI_API bool          IsItemDeactivated();                                                // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that requires continuous editing.
+export const IsItemDeactivated = bind.IsItemDeactivated;
+// IMGUI_API bool          IsItemDeactivatedAfterChange();                                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
+export const IsItemDeactivatedAfterChange = bind.IsItemDeactivatedAfterChange;
 // IMGUI_API bool          IsAnyItemHovered();
 export const IsAnyItemHovered = bind.IsAnyItemHovered;
 // IMGUI_API bool          IsAnyItemActive();
@@ -3290,12 +3397,30 @@ export function CaptureMouseFromApp(capture: boolean = true): void {
     bind.CaptureMouseFromApp(capture);
 }
 
-// Helpers functions to access functions pointers in ImGui::GetIO()
-// IMGUI_API void*         MemAlloc(size_t sz);
-export const MemAlloc = bind.MemAlloc;
-// IMGUI_API void          MemFree(void* ptr);
-export const MemFree = bind.MemFree;
+// Clipboard Utilities (also see the LogToClipboard() function to capture or output text data to the clipboard)
 // IMGUI_API const char*   GetClipboardText();
 export const GetClipboardText = bind.GetClipboardText;
 // IMGUI_API void          SetClipboardText(const char* text);
 export const SetClipboardText = bind.SetClipboardText;
+
+// Settings/.Ini Utilities
+// The disk functions are automatically called if io.IniFilename != NULL (default is "imgui.ini").
+// Set io.IniFilename to NULL to load/save manually. Read io.WantSaveIniSettings description about handling .ini saving manually.
+// IMGUI_API void          LoadIniSettingsFromDisk(const char* ini_filename);                  // call after CreateContext() and before the first call to NewFrame(). NewFrame() automatically calls LoadIniSettingsFromDisk(io.IniFilename).
+export function LoadIniSettingsFromDisk(): void {} // TODO
+// IMGUI_API void          LoadIniSettingsFromMemory(const char* ini_data, size_t ini_size=0); // call after CreateContext() and before the first call to NewFrame() to provide .ini data from your own data source.
+export function LoadIniSettingsFromMemory(): void {} // TODO
+// IMGUI_API void          SaveIniSettingsToDisk(const char* ini_filename);
+export function SaveIniSettingsToDisk(): void {} // TODO
+// IMGUI_API const char*   SaveIniSettingsToMemory(size_t* out_ini_size = NULL);               // return a zero-terminated string with the .ini data which you can save by your own mean. call when io.WantSaveIniSettings is set, then save data by your own mean and clear io.WantSaveIniSettings.
+export function SaveIniSettingsToMemory(): string { return ""; }
+
+// Memory Utilities
+// All those functions are not reliant on the current context.
+// If you reload the contents of imgui.cpp at runtime, you may need to call SetCurrentContext() + SetAllocatorFunctions() again.
+// IMGUI_API void          SetAllocatorFunctions(void* (*alloc_func)(size_t sz, void* user_data), void(*free_func)(void* ptr, void* user_data), void* user_data = NULL);
+export function SetAllocatorFunctions(): void {} // TODO
+// IMGUI_API void*         MemAlloc(size_t sz);
+export const MemAlloc = bind.MemAlloc;
+// IMGUI_API void          MemFree(void* ptr);
+export const MemFree = bind.MemFree;

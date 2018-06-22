@@ -43,6 +43,8 @@ type ImGuiComboFlags = number;
 type ImGuiFocusedFlags = number;
 type ImGuiHoveredFlags = number;
 type ImGuiDragDropFlags = number;
+type ImGuiDataType = number;
+type ImGuiDir = number;
 type ImGuiKey = number;
 type ImGuiNavInput = number;
 type ImGuiConfigFlags = number;
@@ -766,6 +768,8 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     public WantTextInput: boolean;
     // bool        WantSetMousePos;              // MousePos has been altered, back-end should reposition mouse on next frame. Set only when ImGuiConfigFlags_MoveMouse flag is enabled in io.ConfigFlags.
     public WantSetMousePos: boolean;
+    // bool        WantSaveIniSettings;        // When manual .ini load/save is active (io.IniFilename == NULL), this will be set to notify your application that you can call SaveIniSettingsToMemory() and save yourself. IMPORTANT: You need to clear io.WantSaveIniSettings yourself.
+    public WantSaveIniSettings: boolean;
     // bool        NavActive;                  // Directional navigation is currently allowed (will handle ImGuiKey_NavXXX events) = a window is focused and it doesn't use the ImGuiWindowFlags_NoNavInputs flag.
     public NavActive: boolean;
     // bool        NavVisible;                 // Directional navigation is visible and allowed (will handle ImGuiKey_NavXXX events).
@@ -810,6 +814,8 @@ export interface Module extends Emscripten.EmscriptenModule {
 mallinfo(): mallinfo;
 
 IMGUI_VERSION: string;
+
+IMGUI_CHECKVERSION(): boolean;
 
 ImDrawVertSize: number;
 ImDrawIdxSize: number;
@@ -1026,6 +1032,7 @@ Bullet(): void;
 // Widgets: Main
 Button(label: string, size: Readonly<interface_ImVec2>): boolean;
 SmallButton(label: string): boolean;
+ArrowButton(label: string, dir: ImGuiDir): boolean;
 InvisibleButton(str_id: string, size: Readonly<interface_ImVec2>): boolean;
 // IMGUI_API void          Image(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0), const ImVec2& uv1 = ImVec2(1,1), const ImVec4& tint_col = ImVec4(1,1,1,1), const ImVec4& border_col = ImVec4(0,0,0,0));
 Image(user_texture_id: any, size: Readonly<interface_ImVec2>, uv0: Readonly<interface_ImVec2>, uv1: Readonly<interface_ImVec2>, tint_col: Readonly<interface_ImVec4>, border_col: Readonly<interface_ImVec4>): void;
@@ -1068,20 +1075,26 @@ DragInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number
 DragInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */): boolean;
 DragInt4(label: string, v: ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */): boolean;
 DragIntRange2(label: string, v_current_min: ImScalar<number>, v_current_max: ImScalar<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */, display_format_max: string | null/* = NULL */): boolean;
+// IMGUI_API bool          DragScalar(const char* label, ImGuiDataType data_type, void* v, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
+DragScalar(label: string, data_type: ImGuiDataType, v: ImScalar<number>, v_speed: number, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
+// IMGUI_API bool          DragScalarN(const char* label, ImGuiDataType data_type, void* v, int components, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
 
 // Widgets: Input with Keyboard
 InputText(label: string, buf: [ string ], buf_size: number, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiTextEditCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
 // IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
 InputTextMultiline(label: string, buf: [ string ], buf_size: number, size: Readonly<interface_ImVec2>, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiTextEditCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
-InputFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number/* = 0.0f */, step_fast: number/* = 0.0f */, decimal_precision: number/* = -1 */, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
-InputFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, decimal_precision: number/* = -1 */, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
-InputFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, decimal_precision: number/* = -1 */, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
-InputFloat4(label: string, v: ImTuple4<number>, decimal_precision: number/* = -1 */, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
+InputFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number/* = 0.0f */, step_fast: number/* = 0.0f */, format: string/* = "%.3f"*/, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
+InputFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, format: string/* = "%.3f"*/, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
+InputFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, format: string/* = "%.3f"*/, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
+InputFloat4(label: string, v: ImTuple4<number>, format: string/* = "%.3f"*/, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 InputInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number/* = 1 */, step_fast: number/* = 100 */, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 InputInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 InputInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 InputInt4(label: string, v: ImTuple4<number>, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 InputDouble(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number/* = 0.0f */, step_fast: number/* = 0.0f */, display_format: string/* = "%0.6f" */, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
+// IMGUI_API bool          InputScalar(const char* label, ImGuiDataType data_type, void* v, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
+InputScalar(label: string, data_type: ImGuiDataType, v: ImScalar<number>, step: number | null, step_fast: number | null, format: string | null, extra_flags: ImGuiInputTextFlags): boolean;
+// IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
 
 // Widgets: Sliders (tip: ctrl+click on a slider to input with keyboard. manually input values aren't clamped, can go off-bounds)
 SliderFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
@@ -1093,6 +1106,9 @@ SliderInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<numbe
 SliderInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
 SliderInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
 SliderInt4(label: string, v: ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
+// IMGUI_API bool          SliderScalar(const char* label, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
+SliderScalar(label: string, data_type: ImGuiDataType, v: ImScalar<number>, v_min: number, v_max: number, format: string | null, power: number): boolean;
+// IMGUI_API bool          SliderScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
 VSliderFloat(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
 VSliderInt(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
 
@@ -1236,6 +1252,10 @@ IsItemFocused(): boolean;
 IsItemClicked(mouse_button: number/* = 0 */): boolean;
 // IMGUI_API bool          IsItemVisible();                                                    // is the last item visible? (aka not out of sight due to clipping/scrolling.)
 IsItemVisible(): boolean;
+// IMGUI_API bool          IsItemDeactivated();                                                // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that requires continuous editing.
+IsItemDeactivated(): boolean;
+// IMGUI_API bool          IsItemDeactivatedAfterChange();                                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
+IsItemDeactivatedAfterChange(): boolean;
 // IMGUI_API bool          IsAnyItemHovered();
 IsAnyItemHovered(): boolean;
 // IMGUI_API bool          IsAnyItemActive();
