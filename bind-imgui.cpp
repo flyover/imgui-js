@@ -1166,7 +1166,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          BeginChild(const char* str_id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags extra_flags = 0);    // begin a scrolling region. size==0.0f: use remaining window size, size<0.0f: use remaining window size minus abs(size). size>0.0f: fixed size. each axis can use a different mode, e.g. ImVec2(0,400).
     // IMGUI_API bool          BeginChild(ImGuiID id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags extra_flags = 0);            // "
     emscripten::function("BeginChild", FUNCTION(bool, (emscripten::val id, emscripten::val size, bool border, ImGuiWindowFlags extra_flags), {
-        if (id.typeOf().equals(emscripten::val("string"))) {
+        if (id.typeOf().strictlyEquals(emscripten::val("string"))) {
             return ImGui::BeginChild(id.as<std::string>().c_str(), import_ImVec2(size), border, extra_flags);
         } else {
             return ImGui::BeginChild(id.as<ImGuiID>(), import_ImVec2(size), border, extra_flags);
@@ -1332,7 +1332,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          PushStyleColor(ImGuiCol idx, ImU32 col);
     // IMGUI_API void          PushStyleColor(ImGuiCol idx, const ImVec4& col);
     emscripten::function("PushStyleColor", FUNCTION(void, (ImGuiCol idx, emscripten::val col), {
-        if (col.typeOf().as<std::string>() == "number") {
+        if (col.typeOf().strictlyEquals(emscripten::val("number"))) {
             ImGui::PushStyleColor(idx, col.as<ImU32>());
         } else {
             ImGui::PushStyleColor(idx, import_ImVec4(col));
@@ -1343,7 +1343,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          PushStyleVar(ImGuiStyleVar idx, float emscripten::val);
     // IMGUI_API void          PushStyleVar(ImGuiStyleVar idx, const ImVec2& emscripten::val);
     emscripten::function("PushStyleVar", FUNCTION(void, (ImGuiStyleVar idx, emscripten::val var), {
-        if (var.typeOf().as<std::string>() == "number") {
+        if (var.typeOf().strictlyEquals(emscripten::val("number"))) {
             ImGui::PushStyleVar(idx, var.as<float>());
         } else {
             ImGui::PushStyleVar(idx, import_ImVec2(var));
@@ -1485,7 +1485,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          PushID(const void* ptr_id);
     // IMGUI_API void          PushID(int int_id);
     emscripten::function("PushID", FUNCTION(void, (emscripten::val id), {
-        if (id.typeOf().as<std::string>() == "number") {
+        if (id.typeOf().strictlyEquals(emscripten::val("number"))) {
             return ImGui::PushID(id.as<int>());
         } else {
             return ImGui::PushID(id.as<std::string>().c_str());
@@ -1497,7 +1497,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API ImGuiID       GetID(const char* str_id_begin, const char* str_id_end);
     // IMGUI_API ImGuiID       GetID(const void* ptr_id);
     emscripten::function("GetID", FUNCTION(ImGuiID, (emscripten::val id), {
-        if (id.typeOf().as<std::string>() == "number") {
+        if (id.typeOf().strictlyEquals(emscripten::val("number"))) {
             return ImGui::GetID((const void*) id.as<int>());
         } else {
             return ImGui::GetID(id.as<std::string>().c_str());
@@ -2176,7 +2176,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          TreeNodeV(const void* ptr_id, const char* fmt, va_list args) IM_FMTLIST(2);
     emscripten::function("TreeNode", FUNCTION(bool, (emscripten::val label_or_id, std::string fmt), {
         // return ImGui::TreeNode(label.c_str(), "%s", fmt.c_str());
-        if (label_or_id.typeOf().equals(emscripten::val("string"))) {
+        if (label_or_id.typeOf().strictlyEquals(emscripten::val("string"))) {
             return ImGui::TreeNode(label_or_id.as<std::string>().c_str(), "%s", fmt.c_str());    
         } else {
             return ImGui::TreeNode((const void*) label_or_id.as<int>(), "%s", fmt.c_str());    
@@ -2189,7 +2189,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          TreeNodeExV(const void* ptr_id, ImGuiTreeNodeFlags flags, const char* fmt, va_list args) IM_FMTLIST(3);
     emscripten::function("TreeNodeEx", FUNCTION(bool, (emscripten::val label_or_id, ImGuiTreeNodeFlags flags, std::string fmt), {
         // return ImGui::TreeNodeEx(label.c_str(), flags, "%s", fmt.c_str());
-        if (label_or_id.typeOf().equals(emscripten::val("string"))) {
+        if (label_or_id.typeOf().strictlyEquals(emscripten::val("string"))) {
             return ImGui::TreeNodeEx(label_or_id.as<std::string>().c_str(), flags, "%s", fmt.c_str());    
         } else {
             return ImGui::TreeNodeEx((const void*) label_or_id.as<int>(), flags, "%s", fmt.c_str());    
@@ -2198,7 +2198,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          TreePush(const char* str_id);                                           // ~ Indent()+PushId(). Already called by TreeNode() when returning true, but you can call Push/Pop yourself for layout purpose
     // IMGUI_API void          TreePush(const void* ptr_id = NULL);                                    // "
     emscripten::function("TreePush", FUNCTION(void, (emscripten::val id), {
-        if (id.typeOf().equals(emscripten::val("string"))) {
+        if (id.typeOf().strictlyEquals(emscripten::val("string"))) {
             ImGui::TreePush(id.as<std::string>().c_str());
         } else {
             ImGui::TreePush((const void*) id.as<int>());
@@ -2229,7 +2229,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          Selectable(const char* label, bool selected = false, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0,0));  // size.x==0.0: use remaining width, size.x>0.0: specify width. size.y==0.0: use label height, size.y>0.0: specify height
     // IMGUI_API bool          Selectable(const char* label, bool* p_selected, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0,0));
     emscripten::function("Selectable", FUNCTION(bool, (std::string label, emscripten::val p_selected, ImGuiSelectableFlags flags, emscripten::val size), {
-        if (p_selected.typeOf().equals(emscripten::val("boolean"))) {
+        if (p_selected.typeOf().strictlyEquals(emscripten::val("boolean"))) {
             return ImGui::Selectable(label.c_str(), p_selected.as<bool>(), flags, import_ImVec2(size));    
         } else {
             bool selected = p_selected[0].as<bool>();
@@ -2271,9 +2271,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          Value(const char* prefix, unsigned int v);
     // IMGUI_API void          Value(const char* prefix, float v, const char* float_format = NULL);
     emscripten::function("Value", FUNCTION(void, (std::string prefix, emscripten::val value), {
-        if (value.typeOf().equals(emscripten::val("boolean"))) {
+        if (value.typeOf().strictlyEquals(emscripten::val("boolean"))) {
             ImGui::Value(prefix.c_str(), value.as<bool>());
-        } else if (value.typeOf().equals(emscripten::val("number"))) {
+        } else if (value.typeOf().strictlyEquals(emscripten::val("number"))) {
             ImGui::Value(prefix.c_str(), value.as<float>());
         } else {
             ImGui::LabelText(prefix.c_str(), "%s", value.as<std::string>().c_str());
