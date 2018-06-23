@@ -5,20 +5,29 @@
   "main": "imgui.js",
   "types": "imgui.ts",
   "scripts": {
-    "dev": "http-server -c-1",
+    "build": "make build-bind-imgui && npm run build-imgui",
+    "clean": "make clean-bind-imgui && npm run clean-imgui",
+    "start": "npm run start-example",
+    "build-imgui": "tsc",
+    "clean-imgui": "echo TODO: clean-imgui",
+    "build-example": "tsc -p example",
+    "clean-example": "echo TODO: clean-example",
+    "start-example": "npm run start-example-html",
+    "start-example-html": "echo http://localhost:8080/example/index.html && http-server -c-1 -o",
+    "start-example-node": "node example/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Isaac Burns <isaacburns@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "@types/emscripten": "0.0.31",
-    "@types/node": "^9.6.14",
+    "@types/node": "^10.3.5",
     "@types/systemjs": "^0.20.6"
   },
   "devDependencies": {
     "http-server": "^0.11.1",
     "node-fetch": "^2.1.2",
-    "systemjs": "^0.21.3",
-    "typescript": "^2.8.3"
+    "systemjs": "^0.21.4",
+    "typescript": "^2.9.2"
   }
 }

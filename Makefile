@@ -1,5 +1,15 @@
 # grep -o "STATIC(\"\w*\"" imgui_demo.ts | sort | uniq -d
 
+all: start-example-node
+
+start: start-example-html
+
+build: build-bind-imgui build-imgui build-example
+
+clean: clean-bind-imgui clean-imgui clean-example
+
+# bind-imgui
+
 IMGUI_PATH = imgui
 IMGUI_SOURCE_HXX += $(IMGUI_PATH)/imconfig.h
 IMGUI_SOURCE_HXX += $(IMGUI_PATH)/imgui.h
@@ -17,15 +27,6 @@ BIND_IMGUI_SOURCE_CXX = bind-imgui.cpp
 BIND_IMGUI_OUTPUT_BC = bind-imgui.bc
 BIND_IMGUI_OUTPUT_JS = bind-imgui.js
 
-IMGUI_JS_SOURCE_TS += imgui.ts
-IMGUI_JS_SOURCE_TS += imgui_demo.ts
-IMGUI_JS_SOURCE_TS += imgui_memory_editor.ts
-IMGUI_JS_OUTPUT_JS = $(IMGUI_JS_SOURCE_TS:%.ts=%.js)
-
-IMGUI_JS_EXAMPLE_SOURCE_TS += example/main.ts
-IMGUI_JS_EXAMPLE_SOURCE_TS += example/imgui_impl.ts
-IMGUI_JS_EXAMPLE_OUTPUT_JS = $(IMGUI_JS_EXAMPLE_SOURCE_TS:%.ts=%.js)
-
 # FLAGS += -g4
 FLAGS += -Os
 FLAGS += -s NO_FILESYSTEM=1
@@ -38,30 +39,20 @@ FLAGS += -s EXPORT_BINDINGS=1
 # FLAGS += --memory-init-file 0
 FLAGS += -s SINGLE_FILE=1
 FLAGS += -s BINARYEN_ASYNC_COMPILATION=0
+# FLAGS += -s BINARYEN_METHOD=\"native-wasm,asmjs\"
+# FLAGS += -s BINARYEN_METHOD=\"interpret-asm2wasm,asmjs\"
 # FLAGS += -s TOTAL_MEMORY=4194304
 
 FLAGS += -D IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 FLAGS += -D IMGUI_DISABLE_DEMO_WINDOWS
 
-all: start-example-node
+build-bind-imgui: bind-imgui.js
 
-dev: start-example-html
-
-build: build-imgui-js build-example
-
-clean: clean-imgui-js clean-example
-
-# imgui-js
-
-build-imgui-js: $(IMGUI_JS_OUTPUT_JS) bind-imgui.js
-# build-imgui-js: $(word 1, $(IMGUI_JS_OUTPUT_JS)) bind-imgui.js
-
-clean-imgui-js:
+clean-bind-imgui:
 	rm -f $(IMGUI_OUTPUT_BC)
 	rm -f $(BIND_IMGUI_OUTPUT_BC)
 	rm -f bind-imgui.js bind-imgui.js.*
 	rm -f bind-imgui.wasm bind-imgui.wasm.*
-	rm -f $(IMGUI_JS_OUTPUT_JS)
 
 %.bc: %.cpp $(IMGUI_SOURCE_HXX)
 	emcc $(FLAGS) -I $(IMGUI_PATH) $< -o $@
@@ -72,66 +63,55 @@ bind-imgui.bc: bind-imgui.cpp $(IMGUI_SOURCE_HXX)
 bind-imgui.js: $(IMGUI_OUTPUT_BC) $(BIND_IMGUI_OUTPUT_BC)
 	emcc $(FLAGS) -I $(IMGUI_PATH) --bind $^ -o $@
 
-$(IMGUI_JS_SOURCE_TS): bind-imgui.d.ts tsconfig.json
+# imgui
 
-# %.js: %.ts
-$(IMGUI_JS_OUTPUT_JS): $(IMGUI_JS_SOURCE_TS)
-# imgui.js: imgui.ts
-# imgui_demo.js: imgui_demo.ts
-# imgui_memory_editor.js: imgui_memory_editor.ts
-# $(word 1, $(IMGUI_JS_OUTPUT_JS)): $(IMGUI_JS_SOURCE_TS)
-	$$(npm bin)/tsc -p .
+build-imgui:
+	npm run build-imgui
+
+clean-imgui:
+	npm run clean-imgui
 
 # example
 
-build-example: $(IMGUI_JS_EXAMPLE_OUTPUT_JS) build-imgui-js
-# build-example: $(word 1, $(IMGUI_JS_EXAMPLE_OUTPUT_JS)) build-imgui-js
+build-example:
+	npm run build-example
 
 clean-example:
-	rm -f $(IMGUI_JS_EXAMPLE_OUTPUT_JS)
-
-$(IMGUI_JS_EXAMPLE_SOURCE_TS): bind-imgui.d.ts example/tsconfig.json
-
-# example/%.js: example/%.ts
-$(IMGUI_JS_EXAMPLE_OUTPUT_JS): $(IMGUI_JS_EXAMPLE_SOURCE_TS)
-# $(word 1, $(IMGUI_JS_EXAMPLE_OUTPUT_JS)): $(IMGUI_JS_EXAMPLE_SOURCE_TS)
-# example/main.js: example/main.ts
-# example/imgui_impl.js: example/imgui_impl.ts
-	$$(npm bin)/tsc -p example
+	npm run clean-example
 
 start-example: start-example-node
 
-start-example-node: build-example
-	node example/index.js
+start-example-node:
+	npm run start-example-node
 
 start-example-html:
-	@echo http://localhost:8080/example/index.html
-	$$(npm bin)/http-server
+	npm run start-example-html
 
 # native-example
 
-IMGUI_NATIVE_EXAMPLE_PATH = $(IMGUI_PATH)/examples/sdl_opengl2_example
+IMGUI_NATIVE_EXAMPLE_PATH = $(IMGUI_PATH)/examples/example_sdl_opengl2
 IMGUI_NATIVE_EXAMPLE_SOURCE_CXX += $(IMGUI_NATIVE_EXAMPLE_PATH)/main.cpp
-IMGUI_NATIVE_EXAMPLE_SOURCE_CXX += $(IMGUI_NATIVE_EXAMPLE_PATH)/imgui_impl_sdl_gl2.cpp
+IMGUI_NATIVE_EXAMPLE_SOURCE_CXX += $(IMGUI_PATH)/examples/imgui_impl_sdl.cpp
+IMGUI_NATIVE_EXAMPLE_SOURCE_CXX += $(IMGUI_PATH)/examples/imgui_impl_opengl2.cpp
 
 IMGUI_NATIVE_EXAMPLE_BUILD = echo $$(uname)
 IMGUI_NATIVE_EXAMPLE_CLEAN = echo $$(uname)
 IMGUI_NATIVE_EXAMPLE_START = echo $$(uname)
 ifeq ($(shell uname),Linux)
-IMGUI_NATIVE_EXAMPLE_OUTPUT = $(IMGUI_NATIVE_EXAMPLE_PATH)/sdl2example-linux
-IMGUI_NATIVE_EXAMPLE_BUILD = c++ `sdl2-config --cflags` -I $(IMGUI_NATIVE_EXAMPLE_PATH) -I $(IMGUI_PATH) -D HAVE_MALLINFO $(IMGUI_NATIVE_EXAMPLE_SOURCE_CXX) $(IMGUI_SOURCE_CXX) `sdl2-config --libs` -lGL -o $(IMGUI_NATIVE_EXAMPLE_OUTPUT)
+IMGUI_NATIVE_EXAMPLE_OUTPUT = $(IMGUI_NATIVE_EXAMPLE_PATH)/example-linux
+IMGUI_NATIVE_EXAMPLE_BUILD = c++ `sdl2-config --cflags` -I $(IMGUI_NATIVE_EXAMPLE_PATH) -I $(IMGUI_PATH)/examples -I $(IMGUI_PATH) -D HAVE_MALLINFO $(IMGUI_NATIVE_EXAMPLE_SOURCE_CXX) $(IMGUI_SOURCE_CXX) `sdl2-config --libs` -lGL -o $(IMGUI_NATIVE_EXAMPLE_OUTPUT)
 IMGUI_NATIVE_EXAMPLE_CLEAN = rm -f $(IMGUI_NATIVE_EXAMPLE_OUTPUT)
 IMGUI_NATIVE_EXAMPLE_START = $(IMGUI_NATIVE_EXAMPLE_OUTPUT)
 endif
 ifeq ($(shell uname),Darwin)
-IMGUI_NATIVE_EXAMPLE_OUTPUT = $(IMGUI_NATIVE_EXAMPLE_PATH)/sdl2example-macos
-IMGUI_NATIVE_EXAMPLE_BUILD = c++ `sdl2-config --cflags` -I $(IMGUI_NATIVE_EXAMPLE_PATH) -I $(IMGUI_PATH) $(IMGUI_NATIVE_EXAMPLE_SOURCE_CXX) $(IMGUI_SOURCE_CXX) `sdl2-config --libs` -framework OpenGl -o $(IMGUI_NATIVE_EXAMPLE_OUTPUT)
+IMGUI_NATIVE_EXAMPLE_OUTPUT = $(IMGUI_NATIVE_EXAMPLE_PATH)/example-macos
+IMGUI_NATIVE_EXAMPLE_BUILD = c++ `sdl2-config --cflags` -I $(IMGUI_NATIVE_EXAMPLE_PATH) -I $(IMGUI_PATH)/examples -I $(IMGUI_PATH) $(IMGUI_NATIVE_EXAMPLE_SOURCE_CXX) $(IMGUI_SOURCE_CXX) `sdl2-config --libs` -framework OpenGl -o $(IMGUI_NATIVE_EXAMPLE_OUTPUT)
 IMGUI_NATIVE_EXAMPLE_CLEAN = rm -f $(IMGUI_NATIVE_EXAMPLE_OUTPUT)
 IMGUI_NATIVE_EXAMPLE_START = $(IMGUI_NATIVE_EXAMPLE_OUTPUT)
 endif
 ifeq ($(OS),Windows_NT)
-IMGUI_NATIVE_EXAMPLE_OUTPUT = $(IMGUI_NATIVE_EXAMPLE_PATH)/sdl2example-windows.exe
-IMGUI_NATIVE_EXAMPLE_BUILD = set SDL2DIR=C:\SDL2 && cl /Zi /MD /I $(IMGUI_NATIVE_EXAMPLE_PATH) /I $(IMGUI_PATH) /I %SDL2DIR%\include $(IMGUI_NATIVE_EXAMPLE_SOURCE_CXX) $(IMGUI_SOURCE_CXX) /link /LIBPATH:%SDL2DIR%\lib SDL2.lib SDL2main.lib opengl32.lib /subsystem:console /Fe $(IMGUI_NATIVE_EXAMPLE_OUTPUT)
+IMGUI_NATIVE_EXAMPLE_OUTPUT = $(IMGUI_NATIVE_EXAMPLE_PATH)/example-windows.exe
+IMGUI_NATIVE_EXAMPLE_BUILD = set SDL2DIR=C:\SDL2 && cl /Zi /MD /I $(IMGUI_NATIVE_EXAMPLE_PATH) /I $(IMGUI_PATH)/examples /I $(IMGUI_PATH) /I %SDL2DIR%\include $(IMGUI_NATIVE_EXAMPLE_SOURCE_CXX) $(IMGUI_SOURCE_CXX) /link /LIBPATH:%SDL2DIR%\lib SDL2.lib SDL2main.lib opengl32.lib /subsystem:console /Fe $(IMGUI_NATIVE_EXAMPLE_OUTPUT)
 IMGUI_NATIVE_EXAMPLE_CLEAN = rm -f $(IMGUI_NATIVE_EXAMPLE_OUTPUT)
 IMGUI_NATIVE_EXAMPLE_START = $(IMGUI_NATIVE_EXAMPLE_OUTPUT)
 endif

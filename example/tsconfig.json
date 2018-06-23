@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2016",
     "module": "system",
     "moduleResolution": "node",
     "inlineSourceMap": true,
@@ -12,7 +12,6 @@
     }
   },
   "files": [
-    "main.ts",
-    "imgui_impl.ts"
+    "main.ts"
   ]
 }

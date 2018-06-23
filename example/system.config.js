@@ -1,5 +1,5 @@
 SystemJS.config({
-    paths: {
+    map: {
         "imgui-js": "..",
     },
     packages: {

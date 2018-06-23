@@ -2,12 +2,10 @@
   "compilerOptions": {
     "target": "ES2016",
     "module": "system",
-    "moduleResolution": "node",
-    "inlineSourceMap": true,
-    "strict": true
+    "strict": true,
+    "inlineSourceMap": true
   },
   "files": [
-    "imconfig.ts",
     "imgui.ts",
     "imgui_demo.ts",
     "imgui_memory_editor.ts"
