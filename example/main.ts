@@ -4,7 +4,6 @@ import * as ImGui_Impl from "./imgui_impl";
 import { ImVec2 } from "imgui-js";
 import { ImVec4 } from "imgui-js";
 import { ImGuiIO } from "imgui-js";
-// import { ImGuiConfigFlags } from "imgui-js";
 import { ShowDemoWindow } from "imgui-js/imgui_demo";
 
 import { MemoryEditor } from "imgui-js/imgui_memory_editor";
@@ -30,11 +29,12 @@ async function LoadArrayBuffer(url: string): Promise<ArrayBuffer> {
 }
 
 export default async function main(): Promise<void> {
-    // Setup ImGui binding
+    // Setup Dear ImGui binding
+    ImGui.IMGUI_CHECKVERSION();
     ImGui.CreateContext();
 
     const io: ImGuiIO = ImGui.GetIO();
-    //io.ConfigFlags |= ImGuiConfigFlags.EnableKeyboard;  // Enable Keyboard Controls
+    // io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;  // Enable Keyboard Controls
 
     // Setup style
     ImGui.StyleColorsDark();
@@ -93,11 +93,15 @@ export default async function main(): Promise<void> {
 
     // Main loop
     function _loop(time: number): void {
+        // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
         // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+
+        // Start the ImGui frame
         ImGui_Impl.NewFrame(time);
+        ImGui.NewFrame();
 
         // 1. Show a simple window.
         // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
@@ -166,9 +170,10 @@ export default async function main(): Promise<void> {
             /*ImGui.*/ShowDemoWindow((value = show_demo_window) => show_demo_window = value);
         }
 
-        ImGui_Impl.EndFrame();
+        ImGui.EndFrame();
 
         // Rendering
+        ImGui.Render();
         const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
         gl && gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl && gl.clearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);

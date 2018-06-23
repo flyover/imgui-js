@@ -1,12 +1,4 @@
 import * as ImGui from "../imgui";
-import { ImGuiKey } from "../imgui";
-import { ImGuiConfigFlags } from "../imgui";
-import { ImGuiBackendFlags } from "../imgui";
-import { ImGuiNavInput } from "../imgui";
-import { ImGuiIO } from "../imgui";
-import { ImDrawCmd } from "../imgui";
-import { ImDrawList } from "../imgui";
-import { ImDrawData } from "../imgui";
 
 export let gl: WebGLRenderingContext | null = null;
 let g_ShaderHandle: WebGLProgram | null = null;
@@ -30,7 +22,7 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
         gl = value;
     }
 
-    const io: ImGuiIO = ImGui.GetIO();
+    const io = ImGui.GetIO();
 
     if (typeof(navigator) !== "undefined") {
         io.OptMacOSXBehaviors = navigator.platform.match(/Mac/) !== null;
@@ -40,7 +32,7 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
         const canvas: HTMLCanvasElement = gl.canvas;
 
         canvas.addEventListener("blur", (event: FocusEvent): void => {
-            const io: ImGuiIO = ImGui.GetIO();
+            const io = ImGui.GetIO();
             io.KeyCtrl = false;
             io.KeyShift = false;
             io.KeyAlt = false;
@@ -54,20 +46,23 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
         });
 
         canvas.addEventListener("keydown", (event: KeyboardEvent): void => {
-            const io: ImGuiIO = ImGui.GetIO();
+            console.log(event.type, event.key, event.keyCode);
+            const io = ImGui.GetIO();
             io.KeyCtrl = event.ctrlKey;
             io.KeyShift = event.shiftKey;
             io.KeyAlt = event.altKey;
             io.KeySuper = event.metaKey;
             ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
             io.KeysDown[event.keyCode] = true;
-            if (/*io.WantCaptureKeyboard ||*/ event.keyCode === 9) {
+            // forward to the keypress event
+            if (/*io.WantCaptureKeyboard ||*/ event.key === "Tab") {
                 event.preventDefault();
             }
         });
 
         canvas.addEventListener("keyup", (event: KeyboardEvent): void => {
-            const io: ImGuiIO = ImGui.GetIO();
+            console.log(event.type, event.key, event.keyCode);
+            const io = ImGui.GetIO();
             io.KeyCtrl = event.ctrlKey;
             io.KeyShift = event.shiftKey;
             io.KeyAlt = event.altKey;
@@ -80,7 +75,8 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
         });
 
         canvas.addEventListener("keypress", (event: KeyboardEvent): void => {
-            const io: ImGuiIO = ImGui.GetIO();
+            console.log(event.type, event.key, event.keyCode);
+            const io = ImGui.GetIO();
             io.AddInputCharacter(event.charCode);
             if (io.WantCaptureKeyboard) {
                 event.preventDefault();
@@ -90,7 +86,7 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
         canvas.style.touchAction = "none"; // Disable browser handling of all panning and zooming gestures.
 
         canvas.addEventListener("pointermove", (event: PointerEvent): void => {
-            const io: ImGuiIO = ImGui.GetIO();
+            const io = ImGui.GetIO();
             io.MousePos.x = event.offsetX;
             io.MousePos.y = event.offsetY;
             if (io.WantCaptureMouse) {
@@ -108,7 +104,7 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
         const mouse_button_map: number[] = [ 0, 2, 1, 3, 4 ];
 
         canvas.addEventListener("pointerdown", (event: PointerEvent): void => {
-            const io: ImGuiIO = ImGui.GetIO();
+            const io = ImGui.GetIO();
             io.MousePos.x = event.offsetX;
             io.MousePos.y = event.offsetY;
             io.MouseDown[mouse_button_map[event.button]] = true;
@@ -123,7 +119,7 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
         });
 
         canvas.addEventListener("pointerup", (event: PointerEvent): void => {
-            const io: ImGuiIO = ImGui.GetIO();
+            const io = ImGui.GetIO();
             io.MouseDown[mouse_button_map[event.button]] = false;
             if (io.WantCaptureMouse) {
                 event.preventDefault();
@@ -131,7 +127,7 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
         });
 
         canvas.addEventListener("wheel", (event: WheelEvent): void => {
-            const io: ImGuiIO = ImGui.GetIO();
+            const io = ImGui.GetIO();
             let scale: number = 1.0;
             switch (event.deltaMode) {
                 case event.DOM_DELTA_PIXEL: scale = 0.01; break;
@@ -182,30 +178,30 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
     }
 
     // Setup back-end capabilities flags
-    io.BackendFlags |= ImGuiBackendFlags.HasMouseCursors;   // We can honor GetMouseCursor() values (optional)
+    io.BackendFlags |= ImGui.BackendFlags.HasMouseCursors;   // We can honor GetMouseCursor() values (optional)
 
     // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
-    io.KeyMap[ImGuiKey.Tab] = 9;
-    io.KeyMap[ImGuiKey.LeftArrow] = 37;
-    io.KeyMap[ImGuiKey.RightArrow] = 39;
-    io.KeyMap[ImGuiKey.UpArrow] = 38;
-    io.KeyMap[ImGuiKey.DownArrow] = 40;
-    io.KeyMap[ImGuiKey.PageUp] = 33;
-    io.KeyMap[ImGuiKey.PageDown] = 34;
-    io.KeyMap[ImGuiKey.Home] = 36;
-    io.KeyMap[ImGuiKey.End] = 35;
-    io.KeyMap[ImGuiKey.Insert] = 45;
-    io.KeyMap[ImGuiKey.Delete] = 46;
-    io.KeyMap[ImGuiKey.Backspace] = 8;
-    io.KeyMap[ImGuiKey.Space] = 32;
-    io.KeyMap[ImGuiKey.Enter] = 13;
-    io.KeyMap[ImGuiKey.Escape] = 27;
-    io.KeyMap[ImGuiKey.A] = 65;
-    io.KeyMap[ImGuiKey.C] = 67;
-    io.KeyMap[ImGuiKey.V] = 86;
-    io.KeyMap[ImGuiKey.X] = 88;
-    io.KeyMap[ImGuiKey.Y] = 89;
-    io.KeyMap[ImGuiKey.Z] = 90;
+    io.KeyMap[ImGui.Key.Tab] = 9;
+    io.KeyMap[ImGui.Key.LeftArrow] = 37;
+    io.KeyMap[ImGui.Key.RightArrow] = 39;
+    io.KeyMap[ImGui.Key.UpArrow] = 38;
+    io.KeyMap[ImGui.Key.DownArrow] = 40;
+    io.KeyMap[ImGui.Key.PageUp] = 33;
+    io.KeyMap[ImGui.Key.PageDown] = 34;
+    io.KeyMap[ImGui.Key.Home] = 36;
+    io.KeyMap[ImGui.Key.End] = 35;
+    io.KeyMap[ImGui.Key.Insert] = 45;
+    io.KeyMap[ImGui.Key.Delete] = 46;
+    io.KeyMap[ImGui.Key.Backspace] = 8;
+    io.KeyMap[ImGui.Key.Space] = 32;
+    io.KeyMap[ImGui.Key.Enter] = 13;
+    io.KeyMap[ImGui.Key.Escape] = 27;
+    io.KeyMap[ImGui.Key.A] = 65;
+    io.KeyMap[ImGui.Key.C] = 67;
+    io.KeyMap[ImGui.Key.V] = 86;
+    io.KeyMap[ImGui.Key.X] = 88;
+    io.KeyMap[ImGui.Key.Y] = 89;
+    io.KeyMap[ImGui.Key.Z] = 90;
 
     // Backup GL state
     const last_texture: WebGLTexture | null = gl && gl.getParameter(gl.TEXTURE_BINDING_2D);
@@ -287,7 +283,7 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
 }
 
 export function Shutdown(): void {
-    const io: ImGuiIO = ImGui.GetIO();
+    const io = ImGui.GetIO();
 
     io.Fonts.TexID = null;
     gl && gl.deleteTexture(g_FontTexture); g_FontTexture = null;
@@ -307,7 +303,7 @@ export function Shutdown(): void {
 }
 
 export function NewFrame(time: number): void {
-    const io: ImGuiIO = ImGui.GetIO();
+    const io = ImGui.GetIO();
 
     const w: number = gl && gl.canvas.scrollWidth || 640;
     const h: number = gl && gl.canvas.scrollHeight || 480;
@@ -347,8 +343,7 @@ export function NewFrame(time: number): void {
     for (let i = 0; i < io.NavInputs.length; ++i) {
         io.NavInputs[i] = 0.0;
     }
-    if (io.ConfigFlags & ImGuiConfigFlags.NavEnableGamepad)
-    {
+    if (io.ConfigFlags & ImGui.ConfigFlags.NavEnableGamepad) {
         // Update gamepad inputs
         const gamepads: (Gamepad | null)[] = (typeof(navigator) !== "undefined" && typeof(navigator.getGamepads) === "function") ? navigator.getGamepads() : [];
         for (let i = 0; i < gamepads.length; ++i) {
@@ -376,93 +371,85 @@ export function NewFrame(time: number): void {
             const product: string = (match && match[2]) || (match_chrome && match_chrome[2]) || "0000";
             switch (vendor + product) {
                 case "046dc216": // Logitech Logitech Dual Action (Vendor: 046d Product: c216)
-                MAP_BUTTON(ImGuiNavInput.Activate,    1); // Cross / A
-                MAP_BUTTON(ImGuiNavInput.Cancel,      2); // Circle / B
-                MAP_BUTTON(ImGuiNavInput.Menu,        0); // Square / X
-                MAP_BUTTON(ImGuiNavInput.Input,       3); // Triangle / Y
-                MAP_ANALOG(ImGuiNavInput.DpadLeft,    4, -0.3, -0.9); // D-Pad Left
-                MAP_ANALOG(ImGuiNavInput.DpadRight,   4, +0.3, +0.9); // D-Pad Right
-                MAP_ANALOG(ImGuiNavInput.DpadUp,      5, -0.3, -0.9); // D-Pad Up
-                MAP_ANALOG(ImGuiNavInput.DpadDown,    5, +0.3, +0.9); // D-Pad Down
-                MAP_BUTTON(ImGuiNavInput.FocusPrev,   4); // L1 / LB
-                MAP_BUTTON(ImGuiNavInput.FocusNext,   5); // R1 / RB
-                MAP_BUTTON(ImGuiNavInput.TweakSlow,   6); // L2 / LT
-                MAP_BUTTON(ImGuiNavInput.TweakFast,   7); // R2 / RT
-                MAP_ANALOG(ImGuiNavInput.LStickLeft,  0, -0.3, -0.9);
-                MAP_ANALOG(ImGuiNavInput.LStickRight, 0, +0.3, +0.9);
-                MAP_ANALOG(ImGuiNavInput.LStickUp,    1, -0.3, -0.9);
-                MAP_ANALOG(ImGuiNavInput.LStickDown,  1, +0.3, +0.9);
+                MAP_BUTTON(ImGui.NavInput.Activate,    1); // Cross / A
+                MAP_BUTTON(ImGui.NavInput.Cancel,      2); // Circle / B
+                MAP_BUTTON(ImGui.NavInput.Menu,        0); // Square / X
+                MAP_BUTTON(ImGui.NavInput.Input,       3); // Triangle / Y
+                MAP_ANALOG(ImGui.NavInput.DpadLeft,    4, -0.3, -0.9); // D-Pad Left
+                MAP_ANALOG(ImGui.NavInput.DpadRight,   4, +0.3, +0.9); // D-Pad Right
+                MAP_ANALOG(ImGui.NavInput.DpadUp,      5, -0.3, -0.9); // D-Pad Up
+                MAP_ANALOG(ImGui.NavInput.DpadDown,    5, +0.3, +0.9); // D-Pad Down
+                MAP_BUTTON(ImGui.NavInput.FocusPrev,   4); // L1 / LB
+                MAP_BUTTON(ImGui.NavInput.FocusNext,   5); // R1 / RB
+                MAP_BUTTON(ImGui.NavInput.TweakSlow,   6); // L2 / LT
+                MAP_BUTTON(ImGui.NavInput.TweakFast,   7); // R2 / RT
+                MAP_ANALOG(ImGui.NavInput.LStickLeft,  0, -0.3, -0.9);
+                MAP_ANALOG(ImGui.NavInput.LStickRight, 0, +0.3, +0.9);
+                MAP_ANALOG(ImGui.NavInput.LStickUp,    1, -0.3, -0.9);
+                MAP_ANALOG(ImGui.NavInput.LStickDown,  1, +0.3, +0.9);
                 break;
                 case "046dc21d": // Logitech Gamepad F310 (STANDARD GAMEPAD Vendor: 046d Product: c21d)
-                MAP_BUTTON(ImGuiNavInput.Activate,    0); // Cross / A
-                MAP_BUTTON(ImGuiNavInput.Cancel,      1); // Circle / B
-                MAP_BUTTON(ImGuiNavInput.Menu,        2); // Square / X
-                MAP_BUTTON(ImGuiNavInput.Input,       3); // Triangle / Y
-                MAP_BUTTON(ImGuiNavInput.DpadLeft,    14); // D-Pad Left
-                MAP_BUTTON(ImGuiNavInput.DpadRight,   15); // D-Pad Right
-                MAP_BUTTON(ImGuiNavInput.DpadUp,      12); // D-Pad Up
-                MAP_BUTTON(ImGuiNavInput.DpadDown,    13); // D-Pad Down
-                MAP_BUTTON(ImGuiNavInput.FocusPrev,   4); // L1 / LB
-                MAP_BUTTON(ImGuiNavInput.FocusNext,   5); // R1 / RB
-                MAP_ANALOG(ImGuiNavInput.TweakSlow,   6, +0.3, +0.9); // L2 / LT
-                MAP_ANALOG(ImGuiNavInput.TweakFast,   7, +0.3, +0.9); // R2 / RT
-                MAP_ANALOG(ImGuiNavInput.LStickLeft,  0, -0.3, -0.9);
-                MAP_ANALOG(ImGuiNavInput.LStickRight, 0, +0.3, +0.9);
-                MAP_ANALOG(ImGuiNavInput.LStickUp,    1, -0.3, -0.9);
-                MAP_ANALOG(ImGuiNavInput.LStickDown,  1, +0.3, +0.9);
+                MAP_BUTTON(ImGui.NavInput.Activate,    0); // Cross / A
+                MAP_BUTTON(ImGui.NavInput.Cancel,      1); // Circle / B
+                MAP_BUTTON(ImGui.NavInput.Menu,        2); // Square / X
+                MAP_BUTTON(ImGui.NavInput.Input,       3); // Triangle / Y
+                MAP_BUTTON(ImGui.NavInput.DpadLeft,    14); // D-Pad Left
+                MAP_BUTTON(ImGui.NavInput.DpadRight,   15); // D-Pad Right
+                MAP_BUTTON(ImGui.NavInput.DpadUp,      12); // D-Pad Up
+                MAP_BUTTON(ImGui.NavInput.DpadDown,    13); // D-Pad Down
+                MAP_BUTTON(ImGui.NavInput.FocusPrev,   4); // L1 / LB
+                MAP_BUTTON(ImGui.NavInput.FocusNext,   5); // R1 / RB
+                MAP_ANALOG(ImGui.NavInput.TweakSlow,   6, +0.3, +0.9); // L2 / LT
+                MAP_ANALOG(ImGui.NavInput.TweakFast,   7, +0.3, +0.9); // R2 / RT
+                MAP_ANALOG(ImGui.NavInput.LStickLeft,  0, -0.3, -0.9);
+                MAP_ANALOG(ImGui.NavInput.LStickRight, 0, +0.3, +0.9);
+                MAP_ANALOG(ImGui.NavInput.LStickUp,    1, -0.3, -0.9);
+                MAP_ANALOG(ImGui.NavInput.LStickDown,  1, +0.3, +0.9);
                 break;
                 case "2dc86001": // 8Bitdo SN30 Pro  8Bitdo SN30 Pro (Vendor: 2dc8 Product: 6001)
                 case "2dc86101": // 8Bitdo SN30 Pro (Vendor: 2dc8 Product: 6101)
-                MAP_BUTTON(ImGuiNavInput.Activate,    1); // Cross / A
-                MAP_BUTTON(ImGuiNavInput.Cancel,      0); // Circle / B
-                MAP_BUTTON(ImGuiNavInput.Menu,        4); // Square / X
-                MAP_BUTTON(ImGuiNavInput.Input,       3); // Triangle / Y
-                MAP_ANALOG(ImGuiNavInput.DpadLeft,    6, -0.3, -0.9); // D-Pad Left
-                MAP_ANALOG(ImGuiNavInput.DpadRight,   6, +0.3, +0.9); // D-Pad Right
-                MAP_ANALOG(ImGuiNavInput.DpadUp,      7, -0.3, -0.9); // D-Pad Up
-                MAP_ANALOG(ImGuiNavInput.DpadDown,    7, +0.3, +0.9); // D-Pad Down
-                MAP_BUTTON(ImGuiNavInput.FocusPrev,   6); // L1 / LB
-                MAP_BUTTON(ImGuiNavInput.FocusNext,   7); // R1 / RB
-                MAP_BUTTON(ImGuiNavInput.TweakSlow,   8); // L2 / LT
-                MAP_BUTTON(ImGuiNavInput.TweakFast,   9); // R2 / RT
-                MAP_ANALOG(ImGuiNavInput.LStickLeft,  0, -0.3, -0.9);
-                MAP_ANALOG(ImGuiNavInput.LStickRight, 0, +0.3, +0.9);
-                MAP_ANALOG(ImGuiNavInput.LStickUp,    1, -0.3, -0.9);
-                MAP_ANALOG(ImGuiNavInput.LStickDown,  1, +0.3, +0.9);
+                MAP_BUTTON(ImGui.NavInput.Activate,    1); // Cross / A
+                MAP_BUTTON(ImGui.NavInput.Cancel,      0); // Circle / B
+                MAP_BUTTON(ImGui.NavInput.Menu,        4); // Square / X
+                MAP_BUTTON(ImGui.NavInput.Input,       3); // Triangle / Y
+                MAP_ANALOG(ImGui.NavInput.DpadLeft,    6, -0.3, -0.9); // D-Pad Left
+                MAP_ANALOG(ImGui.NavInput.DpadRight,   6, +0.3, +0.9); // D-Pad Right
+                MAP_ANALOG(ImGui.NavInput.DpadUp,      7, -0.3, -0.9); // D-Pad Up
+                MAP_ANALOG(ImGui.NavInput.DpadDown,    7, +0.3, +0.9); // D-Pad Down
+                MAP_BUTTON(ImGui.NavInput.FocusPrev,   6); // L1 / LB
+                MAP_BUTTON(ImGui.NavInput.FocusNext,   7); // R1 / RB
+                MAP_BUTTON(ImGui.NavInput.TweakSlow,   8); // L2 / LT
+                MAP_BUTTON(ImGui.NavInput.TweakFast,   9); // R2 / RT
+                MAP_ANALOG(ImGui.NavInput.LStickLeft,  0, -0.3, -0.9);
+                MAP_ANALOG(ImGui.NavInput.LStickRight, 0, +0.3, +0.9);
+                MAP_ANALOG(ImGui.NavInput.LStickUp,    1, -0.3, -0.9);
+                MAP_ANALOG(ImGui.NavInput.LStickDown,  1, +0.3, +0.9);
                 break;
                 default: // standard gamepad: https://w3c.github.io/gamepad/#remapping
-                MAP_BUTTON(ImGuiNavInput.Activate,    0); // Cross / A
-                MAP_BUTTON(ImGuiNavInput.Cancel,      1); // Circle / B
-                MAP_BUTTON(ImGuiNavInput.Menu,        2); // Square / X
-                MAP_BUTTON(ImGuiNavInput.Input,       3); // Triangle / Y
-                MAP_BUTTON(ImGuiNavInput.DpadLeft,    14); // D-Pad Left
-                MAP_BUTTON(ImGuiNavInput.DpadRight,   15); // D-Pad Right
-                MAP_BUTTON(ImGuiNavInput.DpadUp,      12); // D-Pad Up
-                MAP_BUTTON(ImGuiNavInput.DpadDown,    13); // D-Pad Down
-                MAP_BUTTON(ImGuiNavInput.FocusPrev,   4); // L1 / LB
-                MAP_BUTTON(ImGuiNavInput.FocusNext,   5); // R1 / RB
-                MAP_BUTTON(ImGuiNavInput.TweakSlow,   6); // L2 / LT
-                MAP_BUTTON(ImGuiNavInput.TweakFast,   7); // R2 / RT
-                MAP_ANALOG(ImGuiNavInput.LStickLeft,  0, -0.3, -0.9);
-                MAP_ANALOG(ImGuiNavInput.LStickRight, 0, +0.3, +0.9);
-                MAP_ANALOG(ImGuiNavInput.LStickUp,    1, -0.3, -0.9);
-                MAP_ANALOG(ImGuiNavInput.LStickDown,  1, +0.3, +0.9);
+                MAP_BUTTON(ImGui.NavInput.Activate,    0); // Cross / A
+                MAP_BUTTON(ImGui.NavInput.Cancel,      1); // Circle / B
+                MAP_BUTTON(ImGui.NavInput.Menu,        2); // Square / X
+                MAP_BUTTON(ImGui.NavInput.Input,       3); // Triangle / Y
+                MAP_BUTTON(ImGui.NavInput.DpadLeft,    14); // D-Pad Left
+                MAP_BUTTON(ImGui.NavInput.DpadRight,   15); // D-Pad Right
+                MAP_BUTTON(ImGui.NavInput.DpadUp,      12); // D-Pad Up
+                MAP_BUTTON(ImGui.NavInput.DpadDown,    13); // D-Pad Down
+                MAP_BUTTON(ImGui.NavInput.FocusPrev,   4); // L1 / LB
+                MAP_BUTTON(ImGui.NavInput.FocusNext,   5); // R1 / RB
+                MAP_BUTTON(ImGui.NavInput.TweakSlow,   6); // L2 / LT
+                MAP_BUTTON(ImGui.NavInput.TweakFast,   7); // R2 / RT
+                MAP_ANALOG(ImGui.NavInput.LStickLeft,  0, -0.3, -0.9);
+                MAP_ANALOG(ImGui.NavInput.LStickRight, 0, +0.3, +0.9);
+                MAP_ANALOG(ImGui.NavInput.LStickUp,    1, -0.3, -0.9);
+                MAP_ANALOG(ImGui.NavInput.LStickDown,  1, +0.3, +0.9);
                 break;
             }
         }
     }
-
-    ImGui.NewFrame();
 }
 
-export function EndFrame(): void {
-    ImGui.EndFrame();
-
-    ImGui.Render();
-}
-
-export function RenderDrawData(draw_data: ImDrawData | null = ImGui.GetDrawData()): void {
-    const io: ImGuiIO = ImGui.GetIO();
+export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDrawData()): void {
+    const io = ImGui.GetIO();
     if (draw_data === null) { throw new Error(); }
 
     gl || console.log(draw_data);
@@ -513,7 +500,7 @@ export function RenderDrawData(draw_data: ImDrawData | null = ImGui.GetDrawData(
 
     const ElemType: GLenum = gl && ((ImGui.ImDrawIdxSize === 4) ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT) || 0;
 
-    draw_data.IterateDrawLists((draw_list: ImDrawList): void => {
+    draw_data.IterateDrawLists((draw_list: ImGui.ImDrawList): void => {
         gl || console.log(draw_list);
         gl || console.log("VtxBuffer.length", draw_list.VtxBuffer.length);
         gl || console.log("IdxBuffer.length", draw_list.IdxBuffer.length);
@@ -525,7 +512,7 @@ export function RenderDrawData(draw_data: ImDrawData | null = ImGui.GetDrawData(
 
         let ElemStart: number = 0;
 
-        draw_list.IterateDrawCmds((draw_cmd: ImDrawCmd): void => {
+        draw_list.IterateDrawCmds((draw_cmd: ImGui.ImDrawCmd): void => {
             gl || console.log(draw_cmd);
             gl || console.log("ElemCount", draw_cmd.ElemCount);
             gl || console.log("ClipRect", draw_cmd.ClipRect.x, fb_height - draw_cmd.ClipRect.w, draw_cmd.ClipRect.z - draw_cmd.ClipRect.x, draw_cmd.ClipRect.w - draw_cmd.ClipRect.y);
