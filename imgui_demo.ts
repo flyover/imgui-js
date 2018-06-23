@@ -386,7 +386,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 // Using the _simplified_ one-liner Combo() api here
                 // See "Combo" section for examples of how to use the more complete BeginCombo()/EndCombo() api.
                 const items: string[] = [ "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" ];
-                /* static */ const item_current: Static<number> = STATIC("item_current", 0);
+                /* static */ const item_current: Static<number> = STATIC("item_current#389", 0);
                 ImGui.Combo("combo", (value = item_current.value) => item_current.value = value, items, IM_ARRAYSIZE(items));
                 ImGui.SameLine(); ShowHelpMarker("Refer to the \"Combo\" section below for an explanation of the full BeginCombo/EndCombo API, and demonstration of various flags.\n");
             }
@@ -689,7 +689,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             // General BeginCombo() API, you have full control over your selection data and display type.
             // (your selection data could be an index, a pointer to the object, an id for the object, a flag stored in the object itself, etc.)
             const items: string[] = [ "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" ];
-            /* static */ const item_current: Static<string> = STATIC("item_current", items[0]);// Here our selection is a single pointer stored outside the object.
+            /* static */ const item_current: Static<string> = STATIC("item_current#692", items[0]);// Here our selection is a single pointer stored outside the object.
             if (ImGui.BeginCombo("combo 1", item_current.value, flags.value)) // The second parameter is the label previewed before opening the combo.
             {
                 for (let n = 0; n < IM_ARRAYSIZE(items); n++)
@@ -1299,7 +1299,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             // Display the value of IsItemHovered() and other common item state functions. Note that the flags can be combined.
             // (because BulletText is an item itself and that would affect the output of IsItemHovered() we pass all state in a single call to simplify the code).
             /* static */ const item_type: Static<number> = STATIC("item_type", 1);
-            /* static */ const b: Static<boolean> = STATIC("b", false);
+            /* static */ const b: Static<boolean> = STATIC("b#1302", false);
             /* static */ const col4f: Static<ImTuple4<number>> = STATIC<ImTuple4<number>>("col4f", [ 1.0, 0.5, 0.0, 1.0 ]);
             ImGui.RadioButton("Text", (value = item_type.value) => item_type.value = value, 0); ImGui.SameLine();
             ImGui.RadioButton("Button", (value = item_type.value) => item_type.value = value, 1); ImGui.SameLine();
@@ -2596,7 +2596,7 @@ function ShowExampleMenuFile(): void
         ImGui.EndChild();
         /* static */ const f: Static<number> = STATIC("f#2408", 0.5);
         /* static */ const n: Static<number> = STATIC("n", 0);
-        /* static */ const b: Static<boolean> = STATIC("b", true);
+        /* static */ const b: Static<boolean> = STATIC("b#2599", true);
         ImGui.SliderFloat("Value", (value = f.value) => f.value = value, 0.0, 1.0);
         ImGui.InputFloat("Input", (value = f.value) => f.value = value, 0.1);
         ImGui.Combo("Combo", (value = n.value) => n.value = value, "Yes\0No\0Maybe\0\0");
