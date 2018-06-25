@@ -1350,14 +1350,27 @@ CaptureKeyboardFromApp(capture: boolean/* = true */): void;
 // IMGUI_API void          CaptureMouseFromApp(bool capture = true);                           // manually override io.WantCaptureMouse flag next frame (said flag is entirely left for your application handle).
 CaptureMouseFromApp(capture: boolean/* = true */): void;
 
-// Helpers functions to access functions pointers in ImGui::GetIO()
-// IMGUI_API void*         MemAlloc(size_t sz);
-MemAlloc(sz: number): any;
-// IMGUI_API void          MemFree(void* ptr);
-MemFree(ptr: any): void;
+// Clipboard Utilities (also see the LogToClipboard() function to capture or output text data to the clipboard)
 // IMGUI_API const char*   GetClipboardText();
 GetClipboardText(): string;
 // IMGUI_API void          SetClipboardText(const char* text);
 SetClipboardText(text: string): void;
+
+// Settings/.Ini Utilities
+// The disk functions are automatically called if io.IniFilename != NULL (default is "imgui.ini").
+// Set io.IniFilename to NULL to load/save manually. Read io.WantSaveIniSettings description about handling .ini saving manually.
+// IMGUI_API void          LoadIniSettingsFromDisk(const char* ini_filename);                  // call after CreateContext() and before the first call to NewFrame(). NewFrame() automatically calls LoadIniSettingsFromDisk(io.IniFilename).
+// LoadIniSettingsFromDisk(ini_filename: string): void;
+// IMGUI_API void          LoadIniSettingsFromMemory(const char* ini_data, size_t ini_size=0); // call after CreateContext() and before the first call to NewFrame() to provide .ini data from your own data source.
+LoadIniSettingsFromMemory(ini_data: string/*, ini_size: number*/): void;
+// IMGUI_API void          SaveIniSettingsToDisk(const char* ini_filename);
+// SaveIniSettingsToDisk(ini_filename: string): void;
+// IMGUI_API const char*   SaveIniSettingsToMemory(size_t* out_ini_size = NULL);               // return a zero-terminated string with the .ini data which you can save by your own mean. call when io.WantSaveIniSettings is set, then save data by your own mean and clear io.WantSaveIniSettings.
+SaveIniSettingsToMemory(/*out_ini_size: [number] | null*/): string;
+
+// IMGUI_API void*         MemAlloc(size_t sz);
+MemAlloc(sz: number): any;
+// IMGUI_API void          MemFree(void* ptr);
+MemFree(ptr: any): void;
 
 }

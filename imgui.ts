@@ -3392,13 +3392,13 @@ export const SetClipboardText = bind.SetClipboardText;
 // The disk functions are automatically called if io.IniFilename != NULL (default is "imgui.ini").
 // Set io.IniFilename to NULL to load/save manually. Read io.WantSaveIniSettings description about handling .ini saving manually.
 // IMGUI_API void          LoadIniSettingsFromDisk(const char* ini_filename);                  // call after CreateContext() and before the first call to NewFrame(). NewFrame() automatically calls LoadIniSettingsFromDisk(io.IniFilename).
-export function LoadIniSettingsFromDisk(): void {} // TODO
+export function LoadIniSettingsFromDisk(ini_filename: string): void { throw new Error(); } // TODO
 // IMGUI_API void          LoadIniSettingsFromMemory(const char* ini_data, size_t ini_size=0); // call after CreateContext() and before the first call to NewFrame() to provide .ini data from your own data source.
-export function LoadIniSettingsFromMemory(): void {} // TODO
+export function LoadIniSettingsFromMemory(ini_data: string, ini_size: number = 0): void { bind.LoadIniSettingsFromMemory(ini_data); }
 // IMGUI_API void          SaveIniSettingsToDisk(const char* ini_filename);
-export function SaveIniSettingsToDisk(): void {} // TODO
+export function SaveIniSettingsToDisk(ini_filename: string): void { throw new Error(); } // TODO
 // IMGUI_API const char*   SaveIniSettingsToMemory(size_t* out_ini_size = NULL);               // return a zero-terminated string with the .ini data which you can save by your own mean. call when io.WantSaveIniSettings is set, then save data by your own mean and clear io.WantSaveIniSettings.
-export function SaveIniSettingsToMemory(): string { return ""; }
+export function SaveIniSettingsToMemory(out_ini_size: [number] | null = null): string { return bind.SaveIniSettingsToMemory(); }
 
 // Memory Utilities
 // All those functions are not reliant on the current context.

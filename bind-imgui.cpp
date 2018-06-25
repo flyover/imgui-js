@@ -2561,7 +2561,35 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          CaptureMouseFromApp(bool capture = true);                           // manually override io.WantCaptureMouse flag next frame (said flag is entirely left for your application handle).
     emscripten::function("CaptureMouseFromApp", &ImGui::CaptureMouseFromApp);
 
-    // Helpers functions to access functions pointers in ImGui::GetIO()
+    // Clipboard Utilities (also see the LogToClipboard() function to capture or output text data to the clipboard)
+    // IMGUI_API const char*   GetClipboardText();
+    emscripten::function("GetClipboardText", FUNCTION(std::string, (), {
+        const char* text = ImGui::GetClipboardText();
+        return (text != NULL) ? text : "";
+    }));
+    // IMGUI_API void          SetClipboardText(const char* text);
+    emscripten::function("SetClipboardText", FUNCTION(void, (emscripten::val text), {
+        ImGui::SetClipboardText(text.as<std::string>().c_str());
+    }));
+
+    // Settings/.Ini Utilities
+    // The disk functions are automatically called if io.IniFilename != NULL (default is "imgui.ini").
+    // Set io.IniFilename to NULL to load/save manually. Read io.WantSaveIniSettings description about handling .ini saving manually.
+    // IMGUI_API void          LoadIniSettingsFromDisk(const char* ini_filename);                  // call after CreateContext() and before the first call to NewFrame(). NewFrame() automatically calls LoadIniSettingsFromDisk(io.IniFilename).
+    // IMGUI_API void          LoadIniSettingsFromMemory(const char* ini_data, size_t ini_size=0); // call after CreateContext() and before the first call to NewFrame() to provide .ini data from your own data source.
+    emscripten::function("LoadIniSettingsFromMemory", FUNCTION(void, (std::string ini_data), {
+        ImGui::LoadIniSettingsFromMemory(ini_data.c_str());
+    }));
+    // IMGUI_API void          SaveIniSettingsToDisk(const char* ini_filename);
+    // IMGUI_API const char*   SaveIniSettingsToMemory(size_t* out_ini_size = NULL);               // return a zero-terminated string with the .ini data which you can save by your own mean. call when io.WantSaveIniSettings is set, then save data by your own mean and clear io.WantSaveIniSettings.
+    emscripten::function("SaveIniSettingsToMemory", FUNCTION(std::string, (), {
+        return ImGui::SaveIniSettingsToMemory();
+    }));
+
+    // Memory Utilities
+    // All those functions are not reliant on the current context.
+    // If you reload the contents of imgui.cpp at runtime, you may need to call SetCurrentContext() + SetAllocatorFunctions() again.
+    // IMGUI_API void          SetAllocatorFunctions(void* (*alloc_func)(size_t sz, void* user_data), void(*free_func)(void* ptr, void* user_data), void* user_data = NULL);
     // IMGUI_API void*         MemAlloc(size_t sz);
     emscripten::function("MemAlloc", FUNCTION(emscripten::val, (size_t sz), {
         void* p = ImGui::MemAlloc(sz);
@@ -2571,14 +2599,5 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("MemFree", FUNCTION(void, (emscripten::val ptr), {
         void* _ptr = ptr.as<void*>(emscripten::allow_raw_pointers());
         ImGui::MemFree(_ptr);
-    }));
-    // IMGUI_API const char*   GetClipboardText();
-    emscripten::function("GetClipboardText", FUNCTION(std::string, (), {
-        const char* text = ImGui::GetClipboardText();
-        return (text != NULL) ? text : "";
-    }));
-    // IMGUI_API void          SetClipboardText(const char* text);
-    emscripten::function("SetClipboardText", FUNCTION(void, (emscripten::val text), {
-        ImGui::SetClipboardText(text.as<std::string>().c_str());
     }));
 }
