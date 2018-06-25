@@ -2,5 +2,4 @@ node_modules
 package-lock.json
 .vscode
 imgui.ini
-!/example/imgui.ini
 **/*.bc

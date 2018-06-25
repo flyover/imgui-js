@@ -25,16 +25,6 @@ let show_movie_window: boolean = false;
 
 let done: boolean = false;
 
-async function LoadText(url: string): Promise<string> {
-    const response: Response = await fetch(url);
-    return response.text();
-}
-
-async function SaveText(url: string, text: string): Promise<void> {
-    console.log(`TODO: SaveText(${url})`);
-    console.log(text);
-}
-
 async function LoadArrayBuffer(url: string): Promise<ArrayBuffer> {
     const response: Response = await fetch(url);
     return response.arrayBuffer();
@@ -60,7 +50,9 @@ async function _init(): Promise<void> {
 
     const io: ImGuiIO = ImGui.GetIO();
     // io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;  // Enable Keyboard Controls
-    ImGui.LoadIniSettingsFromMemory(await LoadText("imgui.ini"));
+    if (typeof(window) !== "undefined") {
+        ImGui.LoadIniSettingsFromMemory(window.localStorage.getItem("imgui.ini") || "");
+    }
 
     // Setup style
     ImGui.StyleColorsDark();
@@ -108,6 +100,8 @@ async function _init(): Promise<void> {
 
 // Main loop
 function _loop(time: number): void {
+    const io: ImGuiIO = ImGui.GetIO();
+
     // Poll and handle events (inputs, window resize, etc.)
     // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
     // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -141,12 +135,6 @@ function _loop(time: number): void {
         ImGui.SameLine();
         ImGui.Text(`counter = ${counter}`);
 
-        if (font) {
-            ImGui.PushFont(font);
-            ImGui.Text(`Roboto-Medium 16px`);
-            ImGui.PopFont();
-        }
-
         ImGui.Text(`Application average ${(1000.0 / ImGui.GetIO().Framerate).toFixed(3)} ms/frame (${ImGui.GetIO().Framerate.toFixed(1)} FPS)`);
 
         ImGui.Checkbox("Memory Editor", (value = memory_editor.Open) => memory_editor.Open = value);
@@ -170,15 +158,23 @@ function _loop(time: number): void {
             ImGui.Text(image_url);
             ImGui.EndTooltip();
         }
-        ImGui.Checkbox("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
+        if (ImGui.Button("Sandbox Window")) { show_sandbox_window = true; }
         if (show_sandbox_window)
             ShowSandboxWindow("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
-        ImGui.Checkbox("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window = value);
+        ImGui.SameLine();
+        if (ImGui.Button("Gamepad Window")) { show_gamepad_window = true; }
         if (show_gamepad_window)
             ShowGamepadWindow("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window = value);
-        ImGui.Checkbox("Movie Window", (value = show_movie_window) => show_movie_window = value);
+        ImGui.SameLine();
+        if (ImGui.Button("Movie Window")) { show_movie_window = true; }
         if (show_movie_window)
             ShowMovieWindow("Movie Window", (value = show_movie_window) => show_movie_window = value);
+
+        if (font) {
+            ImGui.PushFont(font);
+            ImGui.Text(`Roboto-Medium.ttf, 16px`);
+            ImGui.PopFont();
+        }
     }
 
     // 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name your windows.
@@ -197,6 +193,13 @@ function _loop(time: number): void {
     }
 
     ImGui.EndFrame();
+
+    if (io.WantSaveIniSettings) {
+        io.WantSaveIniSettings = false;
+        if (typeof(window) !== "undefined") {
+            window.localStorage.setItem("imgui.ini", ImGui.SaveIniSettingsToMemory());
+        }
+    }
 
     // Rendering
     ImGui.Render();
@@ -218,8 +221,6 @@ function _loop(time: number): void {
 }
 
 async function _done(): Promise<void> {
-    const io: ImGuiIO = ImGui.GetIO();
-
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
     if (gl) {
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
@@ -229,11 +230,6 @@ async function _done(): Promise<void> {
 
     CleanUpImage();
     CleanUpVideo();
-
-    if (io.WantSaveIniSettings) {
-        io.WantSaveIniSettings = false;
-        await SaveText("imgui.ini", ImGui.SaveIniSettingsToMemory());
-    }
 
     // Cleanup
     ImGui_Impl.Shutdown();
