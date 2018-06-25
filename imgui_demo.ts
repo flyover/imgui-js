@@ -207,7 +207,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     if (show_app_long_text.value)           ShowExampleAppLongText((value = show_app_long_text.value) => show_app_long_text.value = value);
     if (show_app_auto_resize.value)         ShowExampleAppAutoResize((value = show_app_auto_resize.value) => show_app_auto_resize.value = value);
     if (show_app_constrained_resize.value)  ShowExampleAppConstrainedResize((value = show_app_constrained_resize.value) => show_app_constrained_resize.value = value);
-    if (show_app_simple_overlay.value)       ShowExampleAppSimpleOverlay((value = show_app_simple_overlay.value) => show_app_simple_overlay.value = value);
+    if (show_app_simple_overlay.value)      ShowExampleAppSimpleOverlay((value = show_app_simple_overlay.value) => show_app_simple_overlay.value = value);
     if (show_app_window_titles.value)       ShowExampleAppWindowTitles((value = show_app_window_titles.value) => show_app_window_titles.value = value);
     if (show_app_custom_rendering.value)    ShowExampleAppCustomRendering((value = show_app_custom_rendering.value) => show_app_custom_rendering.value = value);
 
@@ -2723,8 +2723,8 @@ function ShowExampleAppSimpleOverlay(p_open: ImAccess<boolean>): void
             if (p_open() && ImGui.MenuItem("Close")) p_open(false);
             ImGui.EndPopup();
         }
-        ImGui.End();
     }
+    ImGui.End();
 }
 
 // Demonstrate using "##" and "###" in identifiers to manipulate ID generation.
