@@ -8,6 +8,8 @@ import { ShowDemoWindow } from "imgui-js/imgui_demo";
 
 import { MemoryEditor } from "imgui-js/imgui_memory_editor";
 
+let font: ImGui.ImFont | null = null;
+
 let show_demo_window: boolean = true;
 let show_another_window: boolean = false;
 const clear_color: ImVec4 = new ImVec4(0.45, 0.55, 0.60, 1.00);
@@ -56,7 +58,7 @@ async function _init(): Promise<void> {
     ImGui.IMGUI_CHECKVERSION();
     ImGui.CreateContext();
 
-    // const io: ImGuiIO = ImGui.GetIO();
+    const io: ImGuiIO = ImGui.GetIO();
     // io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;  // Enable Keyboard Controls
     ImGui.LoadIniSettingsFromMemory(await LoadText("imgui.ini"));
 
@@ -71,8 +73,8 @@ async function _init(): Promise<void> {
     // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
     // - Read 'misc/fonts/README.txt' for more instructions and details.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-    // io.Fonts.AddFontDefault();
-    // io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/Roboto-Medium.ttf"), 16.0);
+    io.Fonts.AddFontDefault();
+    font = io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/Roboto-Medium.ttf"), 16.0);
     // io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/Cousine-Regular.ttf"), 15.0);
     // io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/DroidSans.ttf"), 16.0);
     // io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/ProggyTiny.ttf"), 10.0);
@@ -138,6 +140,12 @@ function _loop(time: number): void {
             counter++;
         ImGui.SameLine();
         ImGui.Text(`counter = ${counter}`);
+
+        if (font) {
+            ImGui.PushFont(font);
+            ImGui.Text(`Roboto-Medium 16px`);
+            ImGui.PopFont();
+        }
 
         ImGui.Text(`Application average ${(1000.0 / ImGui.GetIO().Framerate).toFixed(3)} ms/frame (${ImGui.GetIO().Framerate.toFixed(1)} FPS)`);
 

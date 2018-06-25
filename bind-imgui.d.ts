@@ -555,6 +555,7 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // IMGUI_API ~ImFontAtlas();
     // IMGUI_API ImFont*           AddFont(const ImFontConfig* font_cfg);
     // IMGUI_API ImFont*           AddFontDefault(const ImFontConfig* font_cfg = NULL);
+    AddFontDefault(): reference_ImFont;
     // IMGUI_API ImFont*           AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);
     // IMGUI_API ImFont*           AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer ownership of 'ttf_data' to ImFontAtlas! Will be deleted after Build(). Set font_cfg->FontDataOwnedByAtlas to false to keep ownership.
     AddFontFromMemoryTTF(data: Uint8Array, size_pixels: number): reference_ImFont;
@@ -926,8 +927,8 @@ SetScrollFromPosY(pos_y: number, center_y_ratio: number/* = 0.5f */): void;
 // function GetStateStorage(): ImGuiStorage | null;
 
 // Parameters stacks (shared)
-// function PushFont(font: ImFont | null): void;
-// function PopFont(): void;
+PushFont(font: reference_ImFont | null): void;
+PopFont(): void;
 PushStyleColor(idx: ImGuiCol, col: ImU32 | Readonly<interface_ImVec4>): void;
 PopStyleColor(count: number/* = 1 */): void;
 PushStyleVar(idx: ImGuiStyleVar, val: number | Readonly<interface_ImVec2>): void;

@@ -1364,6 +1364,9 @@ export class ImFontAtlas
     // IMGUI_API ~ImFontAtlas();
     // IMGUI_API ImFont*           AddFont(const ImFontConfig* font_cfg);
     // IMGUI_API ImFont*           AddFontDefault(const ImFontConfig* font_cfg = NULL);
+    public AddFontDefault(font_config: ImFontConfig | null = null, glyph_ranges: any = null): ImFont {
+        return new ImFont(this.native.AddFontDefault());
+    }
     // IMGUI_API ImFont*           AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);
     // IMGUI_API ImFont*           AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer ownership of 'ttf_data' to ImFontAtlas! Will be deleted after Build(). Set font_cfg->FontDataOwnedByAtlas to false to keep ownership.
     public AddFontFromMemoryTTF(data: ArrayBuffer, size_pixels: number, font_config: ImFontConfig | null = null, glyph_ranges: any = null): ImFont {
@@ -2242,9 +2245,9 @@ export function SetScrollFromPosY(pos_y: number, center_y_ratio: number = 0.5): 
 
 // Parameters stacks (shared)
 // IMGUI_API void          PushFont(ImFont* font);                                             // use NULL as a shortcut to push default font
-export function PushFont(font: ImFont): void {}
+export function PushFont(font: ImFont | null): void { bind.PushFont(font ? font.native : null); }
 // IMGUI_API void          PopFont();
-export function PopFont(): void {}
+export function PopFont(): void { bind.PopFont(); }
 // IMGUI_API void          PushStyleColor(ImGuiCol idx, ImU32 col);
 // IMGUI_API void          PushStyleColor(ImGuiCol idx, const ImVec4& col);
 export function PushStyleColor(idx: ImGuiCol, col: Bind.ImU32 | Readonly<Bind.interface_ImVec4> | Readonly<ImColor>): void {

@@ -571,6 +571,10 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         // IMGUI_API ~ImFontAtlas();
         // IMGUI_API ImFont*           AddFont(const ImFontConfig* font_cfg);
         // IMGUI_API ImFont*           AddFontDefault(const ImFontConfig* font_cfg = NULL);
+        .function("AddFontDefault", FUNCTION(emscripten::val, (ImFontAtlas& that), {
+            ImFont* font = that.AddFontDefault();
+            return emscripten::val(font);
+        }), emscripten::allow_raw_pointers())
         // IMGUI_API ImFont*           AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);
         // IMGUI_API ImFont*           AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer ownership of 'ttf_data' to ImFontAtlas! Will be deleted after Build(). Set font_cfg->FontDataOwnedByAtlas to false to keep ownership.
         .function("AddFontFromMemoryTTF", FUNCTION(emscripten::val, (ImFontAtlas& that, emscripten::val data, float size_pixels), {
@@ -1321,13 +1325,12 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // Parameters stacks (shared)
     // IMGUI_API void          PushFont(ImFont* font);                                             // use NULL as a shortcut to push default font
     emscripten::function("PushFont", FUNCTION(void, (emscripten::val font), {
-        TODO();
-        // ImGui::PushFont(font);
+        ImFont* _font = font.isNull() ? NULL : font.as<ImFont*>(emscripten::allow_raw_pointers());
+        ImGui::PushFont(_font);
     }));
     // IMGUI_API void          PopFont();
     emscripten::function("PopFont", FUNCTION(void, (), {
-        TODO();
-        // ImGui::PopFont();
+        ImGui::PopFont();
     }));
     // IMGUI_API void          PushStyleColor(ImGuiCol idx, ImU32 col);
     // IMGUI_API void          PushStyleColor(ImGuiCol idx, const ImVec4& col);
