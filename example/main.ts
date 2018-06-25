@@ -21,20 +21,44 @@ let show_movie_window: boolean = false;
 /* static */ let f: number = 0.0;
 /* static */ let counter: number = 0;
 
-const done: boolean = false;
+let done: boolean = false;
+
+async function LoadText(url: string): Promise<string> {
+    const response: Response = await fetch(url);
+    return response.text();
+}
+
+async function SaveText(url: string, text: string): Promise<void> {
+    console.log(`TODO: SaveText(${url})`);
+    console.log(text);
+}
 
 async function LoadArrayBuffer(url: string): Promise<ArrayBuffer> {
     const response: Response = await fetch(url);
     return response.arrayBuffer();
 }
 
-export default async function main(): Promise<void> {
+export default function main(): void {
+    if (typeof(window) !== "undefined") {
+        window.requestAnimationFrame(_init);
+    } else {
+        async function _main(): Promise<void> {
+            await _init();
+            for (let i = 0; i < 3; ++i) { _loop(1 / 60); }
+            await _done();
+        }
+        _main().catch(console.error);
+    }
+}
+
+async function _init(): Promise<void> {
     // Setup Dear ImGui binding
     ImGui.IMGUI_CHECKVERSION();
     ImGui.CreateContext();
 
-    const io: ImGuiIO = ImGui.GetIO();
+    // const io: ImGuiIO = ImGui.GetIO();
     // io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;  // Enable Keyboard Controls
+    ImGui.LoadIniSettingsFromMemory(await LoadText("imgui.ini"));
 
     // Setup style
     ImGui.StyleColorsDark();
@@ -67,150 +91,150 @@ export default async function main(): Promise<void> {
         canvas.style.bottom = "0px";
         canvas.style.width = "100%";
         canvas.style.height = "100%";
-        const devicePixelRatio: number = window.devicePixelRatio || 1;
-        canvas.width = canvas.scrollWidth * devicePixelRatio;
-        canvas.height = canvas.scrollHeight * devicePixelRatio;
-        window.addEventListener("resize", (): void => {
-            const devicePixelRatio: number = window.devicePixelRatio || 1;
-            canvas.width = canvas.scrollWidth * devicePixelRatio;
-            canvas.height = canvas.scrollHeight * devicePixelRatio;
-        });
-        window.addEventListener("gamepadconnected", (event: any /* GamepadEvent */): void => {
-            console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
-                event.gamepad.index, event.gamepad.id,
-                event.gamepad.buttons.length, event.gamepad.axes.length);
-        });
-        window.addEventListener("gamepaddisconnected", (event: any /* GamepadEvent */): void => {
-            console.log("Gamepad disconnected at index %d: %s.",
-                event.gamepad.index, event.gamepad.id);
-        });
         ImGui_Impl.Init(canvas);
-        StartUpImage();
-        StartUpVideo();
     } else {
         ImGui_Impl.Init(null);
     }
 
-    // Main loop
-    function _loop(time: number): void {
-        // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-
-        // Start the ImGui frame
-        ImGui_Impl.NewFrame(time);
-        ImGui.NewFrame();
-
-        // 1. Show a simple window.
-        // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
-        {
-            // static float f = 0.0f;
-            // static int counter = 0;
-
-            ImGui.Text("Hello, world!");                           // Display some text (you can use a format string too)
-            ImGui.SliderFloat("float", (value = f) => f = value, 0.0, 1.0);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui.ColorEdit3("clear color", clear_color); // Edit 3 floats representing a color
-
-            ImGui.Checkbox("Demo Window", (value = show_demo_window) => show_demo_window = value);      // Edit bools storing our windows open/close state
-            ImGui.Checkbox("Another Window", (value = show_another_window) => show_another_window = value);
-
-            if (ImGui.Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
-                counter++;
-            ImGui.SameLine();
-            ImGui.Text(`counter = ${counter}`);
-
-            ImGui.Text(`Application average ${(1000.0 / ImGui.GetIO().Framerate).toFixed(3)} ms/frame (${ImGui.GetIO().Framerate.toFixed(1)} FPS)`);
-
-            ImGui.Checkbox("Memory Editor", (value = memory_editor.Open) => memory_editor.Open = value);
-            if (memory_editor.Open)
-                memory_editor.DrawWindow("Memory Editor", ImGui.bind.buffer);
-            const mi: ImGui.Bind.mallinfo = ImGui.bind.mallinfo();
-            // ImGui.Text(`Total non-mmapped bytes (arena):       ${mi.arena}`);
-            // ImGui.Text(`# of free chunks (ordblks):            ${mi.ordblks}`);
-            // ImGui.Text(`# of free fastbin blocks (smblks):     ${mi.smblks}`);
-            // ImGui.Text(`# of mapped regions (hblks):           ${mi.hblks}`);
-            // ImGui.Text(`Bytes in mapped regions (hblkhd):      ${mi.hblkhd}`);
-            ImGui.Text(`Max. total allocated space (usmblks):  ${mi.usmblks}`);
-            // ImGui.Text(`Free bytes held in fastbins (fsmblks): ${mi.fsmblks}`);
-            ImGui.Text(`Total allocated space (uordblks):      ${mi.uordblks}`);
-            ImGui.Text(`Total free space (fordblks):           ${mi.fordblks}`);
-            // ImGui.Text(`Topmost releasable block (keepcost):   ${mi.keepcost}`);
-            if (ImGui.ImageButton(image_gl_texture, new ImVec2(48, 48)))
-                show_demo_window = !show_demo_window;
-            if (ImGui.IsItemHovered()) {
-                ImGui.BeginTooltip();
-                ImGui.Text(image_url);
-                ImGui.EndTooltip();
-            }
-            ImGui.Checkbox("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
-            if (show_sandbox_window)
-                ShowSandboxWindow("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
-            ImGui.Checkbox("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window = value);
-            if (show_gamepad_window)
-                ShowGamepadWindow("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window = value);
-            ImGui.Checkbox("Movie Window", (value = show_movie_window) => show_movie_window = value);
-            if (show_movie_window)
-                ShowMovieWindow("Movie Window", (value = show_movie_window) => show_movie_window = value);
-        }
-
-        // 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name your windows.
-        if (show_another_window) {
-            ImGui.Begin("Another Window", (value = show_another_window) => show_another_window = value, ImGui.WindowFlags.AlwaysAutoResize);
-            ImGui.Text("Hello from another window!");
-            if (ImGui.Button("Close Me"))
-                show_another_window = false;
-            ImGui.End();
-        }
-
-        // 3. Show the ImGui demo window. Most of the sample code is in ImGui::ShowDemoWindow(). Read its code to learn more about Dear ImGui!
-        if (show_demo_window) {
-            ImGui.SetNextWindowPos(new ImVec2(650, 20), ImGui.Cond.FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
-            /*ImGui.*/ShowDemoWindow((value = show_demo_window) => show_demo_window = value);
-        }
-
-        ImGui.EndFrame();
-
-        // Rendering
-        ImGui.Render();
-        const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
-        gl && gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-        gl && gl.clearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        gl && gl.clear(gl.COLOR_BUFFER_BIT);
-        //gl.useProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
-
-        UpdateVideo();
-
-        ImGui_Impl.RenderDrawData(ImGui.GetDrawData());
-
-        if (typeof(window) !== "undefined") {
-            window.requestAnimationFrame(done ? _done : _loop);
-        }
-    }
-
-    function _done(): void {
-        CleanUpImage();
-        CleanUpVideo();
-
-        // Cleanup
-        ImGui_Impl.Shutdown();
-        ImGui.DestroyContext();
-    }
+    StartUpImage();
+    StartUpVideo();
 
     if (typeof(window) !== "undefined") {
         window.requestAnimationFrame(_loop);
-    } else {
-        _loop(1.0 / 60.0);
-        _done();
     }
 }
 
-function ShowHelpMarker(desc: string): void
-{
-    ImGui.TextDisabled("(?)");
-    if (ImGui.IsItemHovered())
+// Main loop
+function _loop(time: number): void {
+    // Poll and handle events (inputs, window resize, etc.)
+    // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+    // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
+    // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
+    // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+
+    // Start the ImGui frame
+    ImGui_Impl.NewFrame(time);
+    ImGui.NewFrame();
+
+    ImGui.SetNextWindowPos(new ImGui.ImVec2(0, 0));
+    ImGui.Begin("Exit", null, ImGui.WindowFlags.AlwaysAutoResize | ImGui.WindowFlags.NoCollapse | ImGui.WindowFlags.NoMove | ImGui.WindowFlags.NoTitleBar);
+    if (ImGui.Button("Exit")) { done = true; }
+    ImGui.End();
+
+    // 1. Show a simple window.
+    // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
     {
+        // static float f = 0.0f;
+        // static int counter = 0;
+
+        ImGui.Text("Hello, world!");                           // Display some text (you can use a format string too)
+        ImGui.SliderFloat("float", (value = f) => f = value, 0.0, 1.0);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui.ColorEdit3("clear color", clear_color); // Edit 3 floats representing a color
+
+        ImGui.Checkbox("Demo Window", (value = show_demo_window) => show_demo_window = value);      // Edit bools storing our windows open/close state
+        ImGui.Checkbox("Another Window", (value = show_another_window) => show_another_window = value);
+
+        if (ImGui.Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
+            counter++;
+        ImGui.SameLine();
+        ImGui.Text(`counter = ${counter}`);
+
+        ImGui.Text(`Application average ${(1000.0 / ImGui.GetIO().Framerate).toFixed(3)} ms/frame (${ImGui.GetIO().Framerate.toFixed(1)} FPS)`);
+
+        ImGui.Checkbox("Memory Editor", (value = memory_editor.Open) => memory_editor.Open = value);
+        if (memory_editor.Open)
+            memory_editor.DrawWindow("Memory Editor", ImGui.bind.buffer);
+        const mi: ImGui.Bind.mallinfo = ImGui.bind.mallinfo();
+        // ImGui.Text(`Total non-mmapped bytes (arena):       ${mi.arena}`);
+        // ImGui.Text(`# of free chunks (ordblks):            ${mi.ordblks}`);
+        // ImGui.Text(`# of free fastbin blocks (smblks):     ${mi.smblks}`);
+        // ImGui.Text(`# of mapped regions (hblks):           ${mi.hblks}`);
+        // ImGui.Text(`Bytes in mapped regions (hblkhd):      ${mi.hblkhd}`);
+        ImGui.Text(`Max. total allocated space (usmblks):  ${mi.usmblks}`);
+        // ImGui.Text(`Free bytes held in fastbins (fsmblks): ${mi.fsmblks}`);
+        ImGui.Text(`Total allocated space (uordblks):      ${mi.uordblks}`);
+        ImGui.Text(`Total free space (fordblks):           ${mi.fordblks}`);
+        // ImGui.Text(`Topmost releasable block (keepcost):   ${mi.keepcost}`);
+        if (ImGui.ImageButton(image_gl_texture, new ImVec2(48, 48)))
+            show_demo_window = !show_demo_window;
+        if (ImGui.IsItemHovered()) {
+            ImGui.BeginTooltip();
+            ImGui.Text(image_url);
+            ImGui.EndTooltip();
+        }
+        ImGui.Checkbox("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
+        if (show_sandbox_window)
+            ShowSandboxWindow("Sandbox Window", (value = show_sandbox_window) => show_sandbox_window = value);
+        ImGui.Checkbox("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window = value);
+        if (show_gamepad_window)
+            ShowGamepadWindow("Gamepad Window", (value = show_gamepad_window) => show_gamepad_window = value);
+        ImGui.Checkbox("Movie Window", (value = show_movie_window) => show_movie_window = value);
+        if (show_movie_window)
+            ShowMovieWindow("Movie Window", (value = show_movie_window) => show_movie_window = value);
+    }
+
+    // 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name your windows.
+    if (show_another_window) {
+        ImGui.Begin("Another Window", (value = show_another_window) => show_another_window = value, ImGui.WindowFlags.AlwaysAutoResize);
+        ImGui.Text("Hello from another window!");
+        if (ImGui.Button("Close Me"))
+            show_another_window = false;
+        ImGui.End();
+    }
+
+    // 3. Show the ImGui demo window. Most of the sample code is in ImGui::ShowDemoWindow(). Read its code to learn more about Dear ImGui!
+    if (show_demo_window) {
+        ImGui.SetNextWindowPos(new ImVec2(650, 20), ImGui.Cond.FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
+        /*ImGui.*/ShowDemoWindow((value = show_demo_window) => show_demo_window = value);
+    }
+
+    ImGui.EndFrame();
+
+    // Rendering
+    ImGui.Render();
+    const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
+    if (gl) {
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        gl.clearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        //gl.useProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
+    }
+
+    UpdateVideo();
+
+    ImGui_Impl.RenderDrawData(ImGui.GetDrawData());
+
+    if (typeof(window) !== "undefined") {
+        window.requestAnimationFrame(done ? _done : _loop);
+    }
+}
+
+async function _done(): Promise<void> {
+    const io: ImGuiIO = ImGui.GetIO();
+
+    const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
+    if (gl) {
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        gl.clearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+
+    CleanUpImage();
+    CleanUpVideo();
+
+    if (io.WantSaveIniSettings) {
+        io.WantSaveIniSettings = false;
+        await SaveText("imgui.ini", ImGui.SaveIniSettingsToMemory());
+    }
+
+    // Cleanup
+    ImGui_Impl.Shutdown();
+    ImGui.DestroyContext();
+}
+
+function ShowHelpMarker(desc: string): void {
+    ImGui.TextDisabled("(?)");
+    if (ImGui.IsItemHovered()) {
         ImGui.BeginTooltip();
         ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35.0);
         ImGui.TextUnformatted(desc);
@@ -277,31 +301,35 @@ let image_element: HTMLImageElement | null = null;
 let image_gl_texture: WebGLTexture | null = null;
 
 function StartUpImage(): void {
-    const width: number = 256;
-    const height: number = 256;
-    const pixels: Uint8Array = new Uint8Array(4 * width * height);
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
-    image_gl_texture = gl && gl.createTexture();
-    gl && gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
-    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    if (gl) {
+        const width: number = 256;
+        const height: number = 256;
+        const pixels: Uint8Array = new Uint8Array(4 * width * height);
+        image_gl_texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 
-    const image: HTMLImageElement = image_element = new Image();
-    image.addEventListener("load", (event: Event) => {
-        gl && gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
-        gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-    });
-    image.src = image_url;
+        const image: HTMLImageElement = image_element = new Image();
+        image.addEventListener("load", (event: Event) => {
+            gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        });
+        image.src = image_url;
+    }
 }
 
 function CleanUpImage(): void {
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
-    gl && gl.deleteTexture(image_gl_texture); image_gl_texture = null;
+    if (gl) {
+        gl.deleteTexture(image_gl_texture); image_gl_texture = null;
 
-    image_element = null;
+        image_element = null;
+    }
 }
 
 let video_url: string = "https://threejs.org/examples/textures/sintel.ogv";
@@ -309,36 +337,40 @@ let video_element: HTMLVideoElement | null = null;
 let video_gl_texture: WebGLTexture | null = null;
 
 function StartUpVideo(): void {
-    video_element = document.createElement("video");
-    video_element.src = video_url;
-    video_element.crossOrigin = "anonymous";
-    video_element.load();
-
-    const width: number = 256;
-    const height: number = 256;
-    const pixels: Uint8Array = new Uint8Array(4 * width * height);
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
-    video_gl_texture = gl && gl.createTexture();
-    gl && gl.bindTexture(gl.TEXTURE_2D, video_gl_texture);
-    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl && gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    if (gl) {
+        video_element = document.createElement("video");
+        video_element.src = video_url;
+        video_element.crossOrigin = "anonymous";
+        video_element.load();
+
+        const width: number = 256;
+        const height: number = 256;
+        const pixels: Uint8Array = new Uint8Array(4 * width * height);
+        video_gl_texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, video_gl_texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    }
 }
 
 function CleanUpVideo(): void {
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
-    gl && gl.deleteTexture(video_gl_texture); video_gl_texture = null;
+    if (gl) {
+        gl.deleteTexture(video_gl_texture); video_gl_texture = null;
 
-    video_element = null;
+        video_element = null;
+    }
 }
 
 function UpdateVideo(): void {
-    if (video_element && video_element.readyState >= video_element.HAVE_CURRENT_DATA) {
-        const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
-        gl && gl.bindTexture(gl.TEXTURE_2D, video_gl_texture);
-        gl && gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video_element);
+    const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
+    if (gl && video_element && video_element.readyState >= video_element.HAVE_CURRENT_DATA) {
+        gl.bindTexture(gl.TEXTURE_2D, video_gl_texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video_element);
     }
 }
 

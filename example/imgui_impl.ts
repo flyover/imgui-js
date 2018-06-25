@@ -1,5 +1,9 @@
 import * as ImGui from "../imgui";
 
+let clipboard_text: string = "";
+
+let canvas: HTMLCanvasElement | null = null;
+
 export let gl: WebGLRenderingContext | null = null;
 let g_ShaderHandle: WebGLProgram | null = null;
 let g_VertHandle: WebGLShader | null = null;
@@ -15,166 +19,203 @@ let g_FontTexture: WebGLTexture | null = null;
 
 let prev_time: number = 0;
 
-export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): void {
-    if (value && value instanceof(HTMLCanvasElement)) {
-        gl = value.getContext("webgl", { alpha: false });
-    } else if (value && value instanceof(WebGLRenderingContext)) {
-        gl = value;
-    }
+function document_on_copy(event: ClipboardEvent): void {
+    const data: string = event.clipboardData.getData("text/plain");
+    console.log(event.type, clipboard_text, data);
+    event.preventDefault();
+}
 
+function document_on_cut(event: ClipboardEvent): void {
+    const data: string = event.clipboardData.getData("text/plain");
+    console.log(event.type, clipboard_text, data);
+    event.preventDefault();
+}
+
+function document_on_paste(event: ClipboardEvent): void {
+    const data: string = event.clipboardData.getData("text/plain");
+    console.log(event.type, clipboard_text, data);
+    event.preventDefault();
+}
+
+function window_on_resize(): void {
+    if (canvas !== null) {
+        const devicePixelRatio: number = window.devicePixelRatio || 1;
+        canvas.width = canvas.scrollWidth * devicePixelRatio;
+        canvas.height = canvas.scrollHeight * devicePixelRatio;
+    }
+}
+
+function window_on_gamepadconnected(event: any /* GamepadEvent */): void {
+    console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
+    event.gamepad.index, event.gamepad.id,
+    event.gamepad.buttons.length, event.gamepad.axes.length);
+}
+
+function window_on_gamepaddisconnected(event: any /* GamepadEvent */): void {
+    console.log("Gamepad disconnected at index %d: %s.",
+    event.gamepad.index, event.gamepad.id);
+}
+
+function canvas_on_blur(event: FocusEvent): void {
+    const io = ImGui.GetIO();
+    io.KeyCtrl = false;
+    io.KeyShift = false;
+    io.KeyAlt = false;
+    io.KeySuper = false;
+    for (let i = 0; i < io.KeysDown.length; ++i) {
+        io.KeysDown[i] = false;
+    }
+    for (let i = 0; i < io.MouseDown.length; ++i) {
+        io.MouseDown[i] = false;
+    }
+}
+
+function canvas_on_keydown(event: KeyboardEvent): void {
+    console.log(event.type, event.key, event.keyCode);
+    const io = ImGui.GetIO();
+    io.KeyCtrl = event.ctrlKey;
+    io.KeyShift = event.shiftKey;
+    io.KeyAlt = event.altKey;
+    io.KeySuper = event.metaKey;
+    ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
+    io.KeysDown[event.keyCode] = true;
+    // forward to the keypress event
+    if (/*io.WantCaptureKeyboard ||*/ event.key === "Tab") {
+        event.preventDefault();
+    }
+}
+
+function canvas_on_keyup(event: KeyboardEvent): void  {
+    console.log(event.type, event.key, event.keyCode);
+    const io = ImGui.GetIO();
+    io.KeyCtrl = event.ctrlKey;
+    io.KeyShift = event.shiftKey;
+    io.KeyAlt = event.altKey;
+    io.KeySuper = event.metaKey;
+    ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
+    io.KeysDown[event.keyCode] = false;
+    if (io.WantCaptureKeyboard) {
+        event.preventDefault();
+    }
+}
+
+function canvas_on_keypress(event: KeyboardEvent): void  {
+    console.log(event.type, event.key, event.keyCode);
+    const io = ImGui.GetIO();
+    io.AddInputCharacter(event.charCode);
+    if (io.WantCaptureKeyboard) {
+        event.preventDefault();
+    }
+}
+
+function canvas_on_pointermove(event: PointerEvent): void  {
+    const io = ImGui.GetIO();
+    io.MousePos.x = event.offsetX;
+    io.MousePos.y = event.offsetY;
+    if (io.WantCaptureMouse) {
+        event.preventDefault();
+    }
+}
+
+// MouseEvent.button
+// A number representing a given button:
+// 0: Main button pressed, usually the left button or the un-initialized state
+// 1: Auxiliary button pressed, usually the wheel button or the middle button (if present)
+// 2: Secondary button pressed, usually the right button
+// 3: Fourth button, typically the Browser Back button
+// 4: Fifth button, typically the Browser Forward button
+const mouse_button_map: number[] = [ 0, 2, 1, 3, 4 ];
+
+function canvas_on_pointerdown(event: PointerEvent): void  {
+    const io = ImGui.GetIO();
+    io.MousePos.x = event.offsetX;
+    io.MousePos.y = event.offsetY;
+    io.MouseDown[mouse_button_map[event.button]] = true;
+    // if (io.WantCaptureMouse) {
+    //     event.preventDefault();
+    // }
+}
+function canvas_on_contextmenu(event: PointerEvent): void  {
+    const io = ImGui.GetIO();
+    if (io.WantCaptureMouse) {
+        event.preventDefault();
+    }
+}
+
+function canvas_on_pointerup(event: PointerEvent): void  {
+    const io = ImGui.GetIO();
+    io.MouseDown[mouse_button_map[event.button]] = false;
+    if (io.WantCaptureMouse) {
+        event.preventDefault();
+    }
+}
+
+function canvas_on_wheel(event: WheelEvent): void  {
+    const io = ImGui.GetIO();
+    let scale: number = 1.0;
+    switch (event.deltaMode) {
+        case event.DOM_DELTA_PIXEL: scale = 0.01; break;
+        case event.DOM_DELTA_LINE: scale = 0.2; break;
+        case event.DOM_DELTA_PAGE: scale = 1.0; break;
+    }
+    io.MouseWheelH = event.deltaX * scale;
+    io.MouseWheel = -event.deltaY * scale; // Mouse wheel: 1 unit scrolls about 5 lines text.
+    if (io.WantCaptureMouse) {
+        event.preventDefault();
+    }
+}
+
+export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): void {
     const io = ImGui.GetIO();
 
     if (typeof(navigator) !== "undefined") {
         io.OptMacOSXBehaviors = navigator.platform.match(/Mac/) !== null;
     }
 
-    if (gl !== null) {
-        const canvas: HTMLCanvasElement = gl.canvas;
+    if (typeof(document) !== "undefined") {
+        document.body.addEventListener("copy", document_on_copy);
+        document.body.addEventListener("cut", document_on_cut);
+        document.body.addEventListener("paste", document_on_paste);
+    }
 
-        canvas.addEventListener("blur", (event: FocusEvent): void => {
-            const io = ImGui.GetIO();
-            io.KeyCtrl = false;
-            io.KeyShift = false;
-            io.KeyAlt = false;
-            io.KeySuper = false;
-            for (let i = 0; i < io.KeysDown.length; ++i) {
-                io.KeysDown[i] = false;
-            }
-            for (let i = 0; i < io.MouseDown.length; ++i) {
-                io.MouseDown[i] = false;
-            }
-        });
+    io.SetClipboardTextFn = (user_data: any, text: string): void => {
+        // TODO: write to system clipboard
+        clipboard_text = text;
+        console.log("set system clipboard", clipboard_text);
+    };
+    io.GetClipboardTextFn = (user_data: any): string => {
+        // TODO: read from system clipboard
+        console.log("get system clipboard", clipboard_text);
+        return clipboard_text;
+    };
+    io.ClipboardUserData = null;
 
-        canvas.addEventListener("keydown", (event: KeyboardEvent): void => {
-            console.log(event.type, event.key, event.keyCode);
-            const io = ImGui.GetIO();
-            io.KeyCtrl = event.ctrlKey;
-            io.KeyShift = event.shiftKey;
-            io.KeyAlt = event.altKey;
-            io.KeySuper = event.metaKey;
-            ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
-            io.KeysDown[event.keyCode] = true;
-            // forward to the keypress event
-            if (/*io.WantCaptureKeyboard ||*/ event.key === "Tab") {
-                event.preventDefault();
-            }
-        });
+    if (typeof(window) !== "undefined") {
+        window.addEventListener("resize", window_on_resize);
+        window.addEventListener("gamepadconnected", window_on_gamepadconnected);
+        window.addEventListener("gamepaddisconnected", window_on_gamepaddisconnected);
+    }
 
-        canvas.addEventListener("keyup", (event: KeyboardEvent): void => {
-            console.log(event.type, event.key, event.keyCode);
-            const io = ImGui.GetIO();
-            io.KeyCtrl = event.ctrlKey;
-            io.KeyShift = event.shiftKey;
-            io.KeyAlt = event.altKey;
-            io.KeySuper = event.metaKey;
-            ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
-            io.KeysDown[event.keyCode] = false;
-            if (io.WantCaptureKeyboard) {
-                event.preventDefault();
-            }
-        });
+    if (value && value instanceof(HTMLCanvasElement)) {
+        canvas = value;
+        gl = canvas.getContext("webgl", { alpha: false });
+    } else if (value && value instanceof(WebGLRenderingContext)) {
+        canvas = value.canvas;
+        gl = value;
+    }
 
-        canvas.addEventListener("keypress", (event: KeyboardEvent): void => {
-            console.log(event.type, event.key, event.keyCode);
-            const io = ImGui.GetIO();
-            io.AddInputCharacter(event.charCode);
-            if (io.WantCaptureKeyboard) {
-                event.preventDefault();
-            }
-        });
-
+    if (canvas !== null) {
+        window_on_resize();
         canvas.style.touchAction = "none"; // Disable browser handling of all panning and zooming gestures.
-
-        canvas.addEventListener("pointermove", (event: PointerEvent): void => {
-            const io = ImGui.GetIO();
-            io.MousePos.x = event.offsetX;
-            io.MousePos.y = event.offsetY;
-            if (io.WantCaptureMouse) {
-                event.preventDefault();
-            }
-        });
-
-        // MouseEvent.button
-        // A number representing a given button:
-        // 0: Main button pressed, usually the left button or the un-initialized state
-        // 1: Auxiliary button pressed, usually the wheel button or the middle button (if present)
-        // 2: Secondary button pressed, usually the right button
-        // 3: Fourth button, typically the Browser Back button
-        // 4: Fifth button, typically the Browser Forward button
-        const mouse_button_map: number[] = [ 0, 2, 1, 3, 4 ];
-
-        canvas.addEventListener("pointerdown", (event: PointerEvent): void => {
-            const io = ImGui.GetIO();
-            io.MousePos.x = event.offsetX;
-            io.MousePos.y = event.offsetY;
-            io.MouseDown[mouse_button_map[event.button]] = true;
-            // if (io.WantCaptureMouse) {
-            //     event.preventDefault();
-            // }
-        });
-        canvas.addEventListener("contextmenu", (event: PointerEvent): void => {
-            if (io.WantCaptureMouse) {
-                event.preventDefault();
-            }
-        });
-
-        canvas.addEventListener("pointerup", (event: PointerEvent): void => {
-            const io = ImGui.GetIO();
-            io.MouseDown[mouse_button_map[event.button]] = false;
-            if (io.WantCaptureMouse) {
-                event.preventDefault();
-            }
-        });
-
-        canvas.addEventListener("wheel", (event: WheelEvent): void => {
-            const io = ImGui.GetIO();
-            let scale: number = 1.0;
-            switch (event.deltaMode) {
-                case event.DOM_DELTA_PIXEL: scale = 0.01; break;
-                case event.DOM_DELTA_LINE: scale = 0.2; break;
-                case event.DOM_DELTA_PAGE: scale = 1.0; break;
-            }
-            io.MouseWheelH = event.deltaX * scale;
-            io.MouseWheel = -event.deltaY * scale; // Mouse wheel: 1 unit scrolls about 5 lines text.
-            if (io.WantCaptureMouse) {
-                event.preventDefault();
-            }
-        });
-
-        let clipboard_text: string = "";
-
-        // io.SetClipboardTextFn = ImGui_Impl_SetClipboardText;
-        io.SetClipboardTextFn = (user_data: any, text: string): void => {
-            // TODO: write to system clipboard
-            clipboard_text = text;
-            console.log("set system clipboard", clipboard_text);
-        };
-        // io.GetClipboardTextFn = ImGui_Impl_GetClipboardText;
-        io.GetClipboardTextFn = (user_data: any): string => {
-            // TODO: read from system clipboard
-            console.log("get system clipboard", clipboard_text);
-            return clipboard_text;
-        };
-        // io.ClipboardUserData = NULL;
-        io.ClipboardUserData = null;
-
-        document.body.addEventListener("copy", (event: ClipboardEvent): void => {
-            const data: string = event.clipboardData.getData("text/plain");
-            console.log(event.type, clipboard_text, data);
-            event.preventDefault();
-        });
-
-        document.body.addEventListener("cut", (event: ClipboardEvent): void => {
-            const data: string = event.clipboardData.getData("text/plain");
-            console.log(event.type, clipboard_text, data);
-            event.preventDefault();
-        });
-
-        document.body.addEventListener("paste", (event: ClipboardEvent): void => {
-            const data: string = event.clipboardData.getData("text/plain");
-            console.log(event.type, clipboard_text, data);
-            event.preventDefault();
-        });
+        canvas.addEventListener("blur", canvas_on_blur);
+        canvas.addEventListener("keydown", canvas_on_keydown);
+        canvas.addEventListener("keyup", canvas_on_keyup);
+        canvas.addEventListener("keypress", canvas_on_keypress);
+        canvas.addEventListener("pointermove", canvas_on_pointermove);
+        canvas.addEventListener("pointerdown", canvas_on_pointerdown);
+        canvas.addEventListener("contextmenu", canvas_on_contextmenu);
+        canvas.addEventListener("pointerup", canvas_on_pointerup);
+        canvas.addEventListener("wheel", canvas_on_wheel);
     }
 
     // Setup back-end capabilities flags
@@ -300,6 +341,33 @@ export function Shutdown(): void {
     gl && gl.deleteProgram(g_ShaderHandle); g_ShaderHandle = null;
     gl && gl.deleteShader(g_VertHandle); g_VertHandle = null;
     gl && gl.deleteShader(g_FragHandle); g_FragHandle = null;
+
+    if (canvas !== null) {
+        canvas.removeEventListener("blur", canvas_on_blur);
+        canvas.removeEventListener("keydown", canvas_on_keydown);
+        canvas.removeEventListener("keyup", canvas_on_keyup);
+        canvas.removeEventListener("keypress", canvas_on_keypress);
+        canvas.removeEventListener("pointermove", canvas_on_pointermove);
+        canvas.removeEventListener("pointerdown", canvas_on_pointerdown);
+        canvas.removeEventListener("contextmenu", canvas_on_contextmenu);
+        canvas.removeEventListener("pointerup", canvas_on_pointerup);
+        canvas.removeEventListener("wheel", canvas_on_wheel);
+    }
+
+    gl = null;
+    canvas = null;
+
+    if (typeof(window) !== "undefined") {
+        window.removeEventListener("resize", window_on_resize);
+        window.removeEventListener("gamepadconnected", window_on_gamepadconnected);
+        window.removeEventListener("gamepaddisconnected", window_on_gamepaddisconnected);
+    }
+
+    if (typeof(document) !== "undefined") {
+        document.body.removeEventListener("copy", document_on_copy);
+        document.body.removeEventListener("cut", document_on_cut);
+        document.body.removeEventListener("paste", document_on_paste);
+    }
 }
 
 export function NewFrame(time: number): void {
