@@ -40,13 +40,15 @@ EMSCRIPTEN_BINDINGS(mallinfo) {
 
 #define TODO() printf("TODO: %s\n", __PRETTY_FUNCTION__)
 
-const char* import_string_or_null(const emscripten::val value) {
-    return value.isNull() ? NULL : value.as<std::string>().c_str();
-}
+// const char* import_string_or_null(const emscripten::val value) {
+//     return value.isNull() ? NULL : value.as<std::string>().c_str();
+// }
+#define import_string_or_null(VALUE) ((VALUE).isNull() ? NULL : (VALUE).as<std::string>().c_str())
 
-emscripten::val export_string_or_null(const char* value) {
-    return value == NULL ? emscripten::val::null() : emscripten::val(value);
-}
+// emscripten::val export_string_or_null(const char* value) {
+//     return value == NULL ? emscripten::val::null() : emscripten::val(value);
+// }
+#define export_string_or_null(VALUE) ((VALUE) == NULL ? emscripten::val::null() : emscripten::val(VALUE))
 
 float import_float(const emscripten::val& value) {
     const double _value = value.as<double>();
