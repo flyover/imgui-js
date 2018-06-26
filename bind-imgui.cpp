@@ -40,34 +40,50 @@ EMSCRIPTEN_BINDINGS(mallinfo) {
 
 #define TODO() printf("TODO: %s\n", __PRETTY_FUNCTION__)
 
+const char* import_string_or_null(const emscripten::val value) {
+    return value.isNull() ? NULL : value.as<std::string>().c_str();
+}
+
+emscripten::val export_string_or_null(const char* value) {
+    return value == NULL ? emscripten::val::null() : emscripten::val(value);
+}
+
+float import_float(const emscripten::val& value) {
+    const double _value = value.as<double>();
+    if (double(+FLT_MAX) <= _value) return +FLT_MAX;
+    if (_value <= double(-FLT_MAX)) return -FLT_MAX;
+    return float(_value);
+}
+
+emscripten::val export_float(float value) {
+    return emscripten::val(value);
+}
+
 ImVec2 import_ImVec2(const emscripten::val& value) {
-    float x = value["x"].as<float>();
-    float y = value["y"].as<float>();
-    return ImVec2(x, y);
+    return ImVec2(import_float(value["x"]), import_float(value["y"]));
 }
 
 emscripten::val export_ImVec2(const ImVec2& v, emscripten::val out) {
-    // emscripten::val out = emscripten::val::object();
-    out.set("x", v.x);
-    out.set("y", v.y);
+    out.set("x", export_float(v.x));
+    out.set("y", export_float(v.y));
     return out;
 }
 
 emscripten::val ImVec2_Set(emscripten::val that, float x, float y) {
-    that.set("x", x);
-    that.set("y", y);
+    that.set("x", export_float(x));
+    that.set("y", export_float(y));
     return emscripten::val(that);
 }
 
 emscripten::val ImVec2_Copy(emscripten::val that, emscripten::val other) {
-    that.set("x", other["x"].as<float>());
-    that.set("y", other["y"].as<float>());
+    that.set("x", other["x"]);
+    that.set("y", other["y"]);
     return emscripten::val(that);
 }
 
 bool ImVec2_Equals(const emscripten::val that, emscripten::val other) {
-    if (that["x"].as<float>() != other["x"].as<float>()) { return false; }
-    if (that["y"].as<float>() != other["y"].as<float>()) { return false; }
+    if (!that["x"].strictlyEquals(other["x"])) { return false; }
+    if (!that["y"].strictlyEquals(other["y"])) { return false; }
     return true;
 }
 
@@ -84,43 +100,38 @@ EMSCRIPTEN_BINDINGS(ImVec2) {
 }
 
 ImVec4 import_ImVec4(const emscripten::val& value) {
-    float x = value["x"].as<float>();
-    float y = value["y"].as<float>();
-    float z = value["z"].as<float>();
-    float w = value["w"].as<float>();
-    return ImVec4(x, y, z, w);
+    return ImVec4(import_float(value["x"]), import_float(value["y"]), import_float(value["z"]), import_float(value["w"]));
 }
 
 emscripten::val export_ImVec4(const ImVec4& v, emscripten::val out) {
-    // emscripten::val out = emscripten::val::object();
-    out.set("x", v.x);
-    out.set("y", v.y);
-    out.set("z", v.z);
-    out.set("w", v.w);
+    out.set("x", export_float(v.x));
+    out.set("y", export_float(v.y));
+    out.set("z", export_float(v.z));
+    out.set("w", export_float(v.w));
     return out;
 }
 
 emscripten::val ImVec4_Set(emscripten::val that, float x, float y, float z, float w) {
-    that.set("x", x);
-    that.set("y", y);
-    that.set("z", z);
-    that.set("w", w);
+    that.set("x", export_float(x));
+    that.set("y", export_float(y));
+    that.set("z", export_float(z));
+    that.set("w", export_float(w));
     return emscripten::val(that);
 }
 
 emscripten::val ImVec4_Copy(emscripten::val that, emscripten::val other) {
-    that.set("x", other["x"].as<float>());
-    that.set("y", other["y"].as<float>());
-    that.set("z", other["z"].as<float>());
-    that.set("w", other["w"].as<float>());
+    that.set("x", other["x"]);
+    that.set("y", other["y"]);
+    that.set("z", other["z"]);
+    that.set("w", other["w"]);
     return emscripten::val(that);
 }
 
 bool ImVec4_Equals(const emscripten::val that, emscripten::val other) {
-    if (that["x"].as<float>() != other["x"].as<float>()) { return false; }
-    if (that["y"].as<float>() != other["y"].as<float>()) { return false; }
-    if (that["z"].as<float>() != other["z"].as<float>()) { return false; }
-    if (that["w"].as<float>() != other["w"].as<float>()) { return false; }
+    if (!that["x"].strictlyEquals(other["x"])) { return false; }
+    if (!that["y"].strictlyEquals(other["y"])) { return false; }
+    if (!that["z"].strictlyEquals(other["z"])) { return false; }
+    if (!that["w"].strictlyEquals(other["w"])) { return false; }
     return true;
 }
 
@@ -499,6 +510,14 @@ EMSCRIPTEN_BINDINGS(ImDrawData) {
         .property("TotalIdxCount", &ImDrawData::TotalIdxCount)
         // int             TotalVtxCount;          // For convenience, sum of all cmd_lists vtx_buffer.Size
         .property("TotalVtxCount", &ImDrawData::TotalVtxCount)
+        // ImVec2          DisplayPos;             // Upper-left position of the viewport to render (== upper-left of the orthogonal projection matrix to use)
+        .function("getDisplayPos", FUNCTION(emscripten::val, (ImDrawData* that), {
+            ImVec2* p = &that->DisplayPos; return emscripten::val(p);
+        }), emscripten::allow_raw_pointers())
+        // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
+        .function("getDisplaySize", FUNCTION(emscripten::val, (ImDrawData* that), {
+            ImVec2* p = &that->DisplaySize; return emscripten::val(p);
+        }), emscripten::allow_raw_pointers())
 
         // Functions
         // ImDrawData() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; }
@@ -515,42 +534,67 @@ EMSCRIPTEN_BINDINGS(ImFont) {
     emscripten::class_<ImFont>("ImFont")
     // Members: Hot ~62/78 bytes
     // float                       FontSize;           // <user set>   // Height of characters, set during loading (don't change after loading)
+    .property("FontSize", &ImFont::FontSize)
     // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
+    .property("Scale", &ImFont::Scale)
     // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
+    // .property("DisplayOffset", &ImFont::DisplayOffset)
     // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
+    // .property("Glyphs", &ImFont::Glyphs)
     // ImVector<float>             IndexAdvanceX;      //              // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).
+    // .property("IndexAdvanceX", &ImFont::IndexAdvanceX)
     // ImVector<unsigned short>    IndexLookup;        //              // Sparse. Index glyphs by Unicode code-point.
+    // .property("IndexLookup", &ImFont::IndexLookup)
     // const ImFontGlyph*          FallbackGlyph;      // == FindGlyph(FontFallbackChar)
+    // .property("FallbackGlyph", &ImFont::FallbackGlyph)
     // float                       FallbackAdvanceX;   // == FallbackGlyph->AdvanceX
+    .property("FallbackAdvanceX", &ImFont::FallbackAdvanceX)
     // ImWchar                     FallbackChar;       // = '?'        // Replacement glyph if one isn't found. Only set via SetFallbackChar()
+    .property("FallbackChar", &ImFont::FallbackChar)
 
     // Members: Cold ~18/26 bytes
     // short                       ConfigDataCount;    // ~ 1          // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
+    // .property("ConfigDataCount", &ImFont::ConfigDataCount)
     // ImFontConfig*               ConfigData;         //              // Pointer within ContainerAtlas->ConfigData
+    // .property("ConfigData", &ImFont::ConfigData)
     // ImFontAtlas*                ContainerAtlas;     //              // What we has been loaded into
+    // .property("ContainerAtlas", &ImFont::ContainerAtlas)
     // float                       Ascent, Descent;    //              // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
+    .property("Ascent", &ImFont::Ascent)
+    .property("Descent", &ImFont::Descent)
     // int                         MetricsTotalSurface;//              // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
+    .property("MetricsTotalSurface", &ImFont::MetricsTotalSurface)
 
     // Methods
     // IMGUI_API ImFont();
     // IMGUI_API ~ImFont();
     // IMGUI_API void              ClearOutputData();
+    .function("ClearOutputData", &ImFont::ClearOutputData)
     // IMGUI_API void              BuildLookupTable();
+    .function("BuildLookupTable", &ImFont::BuildLookupTable)
     // IMGUI_API const ImFontGlyph*FindGlyph(ImWchar c) const;
+    // .function("FindGlyph", &ImFont::FindGlyph)
     // IMGUI_API void              SetFallbackChar(ImWchar c);
+    .function("SetFallbackChar", &ImFont::SetFallbackChar)
     // float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
+    .function("GetCharAdvance", &ImFont::GetCharAdvance)
     // bool                        IsLoaded() const                    { return ContainerAtlas != NULL; }
+    .function("IsLoaded", &ImFont::IsLoaded)
     // const char*                 GetDebugName() const                { return ConfigData ? ConfigData->Name : "<unknown>"; }
     .function("GetDebugName", FUNCTION(std::string, (const ImFont& that), { return that.GetDebugName(); }))
 
     // 'max_width' stops rendering after a certain width (could be turned into a 2d size). FLT_MAX to disable.
     // 'wrap_width' enable automatic word-wrapping across multiple lines to fit into given width. 0.0f to disable.
     // IMGUI_API ImVec2            CalcTextSizeA(float size, float max_width, float wrap_width, const char* text_begin, const char* text_end = NULL, const char** remaining = NULL) const; // utf8
-    // CalcTextSizeA(size: number, max_width: number, wrap_width: number, text_begin: string, text_end: number | null, remaining: any, out: interface_ImVec2): interface_ImVec2;
     .function("CalcTextSizeA", FUNCTION(emscripten::val, (const ImFont& that, float size, float max_width, float wrap_width, std::string text_begin, emscripten::val text_end, emscripten::val remaining, emscripten::val out), {
         return export_ImVec2(that.CalcTextSizeA(size, max_width, wrap_width, text_begin.c_str(), NULL, NULL), out);
     }))
     // IMGUI_API const char*       CalcWordWrapPositionA(float scale, const char* text, const char* text_end, float wrap_width) const;
+    .function("CalcWordWrapPositionA", FUNCTION(int, (const ImFont& that, float scale, std::string text, emscripten::val text_end, float wrap_width), {
+        const char* _text = text.c_str();
+        const char* pos = that.CalcWordWrapPositionA(scale, _text, NULL, wrap_width);
+        return (int)(pos - _text);
+    }))
     // IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, unsigned short c) const;
     // IMGUI_API void              RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
 
@@ -565,29 +609,96 @@ EMSCRIPTEN_BINDINGS(ImFont) {
     ;
 }
 
+ImFontConfig import_ImFontConfig(emscripten::val value) {
+    ImFontConfig font_cfg;
+    // void*           FontData;                   //          // TTF/OTF data
+    // int             FontDataSize;               //          // TTF/OTF data size
+    const emscripten::val FontData = value["FontData"];
+    if (FontData.isNull()) {
+        font_cfg.FontData = NULL;
+        font_cfg.FontDataSize = 0;
+    } else {
+        const emscripten::val buffer = FontData["buffer"];
+        const size_t byteOffset = FontData["byteOffset"].as<size_t>();
+        const size_t byteLength = FontData["byteLength"].as<size_t>();
+        font_cfg.FontData = NULL; // TODO
+        font_cfg.FontDataSize = 0; // TODO
+        printf("TODO: FontData %ud %ud\n", byteOffset, byteLength);
+    }
+    // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
+    font_cfg.FontDataOwnedByAtlas = value["FontDataOwnedByAtlas"].as<bool>();
+    // int             FontNo;                     // 0        // Index of font within TTF/OTF file
+    font_cfg.FontNo = value["FontNo"].as<int>();
+    // float           SizePixels;                 //          // Size in pixels for rasterizer.
+    font_cfg.SizePixels = import_float(value["SizePixels"]);
+    // int             OversampleH, OversampleV;   // 3, 1     // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis.
+    font_cfg.OversampleH = value["OversampleH"].as<int>();
+    font_cfg.OversampleV = value["OversampleV"].as<int>();
+    // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
+    font_cfg.PixelSnapH = value["PixelSnapH"].as<bool>();
+    // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
+    font_cfg.GlyphExtraSpacing = import_ImVec2(value["GlyphExtraSpacing"]);
+    // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
+    font_cfg.GlyphOffset = import_ImVec2(value["GlyphOffset"]);
+    // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
+    const emscripten::val GlyphRanges = value["GlyphRanges"];
+    if (GlyphRanges.isNull()) {
+        font_cfg.GlyphRanges = NULL;
+    } else {
+        const emscripten::val buffer = GlyphRanges["buffer"];
+        const size_t byteOffset = GlyphRanges["byteOffset"].as<size_t>();
+        const size_t byteLength = GlyphRanges["byteLength"].as<size_t>();
+        font_cfg.GlyphRanges = NULL; // TODO
+        printf("TODO: GlyphRanges %ud %ud\n", byteOffset, byteLength);
+    }
+    // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
+    font_cfg.GlyphMinAdvanceX = import_float(value["GlyphMinAdvanceX"]);
+    // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
+    font_cfg.GlyphMaxAdvanceX = import_float(value["GlyphMaxAdvanceX"]);
+    // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
+    font_cfg.MergeMode = value["MergeMode"].as<bool>();
+    // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
+    font_cfg.RasterizerFlags = value["RasterizerFlags"].as<unsigned int>();
+    // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
+    font_cfg.RasterizerMultiply = import_float(value["RasterizerMultiply"]);
+
+    // [Internal]
+    // char            Name[32];                               // Name (strictly to ease debugging)
+    strncpy(font_cfg.Name, value["Name"].as<std::string>().c_str(), sizeof(font_cfg.Name) - 1);
+    // ImFont*         DstFont;
+    return font_cfg;
+}
+
 EMSCRIPTEN_BINDINGS(ImFontAtlas) {
     emscripten::class_<ImFontAtlas>("ImFontAtlas")
         // IMGUI_API ImFontAtlas();
         // IMGUI_API ~ImFontAtlas();
         // IMGUI_API ImFont*           AddFont(const ImFontConfig* font_cfg);
         // IMGUI_API ImFont*           AddFontDefault(const ImFontConfig* font_cfg = NULL);
-        .function("AddFontDefault", FUNCTION(emscripten::val, (ImFontAtlas& that), {
-            ImFont* font = that.AddFontDefault();
+        .function("AddFontDefault", FUNCTION(emscripten::val, (ImFontAtlas& that, emscripten::val font_cfg), {
+            ImFontConfig _font_cfg = font_cfg.isNull() ? ImFontConfig() : import_ImFontConfig(font_cfg);
+            ImFont* font = that.AddFontDefault(font_cfg.isNull() ? NULL : &_font_cfg);
             return emscripten::val(font);
         }), emscripten::allow_raw_pointers())
         // IMGUI_API ImFont*           AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);
         // IMGUI_API ImFont*           AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer ownership of 'ttf_data' to ImFontAtlas! Will be deleted after Build(). Set font_cfg->FontDataOwnedByAtlas to false to keep ownership.
-        .function("AddFontFromMemoryTTF", FUNCTION(emscripten::val, (ImFontAtlas& that, emscripten::val data, float size_pixels), {
+        .function("AddFontFromMemoryTTF", FUNCTION(emscripten::val, (ImFontAtlas& that, emscripten::val data, float size_pixels, emscripten::val font_cfg, emscripten::val glyph_ranges), {
             std::vector<unsigned char> _data = emscripten::vecFromJSArray<unsigned char>(data);
-            ImFont* font = that.AddFontFromMemoryTTF(_data.data(), _data.size(), size_pixels);
+            ImFontConfig _font_cfg = font_cfg.isNull() ? ImFontConfig() : import_ImFontConfig(font_cfg);
+            std::vector<ImWchar> _glyph_ranges = glyph_ranges.isNull() ? std::vector<ImWchar>() : emscripten::vecFromJSArray<ImWchar>(glyph_ranges);
+            ImFont* font = that.AddFontFromMemoryTTF(_data.data(), _data.size(), size_pixels, font_cfg.isNull() ? NULL : &_font_cfg, glyph_ranges.isNull() ? NULL : _glyph_ranges.data());
             return emscripten::val(font);
         }), emscripten::allow_raw_pointers())
         // IMGUI_API ImFont*           AddFontFromMemoryCompressedTTF(const void* compressed_font_data, int compressed_font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // 'compressed_font_data' still owned by caller. Compress with binary_to_compressed_c.cpp.
         // IMGUI_API ImFont*           AddFontFromMemoryCompressedBase85TTF(const char* compressed_font_data_base85, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);              // 'compressed_font_data_base85' still owned by caller. Compress with binary_to_compressed_c.cpp with -base85 parameter.
         // IMGUI_API void              ClearTexData();             // Clear the CPU-side texture data. Saves RAM once the texture has been copied to graphics memory.
+        .function("ClearTexData", &ImFontAtlas::ClearTexData)
         // IMGUI_API void              ClearInputData();           // Clear the input TTF data (inc sizes, glyph ranges)
+        .function("ClearInputData", &ImFontAtlas::ClearInputData)
         // IMGUI_API void              ClearFonts();               // Clear the ImGui-side font data (glyphs storage, UV coordinates)
+        .function("ClearFonts", &ImFontAtlas::ClearFonts)
         // IMGUI_API void              Clear();                    // Clear all
+        .function("Clear", &ImFontAtlas::Clear)
         
         // Build atlas, retrieve pixel data.
         // User is in charge of copying the pixels into graphics memory (e.g. create a texture with your engine). Then store your texture handle with SetTexID().
@@ -595,6 +706,8 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         // Pitch = Width * BytesPerPixels
         // IMGUI_API bool              Build();                    // Build pixels data. This is called automatically for you by the GetTexData*** functions.
         .function("Build", &ImFontAtlas::Build)
+        // IMGUI_API bool              IsBuilt()                   { return Fonts.Size > 0 && (TexPixelsAlpha8 != NULL || TexPixelsRGBA32 != NULL); }
+        .function("IsBuilt", &ImFontAtlas::IsBuilt)
         // IMGUI_API void              GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 1 byte per-pixel
         .function("GetTexDataAsAlpha8", FUNCTION(emscripten::val, (ImFontAtlas& that), {
             unsigned char* pixels = NULL;
@@ -630,11 +743,40 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         // Helpers to retrieve list of common Unicode ranges (2 value per range, values are inclusive, zero-terminated list)
         // NB: Make sure that your string are UTF-8 and NOT in your local code page. In C++11, you can create UTF-8 string literal using the u8"Hello world" syntax. See FAQ for details.
         // IMGUI_API const ImWchar*    GetGlyphRangesDefault();    // Basic Latin, Extended Latin
+        .function("GetGlyphRangesDefault", FUNCTION(emscripten::val, (ImFontAtlas& that), {
+            const ImWchar* data = that.GetGlyphRangesDefault();
+            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+        }))
         // IMGUI_API const ImWchar*    GetGlyphRangesKorean();     // Default + Korean characters
+        .function("GetGlyphRangesKorean", FUNCTION(emscripten::val, (ImFontAtlas& that), {
+            const ImWchar* data = that.GetGlyphRangesKorean();
+            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+        }))
         // IMGUI_API const ImWchar*    GetGlyphRangesJapanese();   // Default + Hiragana, Katakana, Half-Width, Selection of 1946 Ideographs
-        // IMGUI_API const ImWchar*    GetGlyphRangesChinese();    // Default + Japanese + full set of about 21000 CJK Unified Ideographs
+        .function("GetGlyphRangesJapanese", FUNCTION(emscripten::val, (ImFontAtlas& that), {
+            const ImWchar* data = that.GetGlyphRangesJapanese();
+            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+        }))
+        // IMGUI_API const ImWchar*    GetGlyphRangesChineseFull();            // Default + Half-Width + Japanese Hiragana/Katakana + full set of about 21000 CJK Unified Ideographs
+        .function("GetGlyphRangesChineseFull", FUNCTION(emscripten::val, (ImFontAtlas& that), {
+            const ImWchar* data = that.GetGlyphRangesChineseFull();
+            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+        }))
+        // IMGUI_API const ImWchar*    GetGlyphRangesChineseSimplifiedCommon();// Default + Half-Width + Japanese Hiragana/Katakana + set of 2500 CJK Unified Ideographs for common simplified Chinese
+        .function("GetGlyphRangesChineseSimplifiedCommon", FUNCTION(emscripten::val, (ImFontAtlas& that), {
+            const ImWchar* data = that.GetGlyphRangesChineseSimplifiedCommon();
+            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+        }))
         // IMGUI_API const ImWchar*    GetGlyphRangesCyrillic();   // Default + about 400 Cyrillic characters
+        .function("GetGlyphRangesCyrillic", FUNCTION(emscripten::val, (ImFontAtlas& that), {
+            const ImWchar* data = that.GetGlyphRangesCyrillic();
+            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+        }))
         // IMGUI_API const ImWchar*    GetGlyphRangesThai();       // Default + Thai characters
+        .function("GetGlyphRangesThai", FUNCTION(emscripten::val, (ImFontAtlas& that), {
+            const ImWchar* data = that.GetGlyphRangesThai();
+            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+        }))
 
         // Helpers to build glyph ranges from text data. Feed your application strings/characters to it then call BuildRanges().
         // struct GlyphRangesBuilder
@@ -676,6 +818,8 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         // Members
         //-------------------------------------------
 
+        // ImFontAtlasFlags            Flags;              // Build flags (see ImFontAtlasFlags_)
+        .property("Flags", &ImFontAtlas::Flags)
         // ImTextureID                 TexID;              // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
         .function("getTexID", FUNCTION(emscripten::val, (const ImFontAtlas* that), {
             return emscripten::val((int) that->TexID);
@@ -684,7 +828,9 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
             that->TexID = (ImTextureID) value.as<int>();
         }), emscripten::allow_raw_pointers())
         // int                         TexDesiredWidth;    // Texture width desired by user before Build(). Must be a power-of-two. If have many glyphs your graphics API have texture size restrictions you may want to increase texture width to decrease height.
+        .property("TexDesiredWidth", &ImFontAtlas::TexDesiredWidth)
         // int                         TexGlyphPadding;    // Padding between glyphs within texture in pixels. Defaults to 1.
+        .property("TexGlyphPadding", &ImFontAtlas::TexGlyphPadding)
 
         // [Internal]
         // NB: Access texture data via GetTexData*() calls! Which will setup a default font for you.
@@ -694,7 +840,14 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         .property("TexWidth", &ImFontAtlas::TexWidth)
         // int                         TexHeight;          // Texture height calculated during Build().
         .property("TexHeight", &ImFontAtlas::TexHeight)
+        // ImVec2                      TexUvScale;         // = (1.0f/TexWidth, 1.0f/TexHeight)
+        .function("getTexUvScale", FUNCTION(emscripten::val, (ImFontAtlas* that), {
+            ImVec2* p = &that->TexUvScale; return emscripten::val(p);
+        }), emscripten::allow_raw_pointers())
         // ImVec2                      TexUvWhitePixel;    // Texture coordinates to a white pixel
+        .function("getTexUvWhitePixel", FUNCTION(emscripten::val, (ImFontAtlas* that), {
+            ImVec2* p = &that->TexUvWhitePixel; return emscripten::val(p);
+        }), emscripten::allow_raw_pointers())
         // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
         // ImVector<CustomRect>        CustomRects;        // Rectangles for packing custom texture data into the atlas.
         // ImVector<ImFontConfig>      ConfigData;         // Internal data
@@ -1022,11 +1175,6 @@ EMSCRIPTEN_BINDINGS(ImGuiContext) {
     ;
 }
 
-static emscripten::val _PlotLines_values_getter = emscripten::val::undefined();
-static emscripten::val _PlotLines_data = emscripten::val::undefined();
-static emscripten::val _PlotHistogram_values_getter = emscripten::val::undefined();
-static emscripten::val _PlotHistogram_data = emscripten::val::undefined();
-
 EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::constant("IMGUI_VERSION", std::string(IMGUI_VERSION));
 
@@ -1231,7 +1379,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API void          SetNextWindowSizeConstraints(const ImVec2& size_min, const ImVec2& size_max, ImGuiSizeConstraintCallback custom_callback = NULL, void* custom_callback_data = NULL); // set next window size limits. use -1,-1 on either X/Y axis to preserve the current size. Use callback to apply non-trivial programmatic constraints.
     emscripten::function("SetNextWindowSizeConstraints", FUNCTION(void, (emscripten::val size_min, emscripten::val size_max, emscripten::val custom_callback, emscripten::val custom_callback_data), {
-        if (!custom_callback.isUndefined() && !custom_callback.isNull()) {
+        if (!custom_callback.isNull()) {
             static emscripten::val _custom_callback = custom_callback;
             static emscripten::val _custom_callback_data = custom_callback_data;
             ImGui::SetNextWindowSizeConstraints(import_ImVec2(size_min), import_ImVec2(size_max), FUNCTION(void, (ImGuiSizeCallbackData* data), {
@@ -1347,7 +1495,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          PushStyleVar(ImGuiStyleVar idx, const ImVec2& emscripten::val);
     emscripten::function("PushStyleVar", FUNCTION(void, (ImGuiStyleVar idx, emscripten::val var), {
         if (var.typeOf().strictlyEquals(emscripten::val("number"))) {
-            ImGui::PushStyleVar(idx, var.as<float>());
+            ImGui::PushStyleVar(idx, import_float(var));
         } else {
             ImGui::PushStyleVar(idx, import_ImVec2(var));
         }
@@ -1372,7 +1520,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API ImU32         GetColorU32(const ImVec4& col);                                     // retrieve given color with style alpha applied
     // IMGUI_API ImU32         GetColorU32(ImU32 col);                                             // retrieve given color with style alpha applied
     emscripten::function("GetColorU32", FUNCTION(ImU32, (emscripten::val color, emscripten::val alpha_mul), {
-        return ImGui::GetColorU32(color.as<ImGuiCol>(), alpha_mul.as<float>());
+        return ImGui::GetColorU32(color.as<ImGuiCol>(), import_float(alpha_mul));
     }));
 
     // Parameters stacks (current window)
@@ -1459,11 +1607,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // You can also use SameLine(pos_x) for simplified columns. The columns API is still work-in-progress and rather lacking.
     // IMGUI_API void          Columns(int count = 1, const char* id = NULL, bool border = true);
     emscripten::function("Columns", FUNCTION(void, (int count, emscripten::val id, bool border), {
-        if (id.isNull()) {
-            ImGui::Columns(count, NULL, border);
-        } else {
-            ImGui::Columns(count, id.as<std::string>().c_str(), border);
-        }
+        ImGui::Columns(count, import_string_or_null(id), border);
     }));
     // IMGUI_API void          NextColumn();                                                       // next column, defaults to current row or next row if the current row is finished
     emscripten::function("NextColumn", &ImGui::NextColumn);
@@ -1584,41 +1728,29 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API void          PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
     // IMGUI_API void          PlotLines(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0));
+    static emscripten::val _PlotLines_values_getter = emscripten::val::undefined();
+    static emscripten::val _PlotLines_data = emscripten::val::undefined();
     emscripten::function("PlotLines", FUNCTION(void, (std::string label, emscripten::val values_getter, emscripten::val data, int values_count, int values_offset, emscripten::val overlay_text, emscripten::val scale_min, emscripten::val scale_max, emscripten::val graph_size), {
-        /*static emscripten::val*/ _PlotLines_values_getter = values_getter;
-        /*static emscripten::val*/ _PlotLines_data = data;
-        const char* _overlay_text = overlay_text.isNull() ? NULL : overlay_text.as<std::string>().c_str();
-        float _scale_min = scale_min.isNull() ? FLT_MAX : scale_min.as<float>();
-        float _scale_max = scale_max.isNull() ? FLT_MAX : scale_max.as<float>();
+        _PlotLines_values_getter = values_getter;
+        _PlotLines_data = data;
         ImGui::PlotLines(label.c_str(), FUNCTION(float, (void* data, int idx), {
-            return _PlotLines_values_getter(_PlotLines_data, emscripten::val(idx)).as<float>();
-        }), NULL, values_count, values_offset, _overlay_text, _scale_min, _scale_max, import_ImVec2(graph_size));
-
-        // ImGui::PlotLines(label.c_str(), emscripten::select_overload<float (void* data, int idx)>([] (void* data, int idx) -> float {
-        //     return 0.0f;
-        // }), NULL, values_count, values_offset, _overlay_text, _scale_min, _scale_max, import_ImVec2(graph_size));
-
-
+            return import_float(_PlotLines_values_getter(_PlotLines_data, emscripten::val(idx)));
+        }), NULL, values_count, values_offset, import_string_or_null(overlay_text), import_float(scale_min), import_float(scale_max), import_ImVec2(graph_size));
     }));
     // IMGUI_API void          PlotHistogram(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
     // IMGUI_API void          PlotHistogram(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0));
+    static emscripten::val _PlotHistogram_values_getter = emscripten::val::undefined();
+    static emscripten::val _PlotHistogram_data = emscripten::val::undefined();
     emscripten::function("PlotHistogram", FUNCTION(void, (std::string label, emscripten::val values_getter, emscripten::val data, int values_count, int values_offset, emscripten::val overlay_text, emscripten::val scale_min, emscripten::val scale_max, emscripten::val graph_size), {
-        /*static emscripten::val*/ _PlotHistogram_values_getter = values_getter;
-        /*static emscripten::val*/ _PlotHistogram_data = data;
-        const char* _overlay_text = overlay_text.isNull() ? NULL : overlay_text.as<std::string>().c_str();
-        float _scale_min = scale_min.isNull() ? FLT_MAX : scale_min.as<float>();
-        float _scale_max = scale_max.isNull() ? FLT_MAX : scale_max.as<float>();
+        _PlotHistogram_values_getter = values_getter;
+        _PlotHistogram_data = data;
         ImGui::PlotHistogram(label.c_str(), FUNCTION(float, (void* data, int idx), {
-            return _PlotHistogram_values_getter(_PlotHistogram_data, emscripten::val(idx)).as<float>();
-        }), NULL, values_count, values_offset, _overlay_text, _scale_min, _scale_max, import_ImVec2(graph_size));
+            return import_float(_PlotHistogram_values_getter(_PlotHistogram_data, emscripten::val(idx)));
+        }), NULL, values_count, values_offset, import_string_or_null(overlay_text), import_float(scale_min), import_float(scale_max), import_ImVec2(graph_size));
     }));
     // IMGUI_API void          ProgressBar(float fraction, const ImVec2& size_arg = ImVec2(-1,0), const char* overlay = NULL);
     emscripten::function("ProgressBar", FUNCTION(void, (float fraction, emscripten::val size_arg, emscripten::val overlay), {
-        if (overlay.isNull()) {
-            ImGui::ProgressBar(fraction, import_ImVec2(size_arg), NULL);
-        } else {
-            ImGui::ProgressBar(fraction, import_ImVec2(size_arg), overlay.as<std::string>().c_str());
-        }
+        ImGui::ProgressBar(fraction, import_ImVec2(size_arg), import_string_or_null(overlay));
     }));
 
     // Widgets: Combo Box
@@ -1626,7 +1758,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // The old Combo() api are helpers over BeginCombo()/EndCombo() which are kept available for convenience purpose.
     // IMGUI_API bool          BeginCombo(const char* label, const char* preview_value, ImGuiComboFlags flags = 0);
     emscripten::function("BeginCombo", FUNCTION(bool, (std::string label, emscripten::val preview_value, ImGuiComboFlags flags), {
-        return ImGui::BeginCombo(label.c_str(), preview_value.isNull() ? NULL : preview_value.as<std::string>().c_str(), flags);
+        return ImGui::BeginCombo(label.c_str(), import_string_or_null(preview_value), flags);
     }));
     // IMGUI_API void          EndCombo();
     emscripten::function("EndCombo", &ImGui::EndCombo);
@@ -1648,47 +1780,46 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // Widgets: Drags (tip: ctrl+click on a drag box to input with keyboard. manually input values aren't clamped, can go off-bounds)
     // For all the Float2/Float3/Float4/Int2/Int3/Int4 versions of every functions, note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can pass address of your first element out of a contiguous set, e.g. &myvector.x
     // IMGUI_API bool          DragFloat(const char* label, float* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);     // If v_min >= v_max we have no bound
-    emscripten::function("DragFloat", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, emscripten::val format, float power), {
-        float _v = v[0].as<float>();
-        bool ret = ImGui::DragFloat(label.c_str(), &_v, v_speed, v_min, v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
-        v.set(0, emscripten::val(_v));
+    emscripten::function("DragFloat", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, std::string format, float power), {
+        float _v = import_float(v[0]);
+        bool ret = ImGui::DragFloat(label.c_str(), &_v, v_speed, v_min, v_max, format.c_str(), power);
+        v.set(0, export_float(_v));
         return ret;
     }));
     // IMGUI_API bool          DragFloat2(const char* label, float v[2], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);
     emscripten::function("DragFloat2", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, std::string format, float power), {
-        float _v[2] = { v[0].as<float>(), v[1].as<float>() };
+        float _v[2] = { import_float(v[0]), import_float(v[1]) };
         bool ret = ImGui::DragFloat2(label.c_str(), _v, v_speed, v_min, v_max, format.c_str(), power);
-        v.set(0, emscripten::val(_v[0]));
-        v.set(1, emscripten::val(_v[1]));
+        v.set(0, export_float(_v[0]));
+        v.set(1, export_float(_v[1]));
         return ret;
     }));
     // IMGUI_API bool          DragFloat3(const char* label, float v[3], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);
     emscripten::function("DragFloat3", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, std::string format, float power), {
-        float _v[3] = { v[0].as<float>(), v[1].as<float>(), v[2].as<float>() };
+        float _v[3] = { import_float(v[0]), import_float(v[1]), import_float(v[2]) };
         bool ret = ImGui::DragFloat3(label.c_str(), _v, v_speed, v_min, v_max, format.c_str(), power);
-        v.set(0, emscripten::val(_v[0]));
-        v.set(1, emscripten::val(_v[1]));
-        v.set(2, emscripten::val(_v[2]));
+        v.set(0, export_float(_v[0]));
+        v.set(1, export_float(_v[1]));
+        v.set(2, export_float(_v[2]));
         return ret;
     }));
     // IMGUI_API bool          DragFloat4(const char* label, float v[4], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);
     emscripten::function("DragFloat4", FUNCTION(bool, (std::string label, emscripten::val v, float v_speed, float v_min, float v_max, std::string format, float power), {
-        float _v[4] = { v[0].as<float>(), v[1].as<float>(), v[2].as<float>(), v[3].as<float>() };
+        float _v[4] = { import_float(v[0]), import_float(v[1]), import_float(v[2]), import_float(v[3]) };
         bool ret = ImGui::DragFloat4(label.c_str(), _v, v_speed, v_min, v_max, format.c_str(), power);
-        v.set(0, emscripten::val(_v[0]));
-        v.set(1, emscripten::val(_v[1]));
-        v.set(2, emscripten::val(_v[2]));
-        v.set(3, emscripten::val(_v[3]));
+        v.set(0, export_float(_v[0]));
+        v.set(1, export_float(_v[1]));
+        v.set(2, export_float(_v[2]));
+        v.set(3, export_float(_v[3]));
         return ret;
     }));
     // IMGUI_API bool          DragFloatRange2(const char* label, float* v_current_min, float* v_current_max, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", const char* display_format_max = NULL, float power = 1.0f);
     emscripten::function("DragFloatRange2", FUNCTION(bool, (std::string label, emscripten::val v_current_min, emscripten::val v_current_max, float v_speed, float v_min, float v_max, std::string format, emscripten::val display_format_max, float power), {
-        float _v_current_min = v_current_min[0].as<float>();
-        float _v_current_max = v_current_max[0].as<float>();
-        std::string _display_format_max = display_format_max.isNull() ? NULL : display_format_max.as<std::string>();
-        bool ret = ImGui::DragFloatRange2(label.c_str(), &_v_current_min, &_v_current_max, v_speed, v_min, v_max, format.c_str(), _display_format_max.c_str(), power);
-        v_current_min.set(0, emscripten::val(_v_current_min));
-        v_current_max.set(0, emscripten::val(_v_current_max));
+        float _v_current_min = import_float(v_current_min[0]);
+        float _v_current_max = import_float(v_current_max[0]);
+        bool ret = ImGui::DragFloatRange2(label.c_str(), &_v_current_min, &_v_current_max, v_speed, v_min, v_max, format.c_str(), import_string_or_null(display_format_max), power);
+        v_current_min.set(0, export_float(_v_current_min));
+        v_current_max.set(0, export_float(_v_current_max));
         return ret;
     }));
     // IMGUI_API bool          DragInt(const char* label, int* v, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%.0f");                                       // If v_min >= v_max we have no bound
@@ -1729,8 +1860,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("DragIntRange2", FUNCTION(bool, (std::string label, emscripten::val v_current_min, emscripten::val v_current_max, float v_speed, float v_min, float v_max, std::string format, emscripten::val display_format_max), {
         int _v_current_min = v_current_min[0].as<int>();
         int _v_current_max = v_current_max[0].as<int>();
-        std::string _display_format_max = display_format_max.isNull() ? NULL : display_format_max.as<std::string>();
-        bool ret = ImGui::DragIntRange2(label.c_str(), &_v_current_min, &_v_current_max, v_speed, v_min, v_max, format.c_str(), _display_format_max.c_str());
+        bool ret = ImGui::DragIntRange2(label.c_str(), &_v_current_min, &_v_current_max, v_speed, v_min, v_max, format.c_str(), import_string_or_null(display_format_max));
         v_current_min.set(0, emscripten::val(_v_current_min));
         v_current_max.set(0, emscripten::val(_v_current_max));
         return ret;
@@ -1744,7 +1874,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 std::vector<ImS32> _v = emscripten::vecFromJSArray<ImS32>(v);
                 ImS32 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImS32>();
                 ImS32 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImS32>();
-                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
                 v.call<void>("set", emscripten::typed_memory_view<ImS32>(_v.size(), _v.data()));
                 break;
             }
@@ -1752,7 +1882,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 std::vector<ImU32> _v = emscripten::vecFromJSArray<ImU32>(v);
                 ImU32 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImU32>();
                 ImU32 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImU32>();
-                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
                 v.call<void>("set", emscripten::typed_memory_view<ImU32>(_v.size(), _v.data()));
                 break;
             }
@@ -1760,7 +1890,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 // std::vector<ImS64> _v = emscripten::vecFromJSArray<ImS64>(v);
                 // ImS64 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImS64>();
                 // ImS64 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImS64>();
-                // ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+                // ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
                 // v.call<void>("set", emscripten::typed_memory_view<ImS64>(_v.size(), _v.data()));
                 break;
             }
@@ -1768,7 +1898,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 // std::vector<ImU64> _v = emscripten::vecFromJSArray<ImU64>(v);
                 // ImU64 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImU64>();
                 // ImU64 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImU64>();
-                // ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+                // ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
                 // v.call<void>("set", emscripten::typed_memory_view<ImU64>(_v.size(), _v.data()));
                 break;
             }
@@ -1776,7 +1906,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 std::vector<float> _v = emscripten::vecFromJSArray<float>(v);
                 float _v_min = v_min.isNull() ? 0.0 : v_min.as<float>();
                 float _v_max = v_max.isNull() ? 1.0 : v_max.as<float>();
-                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
                 v.call<void>("set", emscripten::typed_memory_view<float>(_v.size(), _v.data()));
                 break;
             }
@@ -1784,7 +1914,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 std::vector<double> _v = emscripten::vecFromJSArray<double>(v);
                 double _v_min = v_min.isNull() ? 0.0 : v_min.as<double>();
                 double _v_max = v_max.isNull() ? 1.0 : v_max.as<double>();
-                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_speed, v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
                 v.call<void>("set", emscripten::typed_memory_view<double>(_v.size(), _v.data()));
                 break;
             }
@@ -1833,36 +1963,36 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API bool          InputFloat(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
     emscripten::function("InputFloat", FUNCTION(bool, (std::string label, emscripten::val v, float step, float step_fast, std::string format, ImGuiInputTextFlags extra_flags), {
-        float _v = v[0].as<float>();
+        float _v = import_float(v[0]);
         bool ret = ImGui::InputFloat(label.c_str(), &_v, step, step_fast, format.c_str(), extra_flags);
-        v.set(0, emscripten::val(_v));
+        v.set(0, export_float(_v));
         return ret;
     }));
     // IMGUI_API bool          InputFloat2(const char* label, float v[2], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
     emscripten::function("InputFloat2", FUNCTION(bool, (std::string label, emscripten::val v, std::string format, ImGuiInputTextFlags extra_flags), {
-        float _v[] = { v[0].as<float>(), v[1].as<float>() };
+        float _v[] = { import_float(v[0]), import_float(v[1]) };
         bool ret = ImGui::InputFloat2(label.c_str(), _v, format.c_str(), extra_flags);
-        v.set(0, emscripten::val(_v[0]));
-        v.set(1, emscripten::val(_v[1]));
+        v.set(0, export_float(_v[0]));
+        v.set(1, export_float(_v[1]));
         return ret;
     }));
     // IMGUI_API bool          InputFloat3(const char* label, float v[3], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
     emscripten::function("InputFloat3", FUNCTION(bool, (std::string label, emscripten::val v, std::string format, ImGuiInputTextFlags extra_flags), {
-        float _v[] = { v[0].as<float>(), v[1].as<float>(), v[2].as<float>() };
+        float _v[] = { import_float(v[0]), import_float(v[1]), import_float(v[2]) };
         bool ret = ImGui::InputFloat3(label.c_str(), _v, format.c_str(), extra_flags);
-        v.set(0, emscripten::val(_v[0]));
-        v.set(1, emscripten::val(_v[1]));
-        v.set(2, emscripten::val(_v[2]));
+        v.set(0, export_float(_v[0]));
+        v.set(1, export_float(_v[1]));
+        v.set(2, export_float(_v[2]));
         return ret;
     }));
     // IMGUI_API bool          InputFloat4(const char* label, float v[4], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
     emscripten::function("InputFloat4", FUNCTION(bool, (std::string label, emscripten::val v, std::string format, ImGuiInputTextFlags extra_flags), {
-        float _v[] = { v[0].as<float>(), v[1].as<float>(), v[2].as<float>(), v[3].as<float>() };
+        float _v[] = { import_float(v[0]), import_float(v[1]), import_float(v[2]), import_float(v[3]) };
         bool ret = ImGui::InputFloat4(label.c_str(), _v, format.c_str(), extra_flags);
-        v.set(0, emscripten::val(_v[0]));
-        v.set(1, emscripten::val(_v[1]));
-        v.set(2, emscripten::val(_v[2]));
-        v.set(3, emscripten::val(_v[3]));
+        v.set(0, export_float(_v[0]));
+        v.set(1, export_float(_v[1]));
+        v.set(2, export_float(_v[2]));
+        v.set(3, export_float(_v[3]));
         return ret;
     }));
     // IMGUI_API bool          InputInt(const char* label, int* v, int step = 1, int step_fast = 100, ImGuiInputTextFlags extra_flags = 0);
@@ -1915,7 +2045,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 std::vector<ImS32> _v = emscripten::vecFromJSArray<ImS32>(v);
                 ImS32 _step = step.isNull() ? 0.0 : step.as<ImS32>();
                 ImS32 _step_fast = step_fast.isNull() ? 1.0 : step_fast.as<ImS32>();
-                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, format.isNull() ? NULL : format.as<std::string>().c_str(), extra_flags);
+                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, import_string_or_null(format), extra_flags);
                 v.call<void>("set", emscripten::typed_memory_view<ImS32>(_v.size(), _v.data()));
                 break;
             }
@@ -1923,7 +2053,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 std::vector<ImU32> _v = emscripten::vecFromJSArray<ImU32>(v);
                 ImU32 _step = step.isNull() ? 0.0 : step.as<ImU32>();
                 ImU32 _step_fast = step_fast.isNull() ? 1.0 : step_fast.as<ImU32>();
-                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, format.isNull() ? NULL : format.as<std::string>().c_str(), extra_flags);
+                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, import_string_or_null(format), extra_flags);
                 v.call<void>("set", emscripten::typed_memory_view<ImU32>(_v.size(), _v.data()));
                 break;
             }
@@ -1931,7 +2061,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 // std::vector<ImS64> _v = emscripten::vecFromJSArray<ImS64>(v);
                 // ImS64 _step = step.isNull() ? 0.0 : step.as<ImS64>();
                 // ImS64 _step_fast = step_fast.isNull() ? 1.0 : step_fast.as<ImS64>();
-                // ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, format.isNull() ? NULL : format.as<std::string>().c_str(), extra_flags);
+                // ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, import_string_or_null(format), extra_flags);
                 // v.call<void>("set", emscripten::typed_memory_view<ImS64>(_v.size(), _v.data()));
                 break;
             }
@@ -1939,7 +2069,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 // std::vector<ImU64> _v = emscripten::vecFromJSArray<ImU64>(v);
                 // ImU64 _step = step.isNull() ? 0.0 : step.as<ImU64>();
                 // ImU64 _step_fast = step_fast.isNull() ? 1.0 : step_fast.as<ImU64>();
-                // ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, format.isNull() ? NULL : format.as<std::string>().c_str(), extra_flags);
+                // ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, import_string_or_null(format), extra_flags);
                 // v.call<void>("set", emscripten::typed_memory_view<ImU64>(_v.size(), _v.data()));
                 break;
             }
@@ -1947,7 +2077,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 std::vector<float> _v = emscripten::vecFromJSArray<float>(v);
                 float _step = step.isNull() ? 0.0 : step.as<float>();
                 float _step_fast = step_fast.isNull() ? 1.0 : step_fast.as<float>();
-                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, format.isNull() ? NULL : format.as<std::string>().c_str(), extra_flags);
+                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, import_string_or_null(format), extra_flags);
                 v.call<void>("set", emscripten::typed_memory_view<float>(_v.size(), _v.data()));
                 break;
             }
@@ -1955,7 +2085,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 std::vector<double> _v = emscripten::vecFromJSArray<double>(v);
                 double _step = step.isNull() ? 0.0 : step.as<double>();
                 double _step_fast = step_fast.isNull() ? 1.0 : step_fast.as<double>();
-                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, format.isNull() ? NULL : format.as<std::string>().c_str(), extra_flags);
+                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, import_string_or_null(format), extra_flags);
                 v.call<void>("set", emscripten::typed_memory_view<double>(_v.size(), _v.data()));
                 break;
             }
@@ -1966,43 +2096,43 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // Widgets: Sliders (tip: ctrl+click on a slider to input with keyboard. manually input values aren't clamped, can go off-bounds)
     // IMGUI_API bool          SliderFloat(const char* label, float* v, float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);     // adjust format to decorate the value with a prefix or a suffix for in-slider labels or unit display. Use power!=1.0 for logarithmic sliders
     emscripten::function("SliderFloat", FUNCTION(bool, (std::string label, emscripten::val v, float v_min, float v_max, std::string format, float power), {
-        float _v = v[0].as<float>();
+        float _v = import_float(v[0]);
         bool ret = ImGui::SliderFloat(label.c_str(), &_v, v_min, v_max, format.c_str(), power);
-        v.set(0, emscripten::val(_v));
+        v.set(0, export_float(_v));
         return ret;
     }));
     // IMGUI_API bool          SliderFloat2(const char* label, float v[2], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
     emscripten::function("SliderFloat2", FUNCTION(bool, (std::string label, emscripten::val v, float v_min, float v_max, std::string format, float power), {
-        float _v[] = { v[0].as<float>(), v[1].as<float>() };
+        float _v[] = { import_float(v[0]), import_float(v[1]) };
         bool ret = ImGui::SliderFloat2(label.c_str(), _v, v_min, v_max, format.c_str(), power);
-        v.set(0, emscripten::val(_v[0]));
-        v.set(1, emscripten::val(_v[1]));
+        v.set(0, export_float(_v[0]));
+        v.set(1, export_float(_v[1]));
         return ret;
     }));
     // IMGUI_API bool          SliderFloat3(const char* label, float v[3], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
     emscripten::function("SliderFloat3", FUNCTION(bool, (std::string label, emscripten::val v, float v_min, float v_max, std::string format, float power), {
-        float _v[] = { v[0].as<float>(), v[1].as<float>(), v[2].as<float>() };
+        float _v[] = { import_float(v[0]), import_float(v[1]), import_float(v[2]) };
         bool ret = ImGui::SliderFloat3(label.c_str(), _v, v_min, v_max, format.c_str(), power);
-        v.set(0, emscripten::val(_v[0]));
-        v.set(1, emscripten::val(_v[1]));
-        v.set(2, emscripten::val(_v[2]));
+        v.set(0, export_float(_v[0]));
+        v.set(1, export_float(_v[1]));
+        v.set(2, export_float(_v[2]));
         return ret;
     }));
     // IMGUI_API bool          SliderFloat4(const char* label, float v[4], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
     emscripten::function("SliderFloat4", FUNCTION(bool, (std::string label, emscripten::val v, float v_min, float v_max, std::string format, float power), {
-        float _v[] = { v[0].as<float>(), v[1].as<float>(), v[2].as<float>(), v[3].as<float>() };
+        float _v[] = { import_float(v[0]), import_float(v[1]), import_float(v[2]), import_float(v[3]) };
         bool ret = ImGui::SliderFloat4(label.c_str(), _v, v_min, v_max, format.c_str(), power);
-        v.set(0, emscripten::val(_v[0]));
-        v.set(1, emscripten::val(_v[1]));
-        v.set(2, emscripten::val(_v[2]));
-        v.set(3, emscripten::val(_v[3]));
+        v.set(0, export_float(_v[0]));
+        v.set(1, export_float(_v[1]));
+        v.set(2, export_float(_v[2]));
+        v.set(3, export_float(_v[3]));
         return ret;
     }));
     // IMGUI_API bool          SliderAngle(const char* label, float* v_rad, float v_degrees_min = -360.0f, float v_degrees_max = +360.0f);
     emscripten::function("SliderAngle", FUNCTION(bool, (std::string label, emscripten::val v_rad, float v_degrees_min, float v_degrees_max), {
-        float _v_rad = v_rad[0].as<float>();
+        float _v_rad = import_float(v_rad[0]);
         bool ret = ImGui::SliderAngle(label.c_str(), &_v_rad, v_degrees_min, v_degrees_max);
-        v_rad.set(0, emscripten::val(_v_rad));
+        v_rad.set(0, export_float(_v_rad));
         return ret;
     }));
     // IMGUI_API bool          SliderInt(const char* label, int* v, int v_min, int v_max, const char* format = "%.0f");
@@ -2048,7 +2178,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 std::vector<ImS32> _v = emscripten::vecFromJSArray<ImS32>(v);
                 ImS32 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImS32>();
                 ImS32 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImS32>();
-                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
                 v.call<void>("set", emscripten::typed_memory_view<ImS32>(_v.size(), _v.data()));
                 break;
             }
@@ -2056,7 +2186,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 std::vector<ImU32> _v = emscripten::vecFromJSArray<ImU32>(v);
                 ImU32 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImU32>();
                 ImU32 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImU32>();
-                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
                 v.call<void>("set", emscripten::typed_memory_view<ImU32>(_v.size(), _v.data()));
                 break;
             }
@@ -2064,7 +2194,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 // std::vector<ImS64> _v = emscripten::vecFromJSArray<ImS64>(v);
                 // ImS64 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImS64>();
                 // ImS64 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImS64>();
-                // ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+                // ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
                 // v.call<void>("set", emscripten::typed_memory_view<ImS64>(_v.size(), _v.data()));
                 break;
             }
@@ -2072,7 +2202,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 // std::vector<ImU64> _v = emscripten::vecFromJSArray<ImU64>(v);
                 // ImU64 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImU64>();
                 // ImU64 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImU64>();
-                // ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+                // ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
                 // v.call<void>("set", emscripten::typed_memory_view<ImU64>(_v.size(), _v.data()));
                 break;
             }
@@ -2080,7 +2210,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 std::vector<float> _v = emscripten::vecFromJSArray<float>(v);
                 float _v_min = v_min.isNull() ? 0.0 : v_min.as<float>();
                 float _v_max = v_max.isNull() ? 1.0 : v_max.as<float>();
-                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
                 v.call<void>("set", emscripten::typed_memory_view<float>(_v.size(), _v.data()));
                 break;
             }
@@ -2088,7 +2218,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
                 std::vector<double> _v = emscripten::vecFromJSArray<double>(v);
                 double _v_min = v_min.isNull() ? 0.0 : v_min.as<double>();
                 double _v_max = v_max.isNull() ? 1.0 : v_max.as<double>();
-                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, format.isNull() ? NULL : format.as<std::string>().c_str(), power);
+                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
                 v.call<void>("set", emscripten::typed_memory_view<double>(_v.size(), _v.data()));
                 break;
             }
@@ -2097,9 +2227,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API bool          VSliderFloat(const char* label, const ImVec2& size, float* v, float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
     emscripten::function("VSliderFloat", FUNCTION(bool, (std::string label, emscripten::val size, emscripten::val v, float v_min, float v_max, std::string format, float power), {
-        float _v = v[0].as<float>();
+        float _v = import_float(v[0]);
         bool ret = ImGui::VSliderFloat(label.c_str(), import_ImVec2(size), &_v, v_min, v_max, format.c_str(), power);
-        v.set(0, emscripten::val(_v));
+        v.set(0, export_float(_v));
         return ret;
     }));
     // IMGUI_API bool          VSliderInt(const char* label, const ImVec2& size, int* v, int v_min, int v_max, const char* format = "%.0f");
@@ -2114,54 +2244,40 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // Note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can the pass the address of a first float element out of a contiguous structure, e.g. &myvector.x
     // IMGUI_API bool          ColorEdit3(const char* label, float col[3], ImGuiColorEditFlags flags = 0);
     emscripten::function("ColorEdit3", FUNCTION(bool, (std::string label, emscripten::val col, ImGuiColorEditFlags flags), {
-        float _col[3] = { 0.0f, 0.0f, 0.0f };
-        _col[0] = col[0].as<float>();
-        _col[1] = col[1].as<float>();
-        _col[2] = col[2].as<float>();
+        float _col[3] = { import_float(col[0]), import_float(col[1]), import_float(col[2]) };
         bool ret = ImGui::ColorEdit3(label.c_str(), _col, flags);
-        col.set(0, emscripten::val(_col[0]));
-        col.set(1, emscripten::val(_col[1]));
-        col.set(2, emscripten::val(_col[2]));
+        col.set(0, export_float(_col[0]));
+        col.set(1, export_float(_col[1]));
+        col.set(2, export_float(_col[2]));
         return ret;
     }));
     // IMGUI_API bool          ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flags = 0);
     emscripten::function("ColorEdit4", FUNCTION(bool, (std::string label, emscripten::val col, ImGuiColorEditFlags flags), {
-        float _col[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-        _col[0] = col[0].as<float>();
-        _col[1] = col[1].as<float>();
-        _col[2] = col[2].as<float>();
-        _col[3] = col[3].as<float>();
+        float _col[4] = { import_float(col[0]), import_float(col[1]), import_float(col[2]), import_float(col[3]) };
         bool ret = ImGui::ColorEdit4(label.c_str(), _col, flags);
-        col.set(0, emscripten::val(_col[0]));
-        col.set(1, emscripten::val(_col[1]));
-        col.set(2, emscripten::val(_col[2]));
-        col.set(3, emscripten::val(_col[3]));
+        col.set(0, export_float(_col[0]));
+        col.set(1, export_float(_col[1]));
+        col.set(2, export_float(_col[2]));
+        col.set(3, export_float(_col[3]));
         return ret;
     }));
     // IMGUI_API bool          ColorPicker3(const char* label, float col[3], ImGuiColorEditFlags flags = 0);
     emscripten::function("ColorPicker3", FUNCTION(bool, (std::string label, emscripten::val col, ImGuiColorEditFlags flags), {
-        float _col[3] = { 0.0f, 0.0f, 0.0f };
-        _col[0] = col[0].as<float>();
-        _col[1] = col[1].as<float>();
-        _col[2] = col[2].as<float>();
+        float _col[3] = { import_float(col[0]), import_float(col[1]), import_float(col[2]) };
         bool ret = ImGui::ColorPicker3(label.c_str(), _col, flags);
-        col.set(0, emscripten::val(_col[0]));
-        col.set(1, emscripten::val(_col[1]));
-        col.set(2, emscripten::val(_col[2]));
+        col.set(0, export_float(_col[0]));
+        col.set(1, export_float(_col[1]));
+        col.set(2, export_float(_col[2]));
         return ret;
     }));
     // IMGUI_API bool          ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags flags = 0, const float* ref_col = NULL);
     emscripten::function("ColorPicker4", FUNCTION(bool, (std::string label, emscripten::val col, ImGuiColorEditFlags flags, emscripten::val ref_col), {
-        float _col[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-        _col[0] = col[0].as<float>();
-        _col[1] = col[1].as<float>();
-        _col[2] = col[2].as<float>();
-        _col[3] = col[3].as<float>();
+        float _col[4] = { import_float(col[0]), import_float(col[1]), import_float(col[2]), import_float(col[3]) };
         bool ret = ImGui::ColorPicker4(label.c_str(), _col, flags); // TODO: ref_col
-        col.set(0, emscripten::val(_col[0]));
-        col.set(1, emscripten::val(_col[1]));
-        col.set(2, emscripten::val(_col[2]));
-        col.set(3, emscripten::val(_col[3]));
+        col.set(0, export_float(_col[0]));
+        col.set(1, export_float(_col[1]));
+        col.set(2, export_float(_col[2]));
+        col.set(3, export_float(_col[3]));
         return ret;
     }));
     // IMGUI_API bool          ColorButton(const char* desc_id, const ImVec4& col, ImGuiColorEditFlags flags = 0, ImVec2 size = ImVec2(0,0));  // display a colored square/button, hover for details, return true when pressed.
@@ -2327,10 +2443,14 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("BeginPopup", FUNCTION(bool, (std::string str_id), { return ImGui::BeginPopup(str_id.c_str()); }));
     // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags extra_flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
     emscripten::function("BeginPopupModal", FUNCTION(bool, (std::string name, emscripten::val p_open, ImGuiWindowFlags extra_flags), {
-        bool open = p_open[0].as<bool>();
-        bool ret = ImGui::BeginPopupModal(name.c_str(), &open, extra_flags);
-        p_open.set(0, emscripten::val(open));
-        return ret;
+        if (p_open.isNull()) {
+            return ImGui::BeginPopupModal(name.c_str(), NULL, extra_flags);
+        } else {
+            bool open = p_open[0].as<bool>();
+            bool ret = ImGui::BeginPopupModal(name.c_str(), &open, extra_flags);
+            p_open.set(0, emscripten::val(open));
+            return ret;
+        }
     }));
     // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
     emscripten::function("BeginPopupContextItem", FUNCTION(bool, (std::string str_id, int mouse_button), { return ImGui::BeginPopupContextItem(str_id.c_str(), mouse_button); }));
@@ -2350,7 +2470,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("LogToTTY", &ImGui::LogToTTY);
     // IMGUI_API void          LogToFile(int max_depth = -1, const char* filename = NULL);         // start logging to file
     emscripten::function("LogToFile", FUNCTION(void, (int max_depth, emscripten::val filename), {
-        ImGui::LogToFile(max_depth, filename.isNull() ? NULL : filename.as<std::string>().c_str());
+        ImGui::LogToFile(max_depth, import_string_or_null(filename));
     }));
     // IMGUI_API void          LogToClipboard(int max_depth = -1);                                 // start logging to OS clipboard
     emscripten::function("LogToClipboard", &ImGui::LogToClipboard);

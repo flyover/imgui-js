@@ -1296,7 +1296,9 @@ export class ImDrawData
     // int             TotalVtxCount;          // For convenience, sum of all cmd_lists vtx_buffer.Size
     get TotalVtxCount(): number { return this.native.TotalVtxCount; }
     // ImVec2          DisplayPos;             // Upper-left position of the viewport to render (== upper-left of the orthogonal projection matrix to use)
+    get DisplayPos(): Readonly<Bind.reference_ImVec2> { return this.native.getDisplayPos(); }
     // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
+    get DisplaySize(): Readonly<Bind.reference_ImVec2> { return this.native.getDisplaySize(); }
 
     // Functions
     // ImDrawData() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; }
@@ -1308,44 +1310,71 @@ export class ImDrawData
     }
 }
 
-export class ImFontConfig
+export class ImFontConfig implements Bind.interface_ImFontConfig
 {
     // void*           FontData;                   //          // TTF/OTF data
     // int             FontDataSize;               //          // TTF/OTF data size
+    FontData: DataView | null = null;
     // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
+    FontDataOwnedByAtlas: boolean = true;
     // int             FontNo;                     // 0        // Index of font within TTF/OTF file
+    FontNo: number = 0;
     // float           SizePixels;                 //          // Size in pixels for rasterizer.
+    SizePixels: number = 0;
     // int             OversampleH, OversampleV;   // 3, 1     // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis.
+    OversampleH: number = 3;
+    OversampleV: number = 1;
     // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
+    PixelSnapH: boolean = false;
     // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
+    GlyphExtraSpacing: ImVec2 = new ImVec2(0, 0);
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
+    GlyphOffset: ImVec2 = new ImVec2(0, 0);
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
+    GlyphRanges: Uint16Array | null = null;
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
+    GlyphMinAdvanceX: number = 0;
     // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
+    GlyphMaxAdvanceX: number = Number.MAX_VALUE;
     // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
+    MergeMode: boolean = false;
     // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
+    RasterizerFlags: number = 0;
     // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
+    RasterizerMultiply: number = 1.0;
 
     // [Internal]
     // char            Name[32];                               // Name (strictly to ease debugging)
+    Name: string = "";
     // ImFont*         DstFont;
+    DstFont: ImFont | null = null;
 
     // IMGUI_API ImFontConfig();
 }
 
 // struct ImFontGlyph
-export class ImFontGlyph
+export class ImFontGlyph implements Bind.interface_ImFontGlyph
 {
     // ImWchar         Codepoint;          // 0x0000..0xFFFF
+    Codepoint: number = 0;
     // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
+    AdvanceX: number = 0.0;
     // float           X0, Y0, X1, Y1;     // Glyph corners
+    X0: number = 0.0;
+    Y0: number = 0.0;
+    X1: number = 1.0;
+    Y1: number = 1.0;
     // float           U0, V0, U1, V1;     // Texture coordinates
+    U0: number = 0.0;
+    V0: number = 0.0;
+    U1: number = 1.0;
+    V1: number = 1.0;
 }
 
 export enum ImFontAtlasFlags
 {
     NoPowerOfTwoHeight = 1 << 0,   // Don't round the height to next power of two
-    NoMouseCursors     = 1 << 1,    // Don't build software mouse cursors into the atlas
+    NoMouseCursors     = 1 << 1,   // Don't build software mouse cursors into the atlas
 }
 
 // Load and rasterize multiple TTF/OTF fonts into a same texture.
@@ -1364,20 +1393,24 @@ export class ImFontAtlas
     // IMGUI_API ~ImFontAtlas();
     // IMGUI_API ImFont*           AddFont(const ImFontConfig* font_cfg);
     // IMGUI_API ImFont*           AddFontDefault(const ImFontConfig* font_cfg = NULL);
-    public AddFontDefault(font_config: ImFontConfig | null = null, glyph_ranges: any = null): ImFont {
-        return new ImFont(this.native.AddFontDefault());
+    public AddFontDefault(font_cfg: ImFontConfig | null = null): ImFont {
+        return new ImFont(this.native.AddFontDefault(font_cfg));
     }
     // IMGUI_API ImFont*           AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);
     // IMGUI_API ImFont*           AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer ownership of 'ttf_data' to ImFontAtlas! Will be deleted after Build(). Set font_cfg->FontDataOwnedByAtlas to false to keep ownership.
-    public AddFontFromMemoryTTF(data: ArrayBuffer, size_pixels: number, font_config: ImFontConfig | null = null, glyph_ranges: any = null): ImFont {
-        return new ImFont(this.native.AddFontFromMemoryTTF(new Uint8Array(data), size_pixels));
+    public AddFontFromMemoryTTF(data: ArrayBuffer, size_pixels: number, font_cfg: ImFontConfig | null = null, glyph_ranges: Uint16Array | null = null): ImFont {
+        return new ImFont(this.native.AddFontFromMemoryTTF(new Uint8Array(data), size_pixels, font_cfg, glyph_ranges));
     }
     // IMGUI_API ImFont*           AddFontFromMemoryCompressedTTF(const void* compressed_font_data, int compressed_font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // 'compressed_font_data' still owned by caller. Compress with binary_to_compressed_c.cpp.
     // IMGUI_API ImFont*           AddFontFromMemoryCompressedBase85TTF(const char* compressed_font_data_base85, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);              // 'compressed_font_data_base85' still owned by caller. Compress with binary_to_compressed_c.cpp with -base85 parameter.
     // IMGUI_API void              ClearTexData();             // Clear the CPU-side texture data. Saves RAM once the texture has been copied to graphics memory.
+    public ClearTexData(): void { this.native.ClearTexData(); }
     // IMGUI_API void              ClearInputData();           // Clear the input TTF data (inc sizes, glyph ranges)
+    public ClearInputData(): void { this.native.ClearInputData(); }
     // IMGUI_API void              ClearFonts();               // Clear the ImGui-side font data (glyphs storage, UV coordinates)
+    public ClearFonts(): void { this.native.ClearFonts(); }
     // IMGUI_API void              Clear();                    // Clear all
+    public Clear(): void { this.native.Clear(); }
 
     // Build atlas, retrieve pixel data.
     // User is in charge of copying the pixels into graphics memory (e.g. create a texture with your engine). Then store your texture handle with SetTexID().
@@ -1386,6 +1419,7 @@ export class ImFontAtlas
     // IMGUI_API bool              Build();                    // Build pixels data. This is called automatically for you by the GetTexData*** functions.
     public Build(): boolean { return this.native.Build(); }
     // IMGUI_API bool              IsBuilt()                   { return Fonts.Size > 0 && (TexPixelsAlpha8 != NULL || TexPixelsRGBA32 != NULL); }
+    public IsBuilt(): boolean { return this.native.IsBuilt(); }
     // IMGUI_API void              GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 1 byte per-pixel
     public GetTexDataAsAlpha8(): { pixels: Uint8Array, width: number, height: number } {
         return this.native.GetTexDataAsAlpha8();
@@ -1404,12 +1438,19 @@ export class ImFontAtlas
     // Helpers to retrieve list of common Unicode ranges (2 value per range, values are inclusive, zero-terminated list)
     // NB: Make sure that your string are UTF-8 and NOT in your local code page. In C++11, you can create UTF-8 string literal using the u8"Hello world" syntax. See FAQ for details.
     // IMGUI_API const ImWchar*    GetGlyphRangesDefault();    // Basic Latin, Extended Latin
+    GetGlyphRangesDefault(): Uint16Array { return this.native.GetGlyphRangesDefault(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesKorean();     // Default + Korean characters
+    GetGlyphRangesKorean(): Uint16Array { return this.native.GetGlyphRangesKorean(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesJapanese();   // Default + Hiragana, Katakana, Half-Width, Selection of 1946 Ideographs
+    GetGlyphRangesJapanese(): Uint16Array { return this.native.GetGlyphRangesJapanese(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesChineseFull();            // Default + Half-Width + Japanese Hiragana/Katakana + full set of about 21000 CJK Unified Ideographs
+    GetGlyphRangesChineseFull(): Uint16Array { return this.native.GetGlyphRangesChineseFull(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesChineseSimplifiedCommon();// Default + Half-Width + Japanese Hiragana/Katakana + set of 2500 CJK Unified Ideographs for common simplified Chinese
+    GetGlyphRangesChineseSimplifiedCommon(): Uint16Array { return this.native.GetGlyphRangesChineseSimplifiedCommon(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesCyrillic();   // Default + about 400 Cyrillic characters
+    GetGlyphRangesCyrillic(): Uint16Array { return this.native.GetGlyphRangesCyrillic(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesThai();       // Default + Thai characters
+    GetGlyphRangesThai(): Uint16Array { return this.native.GetGlyphRangesThai(); }
 
     // Helpers to build glyph ranges from text data. Feed your application strings/characters to it then call BuildRanges().
     // struct GlyphRangesBuilder
@@ -1451,6 +1492,9 @@ export class ImFontAtlas
     // Members
     //-------------------------------------------
 
+    // ImFontAtlasFlags            Flags;              // Build flags (see ImFontAtlasFlags_)
+    get Flags(): ImFontAtlasFlags { return this.native.Flags; }
+    set Flags(value: ImFontAtlasFlags) { this.native.Flags = value; }
     // ImTextureID                 TexID;              // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
     get TexID(): ImTextureID | null {
         return ImGuiContext.getTexture(this.native.getTexID());
@@ -1459,7 +1503,11 @@ export class ImFontAtlas
         this.native.setTexID(ImGuiContext.setTexture(value));
     }
     // int                         TexDesiredWidth;    // Texture width desired by user before Build(). Must be a power-of-two. If have many glyphs your graphics API have texture size restrictions you may want to increase texture width to decrease height.
+    get TexDesiredWidth(): number { return this.native.TexDesiredWidth; }
+    set TexDesiredWidth(value: number) { this.native.TexDesiredWidth = value; }
     // int                         TexGlyphPadding;    // Padding between glyphs within texture in pixels. Defaults to 1.
+    get TexGlyphPadding(): number { return this.native.TexGlyphPadding; }
+    set TexGlyphPadding(value: number) { this.native.TexGlyphPadding = value; }
 
     // [Internal]
     // NB: Access texture data via GetTexData*() calls! Which will setup a default font for you.
@@ -1469,7 +1517,10 @@ export class ImFontAtlas
     get TexWidth(): number { return this.native.TexWidth; }
     // int                         TexHeight;          // Texture height calculated during Build().
     get TexHeight(): number { return this.native.TexHeight; }
+    // ImVec2                      TexUvScale;         // = (1.0f/TexWidth, 1.0f/TexHeight)
+    get TexUvScale(): Readonly<Bind.reference_ImVec2> { return this.native.getTexUvScale(); }
     // ImVec2                      TexUvWhitePixel;    // Texture coordinates to a white pixel
+    get TexUvWhitePixel(): Readonly<Bind.reference_ImVec2> { return this.native.getTexUvWhitePixel(); }
     // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
     // ImVector<CustomRect>        CustomRects;        // Rectangles for packing custom texture data into the atlas.
     // ImVector<ImFontConfig>      ConfigData;         // Internal data
@@ -1484,31 +1535,52 @@ export class ImFont
 
     // Members: Hot ~62/78 bytes
     // float                       FontSize;           // <user set>   // Height of characters, set during loading (don't change after loading)
+    get FontSize(): number { return this.native.FontSize; }
     // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
+    get Scale(): number { return this.native.Scale; }
     // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
+    get DisplayOffset(): Bind.interface_ImVec2 { return this.native.DisplayOffset; }
     // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
+    // get Glyphs(): any { return this.native.Glyphs; }
     // ImVector<float>             IndexAdvanceX;      //              // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).
+    // get IndexAdvanceX(): any { return this.native.IndexAdvanceX; }
     // ImVector<unsigned short>    IndexLookup;        //              // Sparse. Index glyphs by Unicode code-point.
+    // get IndexLookup(): any { return this.native.IndexLookup; }
     // const ImFontGlyph*          FallbackGlyph;      // == FindGlyph(FontFallbackChar)
+    // get FallbackGlyph(): any { return this.native.FallbackGlyph; }
     // float                       FallbackAdvanceX;   // == FallbackGlyph->AdvanceX
+    get FallbackAdvanceX(): number { return this.native.FallbackAdvanceX; }
     // ImWchar                     FallbackChar;       // = '?'        // Replacement glyph if one isn't found. Only set via SetFallbackChar()
+    get FallbackChar(): number { return this.native.FallbackChar; }
 
     // Members: Cold ~18/26 bytes
     // short                       ConfigDataCount;    // ~ 1          // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
+    // get ConfigDataCount(): number { return this.native.ConfigDataCount; }
     // ImFontConfig*               ConfigData;         //              // Pointer within ContainerAtlas->ConfigData
+    // get ConfigData(): any { return this.native.ConfigData; }
     // ImFontAtlas*                ContainerAtlas;     //              // What we has been loaded into
+    // get ContainerAtlas(): any { return this.native.ContainerAtlas; }
     // float                       Ascent, Descent;    //              // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
+    get Ascent(): number { return this.native.Ascent; }
+    get Descent(): number { return this.native.Descent; }
     // int                         MetricsTotalSurface;//              // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
+    get MetricsTotalSurface(): number { return this.native.MetricsTotalSurface; }
 
     // Methods
     // IMGUI_API ImFont();
     // IMGUI_API ~ImFont();
     // IMGUI_API void              ClearOutputData();
+    public ClearOutputData(): void { return this.native.ClearOutputData(); }
     // IMGUI_API void              BuildLookupTable();
+    public BuildLookupTable(): void { return this.native.BuildLookupTable(); }
     // IMGUI_API const ImFontGlyph*FindGlyph(ImWchar c) const;
+    // public FindGlyph(c: number): any { return this.native.FindGlyph(c); }
     // IMGUI_API void              SetFallbackChar(ImWchar c);
+    public SetFallbackChar(c: number): void { return this.native.SetFallbackChar(c); }
     // float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
+    public GetCharAdvance(c: number): number { return this.native.GetCharAdvance(c); }
     // bool                        IsLoaded() const                    { return ContainerAtlas != NULL; }
+    public IsLoaded(): boolean { return this.native.IsLoaded(); }
     // const char*                 GetDebugName() const                { return ConfigData ? ConfigData->Name : "<unknown>"; }
     public GetDebugName(): string { return this.native.GetDebugName(); }
 
@@ -1519,6 +1591,9 @@ export class ImFont
         return this.native.CalcTextSizeA(size, max_width, wrap_width, text_begin, text_end, remaining, new ImVec2());
     }
     // IMGUI_API const char*       CalcWordWrapPositionA(float scale, const char* text, const char* text_end, float wrap_width) const;
+    public CalcWordWrapPositionA(scale: number, text: string, text_end: number | null, wrap_width: number): number {
+        return this.native.CalcWordWrapPositionA(scale, text, text_end, wrap_width);
+    }
     // IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, unsigned short c) const;
     // IMGUI_API void              RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
 
@@ -2486,31 +2561,31 @@ export function RadioButton(label: string, active_or_v: boolean | Bind.ImAccess<
     }
 }
 // IMGUI_API void          PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
-export function PlotLines_Array(label: string, values: ArrayLike<number>, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number | null = null, scale_max: number | null = null, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, stride: number = 1): void {
+export function PlotLines_Array(label: string, values: ArrayLike<number>, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, stride: number = 1): void {
     function values_getter(data: any, idx: number): number {
         return values[idx];
     }
     PlotLines_Callback(label, values_getter, null, values_count, value_offset, overlay_text, scale_min, scale_max, graph_size);
 }
 // IMGUI_API void          PlotLines(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0));
-export function PlotLines_Callback(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number | null = null, scale_max: number | null = null, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
+export function PlotLines_Callback(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
     bind.PlotLines(label, values_getter, data, values_count, value_offset, overlay_text, scale_min, scale_max, graph_size);
 }
-export function PlotLines(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number | null = null, scale_max: number | null = null, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
+export function PlotLines(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
     PlotLines_Callback(label, values_getter, data, values_count, value_offset, overlay_text, scale_min, scale_max, graph_size);
 }
 // IMGUI_API void          PlotHistogram(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
-export function PlotHistogram_Array(label: string, values: ArrayLike<number>, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number | null = null, scale_max: number | null = null, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, stride: number = 1): void {
+export function PlotHistogram_Array(label: string, values: ArrayLike<number>, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, stride: number = 1): void {
     function values_getter(data: any, idx: number): number {
         return values[idx];
     }
     PlotHistogram(label, values_getter, null, values_count, value_offset, overlay_text, scale_min, scale_max, graph_size);
 }
 // IMGUI_API void          PlotHistogram(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0));
-export function PlotHistogram_Callback(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number | null = null, scale_max: number | null = null, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
+export function PlotHistogram_Callback(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
     bind.PlotHistogram(label, values_getter, data, values_count, value_offset, overlay_text, scale_min, scale_max, graph_size);
 }
-export function PlotHistogram(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number | null = null, scale_max: number | null = null, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
+export function PlotHistogram(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
     PlotHistogram_Callback(label, values_getter, data, values_count, value_offset, overlay_text, scale_min, scale_max, graph_size);
 }
 // IMGUI_API void          ProgressBar(float fraction, const ImVec2& size_arg = ImVec2(-1,0), const char* overlay = NULL);
@@ -3122,9 +3197,17 @@ export function OpenPopupOnItemClick(str_id: string = "", mouse_button: number =
 // IMGUI_API bool          BeginPopup(const char* str_id);                                     // return true if the popup is open, and you can start outputting to it. only call EndPopup() if BeginPopup() returned true!
 export const BeginPopup = bind.BeginPopup;
 // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags extra_flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
-export function BeginPopupModal(str_id: string = "", p_open: Bind.ImScalar<boolean> | null = null, extra_flags: ImGuiWindowFlags = 0): boolean {
-    p_open = p_open || [ true ];
-    return bind.BeginPopupModal(str_id, p_open, extra_flags);
+export function BeginPopupModal(str_id: string = "", p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null = null, extra_flags: ImGuiWindowFlags = 0): boolean {
+    if (Array.isArray(p_open)) {
+        return bind.BeginPopupModal(str_id, p_open, extra_flags);
+    } else if (typeof(p_open) === "function") {
+        const _p_open: Bind.ImScalar<boolean> = [ p_open() ];
+        const ret = bind.BeginPopupModal(str_id, _p_open, extra_flags);
+        p_open(_p_open[0]);
+        return ret;
+    } else {
+        return bind.BeginPopupModal(str_id, null, extra_flags);
+    }
 }
 // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
 export function BeginPopupContextItem(str_id: string = "", mouse_button: number = 1): boolean {

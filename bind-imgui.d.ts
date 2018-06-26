@@ -488,6 +488,10 @@ export class reference_ImDrawData extends Emscripten.EmscriptenClassReference {
     public readonly TotalVtxCount: number;
     // int             TotalIdxCount;          // For convenience, sum of all cmd_lists idx_buffer.Size
     public readonly TotalIdxCount: number;
+    // ImVec2          DisplayPos;             // Upper-left position of the viewport to render (== upper-left of the orthogonal projection matrix to use)
+    public getDisplayPos(): Readonly<reference_ImVec2>;
+    // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
+    public getDisplaySize(): Readonly<reference_ImVec2>;
 
     // Functions
     // ImDrawData() { Clear(); }
@@ -501,40 +505,61 @@ export class reference_ImDrawData extends Emscripten.EmscriptenClassReference {
 export class reference_ImFont extends Emscripten.EmscriptenClassReference {
     // Members: Hot ~62/78 bytes
     // float                       FontSize;           // <user set>   // Height of characters, set during loading (don't change after loading)
+    public FontSize: number;
     // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
+    public Scale: number;
     // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
+    public DisplayOffset: interface_ImVec2;
     // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
+    // public Glyphs: any;
     // ImVector<float>             IndexAdvanceX;      //              // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).
+    // public IndexAdvanceX: any;
     // ImVector<unsigned short>    IndexLookup;        //              // Sparse. Index glyphs by Unicode code-point.
+    // public IndexLookup: any;
     // const ImFontGlyph*          FallbackGlyph;      // == FindGlyph(FontFallbackChar)
+    // public FallbackGlyph: any;
     // float                       FallbackAdvanceX;   // == FallbackGlyph->AdvanceX
+    public FallbackAdvanceX: number;
     // ImWchar                     FallbackChar;       // = '?'        // Replacement glyph if one isn't found. Only set via SetFallbackChar()
+    public FallbackChar: number;
     
     // Members: Cold ~18/26 bytes
     // short                       ConfigDataCount;    // ~ 1          // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
+    // public ConfigDataCount: number;
     // ImFontConfig*               ConfigData;         //              // Pointer within ContainerAtlas->ConfigData
+    // public ConfigData: any;
     // ImFontAtlas*                ContainerAtlas;     //              // What we has been loaded into
+    // public ContainerAtlas: any;
     // float                       Ascent, Descent;    //              // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
+    public Ascent: number;
+    public Descent: number;
     // int                         MetricsTotalSurface;//              // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
+    public MetricsTotalSurface: number;
     
     // Methods
     // IMGUI_API ImFont();
     // IMGUI_API ~ImFont();
     // IMGUI_API void              ClearOutputData();
+    public ClearOutputData(): void;
     // IMGUI_API void              BuildLookupTable();
+    public BuildLookupTable(): void;
     // IMGUI_API const ImFontGlyph*FindGlyph(ImWchar c) const;
+    // public FindGlyph(c: number): any;
     // IMGUI_API void              SetFallbackChar(ImWchar c);
+    public SetFallbackChar(c: number): void;
     // float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
+    public GetCharAdvance(c: number): number;
     // bool                        IsLoaded() const                    { return ContainerAtlas != NULL; }
+    public IsLoaded(): boolean;
     // const char*                 GetDebugName() const                { return ConfigData ? ConfigData->Name : "<unknown>"; }
-    GetDebugName(): string;
+    public GetDebugName(): string;
 
     // 'max_width' stops rendering after a certain width (could be turned into a 2d size). FLT_MAX to disable.
     // 'wrap_width' enable automatic word-wrapping across multiple lines to fit into given width. 0.0f to disable.
     // IMGUI_API ImVec2            CalcTextSizeA(float size, float max_width, float wrap_width, const char* text_begin, const char* text_end = NULL, const char** remaining = NULL) const; // utf8
-    CalcTextSizeA(size: number, max_width: number, wrap_width: number, text_begin: string, text_end: number | null, remaining: any, out: interface_ImVec2): interface_ImVec2;
-
+    public CalcTextSizeA(size: number, max_width: number, wrap_width: number, text_begin: string, text_end: number | null, remaining: any, out: interface_ImVec2): interface_ImVec2;
     // IMGUI_API const char*       CalcWordWrapPositionA(float scale, const char* text, const char* text_end, float wrap_width) const;
+    public CalcWordWrapPositionA(scale: number, text: string, text_end: number | null, wrap_width: number): number;
     // IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, unsigned short c) const;
     // IMGUI_API void              RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
 
@@ -548,6 +573,64 @@ export class reference_ImFont extends Emscripten.EmscriptenClassReference {
     // #endif
 }
 
+export interface interface_ImFontConfig {
+    // void*           FontData;                   //          // TTF/OTF data
+    // int             FontDataSize;               //          // TTF/OTF data size
+    FontData: DataView | null;
+    // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
+    FontDataOwnedByAtlas: boolean;
+    // int             FontNo;                     // 0        // Index of font within TTF/OTF file
+    FontNo: number;
+    // float           SizePixels;                 //          // Size in pixels for rasterizer.
+    SizePixels: number;
+    // int             OversampleH, OversampleV;   // 3, 1     // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis.
+    OversampleH: number;
+    OversampleV: number;
+    // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
+    PixelSnapH: boolean;
+    // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
+    GlyphExtraSpacing: interface_ImVec2;
+    // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
+    GlyphOffset: interface_ImVec2;
+    // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
+    GlyphRanges: Uint16Array | null;
+    // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
+    GlyphMinAdvanceX: number;
+    // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
+    GlyphMaxAdvanceX: number;
+    // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
+    MergeMode: boolean;
+    // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
+    RasterizerFlags: number;
+    // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
+    RasterizerMultiply: number;
+
+    // [Internal]
+    // char            Name[32];                               // Name (strictly to ease debugging)
+    Name: string;
+    // ImFont*         DstFont;
+    DstFont: any;
+
+    // IMGUI_API ImFontConfig();
+}
+
+export interface interface_ImFontGlyph {
+    // ImWchar         Codepoint;          // 0x0000..0xFFFF
+    Codepoint: number;
+    // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
+    AdvanceX: number;
+    // float           X0, Y0, X1, Y1;     // Glyph corners
+    X0: number;
+    Y0: number;
+    X1: number;
+    Y1: number;
+    // float           U0, V0, U1, V1;     // Texture coordinates
+    U0: number;
+    V0: number;
+    U1: number;
+    V1: number;
+}
+
 export type ImFontAtlasFlags = number;
 
 export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
@@ -555,16 +638,20 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // IMGUI_API ~ImFontAtlas();
     // IMGUI_API ImFont*           AddFont(const ImFontConfig* font_cfg);
     // IMGUI_API ImFont*           AddFontDefault(const ImFontConfig* font_cfg = NULL);
-    AddFontDefault(): reference_ImFont;
+    AddFontDefault(font_cfg: interface_ImFontConfig | null): reference_ImFont;
     // IMGUI_API ImFont*           AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);
     // IMGUI_API ImFont*           AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer ownership of 'ttf_data' to ImFontAtlas! Will be deleted after Build(). Set font_cfg->FontDataOwnedByAtlas to false to keep ownership.
-    AddFontFromMemoryTTF(data: Uint8Array, size_pixels: number): reference_ImFont;
+    AddFontFromMemoryTTF(data: Uint8Array, size_pixels: number, font_cfg: interface_ImFontConfig | null, glyph_ranges: Uint16Array | null): reference_ImFont;
     // IMGUI_API ImFont*           AddFontFromMemoryCompressedTTF(const void* compressed_font_data, int compressed_font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // 'compressed_font_data' still owned by caller. Compress with binary_to_compressed_c.cpp.
     // IMGUI_API ImFont*           AddFontFromMemoryCompressedBase85TTF(const char* compressed_font_data_base85, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);              // 'compressed_font_data_base85' still owned by caller. Compress with binary_to_compressed_c.cpp with -base85 parameter.
     // IMGUI_API void              ClearTexData();             // Clear the CPU-side texture data. Saves RAM once the texture has been copied to graphics memory.
+    ClearTexData(): void;
     // IMGUI_API void              ClearInputData();           // Clear the input TTF data (inc sizes, glyph ranges)
+    ClearInputData(): void;
     // IMGUI_API void              ClearFonts();               // Clear the ImGui-side font data (glyphs storage, UV coordinates)
+    ClearFonts(): void;
     // IMGUI_API void              Clear();                    // Clear all
+    Clear(): void;
     
     // Build atlas, retrieve pixel data.
     // User is in charge of copying the pixels into graphics memory (e.g. create a texture with your engine). Then store your texture handle with SetTexID().
@@ -572,6 +659,8 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // Pitch = Width * BytesPerPixels
     // IMGUI_API bool              Build();                    // Build pixels data. This is called automatically for you by the GetTexData*** functions.
     Build(): boolean;
+    // IMGUI_API bool              IsBuilt()                   { return Fonts.Size > 0 && (TexPixelsAlpha8 != NULL || TexPixelsRGBA32 != NULL); }
+    IsBuilt(): boolean;
     // IMGUI_API void              GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 1 byte per-pixel
     GetTexDataAsAlpha8(): { pixels: Uint8Array, width: number, height: number };
     // IMGUI_API void              GetTexDataAsRGBA32(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 4 bytes-per-pixel
@@ -585,11 +674,19 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // Helpers to retrieve list of common Unicode ranges (2 value per range, values are inclusive, zero-terminated list)
     // NB: Make sure that your string are UTF-8 and NOT in your local code page. In C++11, you can create UTF-8 string literal using the u8"Hello world" syntax. See FAQ for details.
     // IMGUI_API const ImWchar*    GetGlyphRangesDefault();    // Basic Latin, Extended Latin
+    GetGlyphRangesDefault(): Uint16Array;
     // IMGUI_API const ImWchar*    GetGlyphRangesKorean();     // Default + Korean characters
+    GetGlyphRangesKorean(): Uint16Array;
     // IMGUI_API const ImWchar*    GetGlyphRangesJapanese();   // Default + Hiragana, Katakana, Half-Width, Selection of 1946 Ideographs
-    // IMGUI_API const ImWchar*    GetGlyphRangesChinese();    // Default + Japanese + full set of about 21000 CJK Unified Ideographs
+    GetGlyphRangesJapanese(): Uint16Array;
+    // IMGUI_API const ImWchar*    GetGlyphRangesChineseFull();            // Default + Half-Width + Japanese Hiragana/Katakana + full set of about 21000 CJK Unified Ideographs
+    GetGlyphRangesChineseFull(): Uint16Array;
+    // IMGUI_API const ImWchar*    GetGlyphRangesChineseSimplifiedCommon();// Default + Half-Width + Japanese Hiragana/Katakana + set of 2500 CJK Unified Ideographs for common simplified Chinese
+    GetGlyphRangesChineseSimplifiedCommon(): Uint16Array;
     // IMGUI_API const ImWchar*    GetGlyphRangesCyrillic();   // Default + about 400 Cyrillic characters
+    GetGlyphRangesCyrillic(): Uint16Array;
     // IMGUI_API const ImWchar*    GetGlyphRangesThai();       // Default + Thai characters
+    GetGlyphRangesThai(): Uint16Array;
 
     // Helpers to build glyph ranges from text data. Feed your application strings/characters to it then call BuildRanges().
     // struct GlyphRangesBuilder
@@ -635,11 +732,14 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // //-------------------------------------------
 
     // ImFontAtlasFlags            Flags;              // Build flags (see ImFontAtlasFlags_)
+    Flags: ImFontAtlasFlags;
     // ImTextureID                 TexID;              // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
     getTexID(): ImTextureID;
     setTexID(value: ImTextureID): void;
     // int                         TexDesiredWidth;    // Texture width desired by user before Build(). Must be a power-of-two. If have many glyphs your graphics API have texture size restrictions you may want to increase texture width to decrease height.
+    TexDesiredWidth: number;
     // int                         TexGlyphPadding;    // Padding between glyphs within texture in pixels. Defaults to 1.
+    TexGlyphPadding: number;
 
     // [Internal]
     // NB: Access texture data via GetTexData*() calls! Which will setup a default font for you.
@@ -650,7 +750,9 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // int                         TexHeight;          // Texture height calculated during Build().
     readonly TexHeight: number;
     // ImVec2                      TexUvScale;         // = (1.0f/TexWidth, 1.0f/TexHeight)
+    public getTexUvScale(): Readonly<reference_ImVec2>;
     // ImVec2                      TexUvWhitePixel;    // Texture coordinates to a white pixel
+    public getTexUvWhitePixel(): Readonly<reference_ImVec2>;
     // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
     // ImVector<CustomRect>        CustomRects;        // Rectangles for packing custom texture data into the atlas.
     // ImVector<ImFontConfig>      ConfigData;         // Internal data
@@ -1046,10 +1148,10 @@ CheckboxFlags(label: string, flags: ImScalar<number> | null, flags_value: number
 RadioButton(label: string, active_or_v: boolean | ImScalar<number>, v_button?: number): boolean;
 // IMGUI_API void          PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
 // IMGUI_API void          PlotLines(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0));
-PlotLines(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number, value_offset: number, overlay_text: string | null, scale_min: number | null, scale_max: number | null, graph_size: Readonly<interface_ImVec2>): void;
+PlotLines(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number, value_offset: number, overlay_text: string | null, scale_min: number, scale_max: number, graph_size: Readonly<interface_ImVec2>): void;
 // IMGUI_API void          PlotHistogram(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
 // IMGUI_API void          PlotHistogram(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0));
-PlotHistogram(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number, value_offset: number, overlay_text: string | null, scale_min: number | null, scale_max: number | null, graph_size: Readonly<interface_ImVec2>): void;
+PlotHistogram(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number, value_offset: number, overlay_text: string | null, scale_min: number, scale_max: number, graph_size: Readonly<interface_ImVec2>): void;
 // IMGUI_API void          ProgressBar(float fraction, const ImVec2& size_arg = ImVec2(-1,0), const char* overlay = NULL);
 ProgressBar(fraction: number, size_arg: Readonly<interface_ImVec2>, overlay: string | null): void;
 
@@ -1190,7 +1292,7 @@ MenuItem(label: string, shortcut: string, p_selected: [ boolean ], enabled: bool
 OpenPopup(str_id: string): void;
 OpenPopupOnItemClick(str_id: string/* = NULL */, mouse_button: number/* = 1 */): boolean;
 BeginPopup(str_id: string): boolean;
-BeginPopupModal(name: string, p_open: [ boolean ]/* = NULL */, extra_flags: ImGuiWindowFlags/* = 0 */): boolean;
+BeginPopupModal(name: string, p_open: [ boolean ] | null/* = NULL */, extra_flags: ImGuiWindowFlags/* = 0 */): boolean;
 BeginPopupContextItem(str_id: string/* = NULL */, mouse_button: number/* = 1 */): boolean;
 BeginPopupContextWindow(str_id: string/* = NULL */, mouse_button: number/* = 1 */, also_over_items: boolean/* = true */): boolean;
 BeginPopupContextVoid(str_id: string/* = NULL */, mouse_button: number/* = 1 */): boolean;
