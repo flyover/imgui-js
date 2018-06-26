@@ -1767,13 +1767,20 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          Combo(const char* label, int* current_item, const char* const items[], int items_count, int popup_max_height_in_items = -1);
     // IMGUI_API bool          Combo(const char* label, int* current_item, const char* items_separated_by_zeros, int popup_max_height_in_items = -1);      // Separate items with \0 within a string, end item-list with \0\0. e.g. "One\0Two\0Three\0"
     // IMGUI_API bool          Combo(const char* label, int* current_item, bool(*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int popup_max_height_in_items = -1);
-    emscripten::function("Combo", FUNCTION(bool, (std::string label, emscripten::val current_item, emscripten::val items, int items_count, int popup_max_height_in_items), {
-        static emscripten::val _items = items;
+    static emscripten::val _Combo_items_getter = emscripten::val::undefined();
+    static emscripten::val _Combo_data = emscripten::val::undefined();
+    emscripten::function("Combo", FUNCTION(bool, (std::string label, emscripten::val current_item, emscripten::val items_getter, emscripten::val data, int items_count, int popup_max_height_in_items), {
+        _Combo_items_getter = items_getter;
+        _Combo_data = data;
         int _current_item = current_item[0].as<int>();
         bool ret = ImGui::Combo(label.c_str(), &_current_item, FUNCTION(bool, (void* data, int idx, const char** out_text), {
-            static std::string text = _items[idx].as<std::string>();
-            *out_text = text.c_str();
-            return true;
+            static std::string _text = "";
+            emscripten::val _out_text = emscripten::val::array();
+            _out_text[0] = emscripten::val(_text);
+            emscripten::val ret = _Combo_items_getter(_Combo_data, emscripten::val(idx), _out_text);
+            _text = _out_text[0].as<std::string>();
+            *out_text = _text.c_str();
+            return ret.as<bool>();
         }), NULL, items_count, popup_max_height_in_items);
         current_item.set(0, emscripten::val(_current_item));
         return ret;

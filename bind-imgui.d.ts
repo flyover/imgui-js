@@ -1163,8 +1163,7 @@ EndCombo(): void;
 // IMGUI_API bool          Combo(const char* label, int* current_item, const char* const items[], int items_count, int popup_max_height_in_items = -1);
 // IMGUI_API bool          Combo(const char* label, int* current_item, const char* items_separated_by_zeros, int popup_max_height_in_items = -1);      // Separate items with \0 within a string, end item-list with \0\0. e.g. "One\0Two\0Three\0"
 // IMGUI_API bool          Combo(const char* label, int* current_item, bool(*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int popup_max_height_in_items = -1);
-Combo(label: string, current_item: ImScalar<number>, items: string[/**/], items_count: number, popup_max_height_in_items: number/* = -1 */): boolean;
-// Combo(label: string, current_item: ImScalar<number>, items_separated_by_zeros: string, popup_max_height_in_items: number/* = -1 */): boolean;
+Combo(label: string, current_item: ImScalar<number>, items_getter: (data: any, idx: number, out_text: [string]) => boolean, data: any, items_count: number, popup_max_height_in_items: number): boolean;
 
 // Widgets: Drags (tip: ctrl+click on a drag box to input with keyboard. manually input values aren't clamped, can go off-bounds)
 // For all the Float2/Float3/Float4/Int2/Int3/Int4 versions of every functions, note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can pass address of your first element out of a contiguous set, e.g. &myvector.x

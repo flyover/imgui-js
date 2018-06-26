@@ -2605,82 +2605,38 @@ export function EndCombo(): void { bind.EndCombo(); }
 // IMGUI_API bool          Combo(const char* label, int* current_item, const char* const items[], int items_count, int popup_max_height_in_items = -1);
 // IMGUI_API bool          Combo(const char* label, int* current_item, const char* items_separated_by_zeros, int popup_max_height_in_items = -1);      // Separate items with \0 within a string, end item-list with \0\0. e.g. "One\0Two\0Three\0"
 // IMGUI_API bool          Combo(const char* label, int* current_item, bool(*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int popup_max_height_in_items = -1);
-function CalcMaxPopupHeightFromItemCount(items_count: number): number {
-    // ImGuiContext& g = *GImGui;
-    // const io: ImGuiIO = GetIO();
-    const style: ImGuiStyle = GetStyle();
-    if (items_count <= 0)
-        return Number.MAX_VALUE;
-    // return (g.FontSize + g.Style.ItemSpacing.y) * items_count - g.Style.ItemSpacing.y + (g.Style.WindowPadding.y * 2);
-    return (bind.GetFontSize() + style.ItemSpacing.y) * items_count - style.ItemSpacing.y + (style.WindowPadding.y * 2);
-}
-export function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items: string[] | string, items_count: number = items.length, popup_max_height_in_items: number = -1): boolean {
-    // return bind.Combo(label, current_item, items, items_count, popup_max_height_in_items);
-
-    const _current_item = Array.isArray(current_item) ? current_item : [ current_item() ];
-
-    if (typeof(items) === "string") {
-        items = items.replace(/^\0+|\0+$/g, "").split("\0");
-        items_count = items.length;
-        // popup_max_height_in_items = items_count;
+export type ComboArg2 = string[] | string | ((data: any, idx: number, out_text: [string]) => boolean);
+export type ComboArg3 = number | any;
+export type ComboArg4 = number;
+export type ComboArg5 = number;
+export function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, arg2: ComboArg2, arg3?: ComboArg3, arg4?: ComboArg4, arg5?: ComboArg5): boolean {
+    let ret = false;
+    const _current_item: Bind.ImScalar<number> = Array.isArray(current_item) ? current_item : [ current_item() ];
+    if (Array.isArray(arg2)) {
+        const items: string[] = arg2;
+        const items_count = typeof(arg3) === "number" ? arg3 : items.length;
+        const popup_max_height_in_items: number = typeof(arg4) === "number" ? arg4 : -1;
+        const items_getter = (data: any, idx: number, out_text: [string]): boolean => { out_text[0] = items[idx]; return true; };
+        ret = bind.Combo(label, _current_item, items_getter, null, items_count, popup_max_height_in_items);
+    } else if (typeof(arg2) === "string") {
+        const items_separated_by_zeros: string = arg2
+        const popup_max_height_in_items: number = typeof(arg3) === "number" ? arg3 : -1;
+        const items: string[] = items_separated_by_zeros.replace(/^\0+|\0+$/g, "").split("\0");
+        const items_count: number = items.length;
+        const items_getter = (data: any, idx: number, out_text: [string]): boolean => { out_text[0] = items[idx]; return true; };
+        ret = bind.Combo(label, _current_item, items_getter, null, items_count, popup_max_height_in_items);
+    } else if (typeof(arg2) === "function") {
+        const items_getter: (data: any, idx: number, out_text: [string]) => boolean = arg2;
+        const data: any = arg3;
+        const items_count = typeof(arg4) === "number" ? arg4 : 0;
+        const popup_max_height_in_items: number = typeof(arg5) === "number" ? arg5 : -1;
+        ret = bind.Combo(label, _current_item, items_getter, data, items_count, popup_max_height_in_items);
+    } else {
+        throw new Error();
     }
-
-    // const char* preview_text = NULL;
-    let preview_text: string = "";
-    // if (*current_item >= 0 && *current_item < items_count)
-    //     items_getter(data, *current_item, &preview_text);
-    if (_current_item[0] >= 0 && _current_item[0] < items_count)
-        preview_text = items[_current_item[0]];
-
-    // The old Combo() API exposed "popup_max_height_in_items", however the new more general BeginCombo() API doesn't, so we emulate it here.
-    // if (popup_max_height_in_items != -1 && !g.SetNextWindowSizeConstraint)
-    // {
-    //     float popup_max_height = CalcMaxPopupHeightFromItemCount(popup_max_height_in_items);
-    //     SetNextWindowSizeConstraints(ImVec2(0,0), ImVec2(FLT_MAX, popup_max_height));
-    // }
-    if (popup_max_height_in_items !== -1 /*&& !g.SetNextWindowSizeConstraint*/)
-    {
-        const popup_max_height: number = CalcMaxPopupHeightFromItemCount(popup_max_height_in_items);
-        SetNextWindowSizeConstraints(ImVec2.ZERO, new ImVec2(Number.MAX_VALUE, popup_max_height));
-    }
-
-    if (!bind.BeginCombo(label, preview_text, 0))
-        return false;
-
-    // Display items
-    // FIXME-OPT: Use clipper (but we need to disable it on the appearing frame to make sure our call to SetItemDefaultFocus() is processed)
-    let value_changed: boolean = false;
-    for (let i = 0; i < items_count; i++)
-    {
-        bind.PushID(i.toString());
-        const item_selected: boolean = (i === _current_item[0]);
-        // const char* item_text;
-        const item_text = items[i];
-        // if (!items_getter(data, i, &item_text))
-        //     item_text = "*Unknown item*";
-        if (Selectable(item_text, item_selected))
-        {
-            value_changed = true;
-            _current_item[0] = i;
-        }
-        if (item_selected)
-            bind.SetItemDefaultFocus();
-        bind.PopID();
-    }
-
-    EndCombo();
     if (!Array.isArray(current_item)) { current_item(_current_item[0]); }
-    return value_changed;
+    return ret;
 }
-export function Combo_2(label: string, current_item: Bind.ImScalar<number>, items: string, popup_max_height_in_items: number = -1): boolean {
-    return false;
-}
-export function Combo_3(label: string, current_item: Bind.ImScalar<number>, items_getter: (data: any, idx: number, out_text: Bind.ImScalar<string>) => boolean, data: any, items_count: number, popup_max_height_in_items: number = -1): boolean {
-    return false;
-}
-// export function Combo(label: string, current_item: ImScalar<number>, ...args: any[]): boolean {
-//     return false;
-// }
 
 // Widgets: Drags (tip: ctrl+click on a drag box to input with keyboard. manually input values aren't clamped, can go off-bounds)
 // For all the Float2/Float3/Float4/Int2/Int3/Int4 versions of every functions, note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can pass address of your first element out of a contiguous set, e.g. &myvector.x

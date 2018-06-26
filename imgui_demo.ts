@@ -715,9 +715,9 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
 
             // Simplified one-liner Combo() using an accessor function
             // struct FuncHolder { static bool ItemGetter(void* data, int idx, const char** out_str) { *out_str = ((const char**)data)[idx]; return true; } };
-            // class FuncHolder { public static ItemGetter(data: any, idx: number, out_str: string[]): boolean { return true; } }
-            // /* static */ const item_current_4: Static<number> = STATIC("item_current_4", 0);
-            // ImGui.Combo("combo 4 (function)", (value = item_current_4.value) => item_current_4.value = value, FuncHolder.ItemGetter, items, IM_ARRAYSIZE(items));
+            class FuncHolder { public static ItemGetter(data: string[], idx: number, out_str: [string]): boolean { out_str[0] = data[idx]; return true; }; }
+            /* static */ const item_current_4: Static<number> = STATIC("item_current_4", 0);
+            ImGui.Combo("combo 4 (function)", (value = item_current_4.value) => item_current_4.value = value, FuncHolder.ItemGetter, items, IM_ARRAYSIZE(items));
 
             ImGui.TreePop();
         }
