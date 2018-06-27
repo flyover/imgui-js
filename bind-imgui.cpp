@@ -1718,15 +1718,14 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API bool          RadioButton(const char* label, bool active);
     // IMGUI_API bool          RadioButton(const char* label, int* v, int v_button);
-    emscripten::function("RadioButton", FUNCTION(bool, (std::string label, emscripten::val active_or_v, emscripten::val v_button), {
-        if (v_button.isUndefined()) {
-            return ImGui::RadioButton(label.c_str(), active_or_v.as<bool>());
-        } else {
-            int _v = active_or_v[0].as<int>();
-            bool ret = ImGui::RadioButton(label.c_str(), &_v, v_button.as<int>());
-            active_or_v.set(0, emscripten::val(_v));
-            return ret;
-        }
+    emscripten::function("RadioButton_A", FUNCTION(bool, (std::string label, bool active), {
+        return ImGui::RadioButton(label.c_str(), active);
+    }));
+    emscripten::function("RadioButton_B", FUNCTION(bool, (std::string label, emscripten::val v, int v_button), {
+        int _v = v[0].as<int>();
+        bool ret = ImGui::RadioButton(label.c_str(), &_v, v_button);
+        v.set(0, emscripten::val(_v));
+        return ret;
     }));
     // IMGUI_API void          PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
     // IMGUI_API void          PlotLines(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0));

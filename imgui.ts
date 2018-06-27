@@ -2550,43 +2550,78 @@ export function CheckboxFlags(label: string, flags: Bind.ImAccess<number> | Bind
 }
 // IMGUI_API bool          RadioButton(const char* label, bool active);
 // IMGUI_API bool          RadioButton(const char* label, int* v, int v_button);
-export function RadioButton(label: string, active_or_v: boolean | Bind.ImAccess<number> | Bind.ImScalar<number>, v_button?: number): boolean {
-    if (typeof(active_or_v) === "boolean" || Array.isArray(active_or_v)) {
-        return bind.RadioButton(label, active_or_v, v_button);
+export function RadioButton(label: string, active: boolean): boolean;
+export function RadioButton(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number>, v_button: number): boolean;
+export function RadioButton(label: string, ...args: any[]): boolean {
+    if (typeof(args[0]) === "boolean") {
+        const active: boolean = args[0];
+        return bind.RadioButton_A(label, active);
     } else {
-        const ref_v: Bind.ImScalar<number> = [ active_or_v() ];
-        const ret = bind.RadioButton(label, ref_v, v_button);
-        active_or_v(ref_v[0]);
+        const v: Bind.ImAccess<number> | Bind.ImScalar<number> = args[0];
+        const v_button: number = args[1];
+        const _v: Bind.ImScalar<number> = Array.isArray(v) ? v : [ v() ];
+        const ret = bind.RadioButton_B(label, _v, v_button);
+        if (!Array.isArray(v)) { v(_v[0]); }
         return ret;
     }
 }
 // IMGUI_API void          PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
-export function PlotLines_Array(label: string, values: ArrayLike<number>, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, stride: number = 1): void {
-    function values_getter(data: any, idx: number): number {
-        return values[idx];
-    }
-    PlotLines_Callback(label, values_getter, null, values_count, value_offset, overlay_text, scale_min, scale_max, graph_size);
-}
 // IMGUI_API void          PlotLines(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0));
-export function PlotLines_Callback(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
-    bind.PlotLines(label, values_getter, data, values_count, value_offset, overlay_text, scale_min, scale_max, graph_size);
-}
-export function PlotLines(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
-    PlotLines_Callback(label, values_getter, data, values_count, value_offset, overlay_text, scale_min, scale_max, graph_size);
+export type PlotLinesValueGetter = (data: any, idx: number) => number;
+export function PlotLines(label: string, values: ArrayLike<number>, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>, stride?: number): void;
+export function PlotLines(label: string, values_getter: PlotLinesValueGetter, data: any, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
+export function PlotLines(label: string, ...args: any[]): void {
+    if (Array.isArray(args[0])) {
+        const values: ArrayLike<number> = args[0];
+        const values_getter: PlotLinesValueGetter = (data: any, idx: number): number => values[idx * stride];
+        const values_count: number = typeof(args[1]) === "number" ? args[1] : values.length;
+        const values_offset: number = typeof(args[2]) === "number" ? args[2] : 0;
+        const overlay_text: string | null = typeof(args[3]) === "string" ? args[3] : null;
+        const scale_min: number = typeof(args[4]) === "number" ? args[4] : Number.MAX_VALUE;
+        const scale_max: number = typeof(args[5]) === "number" ? args[5] : Number.MAX_VALUE;
+        const graph_size: Readonly<Bind.interface_ImVec2> = args[6] || ImVec2.ZERO;
+        const stride: number = typeof(args[7]) === "number" ? args[7] : 1;
+        bind.PlotLines(label, values_getter, null, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
+    } else {
+        const values_getter: PlotLinesValueGetter = args[0];
+        const data: any = args[1];
+        const values_count: number = args[2];
+        const values_offset: number = typeof(args[3]) === "number" ? args[3] : 0;
+        const overlay_text: string | null = typeof(args[4]) === "string" ? args[4] : null;
+        const scale_min: number = typeof(args[5]) === "number" ? args[5] : Number.MAX_VALUE;
+        const scale_max: number = typeof(args[6]) === "number" ? args[6] : Number.MAX_VALUE;
+        const graph_size: Readonly<Bind.interface_ImVec2> = args[7] || ImVec2.ZERO;
+        bind.PlotLines(label, values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
+    }
 }
 // IMGUI_API void          PlotHistogram(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
-export function PlotHistogram_Array(label: string, values: ArrayLike<number>, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, stride: number = 1): void {
-    function values_getter(data: any, idx: number): number {
-        return values[idx];
-    }
-    PlotHistogram(label, values_getter, null, values_count, value_offset, overlay_text, scale_min, scale_max, graph_size);
-}
 // IMGUI_API void          PlotHistogram(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0));
-export function PlotHistogram_Callback(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
-    bind.PlotHistogram(label, values_getter, data, values_count, value_offset, overlay_text, scale_min, scale_max, graph_size);
-}
-export function PlotHistogram(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number = 0, value_offset: number = 0, overlay_text: string | null = null, scale_min: number = Number.MAX_VALUE, scale_max: number = Number.MAX_VALUE, graph_size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
-    PlotHistogram_Callback(label, values_getter, data, values_count, value_offset, overlay_text, scale_min, scale_max, graph_size);
+export type PlotHistogramValueGetter = (data: any, idx: number) => number;
+export function PlotHistogram(label: string, values: ArrayLike<number>, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>, stride?: number): void;
+export function PlotHistogram(label: string, values_getter: PlotHistogramValueGetter, data: any, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
+export function PlotHistogram(label: string, ...args: any[]): void {
+    if (Array.isArray(args[0])) {
+        const values: ArrayLike<number> = args[0];
+        const values_getter: PlotHistogramValueGetter = (data: any, idx: number): number => values[idx * stride];
+        const values_count: number = typeof(args[1]) === "number" ? args[1] : values.length;
+        const values_offset: number = typeof(args[2]) === "number" ? args[2] : 0;
+        const overlay_text: string | null = typeof(args[3]) === "string" ? args[3] : null;
+        const scale_min: number = typeof(args[4]) === "number" ? args[4] : Number.MAX_VALUE;
+        const scale_max: number = typeof(args[5]) === "number" ? args[5] : Number.MAX_VALUE;
+        const graph_size: Readonly<Bind.interface_ImVec2> = args[6] || ImVec2.ZERO;
+        const stride: number = typeof(args[7]) === "number" ? args[7] : 1;
+        bind.PlotHistogram(label, values_getter, null, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
+    } else {
+        const values_getter: PlotHistogramValueGetter = args[0];
+        const data: any = args[1];
+        const values_count: number = args[2];
+        const values_offset: number = typeof(args[3]) === "number" ? args[3] : 0;
+        const overlay_text: string | null = typeof(args[4]) === "string" ? args[4] : null;
+        const scale_min: number = typeof(args[5]) === "number" ? args[5] : Number.MAX_VALUE;
+        const scale_max: number = typeof(args[6]) === "number" ? args[6] : Number.MAX_VALUE;
+        const graph_size: Readonly<Bind.interface_ImVec2> = args[7] || ImVec2.ZERO;
+        bind.PlotHistogram(label, values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
+    }
 }
 // IMGUI_API void          ProgressBar(float fraction, const ImVec2& size_arg = ImVec2(-1,0), const char* overlay = NULL);
 export function ProgressBar(fraction: number, size_arg: Readonly<Bind.interface_ImVec2> = new ImVec2(-1, 0), overlay: string | null = null): void {
@@ -2605,34 +2640,32 @@ export function EndCombo(): void { bind.EndCombo(); }
 // IMGUI_API bool          Combo(const char* label, int* current_item, const char* const items[], int items_count, int popup_max_height_in_items = -1);
 // IMGUI_API bool          Combo(const char* label, int* current_item, const char* items_separated_by_zeros, int popup_max_height_in_items = -1);      // Separate items with \0 within a string, end item-list with \0\0. e.g. "One\0Two\0Three\0"
 // IMGUI_API bool          Combo(const char* label, int* current_item, bool(*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int popup_max_height_in_items = -1);
-export type ComboArg2 = string[] | string | ((data: any, idx: number, out_text: [string]) => boolean);
-export type ComboArg3 = number | any;
-export type ComboArg4 = number;
-export type ComboArg5 = number;
-export function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, arg2: ComboArg2, arg3?: ComboArg3, arg4?: ComboArg4, arg5?: ComboArg5): boolean {
+export type ComboValueGetter = (data: any, idx: number, out_text: [string]) => boolean;
+export function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items: string[], items_count?: number, popup_max_height_in_items?: number): boolean;
+export function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_separated_by_zeros: string, popup_max_height_in_items?: number): boolean;
+export function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ComboValueGetter, data: any, items_count: number, popup_max_height_in_items?: number): boolean;
+export function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, ...args: any[]): boolean {
     let ret = false;
     const _current_item: Bind.ImScalar<number> = Array.isArray(current_item) ? current_item : [ current_item() ];
-    if (Array.isArray(arg2)) {
-        const items: string[] = arg2;
-        const items_count = typeof(arg3) === "number" ? arg3 : items.length;
-        const popup_max_height_in_items: number = typeof(arg4) === "number" ? arg4 : -1;
+    if (Array.isArray(args[0])) {
+        const items: string[] = args[0];
+        const items_count = typeof(args[1]) === "number" ? args[1] : items.length;
+        const popup_max_height_in_items: number = typeof(args[2]) === "number" ? args[2] : -1;
         const items_getter = (data: any, idx: number, out_text: [string]): boolean => { out_text[0] = items[idx]; return true; };
         ret = bind.Combo(label, _current_item, items_getter, null, items_count, popup_max_height_in_items);
-    } else if (typeof(arg2) === "string") {
-        const items_separated_by_zeros: string = arg2
-        const popup_max_height_in_items: number = typeof(arg3) === "number" ? arg3 : -1;
+    } else if (typeof(args[0]) === "string") {
+        const items_separated_by_zeros: string = args[0]
+        const popup_max_height_in_items: number = typeof(args[1]) === "number" ? args[1] : -1;
         const items: string[] = items_separated_by_zeros.replace(/^\0+|\0+$/g, "").split("\0");
         const items_count: number = items.length;
         const items_getter = (data: any, idx: number, out_text: [string]): boolean => { out_text[0] = items[idx]; return true; };
         ret = bind.Combo(label, _current_item, items_getter, null, items_count, popup_max_height_in_items);
-    } else if (typeof(arg2) === "function") {
-        const items_getter: (data: any, idx: number, out_text: [string]) => boolean = arg2;
-        const data: any = arg3;
-        const items_count = typeof(arg4) === "number" ? arg4 : 0;
-        const popup_max_height_in_items: number = typeof(arg5) === "number" ? arg5 : -1;
-        ret = bind.Combo(label, _current_item, items_getter, data, items_count, popup_max_height_in_items);
     } else {
-        throw new Error();
+        const items_getter: (data: any, idx: number, out_text: [string]) => boolean = args[0];
+        const data: any = args[1];
+        const items_count = args[2];
+        const popup_max_height_in_items: number = typeof(args[3]) === "number" ? args[3] : -1;
+        ret = bind.Combo(label, _current_item, items_getter, data, items_count, popup_max_height_in_items);
     }
     if (!Array.isArray(current_item)) { current_item(_current_item[0]); }
     return ret;

@@ -374,7 +374,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 ImGui.Text("I am a fancy tooltip");
                 /* static */ const arr: Static<number[]> = STATIC("arr_", [ 0.6, 0.1, 1.0, 0.5, 0.92, 0.1, 0.2 ]);
                 // ImGui.PlotLines("Curve", arr, IM_ARRAYSIZE(arr));
-                ImGui.PlotLines_Array("Curve", arr.value, IM_ARRAYSIZE(arr.value));
+                ImGui.PlotLines("Curve", arr.value, IM_ARRAYSIZE(arr.value));
                 ImGui.EndTooltip();
             }
 
@@ -859,7 +859,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             ImGui.Checkbox("Animate", (value = animate.value) => animate.value = value);
 
             /* static */ const arr: Static<number[]> = STATIC("arr", [ 0.6, 0.1, 1.0, 0.5, 0.92, 0.1, 0.2 ]);
-            ImGui.PlotLines_Array("Frame Times", arr.value, IM_ARRAYSIZE(arr.value));
+            ImGui.PlotLines("Frame Times", arr.value, IM_ARRAYSIZE(arr.value));
 
             // Create a dummy array of contiguous float values to plot
             // Tip: If your float aren't contiguous but part of a structure, you can pass a pointer to your first float and the sizeof() of your structure in the Stride parameter.
@@ -876,8 +876,8 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 phase.value += 0.10 * values_offset.value;
                 refresh_time.value += 1.0 / 60.0;
             }
-            ImGui.PlotLines_Array("Lines", values.value, IM_ARRAYSIZE(values.value), values_offset.value, "avg 0.0", -1.0, 1.0, new ImVec2(0, 80));
-            ImGui.PlotHistogram_Array("Histogram", arr.value, IM_ARRAYSIZE(arr.value), 0, null, 0.0, 1.0, new ImVec2(0, 80));
+            ImGui.PlotLines("Lines", values.value, IM_ARRAYSIZE(values.value), values_offset.value, "avg 0.0", -1.0, 1.0, new ImVec2(0, 80));
+            ImGui.PlotHistogram("Histogram", arr.value, IM_ARRAYSIZE(arr.value), 0, null, 0.0, 1.0, new ImVec2(0, 80));
 
             // Use functions to generate output
             // FIXME: This is rather awkward because current plot API only pass in indices. We probably want an API passing floats and user provide sample rate/count.
@@ -1554,7 +1554,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             // Capture the group size and create widgets using the same size
             const size: ImVec2 = ImGui.GetItemRectSize();
             const values: number[/*5*/] = [ 0.5, 0.20, 0.80, 0.60, 0.25 ];
-            ImGui.PlotHistogram_Array("##values", values, IM_ARRAYSIZE(values), 0, null, 0.0, 1.0, size);
+            ImGui.PlotHistogram("##values", values, IM_ARRAYSIZE(values), 0, null, 0.0, 1.0, size);
 
             ImGui.Button("ACTION", new ImVec2((size.x - ImGui.GetStyle().ItemSpacing.x) * 0.5, size.y));
             ImGui.SameLine();
