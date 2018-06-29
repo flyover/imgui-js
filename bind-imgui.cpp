@@ -1188,6 +1188,11 @@ EMSCRIPTEN_BINDINGS(ImGui) {
 
     emscripten::function("IMGUI_CHECKVERSION", FUNCTION(bool, (), { return IMGUI_CHECKVERSION(); }));
 
+    emscripten::constant("ImGuiIOSize", sizeof(ImGuiIO));
+    emscripten::constant("ImGuiStyleSize", sizeof(ImGuiStyle));
+    emscripten::constant("ImVec2Size", sizeof(ImVec2));
+    emscripten::constant("ImVec4Size", sizeof(ImVec4));
+
     emscripten::constant("ImDrawVertSize", sizeof(ImDrawVert));
     emscripten::constant("ImDrawIdxSize", sizeof(ImDrawIdx));
     emscripten::constant("ImDrawVertPosOffset", IM_OFFSETOF(ImDrawVert, pos));
@@ -1234,6 +1239,10 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("SetCurrentContext", FUNCTION(void, (emscripten::val ctx), {
         ImGuiContext* _ctx = ctx.isNull() ? NULL : (ImGuiContext*) ctx.as<int>();
         ImGui::SetCurrentContext(_ctx);
+    }));
+    // IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert);
+    emscripten::function("DebugCheckVersionAndDataLayout", FUNCTION(bool, (std::string version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert), {
+        return ImGui::DebugCheckVersionAndDataLayout(version_str.c_str(), sz_io, sz_style, sz_vec2, sz_vec4, sz_drawvert);
     }));
 
     // Main

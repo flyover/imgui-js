@@ -8,7 +8,8 @@ import * as config from "./imconfig";
 
 export const IMGUI_VERSION: string = bind.IMGUI_VERSION;
 
-export function IMGUI_CHECKVERSION(): boolean { return bind.IMGUI_CHECKVERSION(); }
+// #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
+export function IMGUI_CHECKVERSION(): boolean { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, bind.ImGuiIOSize, bind.ImGuiStyleSize, bind.ImVec2Size, bind.ImVec4Size, bind.ImDrawVertSize); }
 
 export function IM_ASSERT(_EXPR: boolean | number): void { if (!_EXPR) { throw new Error(); } }
 
@@ -2061,8 +2062,9 @@ export function SetCurrentContext(ctx: ImGuiContext | null): void {
     ImGuiContext.current_ctx = ctx;
 }
 
-export function DebugCheckVersionAndDataLayout(): boolean {
-    return true; // TODO
+// IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert);
+export function DebugCheckVersionAndDataLayout(version_str: string, sz_io: number, sz_style: number, sz_vec2: number, sz_vec4: number, sz_draw_vert: number): boolean {
+    return bind.DebugCheckVersionAndDataLayout(version_str, sz_io, sz_style, sz_vec2, sz_vec4, sz_draw_vert);
 }
 
 // Main

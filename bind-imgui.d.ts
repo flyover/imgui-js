@@ -920,6 +920,11 @@ IMGUI_VERSION: string;
 
 IMGUI_CHECKVERSION(): boolean;
 
+ImGuiIOSize: number;
+ImGuiStyleSize: number;
+ImVec2Size: number;
+ImVec4Size: number;
+
 ImDrawVertSize: number;
 ImDrawIdxSize: number;
 ImDrawVertPosOffset: number;
@@ -942,6 +947,8 @@ DestroyContext(ctx: ImGuiContext | null): void;
 GetCurrentContext(): ImGuiContext | null;
 // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
 SetCurrentContext(ctx: ImGuiContext | null): void;
+// IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert);
+DebugCheckVersionAndDataLayout(version_str: string, sz_io: number, sz_style: number, sz_vec2: number, sz_vec4: number, sz_draw_vert: number): boolean;
 
 // Main
 // IMGUI_API ImGuiIO&      GetIO();
