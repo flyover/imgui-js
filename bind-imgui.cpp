@@ -350,7 +350,7 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
         }))
         // IMGUI_API void  AddTriangleFilled(const ImVec2& a, const ImVec2& b, const ImVec2& c, ImU32 col);
         .function("AddTriangleFilled", FUNCTION(void, (ImDrawList& that, emscripten::val a, emscripten::val b, emscripten::val c, ImU32 col), {
-            that.AddTriangle(import_ImVec2(a), import_ImVec2(b), import_ImVec2(c), col);
+            that.AddTriangleFilled(import_ImVec2(a), import_ImVec2(b), import_ImVec2(c), col);
         }))
         // IMGUI_API void  AddCircle(const ImVec2& centre, float radius, ImU32 col, int num_segments = 12, float thickness = 1.0f);
         .function("AddCircle", FUNCTION(void, (ImDrawList& that, emscripten::val centre, float radius, ImU32 col, int num_segments, float thickness), {
