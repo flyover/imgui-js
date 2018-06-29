@@ -386,14 +386,20 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
             that.AddImageRounded((ImTextureID) user_texture_id.as<int>(), import_ImVec2(a), import_ImVec2(b), import_ImVec2(uv_a), import_ImVec2(uv_b), col, rounding, rounding_corners);
         }))
         // IMGUI_API void  AddPolyline(const ImVec2* points, const int num_points, ImU32 col, bool closed, float thickness);
-        // public AddPolyline(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32, closed: boolean, thickness: number): void;
-        .function("AddPolyline", FUNCTION(void, (emscripten::val points, const int num_points, ImU32 col, bool closed, float thickness), {
-            // TODO
+        .function("AddPolyline", FUNCTION(void, (ImDrawList& that, emscripten::val points, const int num_points, ImU32 col, bool closed, float thickness), {
+            ImVec2 _points[num_points];
+            for (int i = 0; i < num_points; ++i) {
+                _points[i] = import_ImVec2(points[i]);
+            }
+            that.AddPolyline(_points, num_points, col, closed, thickness);
         }))
         // IMGUI_API void  AddConvexPolyFilled(const ImVec2* points, const int num_points, ImU32 col);
-        // public AddConvexPolyFilled(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32): void;
-        .function("AddConvexPolyFilled", FUNCTION(void, (emscripten::val points, const int num_points, ImU32 col), {
-            // TODO
+        .function("AddConvexPolyFilled", FUNCTION(void, (ImDrawList& that, emscripten::val points, const int num_points, ImU32 col), {
+            ImVec2 _points[num_points];
+            for (int i = 0; i < num_points; ++i) {
+                _points[i] = import_ImVec2(points[i]);
+            }
+            that.AddConvexPolyFilled(_points, num_points, col);
         }))
         // IMGUI_API void  AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
         .function("AddBezierCurve", FUNCTION(void, (ImDrawList& that, emscripten::val pos0, emscripten::val cp0, emscripten::val cp1, emscripten::val pos1, ImU32 col, float thickness, int num_segments), {
