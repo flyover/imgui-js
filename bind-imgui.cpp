@@ -2292,7 +2292,13 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags flags = 0, const float* ref_col = NULL);
     emscripten::function("ColorPicker4", FUNCTION(bool, (std::string label, emscripten::val col, ImGuiColorEditFlags flags, emscripten::val ref_col), {
         float _col[4] = { import_float(col[0]), import_float(col[1]), import_float(col[2]), import_float(col[3]) };
-        bool ret = ImGui::ColorPicker4(label.c_str(), _col, flags); // TODO: ref_col
+        bool ret;
+        if (ref_col.isNull()) {
+            ret = ImGui::ColorPicker4(label.c_str(), _col, flags, NULL);
+        } else {
+            float _ref_col[4] = { import_float(ref_col[0]), import_float(ref_col[1]), import_float(ref_col[2]), import_float(ref_col[3]) };
+            ret = ImGui::ColorPicker4(label.c_str(), _col, flags, _ref_col);
+        }
         col.set(0, export_float(_col[0]));
         col.set(1, export_float(_col[1]));
         col.set(2, export_float(_col[2]));

@@ -3046,12 +3046,13 @@ export function ColorPicker3(label: string, col: Bind.ImTuple3<number> | Bind.Im
     }
 }
 // IMGUI_API bool          ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags flags = 0, const float* ref_col = NULL);
-export function ColorPicker4(label: string, col: Bind.ImTuple4<number> | Bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0, ref_col: Bind.ImTuple4<number> | ImVec4 | null = null): boolean {
+export function ColorPicker4(label: string, col: Bind.ImTuple4<number> | Bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0, ref_col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | null = null): boolean {
+    const _ref_col: Bind.ImTuple4<number> | null = Array.isArray(ref_col) ? ref_col : ref_col ? [ ref_col.x, ref_col.y, ref_col.z, ref_col.w ] : null;
     if (Array.isArray(col)) {
-        return bind.ColorPicker4(label, col, flags, ref_col);
+        return bind.ColorPicker4(label, col, flags, _ref_col);
     } else {
         const _col: Bind.ImTuple4<number> = [ col.x, col.y, col.z, col.w ];
-        const ret = bind.ColorPicker4(label, _col, flags, ref_col);
+        const ret = bind.ColorPicker4(label, _col, flags, _ref_col);
         col.x = _col[0]; col.y = _col[1]; col.z = _col[2]; col.w = _col[3];
         return ret;
     }
