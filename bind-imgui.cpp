@@ -2273,6 +2273,61 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         v.set(0, emscripten::val(_v));
         return ret;
     }));
+    // IMGUI_API bool          VSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
+    emscripten::function("VSliderScalar", FUNCTION(bool, (std::string label, emscripten::val size, ImGuiDataType data_type, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, float power), {
+        bool ret = false;
+        switch (data_type) {
+            case ImGuiDataType_S32: {
+                std::vector<ImS32> _v = emscripten::vecFromJSArray<ImS32>(v);
+                ImS32 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImS32>();
+                ImS32 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImS32>();
+                ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
+                v.call<void>("set", emscripten::typed_memory_view<ImS32>(_v.size(), _v.data()));
+                break;
+            }
+            case ImGuiDataType_U32: {
+                std::vector<ImU32> _v = emscripten::vecFromJSArray<ImU32>(v);
+                ImU32 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImU32>();
+                ImU32 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImU32>();
+                ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
+                v.call<void>("set", emscripten::typed_memory_view<ImU32>(_v.size(), _v.data()));
+                break;
+            }
+            case ImGuiDataType_S64: {
+                // std::vector<ImS64> _v = emscripten::vecFromJSArray<ImS64>(v);
+                // ImS64 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImS64>();
+                // ImS64 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImS64>();
+                // ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
+                // v.call<void>("set", emscripten::typed_memory_view<ImS64>(_v.size(), _v.data()));
+                break;
+            }
+            case ImGuiDataType_U64: {
+                // std::vector<ImU64> _v = emscripten::vecFromJSArray<ImU64>(v);
+                // ImU64 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImU64>();
+                // ImU64 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImU64>();
+                // ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
+                // v.call<void>("set", emscripten::typed_memory_view<ImU64>(_v.size(), _v.data()));
+                break;
+            }
+            case ImGuiDataType_Float: {
+                std::vector<float> _v = emscripten::vecFromJSArray<float>(v);
+                float _v_min = v_min.isNull() ? 0.0 : v_min.as<float>();
+                float _v_max = v_max.isNull() ? 1.0 : v_max.as<float>();
+                ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
+                v.call<void>("set", emscripten::typed_memory_view<float>(_v.size(), _v.data()));
+                break;
+            }
+            case ImGuiDataType_Double: {
+                std::vector<double> _v = emscripten::vecFromJSArray<double>(v);
+                double _v_min = v_min.isNull() ? 0.0 : v_min.as<double>();
+                double _v_max = v_max.isNull() ? 1.0 : v_max.as<double>();
+                ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), power);
+                v.call<void>("set", emscripten::typed_memory_view<double>(_v.size(), _v.data()));
+                break;
+            }
+        }
+        return ret;
+    }));
 
     // Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little colored preview square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
     // Note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can the pass the address of a first float element out of a contiguous structure, e.g. &myvector.x
