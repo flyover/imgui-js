@@ -2792,7 +2792,7 @@ function ShowExampleAppCustomRendering(p_open: ImAccess<boolean>): void
             draw_list.AddLine(new ImVec2(x, y), new ImVec2(x + sz.value, y           ), col32, curr_thickness); x += sz.value + spacing; // Horizontal line (note: drawing a filled rectangle will be faster!)
             draw_list.AddLine(new ImVec2(x, y), new ImVec2(x,            y + sz.value), col32, curr_thickness); x += spacing;            // Vertical line (note: drawing a filled rectangle will be faster!)
             draw_list.AddLine(new ImVec2(x, y), new ImVec2(x + sz.value, y + sz.value), col32, curr_thickness); x += sz.value + spacing; // Diagonal line
-            draw_list.AddBezierCurve(new ImVec2(x, y), new ImVec2(x + sz.value * 1.3, y + sz.value * 0.3), new ImVec2(x + sz.value - sz.value * 1.3, y + sz.value - sz.value * 0.3), new ImVec2(x + sz.value, y + sz.value), col32, thickness.value);
+            draw_list.AddBezierCurve(new ImVec2(x, y), new ImVec2(x + sz.value * 1.3, y + sz.value * 0.3), new ImVec2(x + sz.value - sz.value * 1.3, y + sz.value - sz.value * 0.3), new ImVec2(x + sz.value, y + sz.value), col32, curr_thickness);
             x = p.x + 4;
             y += sz.value + spacing;
         }
