@@ -3633,13 +3633,15 @@ export function LoadIniSettingsFromMemory(ini_data: string, ini_size: number = 0
 // IMGUI_API void          SaveIniSettingsToDisk(const char* ini_filename);
 export function SaveIniSettingsToDisk(ini_filename: string): void { throw new Error(); } // TODO
 // IMGUI_API const char*   SaveIniSettingsToMemory(size_t* out_ini_size = NULL);               // return a zero-terminated string with the .ini data which you can save by your own mean. call when io.WantSaveIniSettings is set, then save data by your own mean and clear io.WantSaveIniSettings.
-export function SaveIniSettingsToMemory(out_ini_size: [number] | null = null): string { return bind.SaveIniSettingsToMemory(); }
+export function SaveIniSettingsToMemory(out_ini_size: Bind.ImScalar<number> | null = null): string { return bind.SaveIniSettingsToMemory(); }
 
 // Memory Utilities
 // All those functions are not reliant on the current context.
 // If you reload the contents of imgui.cpp at runtime, you may need to call SetCurrentContext() + SetAllocatorFunctions() again.
 // IMGUI_API void          SetAllocatorFunctions(void* (*alloc_func)(size_t sz, void* user_data), void(*free_func)(void* ptr, void* user_data), void* user_data = NULL);
-export function SetAllocatorFunctions(): void {} // TODO
+export function SetAllocatorFunctions(alloc_func: (sz: number, user_data: any) => number, free_func: (ptr: number, user_data: any) => void, user_data: any = null): void {
+    bind.SetAllocatorFunctions(alloc_func, free_func, user_data);
+}
 // IMGUI_API void*         MemAlloc(size_t sz);
 export const MemAlloc = bind.MemAlloc;
 // IMGUI_API void          MemFree(void* ptr);

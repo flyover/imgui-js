@@ -2838,6 +2838,19 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // All those functions are not reliant on the current context.
     // If you reload the contents of imgui.cpp at runtime, you may need to call SetCurrentContext() + SetAllocatorFunctions() again.
     // IMGUI_API void          SetAllocatorFunctions(void* (*alloc_func)(size_t sz, void* user_data), void(*free_func)(void* ptr, void* user_data), void* user_data = NULL);
+    emscripten::function("SetAllocatorFunctions", FUNCTION(void, (emscripten::val alloc_func, emscripten::val free_func, emscripten::val user_data), {
+        static emscripten::val _alloc_func = alloc_func;
+        static emscripten::val _free_func = free_func;
+        static emscripten::val _user_data = user_data;
+        ImGui::SetAllocatorFunctions(
+            FUNCTION(void*, (size_t sz, void* user_data), {
+                return _alloc_func(emscripten::val(sz), _user_data).as<void*>(emscripten::allow_raw_pointers());
+            }), 
+            FUNCTION(void, (void* ptr, void* user_data), {
+                _free_func(emscripten::val(ptr), _user_data);
+            }), 
+            NULL);
+    }));
     // IMGUI_API void*         MemAlloc(size_t sz);
     emscripten::function("MemAlloc", FUNCTION(emscripten::val, (size_t sz), {
         void* p = ImGui::MemAlloc(sz);
