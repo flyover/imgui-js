@@ -919,7 +919,7 @@ export class ImGuiTextEditCallbackData {
     // IMGUI_API void    DeleteChars(int pos, int bytes_count);
     public DeleteChars(pos: number, bytes_count: number): void { return this.native.DeleteChars(pos, bytes_count); }
     // IMGUI_API void    InsertChars(int pos, const char* text, const char* text_end = NULL);
-    public InsertChars(pos: number, text: string, text_end: number | null = null): void { return this.native.InsertChars(pos, text, text_end); }
+    public InsertChars(pos: number, text: string, text_end: number | null = null): void { return this.native.InsertChars(pos, text_end !== null ? text.substring(0, text_end) : text); }
     // bool              HasSelection() const { return SelectionStart != SelectionEnd; }
     public HasSelection(): boolean { return this.native.HasSelection(); }
 }
@@ -1176,12 +1176,27 @@ export class ImDrawList
         this.native.AddCircleFilled(centre, radius, col, num_segments);
     }
     // IMGUI_API void  AddText(const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL);
-    public AddText(pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, text_begin: string, text_end: number | null = null): void {
-        this.native.AddText(pos, col, text_begin, text_end);
-    }
     // IMGUI_API void  AddText(const ImFont* font, float font_size, const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL, float wrap_width = 0.0f, const ImVec4* cpu_fine_clip_rect = NULL);
-    public AddText_Font(font: ImFont, font_size: number, pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, text_begin: string, text_end: number | null = null, wrap_width: number = 0.0, cpu_fine_clip_rect: Readonly<Bind.interface_ImVec4> | null = null): void {
-        this.native.AddText_Font(font.native, font_size, pos, col, text_begin, text_end, wrap_width, cpu_fine_clip_rect);
+    public AddText(pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, text_begin: string, text_end?: number | null): void;
+    public AddText(font: ImFont, font_size: number, pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, text_begin: string, text_end?: number | null, wrap_width?: number, cpu_fine_clip_rect?: Readonly<Bind.interface_ImVec4> | null): void;
+    public AddText(...args: any[]): void {
+        if (args[0] instanceof ImFont) {
+            const font: ImFont = args[0];
+            const font_size: number = args[1];
+            const pos: Readonly<Bind.interface_ImVec2> = args[2];
+            const col: Bind.ImU32 = args[3];
+            const text_begin: string = args[4];
+            const text_end: number | null = args[5] || null;
+            const wrap_width: number = args[6] = 0.0;
+            const cpu_fine_clip_rect: Readonly<Bind.interface_ImVec4> | null = args[7] || null;
+            this.native.AddText_B(font.native, font_size, pos, col, text_end !== null ? text_begin.substring(0, text_end) : text_begin, wrap_width, cpu_fine_clip_rect);
+        } else {
+            const pos: Readonly<Bind.interface_ImVec2> = args[0];
+            const col: Bind.ImU32 = args[1];
+            const text_begin: string = args[2];
+            const text_end: number | null = args[3] || null;
+            this.native.AddText_A(pos, col, text_end !== null ? text_begin.substring(0, text_end) : text_begin);
+        }
     }
     // IMGUI_API void  AddImage(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,1), ImU32 col = 0xFFFFFFFF);
     public AddImage(user_texture_id: ImTextureID | null, a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, uv_a: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, uv_b: Readonly<Bind.interface_ImVec2> = ImVec2.UNIT, col: Bind.ImU32 = 0xFFFFFFFF): void {
@@ -1587,12 +1602,12 @@ export class ImFont
     // 'max_width' stops rendering after a certain width (could be turned into a 2d size). FLT_MAX to disable.
     // 'wrap_width' enable automatic word-wrapping across multiple lines to fit into given width. 0.0f to disable.
     // IMGUI_API ImVec2            CalcTextSizeA(float size, float max_width, float wrap_width, const char* text_begin, const char* text_end = NULL, const char** remaining = NULL) const; // utf8
-    public CalcTextSizeA(size: number, max_width: number, wrap_width: number, text_begin: string, text_end: number | null = null, remaining: any = null): Bind.interface_ImVec2 {
-        return this.native.CalcTextSizeA(size, max_width, wrap_width, text_begin, text_end, remaining, new ImVec2());
+    public CalcTextSizeA(size: number, max_width: number, wrap_width: number, text_begin: string, text_end: number | null = null, remaining: Bind.ImScalar<number> | null = null): Bind.interface_ImVec2 {
+        return this.native.CalcTextSizeA(size, max_width, wrap_width, text_end !== null ? text_begin.substring(0, text_end) : text_begin, remaining, new ImVec2());
     }
     // IMGUI_API const char*       CalcWordWrapPositionA(float scale, const char* text, const char* text_end, float wrap_width) const;
-    public CalcWordWrapPositionA(scale: number, text: string, text_end: number | null, wrap_width: number): number {
-        return this.native.CalcWordWrapPositionA(scale, text, text_end, wrap_width);
+    public CalcWordWrapPositionA(scale: number, text: string, text_end: number | null = null, wrap_width: number): number {
+        return this.native.CalcWordWrapPositionA(scale, text_end !== null ? text.substring(0, text_end) : text, wrap_width);
     }
     // IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, unsigned short c) const;
     // IMGUI_API void              RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
@@ -2499,7 +2514,7 @@ export const GetID = bind.GetID;
 
 // Widgets: Text
 // IMGUI_API void          TextUnformatted(const char* text, const char* text_end = NULL);               // raw text without formatting. Roughly equivalent to Text("%s", text) but: A) doesn't require null terminated string if 'text_end' is specified, B) it's faster, no memory copy is done, no buffer size limits, recommended for long chunks of text.
-export function TextUnformatted(text: string): void { bind.TextUnformatted(text); }
+export function TextUnformatted(text: string, text_end: number | null = null): void { bind.TextUnformatted(text_end !== null ? text.substring(0, text_end) : text); }
 // IMGUI_API void          Text(const char* fmt, ...)                                     IM_FMTARGS(1); // simple formatted text
 // IMGUI_API void          TextV(const char* fmt, va_list args)                           IM_FMTLIST(1);
 export function Text(fmt: string/*, ...args: any[]*/): void { bind.Text(fmt/*, ...args*/); }
@@ -3488,8 +3503,8 @@ export function GetDrawListSharedData(): ImDrawListSharedData {
 // IMGUI_API const char*   GetStyleColorName(ImGuiCol idx);
 export const GetStyleColorName = bind.GetStyleColorName;
 // IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
-export function CalcTextSize(text: string, text_end: string | null = null, hide_text_after_double_hash: boolean = false, wrap_width: number = -1, out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
-    return bind.CalcTextSize(text, text_end, hide_text_after_double_hash, wrap_width, out);
+export function CalcTextSize(text: string, text_end: number | null = null, hide_text_after_double_hash: boolean = false, wrap_width: number = -1, out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+    return bind.CalcTextSize(text_end !== null ? text.substring(0, text_end) : text, hide_text_after_double_hash, wrap_width, out);
 }
 // IMGUI_API void          CalcListClipping(int items_count, float items_height, int* out_items_display_start, int* out_items_display_end);    // calculate coarse clipping for large list of evenly sized items. Prefer using the ImGuiListClipper higher-level helper if you can.
 export function CalcListClipping(items_count: number, items_height: number, out_items_display_start: Bind.ImScalar<number>, out_items_display_end: Bind.ImScalar<number>): void {

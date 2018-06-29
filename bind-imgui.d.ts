@@ -161,7 +161,7 @@ export class ImGuiTextEditCallbackData extends Emscripten.EmscriptenClass {
     // IMGUI_API void    DeleteChars(int pos, int bytes_count);
     public DeleteChars(pos: number, bytes_count: number): void;
     // IMGUI_API void    InsertChars(int pos, const char* text, const char* text_end = NULL);
-    public InsertChars(pos: number, text: string, text_end: number | null): void;
+    public InsertChars(pos: number, text: string): void;
     // bool              HasSelection() const { return SelectionStart != SelectionEnd; }
     public HasSelection(): boolean;
 }
@@ -397,9 +397,9 @@ export class reference_ImDrawList extends Emscripten.EmscriptenClassReference {
     // IMGUI_API void  AddCircleFilled(const ImVec2& centre, float radius, ImU32 col, int num_segments = 12);
     public AddCircleFilled(centre: Readonly<interface_ImVec2>, radius: number, col: ImU32, num_segments: number): void;
     // IMGUI_API void  AddText(const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL);
-    public AddText(pos: Readonly<interface_ImVec2>, col: ImU32, text_begin: string, text_end: number | null): void;
+    public AddText_A(pos: Readonly<interface_ImVec2>, col: ImU32, text_begin: string): void;
     // IMGUI_API void  AddText(const ImFont* font, float font_size, const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL, float wrap_width = 0.0f, const ImVec4* cpu_fine_clip_rect = NULL);
-    public AddText_Font(font: reference_ImFont, font_size: number, pos: Readonly<interface_ImVec2>, col: ImU32, text_begin: string, text_end: number | null, wrap_width: number, cpu_fine_clip_rect: Readonly<interface_ImVec4> | null): void;
+    public AddText_B(font: reference_ImFont, font_size: number, pos: Readonly<interface_ImVec2>, col: ImU32, text_begin: string, wrap_width: number, cpu_fine_clip_rect: Readonly<interface_ImVec4> | null): void;
     // IMGUI_API void  AddImage(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,1), ImU32 col = 0xFFFFFFFF);
     public AddImage(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  AddImageQuad(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,0), const ImVec2& uv_c = ImVec2(1,1), const ImVec2& uv_d = ImVec2(0,1), ImU32 col = 0xFFFFFFFF);
@@ -557,9 +557,9 @@ export class reference_ImFont extends Emscripten.EmscriptenClassReference {
     // 'max_width' stops rendering after a certain width (could be turned into a 2d size). FLT_MAX to disable.
     // 'wrap_width' enable automatic word-wrapping across multiple lines to fit into given width. 0.0f to disable.
     // IMGUI_API ImVec2            CalcTextSizeA(float size, float max_width, float wrap_width, const char* text_begin, const char* text_end = NULL, const char** remaining = NULL) const; // utf8
-    public CalcTextSizeA(size: number, max_width: number, wrap_width: number, text_begin: string, text_end: number | null, remaining: any, out: interface_ImVec2): interface_ImVec2;
+    public CalcTextSizeA(size: number, max_width: number, wrap_width: number, text_begin: string, remaining: ImScalar<number> | null, out: interface_ImVec2): interface_ImVec2;
     // IMGUI_API const char*       CalcWordWrapPositionA(float scale, const char* text, const char* text_end, float wrap_width) const;
-    public CalcWordWrapPositionA(scale: number, text: string, text_end: number | null, wrap_width: number): number;
+    public CalcWordWrapPositionA(scale: number, text: string, wrap_width: number): number;
     // IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, unsigned short c) const;
     // IMGUI_API void              RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
 
@@ -1403,7 +1403,7 @@ GetDrawListSharedData(): reference_ImDrawListSharedData;
 // IMGUI_API const char*   GetStyleColorName(ImGuiCol idx);
 GetStyleColorName(idx: ImGuiCol): string;
 // IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
-CalcTextSize(text: string, text_end: string | null/* = NULL */, hide_text_after_double_hash: boolean/* = false */, wrap_width: number/* = -1.0f */, out: interface_ImVec2): typeof out;
+CalcTextSize(text: string, hide_text_after_double_hash: boolean/* = false */, wrap_width: number/* = -1.0f */, out: interface_ImVec2): typeof out;
 // IMGUI_API void          CalcListClipping(int items_count, float items_height, int* out_items_display_start, int* out_items_display_end);    // calculate coarse clipping for large list of evenly sized items. Prefer using the ImGuiListClipper higher-level helper if you can.
 CalcListClipping(items_count: number, items_height: number, out_items_display_start: ImScalar<number>, out_items_display_end: ImScalar<number>): void;
 
