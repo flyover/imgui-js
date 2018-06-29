@@ -959,9 +959,9 @@ EndFrame(): void;
 
 // Demo, Debug, Informations
 // IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create demo/test window (previously called ShowTestWindow). demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
-ShowDemoWindow(p_open: [ boolean ] | null): void;
+ShowDemoWindow(p_open: ImScalar<boolean> | null): void;
 // IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // create metrics window. display ImGui internals: draw commands (with individual draw calls and vertices), window list, basic internal state, etc.
-ShowMetricsWindow(p_open: [ boolean ] | null): void;
+ShowMetricsWindow(p_open: ImScalar<boolean> | null): void;
 // IMGUI_API void          ShowStyleEditor(ImGuiStyle* ref = NULL);    // add style editor block (not a window). you can pass in a reference ImGuiStyle structure to compare to, revert to and save to (else it uses the default style)
 ShowStyleEditor(ref: ImGuiStyle | null): void;
 // IMGUI_API bool          ShowStyleSelector(const char* label);
@@ -982,7 +982,7 @@ StyleColorsDark(dst: ImGuiStyle | null/* = NULL */): void;
 StyleColorsLight(dst: ImGuiStyle | null/* = NULL */): void;
 
 // Window
-Begin(name: string, p_open: [ boolean ] | null /* = NULL */, flags: ImGuiWindowFlags/* = 0 */): boolean;
+Begin(name: string, p_open: ImScalar<boolean> | null /* = NULL */, flags: ImGuiWindowFlags/* = 0 */): boolean;
 End(): void;
 BeginChild(id: string | ImGuiID, size: Readonly<interface_ImVec2>, border: boolean, extra_flags: ImGuiWindowFlags): boolean;
 EndChild(): void;
@@ -1039,9 +1039,9 @@ GetStyleColorVec4(idx: ImGuiCol): Readonly<reference_ImVec4>;
 GetFont(): reference_ImFont;
 GetFontSize(): number;
 GetFontTexUvWhitePixel(out: interface_ImVec2): typeof out;
-GetColorU32(idx: ImGuiCol, alpha_mul: number/* = 1.0f */): ImU32;
-// GetColorU32(col: Readonly<interface_ImVec4>): ImU32;
-// GetColorU32(col: ImU32): ImU32;
+GetColorU32_A(idx: ImGuiCol, alpha_mul: number/* = 1.0f */): ImU32;
+GetColorU32_B(col: Readonly<interface_ImVec4>): ImU32;
+GetColorU32_C(col: ImU32): ImU32;
 
 // Parameters stacks (current window)
 PushItemWidth(item_width: number): void;
@@ -1141,7 +1141,7 @@ InvisibleButton(str_id: string, size: Readonly<interface_ImVec2>): boolean;
 Image(user_texture_id: any, size: Readonly<interface_ImVec2>, uv0: Readonly<interface_ImVec2>, uv1: Readonly<interface_ImVec2>, tint_col: Readonly<interface_ImVec4>, border_col: Readonly<interface_ImVec4>): void;
 // IMGUI_API bool          ImageButton(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0),  const ImVec2& uv1 = ImVec2(1,1), int frame_padding = -1, const ImVec4& bg_col = ImVec4(0,0,0,0), const ImVec4& tint_col = ImVec4(1,1,1,1));    // <0 frame_padding uses default frame padding settings. 0 for no padding
 ImageButton(user_texture_id: any, size: Readonly<interface_ImVec2>, uv0: Readonly<interface_ImVec2>, uv1: Readonly<interface_ImVec2>, frame_padding: number, bg_col: Readonly<interface_ImVec4>, tint_col: Readonly<interface_ImVec4>): void;
-Checkbox(label: string, v: [ boolean ]): boolean;
+Checkbox(label: string, v: ImScalar<boolean>): boolean;
 CheckboxFlags(label: string, flags: ImScalar<number> | null, flags_value: number): boolean;
 // RadioButton(label: string, active: boolean): boolean;
 // RadioButton(label: string, v: ImScalar<number>, v_button: number): boolean;
@@ -1231,16 +1231,21 @@ SetColorEditOptions(flags: ImGuiColorEditFlags): void;
 // IMGUI_API bool          TreeNode(const void* ptr_id, const char* fmt, ...) IM_FMTARGS(2);       // "
 // IMGUI_API bool          TreeNodeV(const char* str_id, const char* fmt, va_list args) IM_FMTLIST(2);
 // IMGUI_API bool          TreeNodeV(const void* ptr_id, const char* fmt, va_list args) IM_FMTLIST(2);
-TreeNode(label_or_id: string | number, fmt: string): boolean;
+TreeNode_A(label: string): boolean;
+TreeNode_B(str_id: string, fmt: string): boolean;
+TreeNode_C(ptr_id: number, fmt: string): boolean;
 // IMGUI_API bool          TreeNodeEx(const char* label, ImGuiTreeNodeFlags flags = 0);
 // IMGUI_API bool          TreeNodeEx(const char* str_id, ImGuiTreeNodeFlags flags, const char* fmt, ...) IM_FMTARGS(3);
 // IMGUI_API bool          TreeNodeEx(const void* ptr_id, ImGuiTreeNodeFlags flags, const char* fmt, ...) IM_FMTARGS(3);
 // IMGUI_API bool          TreeNodeExV(const char* str_id, ImGuiTreeNodeFlags flags, const char* fmt, va_list args) IM_FMTLIST(3);
 // IMGUI_API bool          TreeNodeExV(const void* ptr_id, ImGuiTreeNodeFlags flags, const char* fmt, va_list args) IM_FMTLIST(3);
-TreeNodeEx(label_or_id: string | number, flags: ImGuiTreeNodeFlags/* = 0 */, fmt: string): boolean;
+TreeNodeEx_A(label: string, flags: ImGuiTreeNodeFlags/* = 0 */): boolean;
+TreeNodeEx_B(str_id: string, flags: ImGuiTreeNodeFlags/* = 0 */, fmt: string): boolean;
+TreeNodeEx_C(ptr_id: number, flags: ImGuiTreeNodeFlags/* = 0 */, fmt: string): boolean;
 // IMGUI_API void          TreePush(const char* str_id);                                           // ~ Indent()+PushId(). Already called by TreeNode() when returning true, but you can call Push/Pop yourself for layout purpose
 // IMGUI_API void          TreePush(const void* ptr_id = NULL);                                    // "
-TreePush(id: string | number): void;
+TreePush_A(str_id: string): void;
+TreePush_B(ptr_id: number): void;
 // IMGUI_API void          TreePop();                                                              // ~ Unindent()+PopId()
 TreePop(): void;
 // IMGUI_API void          TreeAdvanceToLabelPos();                                                // advance cursor x position by GetTreeNodeToLabelSpacing()
@@ -1251,24 +1256,29 @@ GetTreeNodeToLabelSpacing(): number;
 SetNextTreeNodeOpen(is_open: boolean, cond: ImGuiCond/* = 0 */): void;
 // IMGUI_API bool          CollapsingHeader(const char* label, ImGuiTreeNodeFlags flags = 0);      // if returning 'true' the header is open. doesn't indent nor push on ID stack. user doesn't have to call TreePop().
 // IMGUI_API bool          CollapsingHeader(const char* label, bool* p_open, ImGuiTreeNodeFlags flags = 0); // when 'p_open' isn't NULL, display an additional small close button on upper right of the header
-CollapsingHeader(label: string, p_open: [ boolean ] | null, flags: ImGuiTreeNodeFlags/* = 0 */): boolean;
+CollapsingHeader_A(label: string, flags: ImGuiTreeNodeFlags/* = 0 */): boolean;
+CollapsingHeader_B(label: string, p_open: ImScalar<boolean> | null, flags: ImGuiTreeNodeFlags/* = 0 */): boolean;
 
 // Widgets: Selectable / Lists
 // IMGUI_API bool          Selectable(const char* label, bool selected = false, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0,0));  // size.x==0.0: use remaining width, size.x>0.0: specify width. size.y==0.0: use label height, size.y>0.0: specify height
 // IMGUI_API bool          Selectable(const char* label, bool* p_selected, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0,0));
-Selectable(label: string, selected?: boolean | [ boolean ], flags?: ImGuiSelectableFlags, size?: interface_ImVec2): boolean;
+Selectable_A(label: string, selected: boolean, flags: ImGuiSelectableFlags, size: interface_ImVec2): boolean;
+Selectable_B(label: string, p_selected: ImScalar<boolean>, flags: ImGuiSelectableFlags, size: interface_ImVec2): boolean;
 // IMGUI_API bool          ListBox(const char* label, int* current_item, const char* const* items, int items_count, int height_in_items = -1);
 // IMGUI_API bool          ListBox(const char* label, int* current_item, bool (*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int height_in_items = -1);
-ListBox(label: string, current_item: ImScalar<number>, items: string[], items_count: number, height_in_items: number/* = -1 */): boolean;
+ListBox_A(label: string, current_item: ImScalar<number>, items: string[], items_count: number, height_in_items: number/* = -1 */): boolean;
+ListBox_B(label: string, current_item: ImScalar<number>, items_getter: any, data: any, items_count: number, height_in_items: number/* = -1 */): boolean;
 // IMGUI_API bool          ListBoxHeader(const char* label, const ImVec2& size = ImVec2(0,0));     // use if you want to reimplement ListBox() will custom data or interactions. make sure to call ListBoxFooter() afterwards.
 // IMGUI_API bool          ListBoxHeader(const char* label, int items_count, int height_in_items = -1); // "
-ListBoxHeader(label: string, size: Readonly<interface_ImVec2>): boolean;
+ListBoxHeader_A(label: string, size: Readonly<interface_ImVec2>): boolean;
+ListBoxHeader_B(label: string, items_count: number, height_in_items: number): boolean;
 ListBoxFooter(): void;
 
 // Widgets: Value() Helpers. Output single value in "name: value" format (tip: freely declare more in your code to handle your types. you can add functions to the ImGui namespace)
-Value(prefix: string, b: boolean): void;
-Value(prefix: string, v: number): void;
-Value(prefix: string, v: number, float_format: string/* = NULL */): void;
+Value_A(prefix: string, b: boolean): void;
+Value_B(prefix: string, v: number): void;
+Value_C(prefix: string, v: number): void;
+Value_D(prefix: string, v: number, float_format: string | null/* = NULL */): void;
 
 // Tooltips
 // IMGUI_API void          SetTooltip(const char* fmt, ...) IM_FMTARGS(1);                     // set text tooltip under mouse-cursor, typically use with ImGui::IsItemHovered(). overidde any previous call to SetTooltip().
@@ -1286,16 +1296,17 @@ BeginMenu(label: string, enabled: boolean/* = true */): boolean;
 EndMenu(): void;
 // IMGUI_API bool          MenuItem(const char* label, const char* shortcut = NULL, bool selected = false, bool enabled = true);  // return true when activated. shortcuts are displayed for convenience but not processed by ImGui at the moment
 // IMGUI_API bool          MenuItem(const char* label, const char* shortcut, bool* p_selected, bool enabled = true);              // return true when activated + toggle (*p_selected) if p_selected != NULL
-MenuItem(label: string, shortcut: string, p_selected: [ boolean ], enabled: boolean/* = true */): boolean;
+MenuItem_A(label: string, shortcut: string | null, selected: boolean, enabled: boolean/* = true */): boolean;
+MenuItem_B(label: string, shortcut: string | null, p_selected: ImScalar<boolean>, enabled: boolean/* = true */): boolean;
 
 // Popups
 OpenPopup(str_id: string): void;
-OpenPopupOnItemClick(str_id: string/* = NULL */, mouse_button: number/* = 1 */): boolean;
+OpenPopupOnItemClick(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): boolean;
 BeginPopup(str_id: string): boolean;
-BeginPopupModal(name: string, p_open: [ boolean ] | null/* = NULL */, extra_flags: ImGuiWindowFlags/* = 0 */): boolean;
-BeginPopupContextItem(str_id: string/* = NULL */, mouse_button: number/* = 1 */): boolean;
-BeginPopupContextWindow(str_id: string/* = NULL */, mouse_button: number/* = 1 */, also_over_items: boolean/* = true */): boolean;
-BeginPopupContextVoid(str_id: string/* = NULL */, mouse_button: number/* = 1 */): boolean;
+BeginPopupModal(name: string, p_open: ImScalar<boolean> | null/* = NULL */, extra_flags: ImGuiWindowFlags/* = 0 */): boolean;
+BeginPopupContextItem(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): boolean;
+BeginPopupContextWindow(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */, also_over_items: boolean/* = true */): boolean;
+BeginPopupContextVoid(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): boolean;
 EndPopup(): void;
 IsPopupOpen(str_id: string): boolean;
 CloseCurrentPopup(): void;
@@ -1379,7 +1390,8 @@ IsWindowFocused(flags: ImGuiFocusedFlags/* = 0 */): boolean;
 IsWindowHovered(flags: ImGuiHoveredFlags/* = 0 */): boolean;
 // IMGUI_API bool          IsRectVisible(const ImVec2& size);                                  // test if rectangle (of given size, starting from cursor position) is visible / not clipped.
 // IMGUI_API bool          IsRectVisible(const ImVec2& rect_min, const ImVec2& rect_max);      // test if rectangle (in screen space) is visible / not clipped. to perform coarse clipping on user's side.
-IsRectVisible(size_or_rect_min: Readonly<interface_ImVec2>, rect_max?: Readonly<interface_ImVec2>): boolean;
+IsRectVisible_A(size: Readonly<interface_ImVec2>): boolean;
+IsRectVisible_B(rect_min: Readonly<interface_ImVec2>, rect_max: Readonly<interface_ImVec2>): boolean;
 // IMGUI_API float         GetTime();
 GetTime(): number;
 // IMGUI_API int           GetFrameCount();

@@ -2362,8 +2362,26 @@ export function GetFontTexUvWhitePixel(out: Bind.interface_ImVec2 = new ImVec2()
 // IMGUI_API ImU32         GetColorU32(ImGuiCol idx, float alpha_mul = 1.0f);                  // retrieve given style color with style alpha applied and optional extra alpha multiplier
 // IMGUI_API ImU32         GetColorU32(const ImVec4& col);                                     // retrieve given color with style alpha applied
 // IMGUI_API ImU32         GetColorU32(ImU32 col);                                             // retrieve given color with style alpha applied
-export function GetColorU32(idx: ImGuiCol, alpha_mul: number = 1.0): Bind.ImU32 {
-    return bind.GetColorU32(idx, alpha_mul);
+export function GetColorU32(idx: ImGuiCol, alpha_mul?: number): Bind.ImU32;
+export function GetColorU32(col: Readonly<Bind.reference_ImVec4>): Bind.ImU32;
+export function GetColorU32(col: Bind.ImU32): Bind.ImU32;
+export function GetColorU32(...args: any[]): Bind.ImU32 {
+    if (args.length === 1) {
+        if (typeof(args[0]) === "number") {
+            const col: Bind.ImU32 = args[0];
+            return bind.GetColorU32_C(col);
+        } else if (typeof(args[0]) === "object") {
+            const col: Readonly<Bind.reference_ImVec4> = args[0];
+            return bind.GetColorU32_B(col);
+        } else {
+            const idx: ImGuiCol = args[0];
+            return bind.GetColorU32_A(idx, 1.0);
+        }
+    } else {
+        const idx: ImGuiCol = args[0];
+        const alpha_mul: number = args[1];
+        return bind.GetColorU32_A(idx, alpha_mul);
+    }
 }
 
 // Parameters stacks (current window)
@@ -3053,20 +3071,65 @@ export function SetColorEditOptions(flags: ImGuiColorEditFlags): void {
 // IMGUI_API bool          TreeNode(const void* ptr_id, const char* fmt, ...) IM_FMTARGS(2);       // "
 // IMGUI_API bool          TreeNodeV(const char* str_id, const char* fmt, va_list args) IM_FMTLIST(2);
 // IMGUI_API bool          TreeNodeV(const void* ptr_id, const char* fmt, va_list args) IM_FMTLIST(2);
-export function TreeNode(label_or_id: string | number, fmt?: string): boolean {
-    return bind.TreeNode(label_or_id, fmt || ((typeof(label_or_id) === "string") ? label_or_id : ""));
+export function TreeNode(label: string): boolean;
+export function TreeNode(label: string, fmt: string): boolean;
+export function TreeNode(label: number, fmt: string): boolean;
+export function TreeNode(...args: any[]): boolean {
+    if (typeof(args[0]) === "string") {
+        if (args.length === 1) {
+            const label: string = args[0];
+            return bind.TreeNode_A(label);
+        } else {
+            const str_id: string = args[0];
+            const fmt: string = args[1];
+            return bind.TreeNode_B(str_id, fmt);
+        }
+    } else {
+        const ptr_id: number = args[0];
+        const fmt: string = args[1];
+        return bind.TreeNode_C(ptr_id, fmt);
+    }
 }
 // IMGUI_API bool          TreeNodeEx(const char* label, ImGuiTreeNodeFlags flags = 0);
 // IMGUI_API bool          TreeNodeEx(const char* str_id, ImGuiTreeNodeFlags flags, const char* fmt, ...) IM_FMTARGS(3);
 // IMGUI_API bool          TreeNodeEx(const void* ptr_id, ImGuiTreeNodeFlags flags, const char* fmt, ...) IM_FMTARGS(3);
 // IMGUI_API bool          TreeNodeExV(const char* str_id, ImGuiTreeNodeFlags flags, const char* fmt, va_list args) IM_FMTLIST(3);
 // IMGUI_API bool          TreeNodeExV(const void* ptr_id, ImGuiTreeNodeFlags flags, const char* fmt, va_list args) IM_FMTLIST(3);
-export function TreeNodeEx(label_or_id: string | number, flags: ImGuiTreeNodeFlags = 0, fmt?: string): boolean {
-    return bind.TreeNodeEx(label_or_id, flags, fmt || ((typeof(label_or_id) === "string") ? label_or_id : ""));
+export function TreeNodeEx(label: string, flags?: ImGuiTreeNodeFlags): boolean;
+export function TreeNodeEx(str_id: string, flags: ImGuiTreeNodeFlags, fmt: string): boolean;
+export function TreeNodeEx(ptr_id: number, flags: ImGuiTreeNodeFlags, fmt: string): boolean;
+export function TreeNodeEx(...args: any[]): boolean {
+    if (typeof(args[0]) === "string") {
+        if (args.length < 3) {
+            const label: string = args[0];
+            const flags: ImGuiTreeNodeFlags = args[1] || 0;
+            return bind.TreeNodeEx_A(label, flags);
+        } else {
+            const str_id: string = args[0];
+            const flags: ImGuiTreeNodeFlags = args[1];
+            const fmt: string = args[2];
+            return bind.TreeNodeEx_B(str_id, flags, fmt);
+        }
+    } else {
+        const ptr_id: number = args[0];
+        const flags: ImGuiTreeNodeFlags = args[1];
+        const fmt: string = args[2];
+        return bind.TreeNodeEx_C(ptr_id, flags, fmt);
+    }
 }
 // IMGUI_API void          TreePush(const char* str_id);                                           // ~ Indent()+PushId(). Already called by TreeNode() when returning true, but you can call Push/Pop yourself for layout purpose
 // IMGUI_API void          TreePush(const void* ptr_id = NULL);                                    // "
-export const TreePush = bind.TreePush;
+export function TreePush(str_id: string): void;
+export function TreePush(ptr_id: number): void;
+export function TreePush(...args: any[]): void {
+    if (typeof(args[0]) === "string") {
+        const str_id: string = args[0];
+        bind.TreePush_A(str_id);
+    } else {
+        const ptr_id: number = args[0];
+        bind.TreePush_B(ptr_id);
+    }
+}
 // IMGUI_API void          TreePop();                                                              // ~ Unindent()+PopId()
 export const TreePop = bind.TreePop;
 // IMGUI_API void          TreeAdvanceToLabelPos();                                                // advance cursor x position by GetTreeNodeToLabelSpacing()
@@ -3079,48 +3142,87 @@ export function SetNextTreeNodeOpen(is_open: boolean, cond: ImGuiCond = 0): void
 }
 // IMGUI_API bool          CollapsingHeader(const char* label, ImGuiTreeNodeFlags flags = 0);      // if returning 'true' the header is open. doesn't indent nor push on ID stack. user doesn't have to call TreePop().
 // IMGUI_API bool          CollapsingHeader(const char* label, bool* p_open, ImGuiTreeNodeFlags flags = 0); // when 'p_open' isn't NULL, display an additional small close button on upper right of the header
-export function CollapsingHeader(label: string, flags_or_p_open: ImGuiTreeNodeFlags | Bind.ImScalar<boolean> | Bind.ImAccess<boolean> = 0, flags: ImGuiTreeNodeFlags = 0): boolean {
-    if (Array.isArray(flags_or_p_open)) {
-        return bind.CollapsingHeader(label, flags_or_p_open, flags);
-    } else if (typeof(flags_or_p_open) === "number") {
-        return bind.CollapsingHeader(label, null, flags_or_p_open);
+export function CollapsingHeader(label: string, flags?: ImGuiTreeNodeFlags): boolean;
+export function CollapsingHeader(label: string, p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean>, flags?: ImGuiTreeNodeFlags): boolean;
+export function CollapsingHeader(label: string, ...args: any[]): boolean {
+    if (args.length === 0) {
+        return bind.CollapsingHeader_A(label, 0);
     } else {
-        const ref_open: Bind.ImScalar<boolean> = [ flags_or_p_open() ];
-        const ret = bind.CollapsingHeader(label, ref_open, flags);
-        flags_or_p_open(ref_open[0]);
-        return ret;
+        if (typeof(args[0]) === "number") {
+            const flags: ImGuiTreeNodeFlags = args[0];
+            return bind.CollapsingHeader_A(label, flags);
+        } else {
+            const p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> = args[0];
+            const flags: ImGuiTreeNodeFlags = args[1] || 0;
+            const ref_open: Bind.ImScalar<boolean> = Array.isArray(p_open) ? p_open : [ p_open() ];
+            const ret = bind.CollapsingHeader_B(label, ref_open, flags);
+            if (!Array.isArray(p_open)) { p_open(ref_open[0]); }
+            return ret;
+        }
     }
 }
 
 // Widgets: Selectable / Lists
 // IMGUI_API bool          Selectable(const char* label, bool selected = false, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0,0));  // size.x==0.0: use remaining width, size.x>0.0: specify width. size.y==0.0: use label height, size.y>0.0: specify height
 // IMGUI_API bool          Selectable(const char* label, bool* p_selected, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0,0));
-export function Selectable(label: string, selected: boolean | Bind.ImScalar<boolean> | Bind.ImAccess<boolean> = false, flags: ImGuiSelectableFlags = 0, size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): boolean {
-    if (typeof(selected) === "boolean" || Array.isArray(selected)) {
-        return bind.Selectable(label, selected, flags, size);
+export function Selectable(label: string, selected?: boolean, flags?: ImGuiSelectableFlags, size?: Readonly<Bind.interface_ImVec2>): boolean;
+export function Selectable(label: string, p_selected: Bind.ImScalar<boolean> | Bind.ImAccess<boolean>, flags?: ImGuiSelectableFlags, size?: Readonly<Bind.interface_ImVec2>): boolean;
+export function Selectable(label: string, ...args: any[]): boolean {
+    if (args.length === 0) {
+        return bind.Selectable_A(label, false, 0, ImVec2.ZERO);
     } else {
-        const ref_selected: Bind.ImScalar<boolean> = [ selected() ];
-        const ret = bind.Selectable(label, ref_selected, flags, size);
-        selected(ref_selected[0]);
-        return ret;
+        if (typeof(args[0]) === "boolean") {
+            const selected: boolean = args[0];
+            const flags: ImGuiSelectableFlags = args[1] || 0;
+            const size: Readonly<Bind.interface_ImVec2> = args[2] || ImVec2.ZERO;
+            return bind.Selectable_A(label, selected, flags, size);
+        } else {
+            const p_selected: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> = args[0];
+            const flags: ImGuiSelectableFlags = args[1] || 0;
+            const size: Readonly<Bind.interface_ImVec2> = args[2] || ImVec2.ZERO;
+            const ref_selected: Bind.ImScalar<boolean> = Array.isArray(p_selected) ? p_selected : [ p_selected() ];
+            const ret = bind.Selectable_B(label, ref_selected, flags, size);
+            if (!Array.isArray(p_selected)) { p_selected(ref_selected[0]); }
+            return ret;
+        }
     }
 }
 // IMGUI_API bool          ListBox(const char* label, int* current_item, const char* const* items, int items_count, int height_in_items = -1);
 // IMGUI_API bool          ListBox(const char* label, int* current_item, bool (*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int height_in_items = -1);
-export function ListBox(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items: string[], items_count: number = items.length, height_in_items: number = -1): boolean {
-    if (Array.isArray(current_item)) {
-        return bind.ListBox(label, current_item, items, items_count, height_in_items);
+export type ListBoxItemGetter = (data: any, idx: number, out_text: [string]) => boolean;
+export function ListBox(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items: string[], items_count?: number, height_in_items?: number): boolean;
+export function ListBox(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ListBoxItemGetter, data: any, items_count: number, height_in_items?: number): boolean;
+export function ListBox(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, ...args: any[]): boolean {
+    let ret: boolean = false;
+    const _current_item: Bind.ImScalar<number> = Array.isArray(current_item) ? current_item : [ current_item() ];
+    if (Array.isArray(args[0])) {
+        const items: string[] = args[0];
+        const items_count: number = typeof(args[1]) === "number" ? args[1] : items.length;
+        const height_in_items: number = typeof(args[2]) === "number" ? args[2] : -1;
+        ret = bind.ListBox_A(label, _current_item, items, items_count, height_in_items);
     } else {
-        const ref_current_item: Bind.ImScalar<number> = [ current_item() ];
-        const ret = bind.ListBox(label, ref_current_item, items, items_count, height_in_items);
-        current_item(ref_current_item[0]);
-        return ret;
+        const items_getter: ListBoxItemGetter = args[0];
+        const data: any = args[1];
+        const items_count: number = args[2];
+        const height_in_items: number = typeof(args[3]) === "number" ? args[3] : -1;
+        ret = bind.ListBox_B(label, _current_item, items_getter, data, items_count, height_in_items);
     }
+    if (!Array.isArray(current_item)) { current_item(_current_item[0]); }
+    return ret;
 }
 // IMGUI_API bool          ListBoxHeader(const char* label, const ImVec2& size = ImVec2(0,0));     // use if you want to reimplement ListBox() will custom data or interactions. make sure to call ListBoxFooter() afterwards.
 // IMGUI_API bool          ListBoxHeader(const char* label, int items_count, int height_in_items = -1); // "
-export function ListBoxHeader(label: string, size: Readonly<Bind.interface_ImVec2>): boolean {
-    return bind.ListBoxHeader(label, size);
+export function ListBoxHeader(label: string, size: Readonly<Bind.interface_ImVec2>): boolean;
+export function ListBoxHeader(label: string, items_count: number, height_in_items?: number): boolean;
+export function ListBoxHeader(label: string, ...args: any[]): boolean {
+    if (typeof(args[0]) === "object") {
+        const size: Readonly<Bind.interface_ImVec2> = args[0];
+        return bind.ListBoxHeader_A(label, size);
+    } else {
+        const items_count: number = args[0];
+        const height_in_items: number = typeof(args[1]) === "number" ? args[1] : -1;
+        return bind.ListBoxHeader_B(label, items_count, height_in_items);
+    }
 }
 // IMGUI_API void          ListBoxFooter();                                                        // terminate the scrolling region
 export function ListBoxFooter(): void {
@@ -3132,7 +3234,22 @@ export function ListBoxFooter(): void {
 // IMGUI_API void          Value(const char* prefix, int v);
 // IMGUI_API void          Value(const char* prefix, unsigned int v);
 // IMGUI_API void          Value(const char* prefix, float v, const char* float_format = NULL);
+export function Value(prefix: string, b: boolean): void;
+export function Value(prefix: string, v: number): void;
+export function Value(prefix: string, v: number, float_format?: string | null): void;
+export function Value(prefix: string, v: any): void;
 export function Value(prefix: string, ...args: any[]): void {
+    if (typeof(args[0]) === "boolean") {
+        bind.Value_A(prefix, args[0]);
+    } else if (typeof(args[0]) === "number") {
+        if (Number.isInteger(args[0])) {
+            bind.Value_B(prefix, args[0]);
+        } else {
+            bind.Value_D(prefix, args[0], typeof(args[1]) === "string" ? args[1] : null);
+        }
+    } else {
+        bind.Text(prefix + String(args[0]));
+    }
 }
 
 // Tooltips
@@ -3161,18 +3278,28 @@ export function BeginMenu(label: string, enabled: boolean = true): boolean { ret
 export const EndMenu = bind.EndMenu;
 // IMGUI_API bool          MenuItem(const char* label, const char* shortcut = NULL, bool selected = false, bool enabled = true);  // return true when activated. shortcuts are displayed for convenience but not processed by ImGui at the moment
 // IMGUI_API bool          MenuItem(const char* label, const char* shortcut, bool* p_selected, bool enabled = true);              // return true when activated + toggle (*p_selected) if p_selected != NULL
-export function MenuItem(label: string, shortcut: string | null = null, selected: boolean | Bind.ImScalar<boolean> | Bind.ImAccess<boolean> = false, enabled: boolean = true): boolean {
-    if (shortcut === null) { shortcut = ""; }
-    if (typeof(selected) === "boolean") {
-        selected = [ selected ];
-        return bind.MenuItem(label, shortcut, selected, enabled);
-    } else if (Array.isArray(selected)) {
-        return bind.MenuItem(label, shortcut, selected, enabled);
+export function MenuItem(label: string, shortcut?: string | null, selected?: boolean, enabled?: boolean): boolean;
+export function MenuItem(label: string, shortcut: string | null, p_selected: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, enabled?: boolean): boolean;
+export function MenuItem(label: string, ...args: any[]): boolean {
+    if (args.length === 0) {
+        return bind.MenuItem_A(label, null, false, true);
+    } else if (args.length === 1) {
+        const shortcut: string | null = args[0];
+        return bind.MenuItem_A(label, shortcut, false, true);
     } else {
-        const ref_selected: Bind.ImScalar<boolean> = [ selected() ];
-        const ret = bind.MenuItem(label, shortcut, ref_selected, enabled);
-        selected(ref_selected[0]);
-        return ret;
+        const shortcut: string | null = args[0];
+        if (typeof(args[1]) === "boolean") {
+            const selected: boolean = args[1];
+            const enabled: boolean = typeof(args[2]) === "boolean" ? args[2] : true;
+            return bind.MenuItem_A(label, shortcut, selected, enabled);
+        } else {
+            const p_selected: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> = args[1];
+            const enabled: boolean = typeof(args[2]) === "boolean" ? args[2] : true;
+            const ref_selected: Bind.ImScalar<boolean> = Array.isArray(p_selected) ? p_selected : [ p_selected() ];
+            const ret = bind.MenuItem_B(label, shortcut, ref_selected, enabled);
+            if (!Array.isArray(p_selected)) { p_selected(ref_selected[0]); }
+            return ret;
+        }
     }
 }
 
@@ -3180,7 +3307,7 @@ export function MenuItem(label: string, shortcut: string | null = null, selected
 // IMGUI_API void          OpenPopup(const char* str_id);                                      // call to mark popup as open (don't call every frame!). popups are closed when user click outside, or if CloseCurrentPopup() is called within a BeginPopup()/EndPopup() block. By default, Selectable()/MenuItem() are calling CloseCurrentPopup(). Popup identifiers are relative to the current ID-stack (so OpenPopup and BeginPopup needs to be at the same level).
 export const OpenPopup = bind.OpenPopup;
 // IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
-export function OpenPopupOnItemClick(str_id: string = "", mouse_button: number = 1): boolean {
+export function OpenPopupOnItemClick(str_id: string | null = null, mouse_button: number = 1): boolean {
     return bind.OpenPopupOnItemClick(str_id, mouse_button);
 }
 // IMGUI_API bool          BeginPopup(const char* str_id);                                     // return true if the popup is open, and you can start outputting to it. only call EndPopup() if BeginPopup() returned true!
@@ -3199,15 +3326,15 @@ export function BeginPopupModal(str_id: string = "", p_open: Bind.ImScalar<boole
     }
 }
 // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
-export function BeginPopupContextItem(str_id: string = "", mouse_button: number = 1): boolean {
+export function BeginPopupContextItem(str_id: string | null = null, mouse_button: number = 1): boolean {
     return bind.BeginPopupContextItem(str_id, mouse_button);
 }
 // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, int mouse_button = 1, bool also_over_items = true);  // helper to open and begin popup when clicked on current window.
-export function BeginPopupContextWindow(str_id: string = "", mouse_button: number = 1, also_over_items: boolean = true): boolean {
+export function BeginPopupContextWindow(str_id: string | null = null, mouse_button: number = 1, also_over_items: boolean = true): boolean {
     return bind.BeginPopupContextWindow(str_id, mouse_button, also_over_items);
 }
 // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
-export function BeginPopupContextVoid(str_id: string = "", mouse_button: number = 1): boolean {
+export function BeginPopupContextVoid(str_id: string | null = null, mouse_button: number = 1): boolean {
     return bind.BeginPopupContextVoid(str_id, mouse_button);
 }
 // IMGUI_API void          EndPopup();
@@ -3333,8 +3460,17 @@ export function IsWindowHovered(flags: ImGuiHoveredFlags = 0): boolean {
 }
 // IMGUI_API bool          IsRectVisible(const ImVec2& size);                                  // test if rectangle (of given size, starting from cursor position) is visible / not clipped.
 // IMGUI_API bool          IsRectVisible(const ImVec2& rect_min, const ImVec2& rect_max);      // test if rectangle (in screen space) is visible / not clipped. to perform coarse clipping on user's side.
-export function IsRectVisible(size_or_rect_min: Readonly<Bind.interface_ImVec2>, rect_max?: Readonly<Bind.interface_ImVec2>): boolean {
-    return bind.IsRectVisible(size_or_rect_min, rect_max);
+export function IsRectVisible(size: Readonly<Bind.interface_ImVec2>): boolean;
+export function IsRectVisible(rect_min: Readonly<Bind.interface_ImVec2>, rect_max: Readonly<Bind.interface_ImVec2>): boolean;
+export function IsRectVisible(...args: any[]): boolean {
+    if (args.length === 1) {
+        const size: Readonly<Bind.interface_ImVec2> = args[0];
+        return bind.IsRectVisible_A(size);
+    } else {
+        const rect_min: Readonly<Bind.interface_ImVec2> = args[0];
+        const rect_max: Readonly<Bind.interface_ImVec2> = args[1];
+        return bind.IsRectVisible_B(rect_min, rect_max);
+    }
 }
 // IMGUI_API float         GetTime();
 export const GetTime = bind.GetTime;

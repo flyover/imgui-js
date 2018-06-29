@@ -1521,8 +1521,14 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API ImU32         GetColorU32(ImGuiCol idx, float alpha_mul = 1.0f);                  // retrieve given style color with style alpha applied and optional extra alpha multiplier
     // IMGUI_API ImU32         GetColorU32(const ImVec4& col);                                     // retrieve given color with style alpha applied
     // IMGUI_API ImU32         GetColorU32(ImU32 col);                                             // retrieve given color with style alpha applied
-    emscripten::function("GetColorU32", FUNCTION(ImU32, (emscripten::val color, emscripten::val alpha_mul), {
-        return ImGui::GetColorU32(color.as<ImGuiCol>(), import_float(alpha_mul));
+    emscripten::function("GetColorU32_A", FUNCTION(ImU32, (ImGuiCol idx, emscripten::val alpha_mul), {
+        return ImGui::GetColorU32(idx, import_float(alpha_mul));
+    }));
+    emscripten::function("GetColorU32_B", FUNCTION(ImU32, (emscripten::val col), {
+        return ImGui::GetColorU32(import_ImVec4(col));
+    }));
+    emscripten::function("GetColorU32_C", FUNCTION(ImU32, (ImU32 col), {
+        return ImGui::GetColorU32(col);
     }));
 
     // Parameters stacks (current window)
@@ -1771,15 +1777,20 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("Combo", FUNCTION(bool, (std::string label, emscripten::val current_item, emscripten::val items_getter, emscripten::val data, int items_count, int popup_max_height_in_items), {
         _Combo_items_getter = items_getter;
         _Combo_data = data;
+        static int _items_count = items_count;
         int _current_item = current_item[0].as<int>();
         bool ret = ImGui::Combo(label.c_str(), &_current_item, FUNCTION(bool, (void* data, int idx, const char** out_text), {
-            static std::string _text = "";
-            emscripten::val _out_text = emscripten::val::array();
-            _out_text[0] = emscripten::val(_text);
-            emscripten::val ret = _Combo_items_getter(_Combo_data, emscripten::val(idx), _out_text);
-            _text = _out_text[0].as<std::string>();
-            *out_text = _text.c_str();
-            return ret.as<bool>();
+            if (0 <= idx && idx < _items_count) {
+                static std::string _text = "";
+                emscripten::val _out_text = emscripten::val::array();
+                _out_text[0] = emscripten::val(_text);
+                emscripten::val ret = _Combo_items_getter(_Combo_data, emscripten::val(idx), _out_text);
+                _text = _out_text[0].as<std::string>();
+                *out_text = _text.c_str();
+                return ret.as<bool>();
+            } else {
+                return false;
+            }
         }), NULL, items_count, popup_max_height_in_items);
         current_item.set(0, emscripten::val(_current_item));
         return ret;
@@ -2301,35 +2312,36 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          TreeNode(const void* ptr_id, const char* fmt, ...) IM_FMTARGS(2);       // "
     // IMGUI_API bool          TreeNodeV(const char* str_id, const char* fmt, va_list args) IM_FMTLIST(2);
     // IMGUI_API bool          TreeNodeV(const void* ptr_id, const char* fmt, va_list args) IM_FMTLIST(2);
-    emscripten::function("TreeNode", FUNCTION(bool, (emscripten::val label_or_id, std::string fmt), {
-        // return ImGui::TreeNode(label.c_str(), "%s", fmt.c_str());
-        if (label_or_id.typeOf().strictlyEquals(emscripten::val("string"))) {
-            return ImGui::TreeNode(label_or_id.as<std::string>().c_str(), "%s", fmt.c_str());    
-        } else {
-            return ImGui::TreeNode((const void*) label_or_id.as<int>(), "%s", fmt.c_str());    
-        }
+    emscripten::function("TreeNode_A", FUNCTION(bool, (std::string label), {
+        return ImGui::TreeNode(label.c_str());
+    }));
+    emscripten::function("TreeNode_B", FUNCTION(bool, (std::string str_id, std::string fmt), {
+        return ImGui::TreeNode(str_id.c_str(), "%s", fmt.c_str());
+    }));
+    emscripten::function("TreeNode_C", FUNCTION(bool, (int ptr_id, std::string fmt), {
+        return ImGui::TreeNode((const void*) ptr_id, "%s", fmt.c_str());
     }));
     // IMGUI_API bool          TreeNodeEx(const char* label, ImGuiTreeNodeFlags flags = 0);
     // IMGUI_API bool          TreeNodeEx(const char* str_id, ImGuiTreeNodeFlags flags, const char* fmt, ...) IM_FMTARGS(3);
     // IMGUI_API bool          TreeNodeEx(const void* ptr_id, ImGuiTreeNodeFlags flags, const char* fmt, ...) IM_FMTARGS(3);
     // IMGUI_API bool          TreeNodeExV(const char* str_id, ImGuiTreeNodeFlags flags, const char* fmt, va_list args) IM_FMTLIST(3);
     // IMGUI_API bool          TreeNodeExV(const void* ptr_id, ImGuiTreeNodeFlags flags, const char* fmt, va_list args) IM_FMTLIST(3);
-    emscripten::function("TreeNodeEx", FUNCTION(bool, (emscripten::val label_or_id, ImGuiTreeNodeFlags flags, std::string fmt), {
-        // return ImGui::TreeNodeEx(label.c_str(), flags, "%s", fmt.c_str());
-        if (label_or_id.typeOf().strictlyEquals(emscripten::val("string"))) {
-            return ImGui::TreeNodeEx(label_or_id.as<std::string>().c_str(), flags, "%s", fmt.c_str());    
-        } else {
-            return ImGui::TreeNodeEx((const void*) label_or_id.as<int>(), flags, "%s", fmt.c_str());    
-        }
+    emscripten::function("TreeNodeEx_A", FUNCTION(bool, (std::string label, ImGuiTreeNodeFlags flags), {
+        return ImGui::TreeNodeEx(label.c_str(), flags);
+    }));
+    emscripten::function("TreeNodeEx_B", FUNCTION(bool, (std::string str_id, ImGuiTreeNodeFlags flags, std::string fmt), {
+        return ImGui::TreeNodeEx(str_id.c_str(), flags, "%s", fmt.c_str());
+    }));
+    emscripten::function("TreeNodeEx_C", FUNCTION(bool, (int ptr_id, ImGuiTreeNodeFlags flags, std::string fmt), {
+        return ImGui::TreeNodeEx((const void*) ptr_id, flags, "%s", fmt.c_str());    
     }));
     // IMGUI_API void          TreePush(const char* str_id);                                           // ~ Indent()+PushId(). Already called by TreeNode() when returning true, but you can call Push/Pop yourself for layout purpose
     // IMGUI_API void          TreePush(const void* ptr_id = NULL);                                    // "
-    emscripten::function("TreePush", FUNCTION(void, (emscripten::val id), {
-        if (id.typeOf().strictlyEquals(emscripten::val("string"))) {
-            ImGui::TreePush(id.as<std::string>().c_str());
-        } else {
-            ImGui::TreePush((const void*) id.as<int>());
-        }
+    emscripten::function("TreePush_A", FUNCTION(void, (std::string str_id), {
+        ImGui::TreePush(str_id.c_str());
+    }));
+    emscripten::function("TreePush_B", FUNCTION(void, (int ptr_id), {
+        ImGui::TreePush((const void*) ptr_id);
     }));
     // IMGUI_API void          TreePop();                                                              // ~ Unindent()+PopId()
     emscripten::function("TreePop", &ImGui::TreePop);
@@ -2341,42 +2353,63 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("SetNextTreeNodeOpen", &ImGui::SetNextTreeNodeOpen);
     // IMGUI_API bool          CollapsingHeader(const char* label, ImGuiTreeNodeFlags flags = 0);      // if returning 'true' the header is open. doesn't indent nor push on ID stack. user doesn't have to call TreePop().
     // IMGUI_API bool          CollapsingHeader(const char* label, bool* p_open, ImGuiTreeNodeFlags flags = 0); // when 'p_open' isn't NULL, display an additional small close button on upper right of the header
-    emscripten::function("CollapsingHeader", FUNCTION(bool, (std::string label, emscripten::val p_open, int flags), {
-        if (p_open.isNull()) {
-            return ImGui::CollapsingHeader(label.c_str(), flags);
-        } else {
-            bool _p_open = p_open[0].as<bool>();
-            bool ret = ImGui::CollapsingHeader(label.c_str(), &_p_open, flags);
-            p_open.set(0, emscripten::val(_p_open));
-            return ret;
-        }
+    emscripten::function("CollapsingHeader_A", FUNCTION(bool, (std::string label, ImGuiTreeNodeFlags flags), {
+        return ImGui::CollapsingHeader(label.c_str(), flags);
+    }));
+    emscripten::function("CollapsingHeader_B", FUNCTION(bool, (std::string label, emscripten::val p_open, ImGuiTreeNodeFlags flags), {
+        bool _p_open = p_open[0].as<bool>();
+        bool ret = ImGui::CollapsingHeader(label.c_str(), &_p_open, flags);
+        p_open.set(0, emscripten::val(_p_open));
+        return ret;
     }));
 
     // Widgets: Selectable / Lists
     // IMGUI_API bool          Selectable(const char* label, bool selected = false, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0,0));  // size.x==0.0: use remaining width, size.x>0.0: specify width. size.y==0.0: use label height, size.y>0.0: specify height
     // IMGUI_API bool          Selectable(const char* label, bool* p_selected, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0,0));
-    emscripten::function("Selectable", FUNCTION(bool, (std::string label, emscripten::val p_selected, ImGuiSelectableFlags flags, emscripten::val size), {
-        if (p_selected.typeOf().strictlyEquals(emscripten::val("boolean"))) {
-            return ImGui::Selectable(label.c_str(), p_selected.as<bool>(), flags, import_ImVec2(size));    
-        } else {
-            bool selected = p_selected[0].as<bool>();
-            bool ret = ImGui::Selectable(label.c_str(), &selected, flags, import_ImVec2(size));
-            p_selected.set(0, emscripten::val(selected));
-            return ret;
-        }
+    emscripten::function("Selectable_A", FUNCTION(bool, (std::string label, bool selected, ImGuiSelectableFlags flags, emscripten::val size), {
+        return ImGui::Selectable(label.c_str(), selected, flags, import_ImVec2(size));    
+    }));
+    emscripten::function("Selectable_B", FUNCTION(bool, (std::string label, emscripten::val p_selected, ImGuiSelectableFlags flags, emscripten::val size), {
+        bool _p_selected = p_selected[0].as<bool>();
+        bool ret = ImGui::Selectable(label.c_str(), &_p_selected, flags, import_ImVec2(size));
+        p_selected.set(0, emscripten::val(_p_selected));
+        return ret;
     }));
     // IMGUI_API bool          ListBox(const char* label, int* current_item, const char* const* items, int items_count, int height_in_items = -1);
     // IMGUI_API bool          ListBox(const char* label, int* current_item, bool (*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int height_in_items = -1);
-    emscripten::function("ListBox", FUNCTION(bool, (std::string label, emscripten::val current_item, emscripten::val items, int items_count, int height_in_items), {
+    emscripten::function("ListBox_A", FUNCTION(bool, (std::string label, emscripten::val current_item, emscripten::val items, int items_count, int height_in_items), {
         static emscripten::val _items = items;
         static int _items_count = items_count;
-        static std::string _list_box_item;
         int _current_item = current_item[0].as<int>();
         bool ret = ImGui::ListBox(label.c_str(), &_current_item, FUNCTION(bool, (void* data, int idx, const char** out_text), {
             if (0 <= idx && idx <= _items_count) {
-                _list_box_item = _items[idx].as<std::string>();
-                *out_text = _list_box_item.c_str();
+                static std::string _text = "";
+                _text = _items[idx].as<std::string>();
+                *out_text = _text.c_str();
                 return true;
+            } else {
+                return false;
+            }
+        }), NULL, items_count, height_in_items);
+        current_item.set(0, emscripten::val(_current_item));
+        return ret;
+    }));
+    static emscripten::val _ListBox_items_getter = emscripten::val::undefined();
+    static emscripten::val _ListBox_data = emscripten::val::undefined();
+    emscripten::function("ListBox_B", FUNCTION(bool, (std::string label, emscripten::val current_item, emscripten::val items_getter, emscripten::val data, int items_count, int height_in_items), {
+        _ListBox_items_getter = items_getter;
+        _ListBox_data = data;
+        static int _items_count = items_count;
+        int _current_item = current_item[0].as<int>();
+        bool ret = ImGui::ListBox(label.c_str(), &_current_item, FUNCTION(bool, (void* data, int idx, const char** out_text), {
+            if (0 <= idx && idx <= _items_count) {
+                static std::string _text = "";
+                emscripten::val _out_text = emscripten::val::array();
+                _out_text[0] = emscripten::val(_text);
+                emscripten::val ret = _ListBox_items_getter(_ListBox_data, emscripten::val(idx), _out_text);
+                _text = _out_text[0].as<std::string>();
+                *out_text = _text.c_str();
+                return ret.as<bool>();
             } else {
                 return false;
             }
@@ -2386,8 +2419,11 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API bool          ListBoxHeader(const char* label, const ImVec2& size = ImVec2(0,0));     // use if you want to reimplement ListBox() will custom data or interactions. make sure to call ListBoxFooter() afterwards.
     // IMGUI_API bool          ListBoxHeader(const char* label, int items_count, int height_in_items = -1); // "
-    emscripten::function("ListBoxHeader", FUNCTION(bool, (std::string label, emscripten::val size), {
+    emscripten::function("ListBoxHeader_A", FUNCTION(bool, (std::string label, emscripten::val size), {
         return ImGui::ListBoxHeader(label.c_str(), import_ImVec2(size));
+    }));
+    emscripten::function("ListBoxHeader_B", FUNCTION(bool, (std::string label, int items_count, int height_in_items), {
+        return ImGui::ListBoxHeader(label.c_str(), items_count, height_in_items);
     }));
     // IMGUI_API void          ListBoxFooter();                                                        // terminate the scrolling region
     emscripten::function("ListBoxFooter", &ImGui::ListBoxFooter);
@@ -2397,14 +2433,17 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          Value(const char* prefix, int v);
     // IMGUI_API void          Value(const char* prefix, unsigned int v);
     // IMGUI_API void          Value(const char* prefix, float v, const char* float_format = NULL);
-    emscripten::function("Value", FUNCTION(void, (std::string prefix, emscripten::val value), {
-        if (value.typeOf().strictlyEquals(emscripten::val("boolean"))) {
-            ImGui::Value(prefix.c_str(), value.as<bool>());
-        } else if (value.typeOf().strictlyEquals(emscripten::val("number"))) {
-            ImGui::Value(prefix.c_str(), value.as<float>());
-        } else {
-            ImGui::LabelText(prefix.c_str(), "%s", value.as<std::string>().c_str());
-        }
+    emscripten::function("Value_A", FUNCTION(void, (std::string prefix, bool b), {
+        ImGui::Value(prefix.c_str(), b);
+    }));
+    emscripten::function("Value_B", FUNCTION(void, (std::string prefix, int v), {
+        ImGui::Value(prefix.c_str(), v);
+    }));
+    emscripten::function("Value_C", FUNCTION(void, (std::string prefix, unsigned int v), {
+        ImGui::Value(prefix.c_str(), v);
+    }));
+    emscripten::function("Value_D", FUNCTION(void, (std::string prefix, float v, emscripten::val float_format), {
+        ImGui::Value(prefix.c_str(), v, import_string_or_null(float_format));
     }));
 
     // Tooltips
@@ -2435,10 +2474,13 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("EndMenu", &ImGui::EndMenu);
     // IMGUI_API bool          MenuItem(const char* label, const char* shortcut = NULL, bool selected = false, bool enabled = true);  // return true when activated. shortcuts are displayed for convenience but not processed by ImGui at the moment
     // IMGUI_API bool          MenuItem(const char* label, const char* shortcut, bool* p_selected, bool enabled = true);              // return true when activated + toggle (*p_selected) if p_selected != NULL
-    emscripten::function("MenuItem", FUNCTION(bool, (std::string label, std::string shortcut, emscripten::val selected, bool enabled), {
-        bool _selected = selected[0].as<bool>();
-        bool ret = ImGui::MenuItem(label.c_str(), shortcut.c_str(), &_selected, enabled);
-        selected.set(0, emscripten::val(_selected));
+    emscripten::function("MenuItem_A", FUNCTION(bool, (std::string label, emscripten::val shortcut, bool selected, bool enabled), {
+        return ImGui::MenuItem(label.c_str(), import_string_or_null(shortcut), selected, enabled);
+    }));
+    emscripten::function("MenuItem_B", FUNCTION(bool, (std::string label, emscripten::val shortcut, emscripten::val p_selected, bool enabled), {
+        bool _selected = p_selected[0].as<bool>();
+        bool ret = ImGui::MenuItem(label.c_str(), import_string_or_null(shortcut), &_selected, enabled);
+        p_selected.set(0, emscripten::val(_selected));
         return ret;
     }));
 
@@ -2446,7 +2488,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          OpenPopup(const char* str_id);                                      // call to mark popup as open (don't call every frame!). popups are closed when user click outside, or if CloseCurrentPopup() is called within a BeginPopup()/EndPopup() block. By default, Selectable()/MenuItem() are calling CloseCurrentPopup(). Popup identifiers are relative to the current ID-stack (so OpenPopup and BeginPopup needs to be at the same level).
     emscripten::function("OpenPopup", FUNCTION(void, (std::string str_id), { ImGui::OpenPopup(str_id.c_str()); }));
     // IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
-    emscripten::function("OpenPopupOnItemClick", FUNCTION(bool, (std::string str_id, int mouse_button), { return ImGui::OpenPopupOnItemClick(str_id.c_str(), mouse_button); }));
+    emscripten::function("OpenPopupOnItemClick", FUNCTION(bool, (emscripten::val str_id, int mouse_button), { return ImGui::OpenPopupOnItemClick(import_string_or_null(str_id), mouse_button); }));
     // IMGUI_API bool          BeginPopup(const char* str_id);                                     // return true if the popup is open, and you can start outputting to it. only call EndPopup() if BeginPopup() returned true!
     emscripten::function("BeginPopup", FUNCTION(bool, (std::string str_id), { return ImGui::BeginPopup(str_id.c_str()); }));
     // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags extra_flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
@@ -2461,11 +2503,11 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         }
     }));
     // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
-    emscripten::function("BeginPopupContextItem", FUNCTION(bool, (std::string str_id, int mouse_button), { return ImGui::BeginPopupContextItem(str_id.c_str(), mouse_button); }));
+    emscripten::function("BeginPopupContextItem", FUNCTION(bool, (emscripten::val str_id, int mouse_button), { return ImGui::BeginPopupContextItem(import_string_or_null(str_id), mouse_button); }));
     // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, int mouse_button = 1, bool also_over_items = true);  // helper to open and begin popup when clicked on current window.
-    emscripten::function("BeginPopupContextWindow", FUNCTION(bool, (std::string str_id, int mouse_button, bool also_over_items), { return ImGui::BeginPopupContextWindow(str_id.c_str(), mouse_button, also_over_items); }));
+    emscripten::function("BeginPopupContextWindow", FUNCTION(bool, (emscripten::val str_id, int mouse_button, bool also_over_items), { return ImGui::BeginPopupContextWindow(import_string_or_null(str_id), mouse_button, also_over_items); }));
     // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
-    emscripten::function("BeginPopupContextVoid", FUNCTION(bool, (std::string str_id, int mouse_button), { return ImGui::BeginPopupContextVoid(str_id.c_str(), mouse_button); }));
+    emscripten::function("BeginPopupContextVoid", FUNCTION(bool, (emscripten::val str_id, int mouse_button), { return ImGui::BeginPopupContextVoid(import_string_or_null(str_id), mouse_button); }));
     // IMGUI_API void          EndPopup();
     emscripten::function("EndPopup", &ImGui::EndPopup);
     // IMGUI_API bool          IsPopupOpen(const char* str_id);                                    // return true if the popup is open
@@ -2569,12 +2611,11 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsWindowHovered", &ImGui::IsWindowHovered);
     // IMGUI_API bool          IsRectVisible(const ImVec2& size);                                  // test if rectangle (of given size, starting from cursor position) is visible / not clipped.
     // IMGUI_API bool          IsRectVisible(const ImVec2& rect_min, const ImVec2& rect_max);      // test if rectangle (in screen space) is visible / not clipped. to perform coarse clipping on user's side.
-    emscripten::function("IsRectVisible", FUNCTION(bool, (emscripten::val size_or_rect_min, emscripten::val rect_max), {
-        if (rect_max.isUndefined()) {
-            return ImGui::IsRectVisible(import_ImVec2(size_or_rect_min));
-        } else {
-            return ImGui::IsRectVisible(import_ImVec2(size_or_rect_min), import_ImVec2(rect_max));
-        }
+    emscripten::function("IsRectVisible_A", FUNCTION(bool, (emscripten::val size), {
+        return ImGui::IsRectVisible(import_ImVec2(size));
+    }));
+    emscripten::function("IsRectVisible_B", FUNCTION(bool, (emscripten::val rect_min, emscripten::val rect_max), {
+        return ImGui::IsRectVisible(import_ImVec2(rect_min), import_ImVec2(rect_max));
     }));
     // IMGUI_API float         GetTime();
     emscripten::function("GetTime", &ImGui::GetTime);
