@@ -531,7 +531,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                         selection_mask.value = (1 << node_clicked);           // Click to single-select
                 }
                 ImGui.PopStyleVar();
-                if (align_label_with_current_x_position)
+                if (align_label_with_current_x_position.value)
                     ImGui.Indent(ImGui.GetTreeNodeToLabelSpacing());
                 ImGui.TreePop();
             }
