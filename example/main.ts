@@ -50,9 +50,6 @@ async function _init(): Promise<void> {
 
     const io: ImGuiIO = ImGui.GetIO();
     // io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;  // Enable Keyboard Controls
-    if (typeof(window) !== "undefined") {
-        ImGui.LoadIniSettingsFromMemory(window.localStorage.getItem("imgui.ini") || "");
-    }
 
     // Setup style
     ImGui.StyleColorsDark();
@@ -100,8 +97,6 @@ async function _init(): Promise<void> {
 
 // Main loop
 function _loop(time: number): void {
-    const io: ImGuiIO = ImGui.GetIO();
-
     // Poll and handle events (inputs, window resize, etc.)
     // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
     // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -193,13 +188,6 @@ function _loop(time: number): void {
     }
 
     ImGui.EndFrame();
-
-    if (io.WantSaveIniSettings) {
-        io.WantSaveIniSettings = false;
-        if (typeof(window) !== "undefined") {
-            window.localStorage.setItem("imgui.ini", ImGui.SaveIniSettingsToMemory());
-        }
-    }
 
     // Rendering
     ImGui.Render();

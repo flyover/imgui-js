@@ -168,6 +168,10 @@ function canvas_on_wheel(event: WheelEvent): void  {
 export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): void {
     const io = ImGui.GetIO();
 
+    if (typeof(window) !== "undefined") {
+        ImGui.LoadIniSettingsFromMemory(window.localStorage.getItem("imgui.ini") || "");
+    }
+
     if (typeof(navigator) !== "undefined") {
         io.OptMacOSXBehaviors = navigator.platform.match(/Mac/) !== null;
     }
@@ -280,6 +284,13 @@ export function Shutdown(): void {
 
 export function NewFrame(time: number): void {
     const io = ImGui.GetIO();
+
+    if (io.WantSaveIniSettings) {
+        io.WantSaveIniSettings = false;
+        if (typeof(window) !== "undefined") {
+            window.localStorage.setItem("imgui.ini", ImGui.SaveIniSettingsToMemory());
+        }
+    }
 
     const w: number = gl && gl.canvas.scrollWidth || 640;
     const h: number = gl && gl.canvas.scrollHeight || 480;
