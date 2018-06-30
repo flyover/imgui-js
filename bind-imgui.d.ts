@@ -773,16 +773,22 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // float         DeltaTime;                // = 1.0f/60.0f         // Time elapsed since last frame, in seconds.
     public DeltaTime: number;
     // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
+    public IniSavingRate: number;
     // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
     // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
     // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
+    public MouseDoubleClickTime: number;
     // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
+    public MouseDoubleClickMaxDist: number;
     // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging.
+    public MouseDragThreshold: number;
     // int           KeyMap[ImGuiKey_COUNT];   // <unset>              // Map of indices into the KeysDown[512] entries array which represent your "native" keyboard state.
     public getKeyMapAt(index: ImGuiKey): number;
     public setKeyMapAt(index: ImGuiKey, value: number): boolean;
     // float         KeyRepeatDelay;           // = 0.250f             // When holding a key/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.).
+    public KeyRepeatDelay: number;
     // float         KeyRepeatRate;            // = 0.050f             // When holding a key/button, rate at which it repeats, in seconds.
+    public KeyRepeatRate: number;
     // void*         UserData;                 // = NULL               // Store your own data for retrieval by callbacks.
 
     // ImFontAtlas*  Fonts;                    // <auto>               // Load and assemble one or more fonts into a single tightly packed texture. Output to Fonts array.
@@ -790,16 +796,22 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // float         FontGlobalScale;          // = 1.0f               // Global scale all fonts
     public FontGlobalScale: number;
     // bool          FontAllowUserScaling;     // = false              // Allow user scaling text of individual window with CTRL+Wheel.
+    public FontAllowUserScaling: boolean;
     // ImFont*       FontDefault;              // = NULL               // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
+    public getFontDefault(): reference_ImFont | null;
+    public setFontDefault(value: reference_ImFont | null): void;
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
     public getDisplayFramebufferScale(): reference_ImVec2;
     // ImVec2        DisplayVisibleMin;        // <unset> (0.0f,0.0f)  // If you use DisplaySize as a virtual space larger than your screen, set DisplayVisibleMin/Max to the visible area.
+    public getDisplayVisibleMin(): reference_ImVec2;
     // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
+    public getDisplayVisibleMax(): reference_ImVec2;
 
     // Advanced/subtle behaviors
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
     public OptMacOSXBehaviors: boolean;
     // bool          OptCursorBlink;           // = true               // Enable blinking cursor, for users who consider it annoying.
+    public OptCursorBlink: boolean;
 
     //------------------------------------------------------------------
     // Settings (User Functions)
@@ -849,6 +861,7 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     public getKeysDownAt(index: number): boolean;
     public setKeysDownAt(index: number, value: boolean): boolean;
     // ImWchar     InputCharacters[16+1];          // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
+    public getInputCharacters(): Readonly<Uint16Array>;
     // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
     public getNavInputsAt(index: number): number;
     public setNavInputsAt(index: number, value: number): boolean;
@@ -857,7 +870,9 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // IMGUI_API void AddInputCharacter(ImWchar c);                        // Add new character into InputCharacters[]
     public AddInputCharacter(c: number): void;
     // IMGUI_API void AddInputCharactersUTF8(const char* utf8_chars);      // Add new characters into InputCharacters[] from an UTF-8 string
+    public AddInputCharactersUTF8(utf8_chars: string): void;
     // inline void    ClearInputCharacters() { InputCharacters[0] = 0; }   // Clear the text input buffer manually
+    public ClearInputCharacters(): void;
 
     //------------------------------------------------------------------
     // Output - Retrieve after calling NewFrame()
@@ -880,8 +895,11 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // float       Framerate;                  // Application framerate estimation, in frame per second. Solely for convenience. Rolling average estimation based on IO.DeltaTime over 120 frames
     public Framerate: number;
     // int         MetricsRenderVertices;      // Vertices output during last call to Render()
+    public MetricsRenderVertices: number;
     // int         MetricsRenderIndices;       // Indices output during last call to Render() = number of triangles * 3
+    public MetricsRenderIndices: number;
     // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
+    public MetricsActiveWindows: number;
     // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
     public getMouseDelta(): Readonly<reference_ImVec2>;
 

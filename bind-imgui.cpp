@@ -891,11 +891,15 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // float         DeltaTime;                // = 1.0f/60.0f         // Time elapsed since last frame, in seconds.
         .property("DeltaTime", &ImGuiIO::DeltaTime)
         // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
+        .property("IniSavingRate", &ImGuiIO::IniSavingRate)
         // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
         // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
         // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
+        .property("MouseDoubleClickTime", &ImGuiIO::MouseDoubleClickTime)
         // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
+        .property("MouseDoubleClickMaxDist", &ImGuiIO::MouseDoubleClickMaxDist)
         // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging
+        .property("MouseDragThreshold", &ImGuiIO::MouseDragThreshold)
         // int           KeyMap[ImGuiKey_COUNT];   // <unset>              // Map of indices into the KeysDown[512] entries array
         .function("getKeyMapAt", FUNCTION(int, (const ImGuiIO* that, int /*ImGuiKey*/ index), {
             return (0 <= index && index < ImGuiKey_COUNT) ? that->KeyMap[index] : -1;
@@ -904,7 +908,9 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
             if (0 <= index && index < ImGuiKey_COUNT) { that->KeyMap[index] = value; return true; } return false;
         }), emscripten::allow_raw_pointers())
         // float         KeyRepeatDelay;           // = 0.250f             // When holding a key/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.).
+        .property("KeyRepeatDelay", &ImGuiIO::KeyRepeatDelay)
         // float         KeyRepeatRate;            // = 0.050f             // When holding a key/button, rate at which it repeats, in seconds.
+        .property("KeyRepeatRate", &ImGuiIO::KeyRepeatRate)
         // void*         UserData;                 // = NULL               // Store your own data for retrieval by callbacks.
 
         // ImFontAtlas*  Fonts;                    // <auto>               // Load and assemble one or more fonts into a single tightly packed texture. Output to Fonts array.
@@ -914,18 +920,33 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // float         FontGlobalScale;          // = 1.0f               // Global scale all fonts
         .property("FontGlobalScale", &ImGuiIO::FontGlobalScale)
         // bool          FontAllowUserScaling;     // = false              // Allow user scaling text of individual window with CTRL+Wheel.
+        .property("FontAllowUserScaling", &ImGuiIO::FontAllowUserScaling)
         // ImFont*       FontDefault;              // = NULL               // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
+        .function("getFontDefault", FUNCTION(emscripten::val, (ImGuiIO* that), {
+            ImFont* value = that->FontDefault;
+            return value == NULL ? emscripten::val::null() : emscripten::val(value);
+        }), emscripten::allow_raw_pointers())
+        .function("setFontDefault", FUNCTION(void, (ImGuiIO* that, emscripten::val value), {
+            that->FontDefault = value.isNull() ? NULL : value.as<ImFont*>(emscripten::allow_raw_pointers());
+        }), emscripten::allow_raw_pointers())
         // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
         .function("getDisplayFramebufferScale", FUNCTION(emscripten::val, (ImGuiIO* that), {
             ImVec2* p = &that->DisplayFramebufferScale; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // ImVec2        DisplayVisibleMin;        // <unset> (0.0f,0.0f)  // If you use DisplaySize as a virtual space larger than your screen, set DisplayVisibleMin/Max to the visible area.
+        .function("getDisplayVisibleMin", FUNCTION(emscripten::val, (ImGuiIO* that), {
+            ImVec2* p = &that->DisplayVisibleMin; return emscripten::val(p);
+        }), emscripten::allow_raw_pointers())
         // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
+        .function("getDisplayVisibleMax", FUNCTION(emscripten::val, (ImGuiIO* that), {
+            ImVec2* p = &that->DisplayVisibleMax; return emscripten::val(p);
+        }), emscripten::allow_raw_pointers())
 
         // Advanced/subtle behaviors
         // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
         .property("OptMacOSXBehaviors", &ImGuiIO::OptMacOSXBehaviors)
         // bool          OptCursorBlink;           // = true               // Enable blinking cursor, for users who consider it annoying.
+        .property("OptCursorBlink", &ImGuiIO::OptCursorBlink)
 
         //------------------------------------------------------------------
         // Settings (User Functions)
@@ -1006,6 +1027,9 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
             if (0 <= index && index < 512) { that->KeysDown[index] = value; return true; } return false;
         }), emscripten::allow_raw_pointers())
         // ImWchar     InputCharacters[16+1];      // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
+        .function("getInputCharacters", FUNCTION(emscripten::val, (ImGuiIO* that), {
+            return emscripten::val(emscripten::typed_memory_view<ImWchar>(sizeof(that->InputCharacters), that->InputCharacters));
+        }), emscripten::allow_raw_pointers())
         // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
         .function("getNavInputsAt", FUNCTION(float, (const ImGuiIO* that, int index), {
             return (0 <= index && index < ImGuiNavInput_COUNT) ? that->NavInputs[index] : 0.0f;
@@ -1018,7 +1042,11 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // IMGUI_API void AddInputCharacter(ImWchar c);                        // Add new character into InputCharacters[]
         .function("AddInputCharacter", &ImGuiIO::AddInputCharacter)
         // IMGUI_API void AddInputCharactersUTF8(const char* utf8_chars);      // Add new characters into InputCharacters[] from an UTF-8 string
+        .function("AddInputCharactersUTF8", FUNCTION(void, (ImGuiIO* that, std::string utf8_chars), {
+            that->AddInputCharactersUTF8(utf8_chars.c_str());
+        }), emscripten::allow_raw_pointers())
         // inline void    ClearInputCharacters() { InputCharacters[0] = 0; }   // Clear the text input buffer manually
+        .function("ClearInputCharacters", &ImGuiIO::ClearInputCharacters)
 
         //------------------------------------------------------------------
         // Output - Retrieve after calling NewFrame()
@@ -1040,10 +1068,12 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         .property("NavVisible", &ImGuiIO::NavVisible)
         // float       Framerate;                  // Application framerate estimation, in frame per second. Solely for convenience. Rolling average estimation based on IO.DeltaTime over 120 frames
         .property("Framerate", &ImGuiIO::Framerate)
-        // int         MetricsAllocs;              // Number of active memory allocations
         // int         MetricsRenderVertices;      // Vertices output during last call to Render()
+        .property("MetricsRenderVertices", &ImGuiIO::MetricsRenderVertices)
         // int         MetricsRenderIndices;       // Indices output during last call to Render() = number of triangles * 3
+        .property("MetricsRenderIndices", &ImGuiIO::MetricsRenderIndices)
         // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
+        .property("MetricsActiveWindows", &ImGuiIO::MetricsActiveWindows)
         // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
         .function("getMouseDelta", FUNCTION(emscripten::val, (ImGuiIO* that), {
             ImVec2* p = &that->MouseDelta; return emscripten::val(p);

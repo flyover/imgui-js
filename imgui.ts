@@ -1796,11 +1796,19 @@ export class ImGuiIO
     get DeltaTime(): number { return this.native.DeltaTime; }
     set DeltaTime(value: number) { this.native.DeltaTime = value; }
     // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
+    get IniSavingRate(): number { return this.native.IniSavingRate; }
+    set IniSavingRate(value: number) { this.native.IniSavingRate = value; }
     // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
     // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
     // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
+    get MouseDoubleClickTime(): number { return this.native.MouseDoubleClickTime; }
+    set MouseDoubleClickTime(value: number) { this.native.MouseDoubleClickTime = value; }
     // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
+    get MouseDoubleClickMaxDist(): number { return this.native.MouseDoubleClickMaxDist; }
+    set MouseDoubleClickMaxDist(value: number) { this.native.MouseDoubleClickMaxDist = value; }
     // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging
+    get MouseDragThreshold(): number { return this.native.MouseDragThreshold; }
+    set MouseDragThreshold(value: number) { this.native.MouseDragThreshold = value; }
     // int           KeyMap[ImGuiKey_COUNT];   // <unset>              // Map of indices into the KeysDown[512] entries array
     public KeyMap: number[] = new Proxy([], {
         get: (target: number[], key: PropertyKey): number => {
@@ -1812,7 +1820,11 @@ export class ImGuiIO
         },
     });
     // float         KeyRepeatDelay;           // = 0.250f             // When holding a key/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.).
+    get KeyRepeatDelay(): number { return this.native.KeyRepeatDelay; }
+    set KeyRepeatDelay(value: number) { this.native.KeyRepeatDelay = value; }
     // float         KeyRepeatRate;            // = 0.050f             // When holding a key/button, rate at which it repeats, in seconds.
+    get KeyRepeatRate(): number { return this.native.KeyRepeatRate; }
+    set KeyRepeatRate(value: number) { this.native.KeyRepeatRate = value; }
     // void*         UserData;                 // = NULL               // Store your own data for retrieval by callbacks.
 
     // ImFontAtlas*  Fonts;                    // <auto>               // Load and assemble one or more fonts into a single tightly packed texture. Output to Fonts array.
@@ -1821,18 +1833,30 @@ export class ImGuiIO
     get FontGlobalScale(): number { return this.native.FontGlobalScale; }
     set FontGlobalScale(value: number) { this.native.FontGlobalScale = value; }
     // bool          FontAllowUserScaling;     // = false              // Allow user scaling text of individual window with CTRL+Wheel.
-    get FontAllowUserScaling(): boolean { return false; }
+    get FontAllowUserScaling(): boolean { return this.native.FontAllowUserScaling; }
+    set FontAllowUserScaling(value: boolean) { this.native.FontAllowUserScaling = value; }
     // ImFont*       FontDefault;              // = NULL               // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
+    get FontDefault(): ImFont | null {
+        const font: Bind.reference_ImFont | null = this.native.getFontDefault();
+        return (font === null) ? null : new ImFont(font);
+    }
+    set FontDefault(value: ImFont | null) {
+        this.native.setFontDefault(value && value.native);    
+    }
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
     get DisplayFramebufferScale(): Bind.reference_ImVec2 { return this.native.getDisplayFramebufferScale(); }
     // ImVec2        DisplayVisibleMin;        // <unset> (0.0f,0.0f)  // If you use DisplaySize as a virtual space larger than your screen, set DisplayVisibleMin/Max to the visible area.
+    get DisplayVisibleMin(): Bind.reference_ImVec2 { return this.native.getDisplayVisibleMin(); }
     // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
+    get DisplayVisibleMax(): Bind.reference_ImVec2 { return this.native.getDisplayVisibleMax(); }
 
     // Advanced/subtle behaviors
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
     get OptMacOSXBehaviors(): boolean { return this.native.OptMacOSXBehaviors; }
     set OptMacOSXBehaviors(value: boolean) { this.native.OptMacOSXBehaviors = value; }
     // bool          OptCursorBlink;           // = true               // Enable blinking cursor, for users who consider it annoying.
+    get OptCursorBlink(): boolean { return this.native.OptCursorBlink; }
+    set OptCursorBlink(value: boolean) { this.native.OptCursorBlink = value; }
 
     //------------------------------------------------------------------
     // Settings (User Functions)
@@ -1903,6 +1927,7 @@ export class ImGuiIO
         },
     });
     // ImWchar     InputCharacters[16+1];      // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
+    public get InputCharacters(): Readonly<Uint16Array> { return this.native.getInputCharacters(); }
     // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
     public NavInputs: number[] = new Proxy([], {
         get: (target: number[], key: PropertyKey): number => {
@@ -1918,7 +1943,9 @@ export class ImGuiIO
     // IMGUI_API void AddInputCharacter(ImWchar c);                        // Add new character into InputCharacters[]
     public AddInputCharacter(c: number): void { this.native.AddInputCharacter(c); }
     // IMGUI_API void AddInputCharactersUTF8(const char* utf8_chars);      // Add new characters into InputCharacters[] from an UTF-8 string
+    public AddInputCharactersUTF8(utf8_chars: string): void { this.native.AddInputCharactersUTF8(utf8_chars); }
     // inline void    ClearInputCharacters() { InputCharacters[0] = 0; }   // Clear the text input buffer manually
+    public ClearInputCharacters(): void { this.native.ClearInputCharacters(); }
 
     //------------------------------------------------------------------
     // Output - Retrieve after calling NewFrame()
@@ -1940,10 +1967,12 @@ export class ImGuiIO
     get NavVisible(): boolean { return this.native.NavVisible; } set NavVisible(value: boolean) { this.native.NavVisible = value; }
     // float       Framerate;                  // Application framerate estimation, in frame per second. Solely for convenience. Rolling average estimation based on IO.DeltaTime over 120 frames
     get Framerate(): number { return this.native.Framerate; }
-    // int         MetricsAllocs;              // Number of active memory allocations
     // int         MetricsRenderVertices;      // Vertices output during last call to Render()
+    get MetricsRenderVertices(): number { return this.native.MetricsRenderVertices; }
     // int         MetricsRenderIndices;       // Indices output during last call to Render() = number of triangles * 3
+    get MetricsRenderIndices(): number { return this.native.MetricsRenderIndices; }
     // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
+    get MetricsActiveWindows(): number { return this.native.MetricsActiveWindows; }
     // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
     get MouseDelta(): Readonly<Bind.reference_ImVec2> { return this.native.getMouseDelta(); }
 
@@ -1953,7 +1982,6 @@ export class ImGuiIO
 
     // ImVec2      MousePosPrev;               // Previous mouse position temporary storage (nb: not for public use, set to MousePos in NewFrame())
     // ImVec2      MouseClickedPos[5];         // Position at time of clicking
-    // public getMouseClickedPosAt(index: number): Readonly<BindImGui.reference_ImVec2>;
     public MouseClickedPos: Array<Readonly<Bind.reference_ImVec2>> = new Proxy([], {
         get: (target: Array<Readonly<Bind.reference_ImVec2>>, key: PropertyKey): number | Readonly<Bind.reference_ImVec2> => {
             if (key === "length") { return 5; }
