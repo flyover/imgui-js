@@ -818,6 +818,11 @@ export class ImColor
     // ImColor(ImU32 rgba)                                             { float sc = 1.0f/255.0f; Value.x = (float)((rgba>>IM_COL32_R_SHIFT)&0xFF) * sc; Value.y = (float)((rgba>>IM_COL32_G_SHIFT)&0xFF) * sc; Value.z = (float)((rgba>>IM_COL32_B_SHIFT)&0xFF) * sc; Value.w = (float)((rgba>>IM_COL32_A_SHIFT)&0xFF) * sc; }
     // ImColor(float r, float g, float b, float a = 1.0f)              { Value.x = r; Value.y = g; Value.z = b; Value.w = a; }
     // ImColor(const ImVec4& col)                                      { Value = col; }
+    constructor();
+    constructor(r: number, g: number, b: number);
+    constructor(r: number, g: number, b: number, a: number);
+    constructor(rgba: Bind.ImU32);
+    constructor(col: Readonly<Bind.interface_ImVec4>);
     constructor(r: number | Bind.ImU32 | Readonly<Bind.interface_ImVec4> = 0.0, g: number = 0.0, b: number = 0.0, a: number = 1.0) {
         if (typeof(r) === "number") {
             if (r > 255 && g === 0.0 && b === 0.0 && a === 1.0) {
