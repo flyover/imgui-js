@@ -662,9 +662,9 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // IMGUI_API bool              IsBuilt()                   { return Fonts.Size > 0 && (TexPixelsAlpha8 != NULL || TexPixelsRGBA32 != NULL); }
     IsBuilt(): boolean;
     // IMGUI_API void              GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 1 byte per-pixel
-    GetTexDataAsAlpha8(): { pixels: Uint8Array, width: number, height: number };
+    GetTexDataAsAlpha8(): { pixels: Uint8Array, width: number, height: number, bytes_per_pixel: number };
     // IMGUI_API void              GetTexDataAsRGBA32(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 4 bytes-per-pixel
-    GetTexDataAsRGBA32(): { pixels: Uint8Array, width: number, height: number };
+    GetTexDataAsRGBA32(): { pixels: Uint8Array, width: number, height: number, bytes_per_pixel: number };
     // void                        SetTexID(ImTextureID id)    { TexID = id; }
 
     // //-------------------------------------------

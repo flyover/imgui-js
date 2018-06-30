@@ -1437,11 +1437,11 @@ export class ImFontAtlas
     // IMGUI_API bool              IsBuilt()                   { return Fonts.Size > 0 && (TexPixelsAlpha8 != NULL || TexPixelsRGBA32 != NULL); }
     public IsBuilt(): boolean { return this.native.IsBuilt(); }
     // IMGUI_API void              GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 1 byte per-pixel
-    public GetTexDataAsAlpha8(): { pixels: Uint8Array, width: number, height: number } {
+    public GetTexDataAsAlpha8(): { pixels: Uint8Array, width: number, height: number, bytes_per_pixel: number } {
         return this.native.GetTexDataAsAlpha8();
     }
     // IMGUI_API void              GetTexDataAsRGBA32(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 4 bytes-per-pixel
-    public GetTexDataAsRGBA32(): { pixels: Uint8Array, width: number, height: number } {
+    public GetTexDataAsRGBA32(): { pixels: Uint8Array, width: number, height: number, bytes_per_pixel: number } {
         return this.native.GetTexDataAsRGBA32();
     }
     // void                        SetTexID(ImTextureID id)    { TexID = id; }

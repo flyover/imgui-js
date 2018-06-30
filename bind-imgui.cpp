@@ -730,9 +730,10 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
             int bytes_per_pixel = -1;
             that.GetTexDataAsAlpha8(&pixels, &width, &height, &bytes_per_pixel);
             emscripten::val tex_data = emscripten::val::object();
-            tex_data.set(emscripten::val("pixels"), emscripten::val(emscripten::typed_memory_view(width * height * 4, pixels)));
+            tex_data.set(emscripten::val("pixels"), emscripten::val(emscripten::typed_memory_view(width * height * bytes_per_pixel, pixels)));
             tex_data.set(emscripten::val("width"), emscripten::val(width));
             tex_data.set(emscripten::val("height"), emscripten::val(height));
+            tex_data.set(emscripten::val("bytes_per_pixel"), emscripten::val(bytes_per_pixel));
             return tex_data;
         }))
         // IMGUI_API void              GetTexDataAsRGBA32(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);  // 4 bytes-per-pixel
@@ -743,9 +744,10 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
             int bytes_per_pixel = -1;
             that.GetTexDataAsRGBA32(&pixels, &width, &height, &bytes_per_pixel);
             emscripten::val tex_data = emscripten::val::object();
-            tex_data.set(emscripten::val("pixels"), emscripten::val(emscripten::typed_memory_view(width * height * 4, pixels)));
+            tex_data.set(emscripten::val("pixels"), emscripten::val(emscripten::typed_memory_view(width * height * bytes_per_pixel, pixels)));
             tex_data.set(emscripten::val("width"), emscripten::val(width));
             tex_data.set(emscripten::val("height"), emscripten::val(height));
+            tex_data.set(emscripten::val("bytes_per_pixel"), emscripten::val(bytes_per_pixel));
             return tex_data;
         }))
         // void                        SetTexID(ImTextureID id)    { TexID = id; }
