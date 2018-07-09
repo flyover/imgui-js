@@ -19,6 +19,7 @@ const memory_editor: MemoryEditor = new MemoryEditor();
 let show_sandbox_window: boolean = false;
 let show_gamepad_window: boolean = false;
 let show_movie_window: boolean = false;
+let show_dragdrop_window: boolean = false;
 
 /* static */ let f: number = 0.0;
 /* static */ let counter: number = 0;
@@ -164,6 +165,9 @@ function _loop(time: number): void {
         if (ImGui.Button("Movie Window")) { show_movie_window = true; }
         if (show_movie_window)
             ShowMovieWindow("Movie Window", (value = show_movie_window) => show_movie_window = value);
+        if (ImGui.Button("Drag/Drop Window")) { show_dragdrop_window = true; }
+        if (show_dragdrop_window)
+            ShowDragDropWindow("Drag/Drop Window", (value = show_dragdrop_window) => show_dragdrop_window = value);
 
         if (font) {
             ImGui.PushFont(font);
@@ -398,6 +402,30 @@ function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null =
         }
     } else {
         ImGui.Text("No Video Element");
+    }
+    ImGui.End();
+}
+
+const butnum: number[] = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ];
+function ShowDragDropWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
+    ImGui.Begin("Drag/Drop Window", p_open, ImGui.WindowFlags.AlwaysAutoResize);
+    for (let i = 0; i < butnum.length; ++i) {
+        ImGui.Button(`but${butnum[i]}`, new ImVec2(50, 50));
+        if (ImGui.BeginDragDropSource()) {
+            const data: { i: number } = { i };
+            ImGui.SetDragDropPayload("ITEMN", data, ImGui.Cond.Once);
+            ImGui.Button(`drag${butnum[i]}`, new ImVec2(50, 50));
+            ImGui.EndDragDropSource();
+        }
+        if (ImGui.BeginDragDropTarget()) {
+            const payload: ImGui.ImGuiPayload<{ i: number }> | null = ImGui.AcceptDragDropPayload("ITEMN");
+            if (payload !== null) {
+                // swap numbers
+                [ butnum[payload.Data.i], butnum[i] ] = [ butnum[i], butnum[payload.Data.i] ];
+            }
+            ImGui.EndDragDropTarget();
+        }
+        if ((i % 4) < 3) { ImGui.SameLine(); }
     }
     ImGui.End();
 }

@@ -2649,12 +2649,13 @@ EMSCRIPTEN_BINDINGS(ImGui) {
 
     // Drag and Drop
     // [BETA API] Missing Demo code. API may evolve.
+    static emscripten::val dragdrop_data = emscripten::val::object();
     // IMGUI_API bool          BeginDragDropSource(ImGuiDragDropFlags flags = 0, int mouse_button = 0);                // call when the current item is active. If this return true, you can call SetDragDropPayload() + EndDragDropSource()
     emscripten::function("BeginDragDropSource", &ImGui::BeginDragDropSource);
     // IMGUI_API bool          SetDragDropPayload(const char* type, const void* data, size_t size, ImGuiCond cond = 0);// type is a user defined string of maximum 8 characters. Strings starting with '_' are reserved for dear imgui internal types. Data is copied and held by imgui.
     emscripten::function("SetDragDropPayload", FUNCTION(bool, (std::string type, emscripten::val data, size_t size, ImGuiCond cond), {
-        TODO();
-        return false;
+        dragdrop_data.set(type, data);
+        return ImGui::SetDragDropPayload(type.c_str(), NULL, 0, cond);
     }));
     // IMGUI_API void          EndDragDropSource();
     emscripten::function("EndDragDropSource", &ImGui::EndDragDropSource);
@@ -2662,8 +2663,11 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("BeginDragDropTarget", &ImGui::BeginDragDropTarget);
     // IMGUI_API const ImGuiPayload* AcceptDragDropPayload(const char* type, ImGuiDragDropFlags flags = 0);            // accept contents of a given type. If ImGuiDragDropFlags_AcceptBeforeDelivery is set you can peek into the payload before the mouse button is released.
     emscripten::function("AcceptDragDropPayload", FUNCTION(emscripten::val, (std::string type, ImGuiDragDropFlags flags), {
-        TODO();
-        return emscripten::val::null();
+        const ImGuiPayload* _payload = ImGui::AcceptDragDropPayload(type.c_str(), flags);
+        if (_payload == NULL) { return emscripten::val::null(); }
+        emscripten::val payload = emscripten::val::object();
+        payload.set("Data", dragdrop_data[type]);
+        return payload;
     }));
     // IMGUI_API void          EndDragDropTarget();
     emscripten::function("EndDragDropTarget", &ImGui::EndDragDropTarget);
