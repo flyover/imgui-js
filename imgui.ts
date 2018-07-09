@@ -851,7 +851,7 @@ export class ImColor
         }
     }
     // inline operator ImU32() const                                   { return ImGui::ColorConvertFloat4ToU32(Value); }
-    public toImU32(): Bind.ImU32 { return bind.ColorConvertFloat4ToU32(this.Value); }
+    public toImU32(): Bind.ImU32 { return ColorConvertFloat4ToU32(this.Value); }
     // inline operator ImVec4() const                                  { return Value; }
     public toImVec4(): ImVec4 { return this.Value; }
 
@@ -861,7 +861,7 @@ export class ImColor
         const ref_r: Bind.ImScalar<number> = [ this.Value.x ];
         const ref_g: Bind.ImScalar<number> = [ this.Value.y ];
         const ref_b: Bind.ImScalar<number> = [ this.Value.z ];
-        bind.ColorConvertHSVtoRGB(h, s, v, ref_r, ref_g, ref_b);
+        ColorConvertHSVtoRGB(h, s, v, ref_r, ref_g, ref_b);
         this.Value.x = ref_r[0];
         this.Value.y = ref_g[0];
         this.Value.z = ref_b[0];
@@ -2156,7 +2156,7 @@ export function ShowFontSelector(label: string): void { bind.ShowFontSelector(la
 // IMGUI_API void          ShowUserGuide();                            // add basic help/info block (not a window): how to manipulate ImGui as a end-user (mouse/keyboard controls).
 export function ShowUserGuide(): void { bind.ShowUserGuide(); }
 // IMGUI_API const char*   GetVersion();
-export const GetVersion = bind.GetVersion;
+export function GetVersion(): string { return bind.GetVersion(); }
 
 // Styles
 // IMGUI_API void          StyleColorsClassic(ImGuiStyle* dst = NULL);
@@ -2220,16 +2220,14 @@ export function Begin(name: string, open: Bind.ImScalar<boolean> | Bind.ImAccess
     }
 }
 // IMGUI_API void          End();                                                                                                                      // finish appending to current window, pop it off the window stack.
-export const End = bind.End;
+export function End(): void { bind.End(); }
 // IMGUI_API bool          BeginChild(const char* str_id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags extra_flags = 0);    // begin a scrolling region. size==0.0f: use remaining window size, size<0.0f: use remaining window size minus abs(size). size>0.0f: fixed size. each axis can use a different mode, e.g. ImVec2(0,400).
 // IMGUI_API bool          BeginChild(ImGuiID id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags extra_flags = 0);            // "
 export function BeginChild(id: string | Bind.ImGuiID, size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, border: boolean = false, extra_flags: ImGuiWindowFlags = 0): boolean {
     return bind.BeginChild(id, size, border, extra_flags);
 }
 // IMGUI_API void          EndChild();
-export function EndChild(): void {
-    bind.EndChild();
-}
+export function EndChild(): void { bind.EndChild(); }
 // IMGUI_API ImVec2        GetContentRegionMax();                                              // current content boundaries (typically window boundaries including scrolling, or current column boundaries), in windows coordinates
 export function GetContentRegionMax(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
     return bind.GetContentRegionMax(out);
@@ -2239,7 +2237,7 @@ export function GetContentRegionAvail(out: Bind.interface_ImVec2 = new ImVec2())
     return bind.GetContentRegionAvail(out);
 }
 // IMGUI_API float         GetContentRegionAvailWidth();                                       //
-export const GetContentRegionAvailWidth = bind.GetContentRegionAvailWidth;
+export function GetContentRegionAvailWidth(): number { return bind.GetContentRegionAvailWidth(); }
 // IMGUI_API ImVec2        GetWindowContentRegionMin();                                        // content boundaries min (roughly (0,0)-Scroll), in window coordinates
 export function GetWindowContentRegionMin(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
     return bind.GetWindowContentRegionMin(out);
@@ -2249,7 +2247,7 @@ export function GetWindowContentRegionMax(out: Bind.interface_ImVec2 = new ImVec
     return bind.GetWindowContentRegionMax(out);
 }
 // IMGUI_API float         GetWindowContentRegionWidth();                                      //
-export const GetWindowContentRegionWidth = bind.GetWindowContentRegionWidth;
+export function GetWindowContentRegionWidth(): number { return bind.GetWindowContentRegionWidth(); }
 // IMGUI_API ImDrawList*   GetWindowDrawList();                                                // get rendering command-list if you want to append your own draw primitives
 export function GetWindowDrawList(): ImDrawList {
     return new ImDrawList(bind.GetWindowDrawList());
@@ -2263,15 +2261,15 @@ export function GetWindowSize(out: Bind.interface_ImVec2 = new ImVec2()): typeof
     return bind.GetWindowSize(out);
 }
 // IMGUI_API float         GetWindowWidth();
-export const GetWindowWidth = bind.GetWindowWidth;
+export function GetWindowWidth(): number { return bind.GetWindowWidth(); }
 // IMGUI_API float         GetWindowHeight();
-export const GetWindowHeight = bind.GetWindowHeight;
+export function GetWindowHeight(): number { return bind.GetWindowHeight(); }
 // IMGUI_API bool          IsWindowCollapsed();
-export const IsWindowCollapsed = bind.IsWindowCollapsed;
+export function IsWindowCollapsed(): boolean { return bind.IsWindowCollapsed(); }
 // IMGUI_API bool          IsWindowAppearing();
-export const IsWindowAppearing = bind.IsWindowAppearing;
+export function IsWindowAppearing(): boolean { return bind.IsWindowAppearing(); }
 // IMGUI_API void          SetWindowFontScale(float scale);                                    // per-window font scale. Adjust IO.FontGlobalScale if you want to scale all windows
-export const SetWindowFontScale = bind.SetWindowFontScale;
+export function SetWindowFontScale(scale: number): void { bind.SetWindowFontScale(scale); }
 
 // IMGUI_API void          SetNextWindowPos(const ImVec2& pos, ImGuiCond cond = 0, const ImVec2& pivot = ImVec2(0,0)); // set next window position. call before Begin(). use pivot=(0.5f,0.5f) to center on given point, etc.
 export function SetNextWindowPos(pos: Readonly<Bind.interface_ImVec2>, cond: ImGuiCond = 0, pivot: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): void {
@@ -2305,9 +2303,9 @@ export function SetNextWindowCollapsed(collapsed: boolean, cond: ImGuiCond = 0):
     bind.SetNextWindowCollapsed(collapsed, cond);
 }
 // IMGUI_API void          SetNextWindowFocus();                                               // set next window to be focused / front-most. call before Begin()
-export const SetNextWindowFocus = bind.SetNextWindowFocus;
+export function SetNextWindowFocus(): void { bind.SetNextWindowFocus(); }
 // IMGUI_API void          SetNextWindowBgAlpha(float alpha);                                  // set next window background color alpha. helper to easily modify ImGuiCol_WindowBg/ChildBg/PopupBg.
-export const SetNextWindowBgAlpha = bind.SetNextWindowBgAlpha;
+export function SetNextWindowBgAlpha(alpha: number): void { bind.SetNextWindowBgAlpha(alpha); }
 // IMGUI_API void          SetWindowPos(const ImVec2& pos, ImGuiCond cond = 0);                // (not recommended) set current window position - call within Begin()/End(). prefer using SetNextWindowPos(), as this may incur tearing and side-effects.
 // IMGUI_API void          SetWindowSize(const ImVec2& size, ImGuiCond cond = 0);              // (not recommended) set current window size - call within Begin()/End(). set to ImVec2(0,0) to force an auto-fit. prefer using SetNextWindowSize(), as this may incur tearing and minor side-effects.
 // IMGUI_API void          SetWindowCollapsed(bool collapsed, ImGuiCond cond = 0);             // (not recommended) set current window collapsed state. prefer using SetNextWindowCollapsed().
@@ -2347,17 +2345,17 @@ export function SetWindowFocus(name?: string): void {
 }
 
 // IMGUI_API float         GetScrollX();                                                       // get scrolling amount [0..GetScrollMaxX()]
-export const GetScrollX = bind.GetScrollX;
+export function GetScrollX(): number { return bind.GetScrollX(); }
 // IMGUI_API float         GetScrollY();                                                       // get scrolling amount [0..GetScrollMaxY()]
-export const GetScrollY = bind.GetScrollY;
+export function GetScrollY(): number { return bind.GetScrollY(); }
 // IMGUI_API float         GetScrollMaxX();                                                    // get maximum scrolling amount ~~ ContentSize.X - WindowSize.X
-export const GetScrollMaxX = bind.GetScrollMaxX;
+export function GetScrollMaxX(): number { return bind.GetScrollMaxX(); }
 // IMGUI_API float         GetScrollMaxY();                                                    // get maximum scrolling amount ~~ ContentSize.Y - WindowSize.Y
-export const GetScrollMaxY = bind.GetScrollMaxY;
+export function GetScrollMaxY(): number { return bind.GetScrollMaxY(); }
 // IMGUI_API void          SetScrollX(float scroll_x);                                         // set scrolling amount [0..GetScrollMaxX()]
-export const SetScrollX = bind.SetScrollX;
+export function SetScrollX(scroll_x: number): void { bind.SetScrollX(scroll_x); }
 // IMGUI_API void          SetScrollY(float scroll_y);                                         // set scrolling amount [0..GetScrollMaxY()]
-export const SetScrollY = bind.SetScrollY;
+export function SetScrollY(scroll_y: number): void { bind.SetScrollY(scroll_y); }
 // IMGUI_API void          SetScrollHere(float center_y_ratio = 0.5f);                         // adjust scrolling amount to make current cursor position visible. center_y_ratio=0.0: top, 0.5: center, 1.0: bottom. When using to make a "default/current item" visible, consider using SetItemDefaultFocus() instead.
 export function SetScrollHere(center_y_ratio: number = 0.5): void {
     bind.SetScrollHere(center_y_ratio);
@@ -2405,7 +2403,7 @@ export function GetFont(): ImFont {
     return new ImFont(bind.GetFont());
 }
 // IMGUI_API float         GetFontSize();                                                      // get current font size (= height in pixels) of current font with current scale applied
-export const GetFontSize = bind.GetFontSize;
+export function GetFontSize(): number { return bind.GetFontSize(); }
 // IMGUI_API ImVec2        GetFontTexUvWhitePixel();                                           // get UV coordinate for a while pixel, useful to draw custom shapes via the ImDrawList API
 export function GetFontTexUvWhitePixel(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
     return bind.GetFontTexUvWhitePixel(out);
@@ -2437,37 +2435,37 @@ export function GetColorU32(...args: any[]): Bind.ImU32 {
 
 // Parameters stacks (current window)
 // IMGUI_API void          PushItemWidth(float item_width);                                    // width of items for the common item+label case, pixels. 0.0f = default to ~2/3 of windows width, >0.0f: width in pixels, <0.0f align xx pixels to the right of window (so -1.0f always align width to the right side)
-export const PushItemWidth = bind.PushItemWidth;
+export function PushItemWidth(item_width: number): void { bind.PushItemWidth(item_width); }
 // IMGUI_API void          PopItemWidth();
-export const PopItemWidth = bind.PopItemWidth;
+export function PopItemWidth(): void { bind.PopItemWidth(); }
 // IMGUI_API float         CalcItemWidth();                                                    // width of item given pushed settings and current cursor position
-export const CalcItemWidth = bind.CalcItemWidth;
+export function CalcItemWidth(): number { return bind.CalcItemWidth(); }
 // IMGUI_API void          PushTextWrapPos(float wrap_pos_x = 0.0f);                           // word-wrapping for Text*() commands. < 0.0f: no wrapping; 0.0f: wrap to end of window (or column); > 0.0f: wrap at 'wrap_pos_x' position in window local space
 export function PushTextWrapPos(wrap_pos_x: number = 0.0): void {
     bind.PushTextWrapPos(wrap_pos_x);
 }
 // IMGUI_API void          PopTextWrapPos();
-export const PopTextWrapPos = bind.PopTextWrapPos;
+export function PopTextWrapPos(): void { bind.PopTextWrapPos(); }
 // IMGUI_API void          PushAllowKeyboardFocus(bool allow_keyboard_focus);                  // allow focusing using TAB/Shift-TAB, enabled by default but you can disable it for certain widgets
-export const PushAllowKeyboardFocus = bind.PushAllowKeyboardFocus;
+export function PushAllowKeyboardFocus(allow_keyboard_focus: boolean): void { bind.PushAllowKeyboardFocus(allow_keyboard_focus); }
 // IMGUI_API void          PopAllowKeyboardFocus();
-export const PopAllowKeyboardFocus = bind.PopAllowKeyboardFocus;
+export function PopAllowKeyboardFocus(): void { bind.PopAllowKeyboardFocus(); }
 // IMGUI_API void          PushButtonRepeat(bool repeat);                                      // in 'repeat' mode, Button*() functions return repeated true in a typematic manner (using io.KeyRepeatDelay/io.KeyRepeatRate setting). Note that you can call IsItemActive() after any Button() to tell if the button is held in the current frame.
-export const PushButtonRepeat = bind.PushButtonRepeat;
+export function PushButtonRepeat(repeat: boolean): void { bind.PushButtonRepeat(repeat); }
 // IMGUI_API void          PopButtonRepeat();
-export const PopButtonRepeat = bind.PopButtonRepeat;
+export function PopButtonRepeat(): void { bind.PopButtonRepeat(); }
 
 // Cursor / Layout
 // IMGUI_API void          Separator();                                                        // separator, generally horizontal. inside a menu bar or in horizontal layout mode, this becomes a vertical separator.
-export const Separator = bind.Separator;
+export function Separator(): void { bind.Separator(); }
 // IMGUI_API void          SameLine(float pos_x = 0.0f, float spacing_w = -1.0f);              // call between widgets or groups to layout them horizontally
 export function SameLine(pos_x: number = 0.0, spacing_w: number = -1.0): void {
     bind.SameLine(pos_x, spacing_w);
 }
 // IMGUI_API void          NewLine();                                                          // undo a SameLine()
-export const NewLine = bind.NewLine;
+export function NewLine(): void { bind.NewLine(); }
 // IMGUI_API void          Spacing();                                                          // add vertical spacing
-export const Spacing = bind.Spacing;
+export function Spacing(): void { bind.Spacing(); }
 // IMGUI_API void          Dummy(const ImVec2& size);                                          // add a dummy item of given size
 export function Dummy(size: Readonly<Bind.interface_ImVec2>): void { bind.Dummy(size); }
 // IMGUI_API void          Indent(float indent_w = 0.0f);                                      // move content position toward the right, by style.IndentSpacing or indent_w if != 0
@@ -2475,21 +2473,21 @@ export function Indent(indent_w: number = 0.0) { bind.Indent(indent_w); }
 // IMGUI_API void          Unindent(float indent_w = 0.0f);                                    // move content position back to the left, by style.IndentSpacing or indent_w if != 0
 export function Unindent(indent_w: number = 0.0) { bind.Unindent(indent_w); }
 // IMGUI_API void          BeginGroup();                                                       // lock horizontal starting position + capture group bounding box into one "item" (so you can use IsItemHovered() or layout primitives such as SameLine() on whole group, etc.)
-export const BeginGroup = bind.BeginGroup;
+export function BeginGroup(): void { bind.BeginGroup(); }
 // IMGUI_API void          EndGroup();
-export const EndGroup = bind.EndGroup;
+export function EndGroup(): void { bind.EndGroup(); }
 // IMGUI_API ImVec2        GetCursorPos();                                                     // cursor position is relative to window position
 export function GetCursorPos(out: Bind.interface_ImVec2 = new ImVec2()): typeof out { return bind.GetCursorPos(out); }
 // IMGUI_API float         GetCursorPosX();                                                    // "
-export const GetCursorPosX = bind.GetCursorPosX;
+export function GetCursorPosX(): number { return bind.GetCursorPosX(); }
 // IMGUI_API float         GetCursorPosY();                                                    // "
-export const GetCursorPosY = bind.GetCursorPosY;
+export function GetCursorPosY(): number { return bind.GetCursorPosY(); }
 // IMGUI_API void          SetCursorPos(const ImVec2& local_pos);                              // "
 export function SetCursorPos(local_pos: Readonly<Bind.interface_ImVec2>): void { bind.SetCursorPos(local_pos); }
 // IMGUI_API void          SetCursorPosX(float x);                                             // "
-export const SetCursorPosX = bind.SetCursorPosX;
+export function SetCursorPosX(x: number): void { bind.SetCursorPosX(x); }
 // IMGUI_API void          SetCursorPosY(float y);                                             // "
-export const SetCursorPosY = bind.SetCursorPosY;
+export function SetCursorPosY(y: number): void { bind.SetCursorPosY(y); }
 // IMGUI_API ImVec2        GetCursorStartPos();                                                // initial cursor position
 export function GetCursorStartPos(out: Bind.interface_ImVec2 = new ImVec2()): typeof out { return bind.GetCursorStartPos(out); }
 // IMGUI_API ImVec2        GetCursorScreenPos();                                               // cursor position in absolute screen coordinates [0..io.DisplaySize] (useful to work with ImDrawList API)
@@ -2497,15 +2495,15 @@ export function GetCursorScreenPos(out: Bind.interface_ImVec2 = new ImVec2()): t
 // IMGUI_API void          SetCursorScreenPos(const ImVec2& pos);                              // cursor position in absolute screen coordinates [0..io.DisplaySize]
 export function SetCursorScreenPos(pos: Readonly<Bind.interface_ImVec2>): void { bind.SetCursorScreenPos(pos); }
 // IMGUI_API void          AlignTextToFramePadding();                                          // vertically align/lower upcoming text to FramePadding.y so that it will aligns to upcoming widgets (call if you have text on a line before regular widgets)
-export const AlignTextToFramePadding = bind.AlignTextToFramePadding;
+export function AlignTextToFramePadding(): void { bind.AlignTextToFramePadding(); }
 // IMGUI_API float         GetTextLineHeight();                                                // ~ FontSize
-export const GetTextLineHeight = bind.GetTextLineHeight;
+export function GetTextLineHeight(): number { return bind.GetTextLineHeight(); }
 // IMGUI_API float         GetTextLineHeightWithSpacing();                                     // ~ FontSize + style.ItemSpacing.y (distance in pixels between 2 consecutive lines of text)
-export const GetTextLineHeightWithSpacing = bind.GetTextLineHeightWithSpacing;
+export function GetTextLineHeightWithSpacing(): number { return bind.GetTextLineHeightWithSpacing(); }
 // IMGUI_API float         GetFrameHeight();                                                   // ~ FontSize + style.FramePadding.y * 2
-export const GetFrameHeight = bind.GetFrameHeight;
+export function GetFrameHeight(): number { return bind.GetFrameHeight(); }
 // IMGUI_API float         GetFrameHeightWithSpacing();                                        // ~ FontSize + style.FramePadding.y * 2 + style.ItemSpacing.y (distance in pixels between 2 consecutive lines of framed widgets)
-export const GetFrameHeightWithSpacing = bind.GetFrameHeightWithSpacing;
+export function GetFrameHeightWithSpacing(): number { return bind.GetFrameHeightWithSpacing(); }
 
 // Columns
 // You can also use SameLine(pos_x) for simplified columns. The columns API is still work-in-progress and rather lacking.
@@ -2515,23 +2513,23 @@ export function Columns(count: number = 1, id: string | null = null, border: boo
     bind.Columns(count, id, border);
 }
 // IMGUI_API void          NextColumn();                                                       // next column, defaults to current row or next row if the current row is finished
-export const NextColumn = bind.NextColumn;
+export function NextColumn(): void { bind.NextColumn(); }
 // IMGUI_API int           GetColumnIndex();                                                   // get current column index
-export const GetColumnIndex = bind.GetColumnIndex;
+export function GetColumnIndex(): number { return bind.GetColumnIndex(); }
 // IMGUI_API float         GetColumnWidth(int column_index = -1);                              // get column width (in pixels). pass -1 to use current column
 export function GetColumnWidth(column_index: number = -1): number {
     return bind.GetColumnWidth(column_index);
 }
 // IMGUI_API void          SetColumnWidth(int column_index, float width);                      // set column width (in pixels). pass -1 to use current column
-export const SetColumnWidth = bind.SetColumnWidth;
+export function SetColumnWidth(column_index: number, width: number): void { bind.SetColumnWidth(column_index, width); }
 // IMGUI_API float         GetColumnOffset(int column_index = -1);                             // get position of column line (in pixels, from the left side of the contents region). pass -1 to use current column, otherwise 0..GetColumnsCount() inclusive. column 0 is typically 0.0f
 export function GetColumnOffset(column_index: number = -1): number {
     return bind.GetColumnOffset(column_index);
 }
 // IMGUI_API void          SetColumnOffset(int column_index, float offset_x);                  // set position of column line (in pixels, from the left side of the contents region). pass -1 to use current column
-export const SetColumnOffset = bind.SetColumnOffset;
+export function SetColumnOffset(column_index: number, offset_x: number): void { bind.SetColumnOffset(column_index, offset_x); }
 // IMGUI_API int           GetColumnsCount();
-export const GetColumnsCount = bind.GetColumnsCount;
+export function GetColumnsCount(): number { return bind.GetColumnsCount(); }
 
 // ID scopes
 // If you are creating widgets in a loop you most likely want to push a unique identifier (e.g. object pointer, loop index) so ImGui can differentiate them.
@@ -2540,13 +2538,13 @@ export const GetColumnsCount = bind.GetColumnsCount;
 // IMGUI_API void          PushID(const char* str_id_begin, const char* str_id_end);
 // IMGUI_API void          PushID(const void* ptr_id);
 // IMGUI_API void          PushID(int int_id);
-export const PushID = bind.PushID;
+export function PushID(id: string | number): void { bind.PushID(id); }
 // IMGUI_API void          PopID();
-export const PopID = bind.PopID;
+export function PopID(): void { bind.PopID(); }
 // IMGUI_API ImGuiID       GetID(const char* str_id);                                          // calculate unique ID (hash of whole ID stack + given parameter). e.g. if you want to query into ImGuiStorage yourself
 // IMGUI_API ImGuiID       GetID(const char* str_id_begin, const char* str_id_end);
 // IMGUI_API ImGuiID       GetID(const void* ptr_id);
-export const GetID = bind.GetID;
+export function GetID(id: string | number): Bind.ImGuiID { return bind.GetID(id); }
 
 // Widgets: Text
 // IMGUI_API void          TextUnformatted(const char* text, const char* text_end = NULL);               // raw text without formatting. Roughly equivalent to Text("%s", text) but: A) doesn't require null terminated string if 'text_end' is specified, B) it's faster, no memory copy is done, no buffer size limits, recommended for long chunks of text.
@@ -2572,7 +2570,7 @@ export function LabelText(label: string, fmt: string/*, ...args: any[]*/): void 
 // IMGUI_API void          BulletTextV(const char* fmt, va_list args)                     IM_FMTLIST(1);
 export function BulletText(fmt: string/*, ...args: any[]*/): void { bind.BulletText(fmt/*, ...args*/); }
 // IMGUI_API void          Bullet();                                                                     // draw a small circle and keep the cursor on the same line. advance cursor x position by GetTreeNodeToLabelSpacing(), same distance that TreeNode() uses
-export const Bullet = bind.Bullet;
+export function Bullet(): void { bind.Bullet(); }
 
 // Widgets: Main
 // IMGUI_API bool          Button(const char* label, const ImVec2& size = ImVec2(0,0));            // button
@@ -2580,9 +2578,9 @@ export function Button(label: string, size: Readonly<Bind.interface_ImVec2> = Im
     return bind.Button(label, size);
 }
 // IMGUI_API bool          SmallButton(const char* label);                                         // button with FramePadding=(0,0) to easily embed within text
-export const SmallButton = bind.SmallButton;
+export function SmallButton(label: string): boolean { return bind.SmallButton(label); }
 // IMGUI_API bool          ArrowButton(const char* str_id, ImGuiDir dir);                  // square button with an arrow shape
-export const ArrowButton = bind.ArrowButton;
+export function ArrowButton(str_id: string, dir: ImGuiDir): boolean { return bind.ArrowButton(str_id, dir); }
 // IMGUI_API bool          InvisibleButton(const char* str_id, const ImVec2& size);                // button behavior without the visuals, useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.)
 export function InvisibleButton(str_id: string, size: Readonly<Bind.interface_ImVec2>): boolean {
     return bind.InvisibleButton(str_id, size);
@@ -3189,11 +3187,11 @@ export function TreePush(...args: any[]): void {
     }
 }
 // IMGUI_API void          TreePop();                                                              // ~ Unindent()+PopId()
-export const TreePop = bind.TreePop;
+export function TreePop(): void { bind.TreePop(); }
 // IMGUI_API void          TreeAdvanceToLabelPos();                                                // advance cursor x position by GetTreeNodeToLabelSpacing()
-export const TreeAdvanceToLabelPos = bind.TreeAdvanceToLabelPos;
+export function TreeAdvanceToLabelPos(): void { bind.TreeAdvanceToLabelPos(); }
 // IMGUI_API float         GetTreeNodeToLabelSpacing();                                            // horizontal distance preceding label when using TreeNode*() or Bullet() == (g.FontSize + style.FramePadding.x*2) for a regular unframed TreeNode
-export const GetTreeNodeToLabelSpacing = bind.GetTreeNodeToLabelSpacing;
+export function GetTreeNodeToLabelSpacing(): number { return bind.GetTreeNodeToLabelSpacing(); }
 // IMGUI_API void          SetNextTreeNodeOpen(bool is_open, ImGuiCond cond = 0);                  // set next TreeNode/CollapsingHeader open state.
 export function SetNextTreeNodeOpen(is_open: boolean, cond: ImGuiCond = 0): void {
     bind.SetNextTreeNodeOpen(is_open, cond);
@@ -3312,9 +3310,9 @@ export function Value(prefix: string, ...args: any[]): void {
 
 // Tooltips
 // IMGUI_API void          BeginTooltip();                                                     // begin/append a tooltip window. to create full-featured tooltip (with any kind of contents).
-export const BeginTooltip = bind.BeginTooltip;
+export function BeginTooltip(): void { bind.BeginTooltip(); }
 // IMGUI_API void          EndTooltip();
-export const EndTooltip = bind.EndTooltip;
+export function EndTooltip(): void { bind.EndTooltip(); }
 // IMGUI_API void          SetTooltip(const char* fmt, ...) IM_FMTARGS(1);                     // set text tooltip under mouse-cursor, typically use with ImGui::IsItemHovered(). overidde any previous call to SetTooltip().
 // IMGUI_API void          SetTooltipV(const char* fmt, va_list args) IM_FMTLIST(1);
 export function SetTooltip(fmt: string): void {
@@ -3323,17 +3321,17 @@ export function SetTooltip(fmt: string): void {
 
 // Menus
 // IMGUI_API bool          BeginMainMenuBar();                                                 // create and append to a full screen menu-bar. only call EndMainMenuBar() if this returns true!
-export const BeginMainMenuBar = bind.BeginMainMenuBar;
+export function BeginMainMenuBar(): boolean { return bind.BeginMainMenuBar(); }
 // IMGUI_API void          EndMainMenuBar();
-export const EndMainMenuBar = bind.EndMainMenuBar;
+export function EndMainMenuBar(): void { bind.EndMainMenuBar(); }
 // IMGUI_API bool          BeginMenuBar();                                                     // append to menu-bar of current window (requires ImGuiWindowFlags_MenuBar flag set on parent window). only call EndMenuBar() if this returns true!
-export const BeginMenuBar = bind.BeginMenuBar;
+export function BeginMenuBar(): boolean { return bind.BeginMenuBar(); }
 // IMGUI_API void          EndMenuBar();
-export const EndMenuBar = bind.EndMenuBar;
+export function EndMenuBar(): void { bind.EndMenuBar(); }
 // IMGUI_API bool          BeginMenu(const char* label, bool enabled = true);                  // create a sub-menu entry. only call EndMenu() if this returns true!
 export function BeginMenu(label: string, enabled: boolean = true): boolean { return bind.BeginMenu(label, enabled); }
 // IMGUI_API void          EndMenu();
-export const EndMenu = bind.EndMenu;
+export function EndMenu(): void { bind.EndMenu(); }
 // IMGUI_API bool          MenuItem(const char* label, const char* shortcut = NULL, bool selected = false, bool enabled = true);  // return true when activated. shortcuts are displayed for convenience but not processed by ImGui at the moment
 // IMGUI_API bool          MenuItem(const char* label, const char* shortcut, bool* p_selected, bool enabled = true);              // return true when activated + toggle (*p_selected) if p_selected != NULL
 export function MenuItem(label: string, shortcut?: string | null, selected?: boolean, enabled?: boolean): boolean;
@@ -3363,13 +3361,13 @@ export function MenuItem(label: string, ...args: any[]): boolean {
 
 // Popups
 // IMGUI_API void          OpenPopup(const char* str_id);                                      // call to mark popup as open (don't call every frame!). popups are closed when user click outside, or if CloseCurrentPopup() is called within a BeginPopup()/EndPopup() block. By default, Selectable()/MenuItem() are calling CloseCurrentPopup(). Popup identifiers are relative to the current ID-stack (so OpenPopup and BeginPopup needs to be at the same level).
-export const OpenPopup = bind.OpenPopup;
+export function OpenPopup(str_id: string): void { bind.OpenPopup(str_id); }
 // IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
 export function OpenPopupOnItemClick(str_id: string | null = null, mouse_button: number = 1): boolean {
     return bind.OpenPopupOnItemClick(str_id, mouse_button);
 }
 // IMGUI_API bool          BeginPopup(const char* str_id);                                     // return true if the popup is open, and you can start outputting to it. only call EndPopup() if BeginPopup() returned true!
-export const BeginPopup = bind.BeginPopup;
+export function BeginPopup(str_id: string): boolean { return bind.BeginPopup(str_id); }
 // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags extra_flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
 export function BeginPopupModal(str_id: string = "", p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null = null, extra_flags: ImGuiWindowFlags = 0): boolean {
     if (Array.isArray(p_open)) {
@@ -3396,11 +3394,11 @@ export function BeginPopupContextVoid(str_id: string | null = null, mouse_button
     return bind.BeginPopupContextVoid(str_id, mouse_button);
 }
 // IMGUI_API void          EndPopup();
-export const EndPopup = bind.EndPopup;
+export function EndPopup(): void { bind.EndPopup(); }
 // IMGUI_API bool          IsPopupOpen(const char* str_id);                                    // return true if the popup is open
-export const IsPopupOpen = bind.IsPopupOpen;
+export function IsPopupOpen(str_id: string): boolean { return bind.IsPopupOpen(str_id); }
 // IMGUI_API void          CloseCurrentPopup();                                                // close the popup we have begin-ed into. clicking on a MenuItem or Selectable automatically close the current popup.
-export const CloseCurrentPopup = bind.CloseCurrentPopup;
+export function CloseCurrentPopup(): void { bind.CloseCurrentPopup(); }
 
 // Logging/Capture: all text output from interface is captured to tty/file/clipboard. By default, tree nodes are automatically opened during logging.
 // IMGUI_API void          LogToTTY(int max_depth = -1);                                       // start logging to tty
@@ -3416,9 +3414,9 @@ export function LogToClipboard(max_depth: number = -1): void {
     bind.LogToClipboard(max_depth);
 }
 // IMGUI_API void          LogFinish();                                                        // stop logging (close file, etc.)
-export const LogFinish = bind.LogFinish;
+export function LogFinish(): void { bind.LogFinish(); }
 // IMGUI_API void          LogButtons();                                                       // helper to display buttons for logging to tty/file/clipboard
-export const LogButtons = bind.LogButtons;
+export function LogButtons(): void { bind.LogButtons(); }
 // IMGUI_API void          LogText(const char* fmt, ...) IM_FMTARGS(1);                        // pass text data straight to log (without being displayed)
 export function LogText(fmt: string): void {
     bind.LogText(fmt);
@@ -3465,7 +3463,7 @@ export function PopClipRect(): void {
 // (FIXME: Those functions will be reworked after we merge the navigation branch + have a pass at focusing/tabbing features.)
 // (Prefer using "SetItemDefaultFocus()" over "if (IsWindowAppearing()) SetScrollHere()" when applicable, to make your code more forward compatible when navigation branch is merged)
 // IMGUI_API void          SetItemDefaultFocus();                                              // make last item the default focused item of a window (WIP navigation branch only). Pleaase use instead of SetScrollHere().
-export const SetItemDefaultFocus = bind.SetItemDefaultFocus;
+export function SetItemDefaultFocus(): void { bind.SetItemDefaultFocus(); }
 // IMGUI_API void          SetKeyboardFocusHere(int offset = 0);                               // focus keyboard on the next widget. Use positive 'offset' to access sub components of a multiple component widget. Use -1 to access previous widget.
 export function SetKeyboardFocusHere(offset: number = 0): void {
     bind.SetKeyboardFocusHere(offset);
@@ -3477,25 +3475,25 @@ export function IsItemHovered(flags: ImGuiHoveredFlags = 0): boolean {
     return bind.IsItemHovered(flags);
 }
 // IMGUI_API bool          IsItemActive();                                                     // is the last item active? (e.g. button being held, text field being edited- items that don't interact will always return false)
-export const IsItemActive = bind.IsItemActive;
+export function IsItemActive(): boolean { return bind.IsItemActive(); }
 // IMGUI_API bool          IsItemFocused();                                                    // is the last item focused for keyboard/gamepad navigation?
-export const IsItemFocused = bind.IsItemFocused;
+export function IsItemFocused(): boolean { return bind.IsItemFocused(); }
 // IMGUI_API bool          IsItemClicked(int mouse_button = 0);                                // is the last item clicked? (e.g. button/node just clicked on)
 export function IsItemClicked(mouse_button: number = 0): boolean {
     return bind.IsItemClicked(mouse_button);
 }
 // IMGUI_API bool          IsItemVisible();                                                    // is the last item visible? (aka not out of sight due to clipping/scrolling.)
-export const IsItemVisible = bind.IsItemVisible;
+export function IsItemVisible(): boolean { return bind.IsItemVisible(); }
 // IMGUI_API bool          IsItemDeactivated();                                                // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that requires continuous editing.
-export const IsItemDeactivated = bind.IsItemDeactivated;
+export function IsItemDeactivated(): boolean { return bind.IsItemDeactivated(); }
 // IMGUI_API bool          IsItemDeactivatedAfterChange();                                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
-export const IsItemDeactivatedAfterChange = bind.IsItemDeactivatedAfterChange;
+export function IsItemDeactivatedAfterChange(): boolean { return bind.IsItemDeactivatedAfterChange(); }
 // IMGUI_API bool          IsAnyItemHovered();
-export const IsAnyItemHovered = bind.IsAnyItemHovered;
+export function IsAnyItemHovered(): boolean { return bind.IsAnyItemHovered(); }
 // IMGUI_API bool          IsAnyItemActive();
-export const IsAnyItemActive = bind.IsAnyItemActive;
+export function IsAnyItemActive(): boolean { return bind.IsAnyItemActive(); }
 // IMGUI_API bool          IsAnyItemFocused();
-export const IsAnyItemFocused = bind.IsAnyItemFocused;
+export function IsAnyItemFocused(): boolean { return bind.IsAnyItemFocused(); }
 // IMGUI_API ImVec2        GetItemRectMin();                                                   // get bounding rectangle of last item, in screen space
 export function GetItemRectMin(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
     return bind.GetItemRectMin(out);
@@ -3509,7 +3507,7 @@ export function GetItemRectSize(out: Bind.interface_ImVec2 = new ImVec2()): type
     return bind.GetItemRectSize(out);
 }
 // IMGUI_API void          SetItemAllowOverlap();                                              // allow last item to be overlapped by a subsequent item. sometimes useful with invisible buttons, selectables, etc. to catch unused area.
-export const SetItemAllowOverlap = bind.SetItemAllowOverlap;
+export function SetItemAllowOverlap(): void { bind.SetItemAllowOverlap(); }
 // IMGUI_API bool          IsWindowFocused(ImGuiFocusedFlags flags = 0);                       // is current window focused? or its root/child, depending on flags. see flags for options.
 export function IsWindowFocused(flags: ImGuiFocusedFlags = 0): boolean {
     return bind.IsWindowFocused(flags);
@@ -3533,9 +3531,9 @@ export function IsRectVisible(...args: any[]): boolean {
     }
 }
 // IMGUI_API float         GetTime();
-export const GetTime = bind.GetTime;
+export function GetTime(): number { return bind.GetTime(); }
 // IMGUI_API int           GetFrameCount();
-export const GetFrameCount = bind.GetFrameCount;
+export function GetFrameCount(): number { return bind.GetFrameCount(); }
 // IMGUI_API ImDrawList*   GetOverlayDrawList();                                               // this draw list will be the last rendered one, useful to quickly draw overlays shapes/text
 export function GetOverlayDrawList(): ImDrawList {
     return new ImDrawList(bind.GetOverlayDrawList());
@@ -3545,7 +3543,7 @@ export function GetDrawListSharedData(): ImDrawListSharedData {
     return new ImDrawListSharedData(bind.GetDrawListSharedData());
 }
 // IMGUI_API const char*   GetStyleColorName(ImGuiCol idx);
-export const GetStyleColorName = bind.GetStyleColorName;
+export function GetStyleColorName(idx: ImGuiCol): string { return bind.GetStyleColorName(idx); }
 // IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
 export function CalcTextSize(text: string, text_end: number | null = null, hide_text_after_double_hash: boolean = false, wrap_width: number = -1, out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
     return bind.CalcTextSize(text_end !== null ? text.substring(0, text_end) : text, hide_text_after_double_hash, wrap_width, out);
@@ -3560,7 +3558,7 @@ export function BeginChildFrame(id: Bind.ImGuiID, size: Readonly<Bind.interface_
     return bind.BeginChildFrame(id, size, extra_flags);
 }
 // IMGUI_API void          EndChildFrame();
-export const EndChildFrame = bind.EndChildFrame;
+export function EndChildFrame(): void { bind.EndChildFrame(); }
 
 // IMGUI_API ImVec4        ColorConvertU32ToFloat4(ImU32 in);
 export function ColorConvertU32ToFloat4(in_: Bind.ImU32, out: Bind.interface_ImVec4 = new ImVec4()): typeof out {
@@ -3571,9 +3569,9 @@ export function ColorConvertFloat4ToU32(in_: Readonly<Bind.interface_ImVec4>): B
     return bind.ColorConvertFloat4ToU32(in_);
 }
 // IMGUI_API void          ColorConvertRGBtoHSV(float r, float g, float b, float& out_h, float& out_s, float& out_v);
-export const ColorConvertRGBtoHSV = bind.ColorConvertRGBtoHSV;
+export function ColorConvertRGBtoHSV(r: number, g: number, b: number, out_h: Bind.ImScalar<number>, out_s: Bind.ImScalar<number>, out_v: Bind.ImScalar<number>): void { bind.ColorConvertRGBtoHSV(r, g, b, out_h, out_s, out_v); }
 // IMGUI_API void          ColorConvertHSVtoRGB(float h, float s, float v, float& out_r, float& out_g, float& out_b);
-export const ColorConvertHSVtoRGB = bind.ColorConvertHSVtoRGB;
+export function ColorConvertHSVtoRGB(h: number, s: number, v: number, out_r: Bind.ImScalar<number>, out_g: Bind.ImScalar<number>, out_b: Bind.ImScalar<number>): void { bind.ColorConvertHSVtoRGB(h, s, v, out_r, out_g, out_b); }
 
 // Inputs
 // IMGUI_API int           GetKeyIndex(ImGuiKey imgui_key);                                    // map ImGuiKey_* values into user's key index. == io.KeyMap[key]
@@ -3641,9 +3639,9 @@ export function ResetMouseDragDelta(button: number = 0): void {
     bind.ResetMouseDragDelta(button);
 }
 // IMGUI_API ImGuiMouseCursor GetMouseCursor();                                                // get desired cursor type, reset in ImGui::NewFrame(), this is updated during the frame. valid before Render(). If you use software rendering by setting io.MouseDrawCursor ImGui will render those for you
-export const GetMouseCursor = bind.GetMouseCursor;
+export function GetMouseCursor(): ImGuiMouseCursor { return bind.GetMouseCursor(); }
 // IMGUI_API void          SetMouseCursor(ImGuiMouseCursor type);                              // set desired cursor type
-export const SetMouseCursor = bind.SetMouseCursor;
+export function SetMouseCursor(type: ImGuiMouseCursor): void { bind.SetMouseCursor(type); }
 // IMGUI_API void          CaptureKeyboardFromApp(bool capture = true);                        // manually override io.WantCaptureKeyboard flag next frame (said flag is entirely left for your application handle). e.g. force capture keyboard when your widget is being hovered.
 export function CaptureKeyboardFromApp(capture: boolean = true) {
     return bind.CaptureKeyboardFromApp(capture);
@@ -3655,9 +3653,9 @@ export function CaptureMouseFromApp(capture: boolean = true): void {
 
 // Clipboard Utilities (also see the LogToClipboard() function to capture or output text data to the clipboard)
 // IMGUI_API const char*   GetClipboardText();
-export const GetClipboardText = bind.GetClipboardText;
+export function GetClipboardText(): void { bind.GetClipboardText(); }
 // IMGUI_API void          SetClipboardText(const char* text);
-export const SetClipboardText = bind.SetClipboardText;
+export function SetClipboardText(text: string): void { bind.SetClipboardText(text); }
 
 // Settings/.Ini Utilities
 // The disk functions are automatically called if io.IniFilename != NULL (default is "imgui.ini").
@@ -3679,6 +3677,6 @@ export function SetAllocatorFunctions(alloc_func: (sz: number, user_data: any) =
     bind.SetAllocatorFunctions(alloc_func, free_func, user_data);
 }
 // IMGUI_API void*         MemAlloc(size_t sz);
-export const MemAlloc = bind.MemAlloc;
+export function MemAlloc(sz: number): void { bind.MemAlloc(sz); }
 // IMGUI_API void          MemFree(void* ptr);
-export const MemFree = bind.MemFree;
+export function MemFree(ptr: any): void { bind.MemFree(ptr); }
