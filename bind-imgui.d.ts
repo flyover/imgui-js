@@ -4,7 +4,7 @@ import * as Emscripten from "./emscripten";
 // declare const Module: ImGuiModule; export default Module;
 
 // emcc -s MODULARIZE=1
-export default function Module(Module?: Partial<Module>): Module;
+export default function Module(Module?: Partial<Module>): Promise<Module>;
 
 export interface mallinfo {
     arena: number;

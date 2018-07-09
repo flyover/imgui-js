@@ -31,7 +31,8 @@ async function LoadArrayBuffer(url: string): Promise<ArrayBuffer> {
     return response.arrayBuffer();
 }
 
-export default function main(): void {
+export default async function main(): Promise<void> {
+    await ImGui.default();
     if (typeof(window) !== "undefined") {
         window.requestAnimationFrame(_init);
     } else {

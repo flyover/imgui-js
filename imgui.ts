@@ -1,12 +1,20 @@
 import * as Bind from "./bind-imgui";
 export { Bind };
 
-const bind: Bind.Module = Bind.default();
+let bind: Bind.Module;
+export default async function(value?: Partial<Bind.Module>): Promise<void> {
+    return new Promise<void>((resolve: () => void) => {
+        Bind.default(value).then((value: Bind.Module): void => {
+            bind = value;
+            resolve();
+        });
+    });
+}
 export { bind };
 
 import * as config from "./imconfig";
 
-export const IMGUI_VERSION: string = bind.IMGUI_VERSION;
+export const IMGUI_VERSION: string = "1.62"; // bind.IMGUI_VERSION;
 
 // #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
 export function IMGUI_CHECKVERSION(): boolean { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, bind.ImGuiIOSize, bind.ImGuiStyleSize, bind.ImVec2Size, bind.ImVec4Size, bind.ImDrawVertSize); }
@@ -1032,15 +1040,15 @@ export class ImDrawCmd
 // #ifndef ImDrawIdx
 // typedef unsigned short ImDrawIdx;
 // #endif
-export const ImDrawIdxSize = bind.ImDrawIdxSize;
+export const ImDrawIdxSize: number = 2; // bind.ImDrawIdxSize;
 export type ImDrawIdx = number;
 
 // Vertex layout
 // #ifndef IMGUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT
-export const ImDrawVertSize = bind.ImDrawVertSize;
-export const ImDrawVertPosOffset = bind.ImDrawVertPosOffset;
-export const ImDrawVertUVOffset = bind.ImDrawVertUVOffset;
-export const ImDrawVertColOffset = bind.ImDrawVertColOffset;
+export const ImDrawVertSize: number = 20; // bind.ImDrawVertSize;
+export const ImDrawVertPosOffset: number = 0; // bind.ImDrawVertPosOffset;
+export const ImDrawVertUVOffset: number = 8; // bind.ImDrawVertUVOffset;
+export const ImDrawVertColOffset: number = 16; // bind.ImDrawVertColOffset;
 export class ImDrawVert
 {
     // ImVec2  pos;
