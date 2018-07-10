@@ -715,8 +715,7 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // ImFontAtlasFlags            Flags;              // Build flags (see ImFontAtlasFlags_)
     Flags: ImFontAtlasFlags;
     // ImTextureID                 TexID;              // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
-    getTexID(): ImTextureID;
-    setTexID(value: ImTextureID): void;
+    TexID: ImTextureID;
     // int                         TexDesiredWidth;    // Texture width desired by user before Build(). Must be a power-of-two. If have many glyphs your graphics API have texture size restrictions you may want to increase texture width to decrease height.
     TexDesiredWidth: number;
     // int                         TexGlyphPadding;    // Padding between glyphs within texture in pixels. Defaults to 1.
@@ -801,14 +800,11 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // Optional: access OS clipboard
     // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
     // const char* (*GetClipboardTextFn)(void* user_data);
-    public getGetClipboardTextFn(): ((user_data: any) => string) | null;
-    public setGetClipboardTextFn(value: ((user_data: any) => string) | null): void;
+    public GetClipboardTextFn: ((user_data: any) => string) | null;
     // void        (*SetClipboardTextFn)(void* user_data, const char* text);
-    public getSetClipboardTextFn(): ((user_data: any, text: string) => void) | null;
-    public setSetClipboardTextFn(value: ((user_data: any, text: string) => void) | null): void;
+    public SetClipboardTextFn: ((user_data: any, text: string) => void) | null;
     // void*       ClipboardUserData;
-    public getClipboardUserData(): any;
-    public setClipboardUserData(value: any): void;
+    public ClipboardUserData: any;
 
     // Optional: notify OS Input Method Editor of the screen position of your cursor for text input position (e.g. when using Japanese/Chinese IME in Windows)
     // (default to use native imm32 api on Windows)
@@ -842,7 +838,7 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     public getKeysDownAt(index: number): boolean;
     public setKeysDownAt(index: number, value: boolean): boolean;
     // ImWchar     InputCharacters[16+1];          // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
-    public getInputCharacters(): Readonly<Uint16Array>;
+    public readonly InputCharacters: Readonly<Uint16Array>;
     // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
     public getNavInputsAt(index: number): number;
     public setNavInputsAt(index: number, value: number): boolean;

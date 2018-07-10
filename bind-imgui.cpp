@@ -530,9 +530,9 @@ EMSCRIPTEN_BINDINGS(ImDrawData) {
         // IMGUI_API void DeIndexAllBuffers();               // For backward compatibility or convenience: convert all buffers from indexed to de-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
         .function("DeIndexAllBuffers", &ImDrawData::DeIndexAllBuffers)
         // IMGUI_API void ScaleClipRects(const ImVec2& sc);  // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
-        .function("ScaleClipRects", FUNCTION(void, (ImDrawData* that, emscripten::val sc), {
-            that->ScaleClipRects(import_ImVec2(sc));
-        }), emscripten::allow_raw_pointers())
+        .function("ScaleClipRects", FUNCTION(void, (ImDrawData& that, emscripten::val sc), {
+            that.ScaleClipRects(import_ImVec2(sc));
+        }))
     ;
 }
 
@@ -835,12 +835,14 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         // ImFontAtlasFlags            Flags;              // Build flags (see ImFontAtlasFlags_)
         .property("Flags", &ImFontAtlas::Flags)
         // ImTextureID                 TexID;              // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
-        .function("getTexID", FUNCTION(emscripten::val, (const ImFontAtlas* that), {
-            return emscripten::val((int) that->TexID);
-        }), emscripten::allow_raw_pointers())
-        .function("setTexID", FUNCTION(void, (ImFontAtlas* that, emscripten::val value), {
-            that->TexID = (ImTextureID) value.as<int>();
-        }), emscripten::allow_raw_pointers())
+        .property("TexID",
+            FUNCTION(emscripten::val, (const ImFontAtlas& that), {
+                return emscripten::val((int) that.TexID);
+            }),
+            FUNCTION(void, (ImFontAtlas& that, emscripten::val value), {
+                that.TexID = (ImTextureID) value.as<int>();
+            })
+        )
         // int                         TexDesiredWidth;    // Texture width desired by user before Build(). Must be a power-of-two. If have many glyphs your graphics API have texture size restrictions you may want to increase texture width to decrease height.
         .property("TexDesiredWidth", &ImFontAtlas::TexDesiredWidth)
         // int                         TexGlyphPadding;    // Padding between glyphs within texture in pixels. Defaults to 1.
@@ -901,12 +903,12 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging
         .property("MouseDragThreshold", &ImGuiIO::MouseDragThreshold)
         // int           KeyMap[ImGuiKey_COUNT];   // <unset>              // Map of indices into the KeysDown[512] entries array
-        .function("getKeyMapAt", FUNCTION(int, (const ImGuiIO* that, int /*ImGuiKey*/ index), {
-            return (0 <= index && index < ImGuiKey_COUNT) ? that->KeyMap[index] : -1;
-        }), emscripten::allow_raw_pointers())
-        .function("setKeyMapAt", FUNCTION(bool, (ImGuiIO* that, int /*ImGuiKey*/ index, int value), {
-            if (0 <= index && index < ImGuiKey_COUNT) { that->KeyMap[index] = value; return true; } return false;
-        }), emscripten::allow_raw_pointers())
+        .function("getKeyMapAt", FUNCTION(int, (const ImGuiIO& that, int /*ImGuiKey*/ index), {
+            return (0 <= index && index < ImGuiKey_COUNT) ? that.KeyMap[index] : -1;
+        }))
+        .function("setKeyMapAt", FUNCTION(bool, (ImGuiIO& that, int /*ImGuiKey*/ index, int value), {
+            if (0 <= index && index < ImGuiKey_COUNT) { that.KeyMap[index] = value; return true; } return false;
+        }))
         // float         KeyRepeatDelay;           // = 0.250f             // When holding a key/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.).
         .property("KeyRepeatDelay", &ImGuiIO::KeyRepeatDelay)
         // float         KeyRepeatRate;            // = 0.050f             // When holding a key/button, rate at which it repeats, in seconds.
@@ -955,32 +957,20 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // Optional: access OS clipboard
         // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
         // const char* (*GetClipboardTextFn)(void* user_data);
-        // public getGetClipboardTextFn(): (user_data: any) => string;
-        .function("getGetClipboardTextFn", FUNCTION(emscripten::val, (ImGuiIO* that), {
-            return _GetClipboardTextFn;
-        }), emscripten::allow_raw_pointers())
-        // public setGetClipboardTextFn(value: (user_data: any) => string): void;
-        .function("setGetClipboardTextFn", FUNCTION(void, (ImGuiIO* that, emscripten::val value), {
-            _GetClipboardTextFn = value;
-        }), emscripten::allow_raw_pointers())
+        .property("GetClipboardTextFn",
+            FUNCTION(emscripten::val, (const ImGuiIO& that), { return _GetClipboardTextFn; }),
+            FUNCTION(void, (ImGuiIO& that, emscripten::val value), { _GetClipboardTextFn = value; })
+        )
         // void        (*SetClipboardTextFn)(void* user_data, const char* text);
-        // public getSetClipboardTextFn(): (user_data: any, text: string) => void;
-        .function("getSetClipboardTextFn", FUNCTION(emscripten::val, (ImGuiIO* that), {
-            return _SetClipboardTextFn;
-        }), emscripten::allow_raw_pointers())
-        // public setSetClipboardTextFn(value: (user_data: any, text: string) => void): void;
-        .function("setSetClipboardTextFn", FUNCTION(void, (ImGuiIO* that, emscripten::val value), {
-            _SetClipboardTextFn = value;
-        }), emscripten::allow_raw_pointers())
+        .property("SetClipboardTextFn",
+            FUNCTION(emscripten::val, (const ImGuiIO& that), { return _SetClipboardTextFn; }),
+            FUNCTION(void, (ImGuiIO& that, emscripten::val value), { _SetClipboardTextFn = value; })
+        )
         // void*       ClipboardUserData;
-        // public getClipboardUserData(): any;
-        .function("getClipboardUserData", FUNCTION(emscripten::val, (ImGuiIO* that), {
-            return _ClipboardUserData;
-        }), emscripten::allow_raw_pointers())
-        // public setClipboardUserData(value: any): void;
-        .function("setClipboardUserData", FUNCTION(void, (ImGuiIO* that, emscripten::val value), {
-            _ClipboardUserData = value;
-        }), emscripten::allow_raw_pointers())
+        .property("ClipboardUserData",
+            FUNCTION(emscripten::val, (const ImGuiIO& that), { return _ClipboardUserData; }),
+            FUNCTION(void, (ImGuiIO& that, emscripten::val value), { _ClipboardUserData = value; })
+        )
 
         // Optional: override memory allocations. MemFreeFn() may be called with a NULL pointer.
         // (default to posix malloc/free)
@@ -1001,11 +991,11 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
             ImVec2* p = &that->MousePos; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // bool        MouseDown[5];               // Mouse buttons: left, right, middle + extras. ImGui itself mostly only uses left button (BeginPopupContext** are using right button). Others buttons allows us to track if the mouse is being used by your application + available to user as a convenience via IsMouse** API.
-        .function("getMouseDownAt", FUNCTION(bool, (const ImGuiIO* that, int index), {
-            return (0 <= index && index < 5) ? that->MouseDown[index] : false;
+        .function("getMouseDownAt", FUNCTION(bool, (const ImGuiIO& that, int index), {
+            return (0 <= index && index < 5) ? that.MouseDown[index] : false;
         }), emscripten::allow_raw_pointers())
-        .function("setMouseDownAt", FUNCTION(bool, (ImGuiIO* that, int index, bool value), {
-            if (0 <= index && index < 5) { that->MouseDown[index] = value; return true; } return false;
+        .function("setMouseDownAt", FUNCTION(bool, (ImGuiIO& that, int index, bool value), {
+            if (0 <= index && index < 5) { that.MouseDown[index] = value; return true; } return false;
         }), emscripten::allow_raw_pointers())
         // float       MouseWheel;                 // Mouse wheel: 1 unit scrolls about 5 lines text.
         .property("MouseWheel", &ImGuiIO::MouseWheel)
@@ -1020,30 +1010,30 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // bool        KeySuper;                   // Keyboard modifier pressed: Cmd/Super/Windows
         .property("KeySuper", &ImGuiIO::KeySuper)
         // bool        KeysDown[512];              // Keyboard keys that are pressed (in whatever storage order you naturally have access to keyboard data)
-        .function("getKeysDownAt", FUNCTION(bool, (const ImGuiIO* that, int index), {
-            return (0 <= index && index < 512) ? that->KeysDown[index] : false;
+        .function("getKeysDownAt", FUNCTION(bool, (const ImGuiIO& that, int index), {
+            return (0 <= index && index < 512) ? that.KeysDown[index] : false;
         }), emscripten::allow_raw_pointers())
-        .function("setKeysDownAt", FUNCTION(bool, (ImGuiIO* that, int index, bool value), {
-            if (0 <= index && index < 512) { that->KeysDown[index] = value; return true; } return false;
+        .function("setKeysDownAt", FUNCTION(bool, (ImGuiIO& that, int index, bool value), {
+            if (0 <= index && index < 512) { that.KeysDown[index] = value; return true; } return false;
         }), emscripten::allow_raw_pointers())
         // ImWchar     InputCharacters[16+1];      // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
-        .function("getInputCharacters", FUNCTION(emscripten::val, (ImGuiIO* that), {
-            return emscripten::val(emscripten::typed_memory_view<ImWchar>(sizeof(that->InputCharacters), that->InputCharacters));
-        }), emscripten::allow_raw_pointers())
+        .property("InputCharacters", FUNCTION(emscripten::val, (const ImGuiIO& that), {
+            return emscripten::val(emscripten::typed_memory_view<ImWchar>(sizeof(that.InputCharacters), that.InputCharacters));
+        }))
         // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
-        .function("getNavInputsAt", FUNCTION(float, (const ImGuiIO* that, int index), {
-            return (0 <= index && index < ImGuiNavInput_COUNT) ? that->NavInputs[index] : 0.0f;
+        .function("getNavInputsAt", FUNCTION(float, (const ImGuiIO& that, int index), {
+            return (0 <= index && index < ImGuiNavInput_COUNT) ? that.NavInputs[index] : 0.0f;
         }), emscripten::allow_raw_pointers())
-        .function("setNavInputsAt", FUNCTION(bool, (ImGuiIO* that, int index, float value), {
-            if (0 <= index && index < ImGuiNavInput_COUNT) { that->NavInputs[index] = value; return true; } return false;
+        .function("setNavInputsAt", FUNCTION(bool, (ImGuiIO& that, int index, float value), {
+            if (0 <= index && index < ImGuiNavInput_COUNT) { that.NavInputs[index] = value; return true; } return false;
         }), emscripten::allow_raw_pointers())
 
         // Functions
         // IMGUI_API void AddInputCharacter(ImWchar c);                        // Add new character into InputCharacters[]
         .function("AddInputCharacter", &ImGuiIO::AddInputCharacter)
         // IMGUI_API void AddInputCharactersUTF8(const char* utf8_chars);      // Add new characters into InputCharacters[] from an UTF-8 string
-        .function("AddInputCharactersUTF8", FUNCTION(void, (ImGuiIO* that, std::string utf8_chars), {
-            that->AddInputCharactersUTF8(utf8_chars.c_str());
+        .function("AddInputCharactersUTF8", FUNCTION(void, (ImGuiIO& that, std::string utf8_chars), {
+            that.AddInputCharactersUTF8(utf8_chars.c_str());
         }), emscripten::allow_raw_pointers())
         // inline void    ClearInputCharacters() { InputCharacters[0] = 0; }   // Clear the text input buffer manually
         .function("ClearInputCharacters", &ImGuiIO::ClearInputCharacters)
@@ -1097,21 +1087,21 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // bool        MouseReleased[5];           // Mouse button went from Down to !Down
         // bool        MouseDownOwned[5];          // Track if button was clicked inside a window. We don't request mouse capture from the application if click started outside ImGui bounds.
         // float       MouseDownDuration[5];       // Duration the mouse button has been down (0.0f == just clicked)
-        .function("getMouseDownDurationAt", FUNCTION(float, (const ImGuiIO* that, int index), {
-            return (0 <= index && index < 5) ? that->MouseDownDuration[index] : -1.0f;
-        }), emscripten::allow_raw_pointers())
+        .function("getMouseDownDurationAt", FUNCTION(float, (const ImGuiIO& that, int index), {
+            return (0 <= index && index < 5) ? that.MouseDownDuration[index] : -1.0f;
+        }))
         // float       MouseDownDurationPrev[5];   // Previous time the mouse button has been down
         // ImVec2      MouseDragMaxDistanceAbs[5]; // Maximum distance, absolute, on each axis, of how much mouse has traveled from the clicking point
         // float       MouseDragMaxDistanceSqr[5]; // Squared maximum distance of how much mouse has traveled from the clicking point
         // float       KeysDownDuration[512];      // Duration the keyboard key has been down (0.0f == just pressed)
-        .function("getKeysDownDurationAt", FUNCTION(float, (const ImGuiIO* that, int index), {
-            return (0 <= index && index < 512) ? that->KeysDownDuration[index] : -1.0f;
-        }), emscripten::allow_raw_pointers())
+        .function("getKeysDownDurationAt", FUNCTION(float, (const ImGuiIO& that, int index), {
+            return (0 <= index && index < 512) ? that.KeysDownDuration[index] : -1.0f;
+        }))
         // float       KeysDownDurationPrev[512];  // Previous duration the key has been down
         // float       NavInputsDownDuration[ImGuiNavInput_COUNT];
-        .function("getNavInputsDownDurationAt", FUNCTION(float, (const ImGuiIO* that, int index), {
-            return (0 <= index && index < ImGuiNavInput_COUNT) ? that->NavInputsDownDuration[index] : -1.0f;
-        }), emscripten::allow_raw_pointers())
+        .function("getNavInputsDownDurationAt", FUNCTION(float, (const ImGuiIO& that, int index), {
+            return (0 <= index && index < ImGuiNavInput_COUNT) ? that.NavInputsDownDuration[index] : -1.0f;
+        }))
         // float       NavInputsDownDurationPrev[ImGuiNavInput_COUNT];
 
         // IMGUI_API   ImGuiIO();

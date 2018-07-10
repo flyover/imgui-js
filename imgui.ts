@@ -1524,10 +1524,10 @@ export class ImFontAtlas
     set Flags(value: ImFontAtlasFlags) { this.native.Flags = value; }
     // ImTextureID                 TexID;              // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
     get TexID(): ImTextureID | null {
-        return ImGuiContext.getTexture(this.native.getTexID());
+        return ImGuiContext.getTexture(this.native.TexID);
     }
     set TexID(value: ImTextureID | null) {
-        this.native.setTexID(ImGuiContext.setTexture(value));
+        this.native.TexID = ImGuiContext.setTexture(value);
     }
     // int                         TexDesiredWidth;    // Texture width desired by user before Build(). Must be a power-of-two. If have many glyphs your graphics API have texture size restrictions you may want to increase texture width to decrease height.
     get TexDesiredWidth(): number { return this.native.TexDesiredWidth; }
@@ -1876,14 +1876,14 @@ export class ImGuiIO
     // Optional: access OS clipboard
     // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
     // const char* (*GetClipboardTextFn)(void* user_data);
-    get GetClipboardTextFn(): ((user_data: any) => string) | null { return this.native.getGetClipboardTextFn(); }
-    set GetClipboardTextFn(value: ((user_data: any) => string) | null) { this.native.setGetClipboardTextFn(value); }
+    get GetClipboardTextFn(): ((user_data: any) => string) | null { return this.native.GetClipboardTextFn; }
+    set GetClipboardTextFn(value: ((user_data: any) => string) | null) { this.native.GetClipboardTextFn = value; }
     // void        (*SetClipboardTextFn)(void* user_data, const char* text);
-    get SetClipboardTextFn(): ((user_data: any, text: string) => void) | null { return this.native.getSetClipboardTextFn(); }
-    set SetClipboardTextFn(value: ((user_data: any, text: string) => void) | null) { this.native.setSetClipboardTextFn(value); }
+    get SetClipboardTextFn(): ((user_data: any, text: string) => void) | null { return this.native.SetClipboardTextFn; }
+    set SetClipboardTextFn(value: ((user_data: any, text: string) => void) | null) { this.native.SetClipboardTextFn = value; }
     // void*       ClipboardUserData;
-    get ClipboardUserData(): any { return this.native.getClipboardUserData(); }
-    set ClipboardUserData(value: any) { this.native.setClipboardUserData(value); }
+    get ClipboardUserData(): any { return this.native.ClipboardUserData; }
+    set ClipboardUserData(value: any) { this.native.ClipboardUserData = value; }
 
     // Optional: override memory allocations. MemFreeFn() may be called with a NULL pointer.
     // (default to posix malloc/free)
@@ -1938,7 +1938,7 @@ export class ImGuiIO
         },
     });
     // ImWchar     InputCharacters[16+1];      // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
-    public get InputCharacters(): Readonly<Uint16Array> { return this.native.getInputCharacters(); }
+    public get InputCharacters(): Readonly<Uint16Array> { return this.native.InputCharacters; }
     // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
     public NavInputs: number[] = new Proxy([], {
         get: (target: number[], key: PropertyKey): number => {
