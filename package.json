@@ -7,10 +7,13 @@
   "scripts": {
     "build": "make build-bind-imgui && npm run build-imgui",
     "clean": "make clean-bind-imgui && npm run clean-imgui",
+    "watch": "npm run watch-example",
     "start": "npm run start-example",
     "build-imgui": "tsc",
+    "watch-imgui": "tsc --watch",
     "clean-imgui": "echo TODO: clean-imgui",
     "build-example": "tsc -p example",
+    "watch-example": "tsc -p example --watch",
     "clean-example": "echo TODO: clean-example",
     "start-example": "npm run start-example-html",
     "start-example-html": "echo http://localhost:8080/example/index.html && http-server -c-1 -o",
