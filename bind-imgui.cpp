@@ -71,16 +71,16 @@ emscripten::val export_ImVec2(const ImVec2& v, emscripten::val out) {
     return out;
 }
 
-emscripten::val ImVec2_Set(emscripten::val that, float x, float y) {
-    that.set("x", export_float(x));
-    that.set("y", export_float(y));
-    return emscripten::val(that);
+emscripten::val ImVec2_Set(emscripten::val that, emscripten::val x, emscripten::val y) {
+    that.set("x", x);
+    that.set("y", y);
+    return that;
 }
 
 emscripten::val ImVec2_Copy(emscripten::val that, emscripten::val other) {
     that.set("x", other["x"]);
     that.set("y", other["y"]);
-    return emscripten::val(that);
+    return that;
 }
 
 bool ImVec2_Equals(const emscripten::val that, emscripten::val other) {
@@ -91,8 +91,9 @@ bool ImVec2_Equals(const emscripten::val that, emscripten::val other) {
 
 EMSCRIPTEN_BINDINGS(ImVec2) {
     emscripten::class_<ImVec2>("ImVec2")
-        .constructor()
-        .constructor<float, float>()
+        // no constructors for EmscriptenClassReference
+        // .constructor()
+        // .constructor<float, float>()
         .property("x", &ImVec2::x)
         .property("y", &ImVec2::y)
         .function("Set", &ImVec2_Set)
@@ -113,12 +114,12 @@ emscripten::val export_ImVec4(const ImVec4& v, emscripten::val out) {
     return out;
 }
 
-emscripten::val ImVec4_Set(emscripten::val that, float x, float y, float z, float w) {
-    that.set("x", export_float(x));
-    that.set("y", export_float(y));
-    that.set("z", export_float(z));
-    that.set("w", export_float(w));
-    return emscripten::val(that);
+emscripten::val ImVec4_Set(emscripten::val that, emscripten::val x, emscripten::val y, emscripten::val z, emscripten::val w) {
+    that.set("x", x);
+    that.set("y", y);
+    that.set("z", z);
+    that.set("w", w);
+    return that;
 }
 
 emscripten::val ImVec4_Copy(emscripten::val that, emscripten::val other) {
@@ -126,7 +127,7 @@ emscripten::val ImVec4_Copy(emscripten::val that, emscripten::val other) {
     that.set("y", other["y"]);
     that.set("z", other["z"]);
     that.set("w", other["w"]);
-    return emscripten::val(that);
+    return that;
 }
 
 bool ImVec4_Equals(const emscripten::val that, emscripten::val other) {
@@ -139,8 +140,9 @@ bool ImVec4_Equals(const emscripten::val that, emscripten::val other) {
 
 EMSCRIPTEN_BINDINGS(ImVec4) {
     emscripten::class_<ImVec4>("ImVec4")
-        .constructor()
-        .constructor<float, float, float, float>()
+        // no constructors for EmscriptenClassReference
+        // .constructor()
+        // .constructor<float, float, float, float>()
         .property("x", &ImVec4::x)
         .property("y", &ImVec4::y)
         .property("z", &ImVec4::z)

@@ -71,19 +71,13 @@ export interface interface_ImVec2 {
 export class reference_ImVec2 extends Emscripten.EmscriptenClassReference implements interface_ImVec2 {
     public x: number;
     public y: number;
+    // no constructors for EmscriptenClassReference
+    // public constructor();
+    // public constructor(x: number, y: number);
     public Set(x: number, y: number): this;
     public Copy(other: Readonly<interface_ImVec2>): this;
     public Equals(other: Readonly<interface_ImVec2>): boolean;
 }
-
-// export class ImVec2 extends NativeClass implements interface_ImVec2 {
-//     public x: number;
-//     public y: number;
-//     public constructor();
-//     public constructor(x: number, y: number);
-//     public Copy(other: Readonly<interface_ImVec2>): this;
-//     public Equals(other: Readonly<interface_ImVec2>): boolean;
-// }
 
 export interface interface_ImVec4 {
     x: number;
@@ -100,25 +94,13 @@ export class reference_ImVec4 extends Emscripten.EmscriptenClassReference implem
     public y: number;
     public z: number;
     public w: number;
+    // no constructors for EmscriptenClassReference
+    // public constructor();
+    // public constructor(x: number, y: number, z: number, w: number);
     public Set(x: number, y: number, z: number, w: number): this;
     public Copy(other: Readonly<interface_ImVec4>): this;
     public Equals(other: Readonly<interface_ImVec4>): boolean;
 }
-
-// export class ImVec4 extends NativeClass implements interface_ImVec4 {
-//     public x: number;
-//     public y: number;
-//     public z: number;
-//     public w: number;
-//     public constructor();
-//     public constructor(x: number, y: number, z: number, w: number);
-//     public Copy(other: Readonly<interface_ImVec4>): this;
-//     public Equals(other: Readonly<interface_ImVec4>): boolean;
-// }
-
-// export class ImColor extends NativeClass {
-//     public Value: ImVec4;
-// }
 
 export type ImGuiTextEditCallback = (data: ImGuiTextEditCallbackData) => number;
 
@@ -313,7 +295,7 @@ export class ImGuiStyle extends Emscripten.EmscriptenClass implements interface_
 
 export type ImDrawCallback = (parent_list: Readonly<reference_ImDrawList>, cmd: Readonly<reference_ImDrawCmd>) => void;
 
-// export class ImDrawCmd extends NativeClass {
+// export class ImDrawCmd extends Emscripten.EmscriptenClass {
 export class reference_ImDrawCmd extends Emscripten.EmscriptenClassReference {
     // unsigned int    ElemCount;              // Number of indices (multiple of 3) to be rendered as triangles. Vertices are stored in the callee ImDrawList's vtx_buffer[] array, indices in idx_buffer[].
     readonly ElemCount: number;
@@ -331,7 +313,7 @@ export class reference_ImDrawCmd extends Emscripten.EmscriptenClassReference {
 export class reference_ImDrawListSharedData extends Emscripten.EmscriptenClassReference {
 }
 
-// export class ImDrawList extends NativeClass {
+// export class ImDrawList extends Emscripten.EmscriptenClass {
 export class reference_ImDrawList extends Emscripten.EmscriptenClassReference {
     public IterateDrawCmds(callback: (draw_cmd: reference_ImDrawCmd, ElemStart: number) => void): void;
     
@@ -475,7 +457,7 @@ export class reference_ImDrawList extends Emscripten.EmscriptenClassReference {
     public UpdateTextureID(): void;
 }
 
-// export class ImDrawData extends NativeClass {
+// export class ImDrawData extends Emscripten.EmscriptenClass {
 export class reference_ImDrawData extends Emscripten.EmscriptenClassReference {
     public IterateDrawLists(callback: (draw_list: reference_ImDrawList) => void): void;
 
