@@ -40,6 +40,46 @@ EMSCRIPTEN_BINDINGS(mallinfo) {
 
 #define TODO() printf("TODO: %s\n", __PRETTY_FUNCTION__)
 
+static std::string _ImGuiIO_IniFilename = "";
+static std::string _ImGuiIO_LogFilename = "";
+static emscripten::val _ImGuiIO_UserData = emscripten::val::null();
+static std::string _ImGuiIO_ClipboardText = "";
+static emscripten::val _ImGuiIO_GetClipboardTextFn = emscripten::val::null();
+static emscripten::val _ImGuiIO_SetClipboardTextFn = emscripten::val::null();
+static emscripten::val _ImGUiIO_ClipboardUserData = emscripten::val::null();
+
+static emscripten::val _ImGui_SetNextWindowSizeConstraints_custom_callback = emscripten::val::undefined();
+
+static emscripten::val _ImGui_PlotLines_values_getter = emscripten::val::undefined();
+static emscripten::val _ImGui_PlotLines_data = emscripten::val::undefined();
+
+static emscripten::val _ImGui_PlotHistogram_values_getter = emscripten::val::undefined();
+static emscripten::val _ImGui_PlotHistogram_data = emscripten::val::undefined();
+
+static emscripten::val _ImGui_Combo_items_getter = emscripten::val::undefined();
+static emscripten::val _ImGui_Combo_data = emscripten::val::undefined();
+static int _ImGui_Combo_items_count = 0;
+static std::string _ImGui_Combo_text = "";
+
+static emscripten::val _ImGui_InputText_callback = emscripten::val::undefined();
+
+static emscripten::val _ImGui_InputTextMultiline_callback = emscripten::val::undefined();
+
+static emscripten::val _ImGui_ListBox_A_items = emscripten::val::undefined();
+static int _ImGui_ListBox_A_items_count = 0;
+static std::string _ImGui_ListBox_A_text = "";
+
+static emscripten::val _ImGui_ListBox_B_items_getter = emscripten::val::undefined();
+static emscripten::val _ImGui_ListBox_B_data = emscripten::val::undefined();
+static int _ImGui_ListBox_B_items_count = 0;
+static std::string _ImGui_ListBox_B_text = "";
+
+static emscripten::val _ImGui_DragDropPayload_data = emscripten::val::object();
+
+static emscripten::val _ImGui_SetAllocatorFunctions_alloc_func = emscripten::val::undefined();
+static emscripten::val _ImGui_SetAllocatorFunctions_free_func = emscripten::val::undefined();
+static emscripten::val _ImGui_SetAllocatorFunctions_user_data = emscripten::val::undefined();
+
 // const char* import_string_or_null(const emscripten::val value) {
 //     return value.isNull() ? NULL : value.as<std::string>().c_str();
 // }
@@ -871,11 +911,6 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
     ;
 }
 
-static std::string _ClipboardText = std::string("");
-static emscripten::val _GetClipboardTextFn = emscripten::val::null();
-static emscripten::val _SetClipboardTextFn = emscripten::val::null();
-static emscripten::val _ClipboardUserData = emscripten::val::null();
-
 EMSCRIPTEN_BINDINGS(ImGuiIO) {
     emscripten::class_<ImGuiIO>("ImGuiIO")
         //------------------------------------------------------------------
@@ -895,7 +930,23 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
         .property("IniSavingRate", &ImGuiIO::IniSavingRate)
         // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
+        .property("IniFilename",
+            FUNCTION(emscripten::val, (const ImGuiIO& that), {
+                return that.IniFilename == NULL ? emscripten::val::null() : emscripten::val(that.IniFilename);
+            }),
+            FUNCTION(void, (ImGuiIO& that, emscripten::val value), {
+                _ImGuiIO_IniFilename = value.as<std::string>(); that.IniFilename = value.isNull() ? NULL : _ImGuiIO_IniFilename.c_str();
+            })
+        )
         // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
+        .property("LogFilename",
+            FUNCTION(emscripten::val, (const ImGuiIO& that), {
+                return that.LogFilename == NULL ? emscripten::val::null() : emscripten::val(that.LogFilename);
+            }),
+            FUNCTION(void, (ImGuiIO& that, emscripten::val value), {
+                _ImGuiIO_LogFilename = value.as<std::string>(); that.LogFilename = value.isNull() ? NULL : _ImGuiIO_LogFilename.c_str();
+            })
+        )
         // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
         .property("MouseDoubleClickTime", &ImGuiIO::MouseDoubleClickTime)
         // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
@@ -914,6 +965,14 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // float         KeyRepeatRate;            // = 0.050f             // When holding a key/button, rate at which it repeats, in seconds.
         .property("KeyRepeatRate", &ImGuiIO::KeyRepeatRate)
         // void*         UserData;                 // = NULL               // Store your own data for retrieval by callbacks.
+        .property("UserData",
+            FUNCTION(emscripten::val, (const ImGuiIO& that), {
+                return _ImGuiIO_UserData;
+            }),
+            FUNCTION(void, (ImGuiIO& that, emscripten::val value), {
+                _ImGuiIO_UserData = value;
+            })
+        )
 
         // ImFontAtlas*  Fonts;                    // <auto>               // Load and assemble one or more fonts into a single tightly packed texture. Output to Fonts array.
         .function("_get_Fonts", FUNCTION(emscripten::val, (ImGuiIO* that), {
@@ -958,18 +1017,18 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
         // const char* (*GetClipboardTextFn)(void* user_data);
         .property("GetClipboardTextFn",
-            FUNCTION(emscripten::val, (const ImGuiIO& that), { return _GetClipboardTextFn; }),
-            FUNCTION(void, (ImGuiIO& that, emscripten::val value), { _GetClipboardTextFn = value; })
+            FUNCTION(emscripten::val, (const ImGuiIO& that), { return _ImGuiIO_GetClipboardTextFn; }),
+            FUNCTION(void, (ImGuiIO& that, emscripten::val value), { _ImGuiIO_GetClipboardTextFn = value; })
         )
         // void        (*SetClipboardTextFn)(void* user_data, const char* text);
         .property("SetClipboardTextFn",
-            FUNCTION(emscripten::val, (const ImGuiIO& that), { return _SetClipboardTextFn; }),
-            FUNCTION(void, (ImGuiIO& that, emscripten::val value), { _SetClipboardTextFn = value; })
+            FUNCTION(emscripten::val, (const ImGuiIO& that), { return _ImGuiIO_SetClipboardTextFn; }),
+            FUNCTION(void, (ImGuiIO& that, emscripten::val value), { _ImGuiIO_SetClipboardTextFn = value; })
         )
         // void*       ClipboardUserData;
         .property("ClipboardUserData",
-            FUNCTION(emscripten::val, (const ImGuiIO& that), { return _ClipboardUserData; }),
-            FUNCTION(void, (ImGuiIO& that, emscripten::val value), { _ClipboardUserData = value; })
+            FUNCTION(emscripten::val, (const ImGuiIO& that), { return _ImGUiIO_ClipboardUserData; }),
+            FUNCTION(void, (ImGuiIO& that, emscripten::val value), { _ImGUiIO_ClipboardUserData = value; })
         )
 
         // Optional: override memory allocations. MemFreeFn() may be called with a NULL pointer.
@@ -1238,15 +1297,15 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         io.IniFilename = NULL;
         io.LogFilename = NULL;
         io.GetClipboardTextFn = FUNCTION(const char*, (void* user_data), {
-            if (!_GetClipboardTextFn.isNull()) {
-                _ClipboardText = _GetClipboardTextFn(_ClipboardUserData).as<std::string>();
+            if (!_ImGuiIO_GetClipboardTextFn.isNull()) {
+                _ImGuiIO_ClipboardText = _ImGuiIO_GetClipboardTextFn(_ImGUiIO_ClipboardUserData).as<std::string>();
             }
-            return _ClipboardText.c_str();
+            return _ImGuiIO_ClipboardText.c_str();
         });
         io.SetClipboardTextFn = FUNCTION(void, (void* user_data, const char* text), {
-            _ClipboardText = text;
-            if (!_SetClipboardTextFn.isNull()) {
-                _SetClipboardTextFn(_ClipboardUserData, _ClipboardText);
+            _ImGuiIO_ClipboardText = text;
+            if (!_ImGuiIO_SetClipboardTextFn.isNull()) {
+                _ImGuiIO_SetClipboardTextFn(_ImGUiIO_ClipboardUserData, _ImGuiIO_ClipboardText);
             }
         });
         io.ClipboardUserData = NULL;
@@ -1426,9 +1485,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          SetNextWindowSizeConstraints(const ImVec2& size_min, const ImVec2& size_max, ImGuiSizeConstraintCallback custom_callback = NULL, void* custom_callback_data = NULL); // set next window size limits. use -1,-1 on either X/Y axis to preserve the current size. Use callback to apply non-trivial programmatic constraints.
     emscripten::function("SetNextWindowSizeConstraints", FUNCTION(void, (emscripten::val size_min, emscripten::val size_max, emscripten::val custom_callback, emscripten::val custom_callback_data), {
         if (!custom_callback.isNull()) {
-            static emscripten::val _custom_callback = custom_callback;
+            _ImGui_SetNextWindowSizeConstraints_custom_callback = custom_callback;
             ImGui::SetNextWindowSizeConstraints(import_ImVec2(size_min), import_ImVec2(size_max), FUNCTION(void, (ImGuiSizeCallbackData* data), {
-                _custom_callback(emscripten::val(data));
+                _ImGui_SetNextWindowSizeConstraints_custom_callback(emscripten::val(data));
             }), NULL);
         } else {
             ImGui::SetNextWindowSizeConstraints(import_ImVec2(size_min), import_ImVec2(size_max));
@@ -1766,24 +1825,20 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API void          PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
     // IMGUI_API void          PlotLines(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0));
-    static emscripten::val _PlotLines_values_getter = emscripten::val::undefined();
-    static emscripten::val _PlotLines_data = emscripten::val::undefined();
     emscripten::function("PlotLines", FUNCTION(void, (std::string label, emscripten::val values_getter, emscripten::val data, int values_count, int values_offset, emscripten::val overlay_text, emscripten::val scale_min, emscripten::val scale_max, emscripten::val graph_size), {
-        _PlotLines_values_getter = values_getter;
-        _PlotLines_data = data;
+        _ImGui_PlotLines_values_getter = values_getter;
+        _ImGui_PlotLines_data = data;
         ImGui::PlotLines(label.c_str(), FUNCTION(float, (void* data, int idx), {
-            return import_float(_PlotLines_values_getter(_PlotLines_data, emscripten::val(idx)));
+            return import_float(_ImGui_PlotLines_values_getter(_ImGui_PlotLines_data, emscripten::val(idx)));
         }), NULL, values_count, values_offset, import_string_or_null(overlay_text), import_float(scale_min), import_float(scale_max), import_ImVec2(graph_size));
     }));
     // IMGUI_API void          PlotHistogram(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0), int stride = sizeof(float));
     // IMGUI_API void          PlotHistogram(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0,0));
-    static emscripten::val _PlotHistogram_values_getter = emscripten::val::undefined();
-    static emscripten::val _PlotHistogram_data = emscripten::val::undefined();
     emscripten::function("PlotHistogram", FUNCTION(void, (std::string label, emscripten::val values_getter, emscripten::val data, int values_count, int values_offset, emscripten::val overlay_text, emscripten::val scale_min, emscripten::val scale_max, emscripten::val graph_size), {
-        _PlotHistogram_values_getter = values_getter;
-        _PlotHistogram_data = data;
+        _ImGui_PlotHistogram_values_getter = values_getter;
+        _ImGui_PlotHistogram_data = data;
         ImGui::PlotHistogram(label.c_str(), FUNCTION(float, (void* data, int idx), {
-            return import_float(_PlotHistogram_values_getter(_PlotHistogram_data, emscripten::val(idx)));
+            return import_float(_ImGui_PlotHistogram_values_getter(_ImGui_PlotHistogram_data, emscripten::val(idx)));
         }), NULL, values_count, values_offset, import_string_or_null(overlay_text), import_float(scale_min), import_float(scale_max), import_ImVec2(graph_size));
     }));
     // IMGUI_API void          ProgressBar(float fraction, const ImVec2& size_arg = ImVec2(-1,0), const char* overlay = NULL);
@@ -1803,21 +1858,19 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          Combo(const char* label, int* current_item, const char* const items[], int items_count, int popup_max_height_in_items = -1);
     // IMGUI_API bool          Combo(const char* label, int* current_item, const char* items_separated_by_zeros, int popup_max_height_in_items = -1);      // Separate items with \0 within a string, end item-list with \0\0. e.g. "One\0Two\0Three\0"
     // IMGUI_API bool          Combo(const char* label, int* current_item, bool(*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int popup_max_height_in_items = -1);
-    static emscripten::val _Combo_items_getter = emscripten::val::undefined();
-    static emscripten::val _Combo_data = emscripten::val::undefined();
     emscripten::function("Combo", FUNCTION(bool, (std::string label, emscripten::val current_item, emscripten::val items_getter, emscripten::val data, int items_count, int popup_max_height_in_items), {
-        _Combo_items_getter = items_getter;
-        _Combo_data = data;
-        static int _items_count = items_count;
+        _ImGui_Combo_items_getter = items_getter;
+        _ImGui_Combo_data = data;
+        _ImGui_Combo_items_count = items_count;
         int _current_item = current_item[0].as<int>();
         bool ret = ImGui::Combo(label.c_str(), &_current_item, FUNCTION(bool, (void* data, int idx, const char** out_text), {
-            if (0 <= idx && idx < _items_count) {
-                static std::string _text = "";
+            if (0 <= idx && idx < _ImGui_Combo_items_count) {
+                _ImGui_Combo_text = "";
                 emscripten::val _out_text = emscripten::val::array();
-                _out_text[0] = emscripten::val(_text);
-                emscripten::val ret = _Combo_items_getter(_Combo_data, emscripten::val(idx), _out_text);
-                _text = _out_text[0].as<std::string>();
-                *out_text = _text.c_str();
+                _out_text[0] = emscripten::val(_ImGui_Combo_text);
+                emscripten::val ret = _ImGui_Combo_items_getter(_ImGui_Combo_data, emscripten::val(idx), _out_text);
+                _ImGui_Combo_text = _out_text[0].as<std::string>();
+                *out_text = _ImGui_Combo_text.c_str();
                 return ret.as<bool>();
             } else {
                 return false;
@@ -1979,9 +2032,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         _buf.reserve(buf_size);
         bool ret = false;
         if (!callback.isNull()) {
-            static emscripten::val _callback = callback;
+            _ImGui_InputText_callback = callback;
             ret = ImGui::InputText(label.c_str(), (char*) _buf.data(), buf_size, flags, FUNCTION(int, (ImGuiTextEditCallbackData* data), {
-                return _callback(emscripten::val(data)).as<int>();
+                return _ImGui_InputText_callback(emscripten::val(data)).as<int>();
             }), NULL);
         } else {
             ret = ImGui::InputText(label.c_str(), (char*) _buf.data(), buf_size, flags);
@@ -1995,9 +2048,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         _buf.reserve(buf_size);
         bool ret = false;
         if (!callback.isNull()) {
-            static emscripten::val _callback = callback;
+            _ImGui_InputTextMultiline_callback = callback;
             ret = ImGui::InputTextMultiline(label.c_str(), (char*) _buf.data(), buf_size, import_ImVec2(size), flags, FUNCTION(int, (ImGuiTextEditCallbackData* data), {
-                return _callback(emscripten::val(data)).as<int>();
+                return _ImGui_InputTextMultiline_callback(emscripten::val(data)).as<int>();
             }), NULL);
         } else {
             ret = ImGui::InputTextMultiline(label.c_str(), (char*) _buf.data(), buf_size, import_ImVec2(size), flags);
@@ -2464,14 +2517,13 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          ListBox(const char* label, int* current_item, const char* const* items, int items_count, int height_in_items = -1);
     // IMGUI_API bool          ListBox(const char* label, int* current_item, bool (*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int height_in_items = -1);
     emscripten::function("ListBox_A", FUNCTION(bool, (std::string label, emscripten::val current_item, emscripten::val items, int items_count, int height_in_items), {
-        static emscripten::val _items = items;
-        static int _items_count = items_count;
+        _ImGui_ListBox_A_items = items;
+        _ImGui_ListBox_A_items_count = items_count;
         int _current_item = current_item[0].as<int>();
         bool ret = ImGui::ListBox(label.c_str(), &_current_item, FUNCTION(bool, (void* data, int idx, const char** out_text), {
-            if (0 <= idx && idx <= _items_count) {
-                static std::string _text = "";
-                _text = _items[idx].as<std::string>();
-                *out_text = _text.c_str();
+            if (0 <= idx && idx <= _ImGui_ListBox_A_items_count) {
+                _ImGui_ListBox_A_text = _ImGui_ListBox_A_items[idx].as<std::string>();
+                *out_text = _ImGui_ListBox_A_text.c_str();
                 return true;
             } else {
                 return false;
@@ -2480,21 +2532,19 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         current_item.set(0, emscripten::val(_current_item));
         return ret;
     }));
-    static emscripten::val _ListBox_items_getter = emscripten::val::undefined();
-    static emscripten::val _ListBox_data = emscripten::val::undefined();
     emscripten::function("ListBox_B", FUNCTION(bool, (std::string label, emscripten::val current_item, emscripten::val items_getter, emscripten::val data, int items_count, int height_in_items), {
-        _ListBox_items_getter = items_getter;
-        _ListBox_data = data;
-        static int _items_count = items_count;
+        _ImGui_ListBox_B_items_getter = items_getter;
+        _ImGui_ListBox_B_data = data;
+        _ImGui_ListBox_B_items_count = items_count;
         int _current_item = current_item[0].as<int>();
         bool ret = ImGui::ListBox(label.c_str(), &_current_item, FUNCTION(bool, (void* data, int idx, const char** out_text), {
-            if (0 <= idx && idx <= _items_count) {
-                static std::string _text = "";
+            if (0 <= idx && idx <= _ImGui_ListBox_B_items_count) {
+                _ImGui_ListBox_B_text = "";
                 emscripten::val _out_text = emscripten::val::array();
-                _out_text[0] = emscripten::val(_text);
-                emscripten::val ret = _ListBox_items_getter(_ListBox_data, emscripten::val(idx), _out_text);
-                _text = _out_text[0].as<std::string>();
-                *out_text = _text.c_str();
+                _out_text[0] = emscripten::val(_ImGui_ListBox_B_text);
+                emscripten::val ret = _ImGui_ListBox_B_items_getter(_ImGui_ListBox_B_data, emscripten::val(idx), _out_text);
+                _ImGui_ListBox_B_text = _out_text[0].as<std::string>();
+                *out_text = _ImGui_ListBox_B_text.c_str();
                 return ret.as<bool>();
             } else {
                 return false;
@@ -2621,12 +2671,11 @@ EMSCRIPTEN_BINDINGS(ImGui) {
 
     // Drag and Drop
     // [BETA API] Missing Demo code. API may evolve.
-    static emscripten::val dragdrop_data = emscripten::val::object();
     // IMGUI_API bool          BeginDragDropSource(ImGuiDragDropFlags flags = 0, int mouse_button = 0);                // call when the current item is active. If this return true, you can call SetDragDropPayload() + EndDragDropSource()
     emscripten::function("BeginDragDropSource", &ImGui::BeginDragDropSource);
     // IMGUI_API bool          SetDragDropPayload(const char* type, const void* data, size_t size, ImGuiCond cond = 0);// type is a user defined string of maximum 8 characters. Strings starting with '_' are reserved for dear imgui internal types. Data is copied and held by imgui.
     emscripten::function("SetDragDropPayload", FUNCTION(bool, (std::string type, emscripten::val data, size_t size, ImGuiCond cond), {
-        dragdrop_data.set(type, data);
+        _ImGui_DragDropPayload_data.set(type, data);
         return ImGui::SetDragDropPayload(type.c_str(), NULL, 0, cond);
     }));
     // IMGUI_API void          EndDragDropSource();
@@ -2637,8 +2686,10 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("AcceptDragDropPayload", FUNCTION(emscripten::val, (std::string type, ImGuiDragDropFlags flags), {
         const ImGuiPayload* _payload = ImGui::AcceptDragDropPayload(type.c_str(), flags);
         if (_payload == NULL) { return emscripten::val::null(); }
+        emscripten::val data = _ImGui_DragDropPayload_data[type];
+        _ImGui_DragDropPayload_data.delete_(type);
         emscripten::val payload = emscripten::val::object();
-        payload.set("Data", dragdrop_data[type]);
+        payload.set("Data", data);
         return payload;
     }));
     // IMGUI_API void          EndDragDropTarget();
@@ -2853,17 +2904,21 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // If you reload the contents of imgui.cpp at runtime, you may need to call SetCurrentContext() + SetAllocatorFunctions() again.
     // IMGUI_API void          SetAllocatorFunctions(void* (*alloc_func)(size_t sz, void* user_data), void(*free_func)(void* ptr, void* user_data), void* user_data = NULL);
     emscripten::function("SetAllocatorFunctions", FUNCTION(void, (emscripten::val alloc_func, emscripten::val free_func, emscripten::val user_data), {
-        static emscripten::val _alloc_func = alloc_func;
-        static emscripten::val _free_func = free_func;
-        static emscripten::val _user_data = user_data;
-        ImGui::SetAllocatorFunctions(
-            FUNCTION(void*, (size_t sz, void* user_data), {
-                return _alloc_func(emscripten::val(sz), _user_data).as<void*>(emscripten::allow_raw_pointers());
-            }), 
-            FUNCTION(void, (void* ptr, void* user_data), {
-                _free_func(emscripten::val(ptr), _user_data);
-            }), 
-            NULL);
+        _ImGui_SetAllocatorFunctions_alloc_func = alloc_func;
+        _ImGui_SetAllocatorFunctions_free_func = free_func;
+        _ImGui_SetAllocatorFunctions_user_data = user_data;
+        if (alloc_func.isNull() || free_func.isNull()) {
+            ImGui::SetAllocatorFunctions(NULL, NULL, NULL);
+        } else {
+            ImGui::SetAllocatorFunctions(
+                FUNCTION(void*, (size_t sz, void* user_data), {
+                    return _ImGui_SetAllocatorFunctions_alloc_func(emscripten::val(sz), _ImGui_SetAllocatorFunctions_user_data).as<void*>(emscripten::allow_raw_pointers());
+                }), 
+                FUNCTION(void, (void* ptr, void* user_data), {
+                    _ImGui_SetAllocatorFunctions_free_func(emscripten::val(ptr), _ImGui_SetAllocatorFunctions_user_data);
+                }), 
+                NULL);
+        }
     }));
     // IMGUI_API void*         MemAlloc(size_t sz);
     emscripten::function("MemAlloc", FUNCTION(emscripten::val, (size_t sz), {

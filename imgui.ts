@@ -1795,10 +1795,10 @@ export class ImGuiIO
     // Settings (fill once)                 // Default value:
     //------------------------------------------------------------------
 
-    // ImGuiConfigFlags ConfigFlags;                 // = 0x00               // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
+    // ImGuiConfigFlags   ConfigFlags;         // = 0                  // See ImGuiConfigFlags_ enum. Set by user/application. Gamepad/keyboard navigation options, etc.
     get ConfigFlags(): ImGuiConfigFlags { return this.native.ConfigFlags; }
     set ConfigFlags(value: ImGuiConfigFlags) { this.native.ConfigFlags = value; }
-    // ImGuiConfigFlags ConfigFlags;                 // = 0x00               // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
+    // ImGuiBackendFlags  BackendFlags;        // = 0                  // Set ImGuiBackendFlags_ enum. Set by imgui_impl_xxx files or custom back-end to communicate features supported by the back-end.
     get BackendFlags(): ImGuiBackendFlags { return this.native.BackendFlags; }
     set BackendFlags(value: ImGuiBackendFlags) { this.native.BackendFlags = value; }
     // ImVec2        DisplaySize;              // <unset>              // Display size, in pixels. For clamping windows positions.
@@ -1810,7 +1810,11 @@ export class ImGuiIO
     get IniSavingRate(): number { return this.native.IniSavingRate; }
     set IniSavingRate(value: number) { this.native.IniSavingRate = value; }
     // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
+    get IniFilename(): string { return this.native.IniFilename; }
+    set IniFilename(value: string) { this.native.IniFilename = value; }
     // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
+    get LogFilename(): string { return this.native.LogFilename; }
+    set LogFilename(value: string) { this.native.LogFilename = value; }
     // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
     get MouseDoubleClickTime(): number { return this.native.MouseDoubleClickTime; }
     set MouseDoubleClickTime(value: number) { this.native.MouseDoubleClickTime = value; }
@@ -1837,6 +1841,8 @@ export class ImGuiIO
     get KeyRepeatRate(): number { return this.native.KeyRepeatRate; }
     set KeyRepeatRate(value: number) { this.native.KeyRepeatRate = value; }
     // void*         UserData;                 // = NULL               // Store your own data for retrieval by callbacks.
+    get UserData(): any { return this.native.UserData; }
+    set UserData(value: any) { this.native.UserData = value; }
 
     // ImFontAtlas*  Fonts;                    // <auto>               // Load and assemble one or more fonts into a single tightly packed texture. Output to Fonts array.
     get Fonts(): ImFontAtlas { return new ImFontAtlas(this.native._get_Fonts()); }

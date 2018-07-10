@@ -755,7 +755,9 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
     public IniSavingRate: number;
     // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
+    public IniFilename: string;
     // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
+    public LogFilename: string;
     // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
     public MouseDoubleClickTime: number;
     // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
@@ -770,6 +772,7 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // float         KeyRepeatRate;            // = 0.050f             // When holding a key/button, rate at which it repeats, in seconds.
     public KeyRepeatRate: number;
     // void*         UserData;                 // = NULL               // Store your own data for retrieval by callbacks.
+    public UserData: any;
 
     // ImFontAtlas*  Fonts;                    // <auto>               // Load and assemble one or more fonts into a single tightly packed texture. Output to Fonts array.
     public _get_Fonts(): reference_ImFontAtlas;
