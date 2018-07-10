@@ -246,7 +246,7 @@ EMSCRIPTEN_BINDINGS(ImGuiListClipper) {
 EMSCRIPTEN_BINDINGS(ImDrawCmd) {
     emscripten::class_<ImDrawCmd>("ImDrawCmd")
         .property("ElemCount", &ImDrawCmd::ElemCount)
-        .function("getClipRect", FUNCTION(emscripten::val, (const ImDrawCmd* that), {
+        .function("_get_ClipRect", FUNCTION(emscripten::val, (const ImDrawCmd* that), {
             const ImVec4* p = &that->ClipRect; return emscripten::val(p);    
         }), emscripten::allow_raw_pointers())
         .property("TextureId", FUNCTION(emscripten::val, (const ImDrawCmd& that), {
@@ -517,11 +517,11 @@ EMSCRIPTEN_BINDINGS(ImDrawData) {
         // int             TotalVtxCount;          // For convenience, sum of all cmd_lists vtx_buffer.Size
         .property("TotalVtxCount", &ImDrawData::TotalVtxCount)
         // ImVec2          DisplayPos;             // Upper-left position of the viewport to render (== upper-left of the orthogonal projection matrix to use)
-        .function("getDisplayPos", FUNCTION(emscripten::val, (ImDrawData* that), {
+        .function("_get_DisplayPos", FUNCTION(emscripten::val, (ImDrawData* that), {
             ImVec2* p = &that->DisplayPos; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
-        .function("getDisplaySize", FUNCTION(emscripten::val, (ImDrawData* that), {
+        .function("_get_DisplaySize", FUNCTION(emscripten::val, (ImDrawData* that), {
             ImVec2* p = &that->DisplaySize; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
 
@@ -857,11 +857,11 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         // int                         TexHeight;          // Texture height calculated during Build().
         .property("TexHeight", &ImFontAtlas::TexHeight)
         // ImVec2                      TexUvScale;         // = (1.0f/TexWidth, 1.0f/TexHeight)
-        .function("getTexUvScale", FUNCTION(emscripten::val, (ImFontAtlas* that), {
+        .function("_get_TexUvScale", FUNCTION(emscripten::val, (ImFontAtlas* that), {
             ImVec2* p = &that->TexUvScale; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // ImVec2                      TexUvWhitePixel;    // Texture coordinates to a white pixel
-        .function("getTexUvWhitePixel", FUNCTION(emscripten::val, (ImFontAtlas* that), {
+        .function("_get_TexUvWhitePixel", FUNCTION(emscripten::val, (ImFontAtlas* that), {
             ImVec2* p = &that->TexUvWhitePixel; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
@@ -887,7 +887,7 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // ImGuiConfigFlags BackendFlags;          // = 0                  // Set ImGuiBackendFlags_ enum. Set by imgui_impl_xxx files or custom back-end.
         .property("BackendFlags", &ImGuiIO::BackendFlags)
         // ImVec2        DisplaySize;              // <unset>              // Display size, in pixels. For clamping windows positions.
-        .function("getDisplaySize", FUNCTION(emscripten::val, (ImGuiIO* that), {
+        .function("_get_DisplaySize", FUNCTION(emscripten::val, (ImGuiIO* that), {
             ImVec2* p = &that->DisplaySize; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // float         DeltaTime;                // = 1.0f/60.0f         // Time elapsed since last frame, in seconds.
@@ -903,10 +903,10 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging
         .property("MouseDragThreshold", &ImGuiIO::MouseDragThreshold)
         // int           KeyMap[ImGuiKey_COUNT];   // <unset>              // Map of indices into the KeysDown[512] entries array
-        .function("getKeyMapAt", FUNCTION(int, (const ImGuiIO& that, int /*ImGuiKey*/ index), {
+        .function("_getAt_KeyMap", FUNCTION(int, (const ImGuiIO& that, ImGuiKey index), {
             return (0 <= index && index < ImGuiKey_COUNT) ? that.KeyMap[index] : -1;
         }))
-        .function("setKeyMapAt", FUNCTION(bool, (ImGuiIO& that, int /*ImGuiKey*/ index, int value), {
+        .function("_setAt_KeyMap", FUNCTION(bool, (ImGuiIO& that, ImGuiKey index, int value), {
             if (0 <= index && index < ImGuiKey_COUNT) { that.KeyMap[index] = value; return true; } return false;
         }))
         // float         KeyRepeatDelay;           // = 0.250f             // When holding a key/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.).
@@ -916,7 +916,7 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // void*         UserData;                 // = NULL               // Store your own data for retrieval by callbacks.
 
         // ImFontAtlas*  Fonts;                    // <auto>               // Load and assemble one or more fonts into a single tightly packed texture. Output to Fonts array.
-        .function("getFonts", FUNCTION(emscripten::val, (ImGuiIO* that), {
+        .function("_get_Fonts", FUNCTION(emscripten::val, (ImGuiIO* that), {
             ImFontAtlas* p = that->Fonts; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // float         FontGlobalScale;          // = 1.0f               // Global scale all fonts
@@ -924,23 +924,23 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // bool          FontAllowUserScaling;     // = false              // Allow user scaling text of individual window with CTRL+Wheel.
         .property("FontAllowUserScaling", &ImGuiIO::FontAllowUserScaling)
         // ImFont*       FontDefault;              // = NULL               // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
-        .function("getFontDefault", FUNCTION(emscripten::val, (ImGuiIO* that), {
+        .function("_get_FontDefault", FUNCTION(emscripten::val, (ImGuiIO* that), {
             ImFont* value = that->FontDefault;
             return value == NULL ? emscripten::val::null() : emscripten::val(value);
         }), emscripten::allow_raw_pointers())
-        .function("setFontDefault", FUNCTION(void, (ImGuiIO* that, emscripten::val value), {
+        .function("_set_FontDefault", FUNCTION(void, (ImGuiIO* that, emscripten::val value), {
             that->FontDefault = value.isNull() ? NULL : value.as<ImFont*>(emscripten::allow_raw_pointers());
         }), emscripten::allow_raw_pointers())
         // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
-        .function("getDisplayFramebufferScale", FUNCTION(emscripten::val, (ImGuiIO* that), {
+        .function("_get_DisplayFramebufferScale", FUNCTION(emscripten::val, (ImGuiIO* that), {
             ImVec2* p = &that->DisplayFramebufferScale; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // ImVec2        DisplayVisibleMin;        // <unset> (0.0f,0.0f)  // If you use DisplaySize as a virtual space larger than your screen, set DisplayVisibleMin/Max to the visible area.
-        .function("getDisplayVisibleMin", FUNCTION(emscripten::val, (ImGuiIO* that), {
+        .function("_get_DisplayVisibleMin", FUNCTION(emscripten::val, (ImGuiIO* that), {
             ImVec2* p = &that->DisplayVisibleMin; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
-        .function("getDisplayVisibleMax", FUNCTION(emscripten::val, (ImGuiIO* that), {
+        .function("_get_DisplayVisibleMax", FUNCTION(emscripten::val, (ImGuiIO* that), {
             ImVec2* p = &that->DisplayVisibleMax; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
 
@@ -987,15 +987,15 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         //------------------------------------------------------------------
 
         // ImVec2      MousePos;                   // Mouse position, in pixels. Set to ImVec2(-FLT_MAX,-FLT_MAX) if mouse is unavailable (on another screen, etc.)
-        .function("getMousePos", FUNCTION(emscripten::val, (ImGuiIO* that), {
+        .function("_get_MousePos", FUNCTION(emscripten::val, (ImGuiIO* that), {
             ImVec2* p = &that->MousePos; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // bool        MouseDown[5];               // Mouse buttons: left, right, middle + extras. ImGui itself mostly only uses left button (BeginPopupContext** are using right button). Others buttons allows us to track if the mouse is being used by your application + available to user as a convenience via IsMouse** API.
-        .function("getMouseDownAt", FUNCTION(bool, (const ImGuiIO& that, int index), {
-            return (0 <= index && index < 5) ? that.MouseDown[index] : false;
+        .function("_getAt_MouseDown", FUNCTION(bool, (const ImGuiIO& that, int index), {
+            return (0 <= index && index < IM_ARRAYSIZE(that.MouseDown)) ? that.MouseDown[index] : false;
         }), emscripten::allow_raw_pointers())
-        .function("setMouseDownAt", FUNCTION(bool, (ImGuiIO& that, int index, bool value), {
-            if (0 <= index && index < 5) { that.MouseDown[index] = value; return true; } return false;
+        .function("_setAt_MouseDown", FUNCTION(bool, (ImGuiIO& that, int index, bool value), {
+            if (0 <= index && index < IM_ARRAYSIZE(that.MouseDown)) { that.MouseDown[index] = value; return true; } return false;
         }), emscripten::allow_raw_pointers())
         // float       MouseWheel;                 // Mouse wheel: 1 unit scrolls about 5 lines text.
         .property("MouseWheel", &ImGuiIO::MouseWheel)
@@ -1010,21 +1010,21 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // bool        KeySuper;                   // Keyboard modifier pressed: Cmd/Super/Windows
         .property("KeySuper", &ImGuiIO::KeySuper)
         // bool        KeysDown[512];              // Keyboard keys that are pressed (in whatever storage order you naturally have access to keyboard data)
-        .function("getKeysDownAt", FUNCTION(bool, (const ImGuiIO& that, int index), {
-            return (0 <= index && index < 512) ? that.KeysDown[index] : false;
+        .function("_getAt_KeysDown", FUNCTION(bool, (const ImGuiIO& that, int index), {
+            return (0 <= index && index < IM_ARRAYSIZE(that.KeysDown)) ? that.KeysDown[index] : false;
         }), emscripten::allow_raw_pointers())
-        .function("setKeysDownAt", FUNCTION(bool, (ImGuiIO& that, int index, bool value), {
-            if (0 <= index && index < 512) { that.KeysDown[index] = value; return true; } return false;
+        .function("_setAt_KeysDown", FUNCTION(bool, (ImGuiIO& that, int index, bool value), {
+            if (0 <= index && index < IM_ARRAYSIZE(that.KeysDown)) { that.KeysDown[index] = value; return true; } return false;
         }), emscripten::allow_raw_pointers())
         // ImWchar     InputCharacters[16+1];      // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
         .property("InputCharacters", FUNCTION(emscripten::val, (const ImGuiIO& that), {
             return emscripten::val(emscripten::typed_memory_view<ImWchar>(sizeof(that.InputCharacters), that.InputCharacters));
         }))
         // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
-        .function("getNavInputsAt", FUNCTION(float, (const ImGuiIO& that, int index), {
+        .function("_getAt_NavInputs", FUNCTION(float, (const ImGuiIO& that, ImGuiNavInput index), {
             return (0 <= index && index < ImGuiNavInput_COUNT) ? that.NavInputs[index] : 0.0f;
         }), emscripten::allow_raw_pointers())
-        .function("setNavInputsAt", FUNCTION(bool, (ImGuiIO& that, int index, float value), {
+        .function("_setAt_NavInputs", FUNCTION(bool, (ImGuiIO& that, ImGuiNavInput index, float value), {
             if (0 <= index && index < ImGuiNavInput_COUNT) { that.NavInputs[index] = value; return true; } return false;
         }), emscripten::allow_raw_pointers())
 
@@ -1065,7 +1065,7 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
         .property("MetricsActiveWindows", &ImGuiIO::MetricsActiveWindows)
         // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
-        .function("getMouseDelta", FUNCTION(emscripten::val, (ImGuiIO* that), {
+        .function("_get_MouseDelta", FUNCTION(emscripten::val, (ImGuiIO* that), {
             ImVec2* p = &that->MouseDelta; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
 
@@ -1075,8 +1075,8 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
 
         // ImVec2      MousePosPrev;               // Previous mouse position temporary storage (nb: not for public use, set to MousePos in NewFrame())
         // ImVec2      MouseClickedPos[5];         // Position at time of clicking
-        .function("getMouseClickedPosAt", FUNCTION(emscripten::val, (const ImGuiIO* that, int index), {
-            if (0 <= index && index < 5) {
+        .function("_getAt_MouseClickedPos", FUNCTION(emscripten::val, (const ImGuiIO* that, int index), {
+            if (0 <= index && index < IM_ARRAYSIZE(that->MouseClickedPos)) {
                 const ImVec2* p = &that->MouseClickedPos[index]; return emscripten::val(p);
             }
             return emscripten::val::undefined();
@@ -1087,19 +1087,19 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // bool        MouseReleased[5];           // Mouse button went from Down to !Down
         // bool        MouseDownOwned[5];          // Track if button was clicked inside a window. We don't request mouse capture from the application if click started outside ImGui bounds.
         // float       MouseDownDuration[5];       // Duration the mouse button has been down (0.0f == just clicked)
-        .function("getMouseDownDurationAt", FUNCTION(float, (const ImGuiIO& that, int index), {
-            return (0 <= index && index < 5) ? that.MouseDownDuration[index] : -1.0f;
+        .function("_getAt_MouseDownDuration", FUNCTION(float, (const ImGuiIO& that, int index), {
+            return (0 <= index && index < IM_ARRAYSIZE(that.MouseDownDuration)) ? that.MouseDownDuration[index] : -1.0f;
         }))
         // float       MouseDownDurationPrev[5];   // Previous time the mouse button has been down
         // ImVec2      MouseDragMaxDistanceAbs[5]; // Maximum distance, absolute, on each axis, of how much mouse has traveled from the clicking point
         // float       MouseDragMaxDistanceSqr[5]; // Squared maximum distance of how much mouse has traveled from the clicking point
         // float       KeysDownDuration[512];      // Duration the keyboard key has been down (0.0f == just pressed)
-        .function("getKeysDownDurationAt", FUNCTION(float, (const ImGuiIO& that, int index), {
-            return (0 <= index && index < 512) ? that.KeysDownDuration[index] : -1.0f;
+        .function("_getAt_KeysDownDuration", FUNCTION(float, (const ImGuiIO& that, int index), {
+            return (0 <= index && index < IM_ARRAYSIZE(that.KeysDownDuration)) ? that.KeysDownDuration[index] : -1.0f;
         }))
         // float       KeysDownDurationPrev[512];  // Previous duration the key has been down
         // float       NavInputsDownDuration[ImGuiNavInput_COUNT];
-        .function("getNavInputsDownDurationAt", FUNCTION(float, (const ImGuiIO& that, int index), {
+        .function("_getAt_NavInputsDownDuration", FUNCTION(float, (const ImGuiIO& that, ImGuiNavInput index), {
             return (0 <= index && index < ImGuiNavInput_COUNT) ? that.NavInputsDownDuration[index] : -1.0f;
         }))
         // float       NavInputsDownDurationPrev[ImGuiNavInput_COUNT];
@@ -1114,7 +1114,7 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         // float       Alpha;                      // Global alpha applies to everything in ImGui
         .property("Alpha", &ImGuiStyle::Alpha)
         // ImVec2      WindowPadding;              // Padding within a window
-        .function("getWindowPadding", FUNCTION(emscripten::val, (ImGuiStyle* that), {
+        .function("_get_WindowPadding", FUNCTION(emscripten::val, (ImGuiStyle* that), {
             ImVec2* p = &that->WindowPadding; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // float       WindowRounding;             // Radius of window corners rounding. Set to 0.0f to have rectangular windows
@@ -1122,11 +1122,11 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         // float       WindowBorderSize;           // Thickness of border around windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly)
         .property("WindowBorderSize", &ImGuiStyle::WindowBorderSize)
         // ImVec2      WindowMinSize;              // Minimum window size
-        .function("getWindowMinSize", FUNCTION(emscripten::val, (ImGuiStyle* that), {
+        .function("_get_WindowMinSize", FUNCTION(emscripten::val, (ImGuiStyle* that), {
             ImVec2* p = &that->WindowMinSize; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // ImVec2      WindowTitleAlign;           // Alignment for title bar text. Defaults to (0.0f,0.5f) for left-aligned,vertically centered.
-        .function("getWindowTitleAlign", FUNCTION(emscripten::val, (ImGuiStyle* that), {
+        .function("_get_WindowTitleAlign", FUNCTION(emscripten::val, (ImGuiStyle* that), {
             ImVec2* p = &that->WindowTitleAlign; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // float       ChildRounding;              // Radius of child window corners rounding. Set to 0.0f to have rectangular windows.
@@ -1138,7 +1138,7 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         // float       PopupBorderSize;            // Thickness of border around popup windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly)
         .property("PopupBorderSize", &ImGuiStyle::PopupBorderSize)
         // ImVec2      FramePadding;               // Padding within a framed rectangle (used by most widgets)
-        .function("getFramePadding", FUNCTION(emscripten::val, (ImGuiStyle* that), {
+        .function("_get_FramePadding", FUNCTION(emscripten::val, (ImGuiStyle* that), {
             ImVec2* p = &that->FramePadding; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // float       FrameRounding;              // Radius of frame corners rounding. Set to 0.0f to have rectangular frame (used by most widgets).
@@ -1146,15 +1146,15 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         // float       FrameBorderSize;            // Thickness of border around frames. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly)
         .property("FrameBorderSize", &ImGuiStyle::FrameBorderSize)
         // ImVec2      ItemSpacing;                // Horizontal and vertical spacing between widgets/lines
-        .function("getItemSpacing", FUNCTION(emscripten::val, (ImGuiStyle* that), {
+        .function("_get_ItemSpacing", FUNCTION(emscripten::val, (ImGuiStyle* that), {
             ImVec2* p = &that->ItemSpacing; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // ImVec2      ItemInnerSpacing;           // Horizontal and vertical spacing between within elements of a composed widget (e.g. a slider and its label)
-        .function("getItemInnerSpacing", FUNCTION(emscripten::val, (ImGuiStyle* that), {
+        .function("_get_ItemInnerSpacing", FUNCTION(emscripten::val, (ImGuiStyle* that), {
             ImVec2* p = &that->ItemInnerSpacing; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // ImVec2      TouchExtraPadding;          // Expand reactive bounding box for touch-based system where touch position is not accurate enough. Unfortunately we don't sort widgets so priority on overlap will always be given to the first widget. So don't grow this too much!
-        .function("getTouchExtraPadding", FUNCTION(emscripten::val, (ImGuiStyle* that), {
+        .function("_get_TouchExtraPadding", FUNCTION(emscripten::val, (ImGuiStyle* that), {
             ImVec2* p = &that->TouchExtraPadding; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // float       IndentSpacing;              // Horizontal indentation when e.g. entering a tree node. Generally == (FontSize + FramePadding.x*2).
@@ -1170,15 +1170,15 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         // float       GrabRounding;               // Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs.
         .property("GrabRounding", &ImGuiStyle::GrabRounding)
         // ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f,0.5f) for horizontally+vertically centered.
-        .function("getButtonTextAlign", FUNCTION(emscripten::val, (ImGuiStyle* that), {
+        .function("_get_ButtonTextAlign", FUNCTION(emscripten::val, (ImGuiStyle* that), {
             ImVec2* p = &that->ButtonTextAlign; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // ImVec2      DisplayWindowPadding;       // Window positions are clamped to be visible within the display area by at least this amount. Only covers regular windows.
-        .function("getDisplayWindowPadding", FUNCTION(emscripten::val, (ImGuiStyle* that), {
+        .function("_get_DisplayWindowPadding", FUNCTION(emscripten::val, (ImGuiStyle* that), {
             ImVec2* p = &that->DisplayWindowPadding; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // ImVec2      DisplaySafeAreaPadding;     // If you cannot see the edge of your screen (e.g. on a TV) increase the safe area padding. Covers popups/tooltips as well regular windows.
-        .function("getDisplaySafeAreaPadding", FUNCTION(emscripten::val, (ImGuiStyle* that), {
+        .function("_get_DisplaySafeAreaPadding", FUNCTION(emscripten::val, (ImGuiStyle* that), {
             ImVec2* p = &that->DisplaySafeAreaPadding; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // float       MouseCursorScale;           // Scale software rendered mouse cursor (when io.MouseDrawCursor is enabled). May be removed later.
@@ -1190,10 +1190,13 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
         .property("CurveTessellationTol", &ImGuiStyle::CurveTessellationTol)
         // ImVec4      Colors[ImGuiCol_COUNT];
-        .function("getColorsAt", FUNCTION(emscripten::val, (ImGuiStyle* that, int index), {
-            ImVec4* p = &that->Colors[index]; return (0 <= index && index < ImGuiCol_COUNT) ? emscripten::val(p) : emscripten::val::undefined();
+        .function("_getAt_Colors", FUNCTION(emscripten::val, (ImGuiStyle* that, ImGuiCol index), {
+            if (0 <= index && index < ImGuiCol_COUNT) {
+                ImVec4* p = &that->Colors[index]; return emscripten::val(p);
+            }
+            return emscripten::val::undefined();
         }), emscripten::allow_raw_pointers())
-        .function("setColorsAt", FUNCTION(bool, (ImGuiStyle* that, int index, emscripten::val value), {
+        .function("_setAt_Colors", FUNCTION(bool, (ImGuiStyle* that, ImGuiCol index, emscripten::val value), {
             if (0 <= index && index < ImGuiCol_COUNT) { that->Colors[index] = import_ImVec4(value); return true; } return false;    
         }), emscripten::allow_raw_pointers())
 

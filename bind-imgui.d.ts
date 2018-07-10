@@ -192,15 +192,15 @@ export interface interface_ImGuiStyle {
     // float       Alpha;                      // Global alpha applies to everything in ImGui.
     Alpha: number;
     // ImVec2      WindowPadding;              // Padding within a window.
-    getWindowPadding(): interface_ImVec2;
+    _get_WindowPadding(): interface_ImVec2;
     // float       WindowRounding;             // Radius of window corners rounding. Set to 0.0f to have rectangular windows.
     WindowRounding: number;
     // float       WindowBorderSize;           // Thickness of border around windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
     WindowBorderSize: number;
     // ImVec2      WindowMinSize;              // Minimum window size. This is a global setting. If you want to constraint individual windows, use SetNextWindowSizeConstraints().
-    getWindowMinSize(): interface_ImVec2;
+    _get_WindowMinSize(): interface_ImVec2;
     // ImVec2      WindowTitleAlign;           // Alignment for title bar text. Defaults to (0.0f,0.5f) for left-aligned,vertically centered.
-    getWindowTitleAlign(): interface_ImVec2;
+    _get_WindowTitleAlign(): interface_ImVec2;
     // float       ChildRounding;              // Radius of child window corners rounding. Set to 0.0f to have rectangular windows.
     ChildRounding: number;
     // float       ChildBorderSize;            // Thickness of border around child windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
@@ -210,17 +210,17 @@ export interface interface_ImGuiStyle {
     // float       PopupBorderSize;            // Thickness of border around popup windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
     PopupBorderSize: number;
     // ImVec2      FramePadding;               // Padding within a framed rectangle (used by most widgets).
-    getFramePadding(): interface_ImVec2;
+    _get_FramePadding(): interface_ImVec2;
     // float       FrameRounding;              // Radius of frame corners rounding. Set to 0.0f to have rectangular frame (used by most widgets).
     FrameRounding: number;
     // float       FrameBorderSize;            // Thickness of border around frames. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
     FrameBorderSize: number;
     // ImVec2      ItemSpacing;                // Horizontal and vertical spacing between widgets/lines.
-    getItemSpacing(): interface_ImVec2;
+    _get_ItemSpacing(): interface_ImVec2;
     // ImVec2      ItemInnerSpacing;           // Horizontal and vertical spacing between within elements of a composed widget (e.g. a slider and its label).
-    getItemInnerSpacing(): interface_ImVec2;
+    _get_ItemInnerSpacing(): interface_ImVec2;
     // ImVec2      TouchExtraPadding;          // Expand reactive bounding box for touch-based system where touch position is not accurate enough. Unfortunately we don't sort widgets so priority on overlap will always be given to the first widget. So don't grow this too much!
-    getTouchExtraPadding(): interface_ImVec2;
+    _get_TouchExtraPadding(): interface_ImVec2;
     // float       IndentSpacing;              // Horizontal indentation when e.g. entering a tree node. Generally == (FontSize + FramePadding.x*2).
     IndentSpacing: number;
     // float       ColumnsMinSpacing;          // Minimum horizontal spacing between two columns.
@@ -234,11 +234,11 @@ export interface interface_ImGuiStyle {
     // float       GrabRounding;               // Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs.
     GrabRounding: number;
     // ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f,0.5f) for horizontally+vertically centered.
-    getButtonTextAlign(): interface_ImVec2;
+    _get_ButtonTextAlign(): interface_ImVec2;
     // ImVec2      DisplayWindowPadding;       // Window positions are clamped to be visible within the display area by at least this amount. Only covers regular windows.
-    getDisplayWindowPadding(): interface_ImVec2;
+    _get_DisplayWindowPadding(): interface_ImVec2;
     // ImVec2      DisplaySafeAreaPadding;     // If you cannot see the edge of your screen (e.g. on a TV) increase the safe area padding. Covers popups/tooltips as well regular windows.
-    getDisplaySafeAreaPadding(): interface_ImVec2;
+    _get_DisplaySafeAreaPadding(): interface_ImVec2;
     // float       MouseCursorScale;           // Scale software rendered mouse cursor (when io.MouseDrawCursor is enabled). May be removed later.
     MouseCursorScale: number;
     // bool        AntiAliasedLines;           // Enable anti-aliasing on lines/borders. Disable if you are really tight on CPU/GPU.
@@ -248,8 +248,8 @@ export interface interface_ImGuiStyle {
     // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
     CurveTessellationTol: number;
     // ImVec4      Colors[ImGuiCol_COUNT];
-    getColorsAt(idx: number): interface_ImVec4;
-    setColorsAt(idx: number, value: Readonly<interface_ImVec4>): boolean;
+    _getAt_Colors(idx: number): interface_ImVec4;
+    _setAt_Colors(idx: number, value: Readonly<interface_ImVec4>): boolean;
 
     // IMGUI_API ImGuiStyle();
     // IMGUI_API void ScaleAllSizes(float scale_factor);
@@ -258,36 +258,36 @@ export interface interface_ImGuiStyle {
 
 export class ImGuiStyle extends Emscripten.EmscriptenClass implements interface_ImGuiStyle {
     Alpha: number;
-    getWindowPadding(): reference_ImVec2;
+    _get_WindowPadding(): reference_ImVec2;
     WindowRounding: number;
     WindowBorderSize: number;
-    getWindowMinSize(): reference_ImVec2;
-    getWindowTitleAlign(): reference_ImVec2;
+    _get_WindowMinSize(): reference_ImVec2;
+    _get_WindowTitleAlign(): reference_ImVec2;
     ChildRounding: number;
     ChildBorderSize: number;
     PopupRounding: number;
     PopupBorderSize: number;
-    getFramePadding(): reference_ImVec2;
+    _get_FramePadding(): reference_ImVec2;
     FrameRounding: number;
     FrameBorderSize: number;
-    getItemSpacing(): reference_ImVec2;
-    getItemInnerSpacing(): reference_ImVec2;
-    getTouchExtraPadding(): reference_ImVec2;
+    _get_ItemSpacing(): reference_ImVec2;
+    _get_ItemInnerSpacing(): reference_ImVec2;
+    _get_TouchExtraPadding(): reference_ImVec2;
     IndentSpacing: number;
     ColumnsMinSpacing: number;
     ScrollbarSize: number;
     ScrollbarRounding: number;
     GrabMinSize: number;
     GrabRounding: number;
-    getButtonTextAlign(): reference_ImVec2;
-    getDisplayWindowPadding(): reference_ImVec2;
-    getDisplaySafeAreaPadding(): reference_ImVec2;
+    _get_ButtonTextAlign(): reference_ImVec2;
+    _get_DisplayWindowPadding(): reference_ImVec2;
+    _get_DisplaySafeAreaPadding(): reference_ImVec2;
     MouseCursorScale: number;
     AntiAliasedLines: boolean;
     AntiAliasedFill: boolean;
     CurveTessellationTol: number;
-    getColorsAt(idx: number): reference_ImVec4;
-    setColorsAt(idx: number, value: Readonly<interface_ImVec4>): boolean;
+    _getAt_Colors(idx: number): reference_ImVec4;
+    _setAt_Colors(idx: number, value: Readonly<interface_ImVec4>): boolean;
 
     public ScaleAllSizes(scale_factor: number): void;
 }
@@ -299,7 +299,7 @@ export class reference_ImDrawCmd extends Emscripten.EmscriptenClassReference {
     // unsigned int    ElemCount;              // Number of indices (multiple of 3) to be rendered as triangles. Vertices are stored in the callee ImDrawList's vtx_buffer[] array, indices in idx_buffer[].
     readonly ElemCount: number;
     // ImVec4          ClipRect;               // Clipping rectangle (x1, y1, x2, y2)
-    getClipRect(): Readonly<reference_ImVec4>;
+    _get_ClipRect(): Readonly<reference_ImVec4>;
     // ImTextureID     TextureId;              // User-provided texture ID. Set by user in ImfontAtlas::SetTexID() for fonts or passed to Image*() functions. Ignore if never using images or multiple fonts atlas.
     readonly TextureId: ImTextureID;
     // ImDrawCallback  UserCallback;           // If != NULL, call the function instead of rendering the vertices. clip_rect and texture_id will be set normally.
@@ -470,9 +470,9 @@ export class reference_ImDrawData extends Emscripten.EmscriptenClassReference {
     // int             TotalIdxCount;          // For convenience, sum of all cmd_lists idx_buffer.Size
     public readonly TotalIdxCount: number;
     // ImVec2          DisplayPos;             // Upper-left position of the viewport to render (== upper-left of the orthogonal projection matrix to use)
-    public getDisplayPos(): Readonly<reference_ImVec2>;
+    public _get_DisplayPos(): Readonly<reference_ImVec2>;
     // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
-    public getDisplaySize(): Readonly<reference_ImVec2>;
+    public _get_DisplaySize(): Readonly<reference_ImVec2>;
 
     // Functions
     // ImDrawData() { Clear(); }
@@ -730,9 +730,9 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // int                         TexHeight;          // Texture height calculated during Build().
     readonly TexHeight: number;
     // ImVec2                      TexUvScale;         // = (1.0f/TexWidth, 1.0f/TexHeight)
-    public getTexUvScale(): Readonly<reference_ImVec2>;
+    public _get_TexUvScale(): Readonly<reference_ImVec2>;
     // ImVec2                      TexUvWhitePixel;    // Texture coordinates to a white pixel
-    public getTexUvWhitePixel(): Readonly<reference_ImVec2>;
+    public _get_TexUvWhitePixel(): Readonly<reference_ImVec2>;
     // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
     // ImVector<CustomRect>        CustomRects;        // Rectangles for packing custom texture data into the atlas.
     // ImVector<ImFontConfig>      ConfigData;         // Internal data
@@ -749,7 +749,7 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // ImGuiBackendFlags BackendFlags;               // = 0                  // Set ImGuiBackendFlags_ enum. Set by imgui_impl_xxx files or custom back-end.
     public BackendFlags: ImGuiBackendFlags;
     // ImVec2        DisplaySize;              // <unset>              // Display size, in pixels. For clamping windows positions.
-    public getDisplaySize(): reference_ImVec2;
+    public _get_DisplaySize(): reference_ImVec2;
     // float         DeltaTime;                // = 1.0f/60.0f         // Time elapsed since last frame, in seconds.
     public DeltaTime: number;
     // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
@@ -763,8 +763,8 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging.
     public MouseDragThreshold: number;
     // int           KeyMap[ImGuiKey_COUNT];   // <unset>              // Map of indices into the KeysDown[512] entries array which represent your "native" keyboard state.
-    public getKeyMapAt(index: ImGuiKey): number;
-    public setKeyMapAt(index: ImGuiKey, value: number): boolean;
+    public _getAt_KeyMap(index: ImGuiKey): number;
+    public _setAt_KeyMap(index: ImGuiKey, value: number): boolean;
     // float         KeyRepeatDelay;           // = 0.250f             // When holding a key/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.).
     public KeyRepeatDelay: number;
     // float         KeyRepeatRate;            // = 0.050f             // When holding a key/button, rate at which it repeats, in seconds.
@@ -772,20 +772,20 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // void*         UserData;                 // = NULL               // Store your own data for retrieval by callbacks.
 
     // ImFontAtlas*  Fonts;                    // <auto>               // Load and assemble one or more fonts into a single tightly packed texture. Output to Fonts array.
-    public getFonts(): reference_ImFontAtlas;
+    public _get_Fonts(): reference_ImFontAtlas;
     // float         FontGlobalScale;          // = 1.0f               // Global scale all fonts
     public FontGlobalScale: number;
     // bool          FontAllowUserScaling;     // = false              // Allow user scaling text of individual window with CTRL+Wheel.
     public FontAllowUserScaling: boolean;
     // ImFont*       FontDefault;              // = NULL               // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
-    public getFontDefault(): reference_ImFont | null;
-    public setFontDefault(value: reference_ImFont | null): void;
+    public _get_FontDefault(): reference_ImFont | null;
+    public _set_FontDefault(value: reference_ImFont | null): void;
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
-    public getDisplayFramebufferScale(): reference_ImVec2;
+    public _get_DisplayFramebufferScale(): reference_ImVec2;
     // ImVec2        DisplayVisibleMin;        // <unset> (0.0f,0.0f)  // If you use DisplaySize as a virtual space larger than your screen, set DisplayVisibleMin/Max to the visible area.
-    public getDisplayVisibleMin(): reference_ImVec2;
+    public _get_DisplayVisibleMin(): reference_ImVec2;
     // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
-    public getDisplayVisibleMax(): reference_ImVec2;
+    public _get_DisplayVisibleMax(): reference_ImVec2;
 
     // Advanced/subtle behaviors
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
@@ -816,10 +816,10 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     //------------------------------------------------------------------
 
     // ImVec2      MousePos;                       // Mouse position, in pixels. Set to ImVec2(-FLT_MAX,-FLT_MAX) if mouse is unavailable (on another screen, etc.)
-    public getMousePos(): reference_ImVec2;
+    public _get_MousePos(): reference_ImVec2;
     // bool        MouseDown[5];                   // Mouse buttons: left, right, middle + extras. ImGui itself mostly only uses left button (BeginPopupContext** are using right button). Others buttons allows us to track if the mouse is being used by your application + available to user as a convenience via IsMouse** API.
-    public getMouseDownAt(index: number): boolean;
-    public setMouseDownAt(index: number, value: boolean): boolean;
+    public _getAt_MouseDown(index: number): boolean;
+    public _setAt_MouseDown(index: number, value: boolean): boolean;
     // float       MouseWheel;                     // Mouse wheel: 1 unit scrolls about 5 lines text.
     public MouseWheel: number;
     // float       MouseWheelH;                    // Mouse wheel (Horizontal). Most users don't have a mouse with an horizontal wheel, may not be filled by all back ends.
@@ -835,13 +835,13 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // bool        KeySuper;                       // Keyboard modifier pressed: Cmd/Super/Windows
     public KeySuper: boolean;
     // bool        KeysDown[512];                  // Keyboard keys that are pressed (ideally left in the "native" order your engine has access to keyboard keys, so you can use your own defines/enums for keys).
-    public getKeysDownAt(index: number): boolean;
-    public setKeysDownAt(index: number, value: boolean): boolean;
+    public _getAt_KeysDown(index: number): boolean;
+    public _setAt_KeysDown(index: number, value: boolean): boolean;
     // ImWchar     InputCharacters[16+1];          // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
     public readonly InputCharacters: Readonly<Uint16Array>;
     // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
-    public getNavInputsAt(index: number): number;
-    public setNavInputsAt(index: number, value: number): boolean;
+    public _getAt_NavInputs(index: number): number;
+    public _setAt_NavInputs(index: number, value: number): boolean;
     
     // Functions
     // IMGUI_API void AddInputCharacter(ImWchar c);                        // Add new character into InputCharacters[]
@@ -878,7 +878,7 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
     public MetricsActiveWindows: number;
     // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
-    public getMouseDelta(): Readonly<reference_ImVec2>;
+    public _get_MouseDelta(): Readonly<reference_ImVec2>;
 
     //------------------------------------------------------------------
     // [Internal] ImGui will maintain those fields. Forward compatibility not guaranteed!
@@ -886,22 +886,22 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
 
     // ImVec2      MousePosPrev;               // Previous mouse position temporary storage (nb: not for public use, set to MousePos in NewFrame())
     // ImVec2      MouseClickedPos[5];         // Position at time of clicking
-    public getMouseClickedPosAt(index: number): Readonly<reference_ImVec2>;
+    public _getAt_MouseClickedPos(index: number): Readonly<reference_ImVec2>;
     // float       MouseClickedTime[5];        // Time of last click (used to figure out double-click)
     // bool        MouseClicked[5];            // Mouse button went from !Down to Down
     // bool        MouseDoubleClicked[5];      // Has mouse button been double-clicked?
     // bool        MouseReleased[5];           // Mouse button went from Down to !Down
     // bool        MouseDownOwned[5];          // Track if button was clicked inside a window. We don't request mouse capture from the application if click started outside ImGui bounds.
     // float       MouseDownDuration[5];       // Duration the mouse button has been down (0.0f == just clicked)
-    public getMouseDownDurationAt(index: number): number;
+    public _getAt_MouseDownDuration(index: number): number;
     // float       MouseDownDurationPrev[5];   // Previous time the mouse button has been down
     // ImVec2      MouseDragMaxDistanceAbs[5]; // Maximum distance, absolute, on each axis, of how much mouse has traveled from the clicking point
     // float       MouseDragMaxDistanceSqr[5]; // Squared maximum distance of how much mouse has traveled from the clicking point
     // float       KeysDownDuration[512];      // Duration the keyboard key has been down (0.0f == just pressed)
-    public getKeysDownDurationAt(index: number): number;
+    public _getAt_KeysDownDuration(index: number): number;
     // float       KeysDownDurationPrev[512];  // Previous duration the key has been down
     // float       NavInputsDownDuration[ImGuiNavInput_COUNT];
-    public getNavInputsDownDurationAt(index: number): number;
+    public _getAt_NavInputsDownDuration(index: number): number;
     // float       NavInputsDownDurationPrev[ImGuiNavInput_COUNT];
 
     // IMGUI_API   ImGuiIO();

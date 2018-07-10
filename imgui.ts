@@ -1020,7 +1020,7 @@ export class ImDrawCmd
     // unsigned int    ElemCount;              // Number of indices (multiple of 3) to be rendered as triangles. Vertices are stored in the callee ImDrawList's vtx_buffer[] array, indices in idx_buffer[].
     get ElemCount(): number { return this.native.ElemCount; }
     // ImVec4          ClipRect;               // Clipping rectangle (x1, y1, x2, y2)
-    get ClipRect(): Readonly<Bind.reference_ImVec4> { return this.native.getClipRect(); }
+    get ClipRect(): Readonly<Bind.reference_ImVec4> { return this.native._get_ClipRect(); }
     // ImTextureID     TextureId;              // User-provided texture ID. Set by user in ImfontAtlas::SetTexID() for fonts or passed to Image*() functions. Ignore if never using images or multiple fonts atlas.
     get TextureId(): ImTextureID | null {
         return ImGuiContext.getTexture(this.native.TextureId);
@@ -1323,9 +1323,9 @@ export class ImDrawData
     // int             TotalVtxCount;          // For convenience, sum of all cmd_lists vtx_buffer.Size
     get TotalVtxCount(): number { return this.native.TotalVtxCount; }
     // ImVec2          DisplayPos;             // Upper-left position of the viewport to render (== upper-left of the orthogonal projection matrix to use)
-    get DisplayPos(): Readonly<Bind.reference_ImVec2> { return this.native.getDisplayPos(); }
+    get DisplayPos(): Readonly<Bind.reference_ImVec2> { return this.native._get_DisplayPos(); }
     // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
-    get DisplaySize(): Readonly<Bind.reference_ImVec2> { return this.native.getDisplaySize(); }
+    get DisplaySize(): Readonly<Bind.reference_ImVec2> { return this.native._get_DisplaySize(); }
 
     // Functions
     // ImDrawData() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; }
@@ -1545,9 +1545,9 @@ export class ImFontAtlas
     // int                         TexHeight;          // Texture height calculated during Build().
     get TexHeight(): number { return this.native.TexHeight; }
     // ImVec2                      TexUvScale;         // = (1.0f/TexWidth, 1.0f/TexHeight)
-    get TexUvScale(): Readonly<Bind.reference_ImVec2> { return this.native.getTexUvScale(); }
+    get TexUvScale(): Readonly<Bind.reference_ImVec2> { return this.native._get_TexUvScale(); }
     // ImVec2                      TexUvWhitePixel;    // Texture coordinates to a white pixel
-    get TexUvWhitePixel(): Readonly<Bind.reference_ImVec2> { return this.native.getTexUvWhitePixel(); }
+    get TexUvWhitePixel(): Readonly<Bind.reference_ImVec2> { return this.native._get_TexUvWhitePixel(); }
     // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
     // ImVector<CustomRect>        CustomRects;        // Rectangles for packing custom texture data into the atlas.
     // ImVector<ImFontConfig>      ConfigData;         // Internal data
@@ -1638,27 +1638,27 @@ export class ImFont
 class script_ImGuiStyle implements Bind.interface_ImGuiStyle {
     public Alpha: number = 1.0;
     private WindowPadding: ImVec2 = new ImVec2(8, 8);
-    public getWindowPadding(): Bind.interface_ImVec2 { return this.WindowPadding; }
+    public _get_WindowPadding(): Bind.interface_ImVec2 { return this.WindowPadding; }
     public WindowRounding: number = 7.0;
     public WindowBorderSize: number = 0.0;
     private WindowMinSize: ImVec2 = new ImVec2(32, 32);
-    public getWindowMinSize(): Bind.interface_ImVec2 { return this.WindowMinSize; }
+    public _get_WindowMinSize(): Bind.interface_ImVec2 { return this.WindowMinSize; }
     private WindowTitleAlign: ImVec2 = new ImVec2(0.0, 0.5);
-    public getWindowTitleAlign(): Bind.interface_ImVec2 { return this.WindowTitleAlign; }
+    public _get_WindowTitleAlign(): Bind.interface_ImVec2 { return this.WindowTitleAlign; }
     public ChildRounding: number = 0.0;
     public ChildBorderSize: number = 1.0;
     public PopupRounding: number = 0.0;
     public PopupBorderSize: number = 1.0;
     private FramePadding: ImVec2 = new ImVec2(4, 3);
-    public getFramePadding(): Bind.interface_ImVec2 { return this.FramePadding; }
+    public _get_FramePadding(): Bind.interface_ImVec2 { return this.FramePadding; }
     public FrameRounding: number = 0.0;
     public FrameBorderSize: number = 0.0;
     private ItemSpacing: ImVec2 = new ImVec2(8, 4);
-    public getItemSpacing(): Bind.interface_ImVec2 { return this.ItemSpacing; }
+    public _get_ItemSpacing(): Bind.interface_ImVec2 { return this.ItemSpacing; }
     private ItemInnerSpacing: ImVec2 = new ImVec2(4, 4);
-    public getItemInnerSpacing(): Bind.interface_ImVec2 { return this.ItemInnerSpacing; }
+    public _get_ItemInnerSpacing(): Bind.interface_ImVec2 { return this.ItemInnerSpacing; }
     private TouchExtraPadding: ImVec2 = new ImVec2(0, 0);
-    public getTouchExtraPadding(): Bind.interface_ImVec2 { return this.TouchExtraPadding; }
+    public _get_TouchExtraPadding(): Bind.interface_ImVec2 { return this.TouchExtraPadding; }
     public IndentSpacing: number = 21.0;
     public ColumnsMinSpacing: number = 6.0;
     public ScrollbarSize: number = 16.0;
@@ -1666,18 +1666,18 @@ class script_ImGuiStyle implements Bind.interface_ImGuiStyle {
     public GrabMinSize: number = 10.0;
     public GrabRounding: number = 0.0;
     private ButtonTextAlign: ImVec2 = new ImVec2(0.5, 0.5);
-    public getButtonTextAlign(): Bind.interface_ImVec2 { return this.ButtonTextAlign; }
+    public _get_ButtonTextAlign(): Bind.interface_ImVec2 { return this.ButtonTextAlign; }
     private DisplayWindowPadding: ImVec2 = new ImVec2(22, 22);
-    public getDisplayWindowPadding(): Bind.interface_ImVec2 { return this.DisplayWindowPadding; }
+    public _get_DisplayWindowPadding(): Bind.interface_ImVec2 { return this.DisplayWindowPadding; }
     private DisplaySafeAreaPadding: ImVec2 = new ImVec2(4, 4);
-    public getDisplaySafeAreaPadding(): Bind.interface_ImVec2 { return this.DisplaySafeAreaPadding; }
+    public _get_DisplaySafeAreaPadding(): Bind.interface_ImVec2 { return this.DisplaySafeAreaPadding; }
     public MouseCursorScale: number = 1;
     public AntiAliasedLines: boolean = true;
     public AntiAliasedFill: boolean = true;
     public CurveTessellationTol: number = 1.25;
     private Colors: ImVec4[] = [];
-    public getColorsAt(index: number): Bind.interface_ImVec4 { return this.Colors[index]; }
-    public setColorsAt(index: number, color: Readonly<Bind.interface_ImVec4>): boolean { this.Colors[index].Copy(color); return true; }
+    public _getAt_Colors(index: number): Bind.interface_ImVec4 { return this.Colors[index]; }
+    public _setAt_Colors(index: number, color: Readonly<Bind.interface_ImVec4>): boolean { this.Colors[index].Copy(color); return true; }
 
     constructor() {
         for (let i = 0; i < ImGuiCol.COUNT; ++i) {
@@ -1708,30 +1708,30 @@ export class ImGuiStyle
     constructor(public readonly internal: Bind.interface_ImGuiStyle = new script_ImGuiStyle()) {}
 
     get Alpha(): number { return this.internal.Alpha; } set Alpha(value: number) { this.internal.Alpha = value; }
-    get WindowPadding(): Bind.interface_ImVec2 { return this.internal.getWindowPadding(); }
+    get WindowPadding(): Bind.interface_ImVec2 { return this.internal._get_WindowPadding(); }
     get WindowRounding(): number { return this.internal.WindowRounding; } set WindowRounding(value: number) { this.internal.WindowRounding = value; }
     get WindowBorderSize(): number { return this.internal.WindowBorderSize; } set WindowBorderSize(value: number) { this.internal.WindowBorderSize = value; }
-    get WindowMinSize(): Bind.interface_ImVec2 { return this.internal.getWindowMinSize(); }
-    get WindowTitleAlign(): Bind.interface_ImVec2 { return this.internal.getWindowTitleAlign(); }
+    get WindowMinSize(): Bind.interface_ImVec2 { return this.internal._get_WindowMinSize(); }
+    get WindowTitleAlign(): Bind.interface_ImVec2 { return this.internal._get_WindowTitleAlign(); }
     get ChildRounding(): number { return this.internal.ChildRounding; } set ChildRounding(value: number) { this.internal.ChildRounding = value; }
     get ChildBorderSize(): number { return this.internal.ChildBorderSize; } set ChildBorderSize(value: number) { this.internal.ChildBorderSize = value; }
     get PopupRounding(): number { return this.internal.PopupRounding; } set PopupRounding(value: number) { this.internal.PopupRounding = value; }
     get PopupBorderSize(): number { return this.internal.PopupBorderSize; } set PopupBorderSize(value: number) { this.internal.PopupBorderSize = value; }
-    get FramePadding(): Bind.interface_ImVec2 { return this.internal.getFramePadding(); }
+    get FramePadding(): Bind.interface_ImVec2 { return this.internal._get_FramePadding(); }
     get FrameRounding(): number { return this.internal.FrameRounding; } set FrameRounding(value: number) { this.internal.FrameRounding = value; }
     get FrameBorderSize(): number { return this.internal.FrameBorderSize; } set FrameBorderSize(value: number) { this.internal.FrameBorderSize = value; }
-    get ItemSpacing(): Bind.interface_ImVec2 { return this.internal.getItemSpacing(); }
-    get ItemInnerSpacing(): Bind.interface_ImVec2 { return this.internal.getItemInnerSpacing(); }
-    get TouchExtraPadding(): Bind.interface_ImVec2 { return this.internal.getTouchExtraPadding(); }
+    get ItemSpacing(): Bind.interface_ImVec2 { return this.internal._get_ItemSpacing(); }
+    get ItemInnerSpacing(): Bind.interface_ImVec2 { return this.internal._get_ItemInnerSpacing(); }
+    get TouchExtraPadding(): Bind.interface_ImVec2 { return this.internal._get_TouchExtraPadding(); }
     get IndentSpacing(): number { return this.internal.IndentSpacing; } set IndentSpacing(value: number) { this.internal.IndentSpacing = value; }
     get ColumnsMinSpacing(): number { return this.internal.ColumnsMinSpacing; } set ColumnsMinSpacing(value: number) { this.internal.ColumnsMinSpacing = value; }
     get ScrollbarSize(): number { return this.internal.ScrollbarSize; } set ScrollbarSize(value: number) { this.internal.ScrollbarSize = value; }
     get ScrollbarRounding(): number { return this.internal.ScrollbarRounding; } set ScrollbarRounding(value: number) { this.internal.ScrollbarRounding = value; }
     get GrabMinSize(): number { return this.internal.GrabMinSize; } set GrabMinSize(value: number) { this.internal.GrabMinSize = value; }
     get GrabRounding(): number { return this.internal.GrabRounding; } set GrabRounding(value: number) { this.internal.GrabRounding = value; }
-    get ButtonTextAlign(): Bind.interface_ImVec2 { return this.internal.getButtonTextAlign(); }
-    get DisplayWindowPadding(): Bind.interface_ImVec2 { return this.internal.getDisplayWindowPadding(); }
-    get DisplaySafeAreaPadding(): Bind.interface_ImVec2 { return this.internal.getDisplaySafeAreaPadding(); }
+    get ButtonTextAlign(): Bind.interface_ImVec2 { return this.internal._get_ButtonTextAlign(); }
+    get DisplayWindowPadding(): Bind.interface_ImVec2 { return this.internal._get_DisplayWindowPadding(); }
+    get DisplaySafeAreaPadding(): Bind.interface_ImVec2 { return this.internal._get_DisplaySafeAreaPadding(); }
     get MouseCursorScale(): number { return this.internal.MouseCursorScale; } set MouseCursorScale(value: number) { this.internal.MouseCursorScale = value; }
     get AntiAliasedLines(): boolean { return this.internal.AntiAliasedLines; } set AntiAliasedLines(value: boolean) { this.internal.AntiAliasedLines = value; }
     get AntiAliasedFill(): boolean { return this.internal.AntiAliasedFill; } set AntiAliasedFill(value: boolean) { this.internal.AntiAliasedFill = value; }
@@ -1739,10 +1739,10 @@ export class ImGuiStyle
     public Colors: Bind.interface_ImVec4[] = new Proxy([], {
         get: (target: Bind.interface_ImVec4[], key: PropertyKey): number | Bind.interface_ImVec4 => {
             if (key === "length") { return ImGuiCol.COUNT; }
-            return this.internal.getColorsAt(Number(key));
+            return this.internal._getAt_Colors(Number(key));
         },
         set: (target: Bind.interface_ImVec4[], key: PropertyKey, value: Readonly<Bind.interface_ImVec4>): boolean => {
-            return this.internal.setColorsAt(Number(key), value);
+            return this.internal._setAt_Colors(Number(key), value);
         },
     });
 
@@ -1802,7 +1802,7 @@ export class ImGuiIO
     get BackendFlags(): ImGuiBackendFlags { return this.native.BackendFlags; }
     set BackendFlags(value: ImGuiBackendFlags) { this.native.BackendFlags = value; }
     // ImVec2        DisplaySize;              // <unset>              // Display size, in pixels. For clamping windows positions.
-    get DisplaySize(): Bind.reference_ImVec2 { return this.native.getDisplaySize(); }
+    get DisplaySize(): Bind.reference_ImVec2 { return this.native._get_DisplaySize(); }
     // float         DeltaTime;                // = 1.0f/60.0f         // Time elapsed since last frame, in seconds.
     get DeltaTime(): number { return this.native.DeltaTime; }
     set DeltaTime(value: number) { this.native.DeltaTime = value; }
@@ -1824,10 +1824,10 @@ export class ImGuiIO
     public KeyMap: number[] = new Proxy([], {
         get: (target: number[], key: PropertyKey): number => {
             if (key === "length") { return ImGuiKey.COUNT; }
-            return this.native.getKeyMapAt(Number(key));
+            return this.native._getAt_KeyMap(Number(key));
         },
         set: (target: number[], key: PropertyKey, value: number): boolean => {
-            return this.native.setKeyMapAt(Number(key), value);
+            return this.native._setAt_KeyMap(Number(key), value);
         },
     });
     // float         KeyRepeatDelay;           // = 0.250f             // When holding a key/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.).
@@ -1839,7 +1839,7 @@ export class ImGuiIO
     // void*         UserData;                 // = NULL               // Store your own data for retrieval by callbacks.
 
     // ImFontAtlas*  Fonts;                    // <auto>               // Load and assemble one or more fonts into a single tightly packed texture. Output to Fonts array.
-    get Fonts(): ImFontAtlas { return new ImFontAtlas(this.native.getFonts()); }
+    get Fonts(): ImFontAtlas { return new ImFontAtlas(this.native._get_Fonts()); }
     // float         FontGlobalScale;          // = 1.0f               // Global scale all fonts
     get FontGlobalScale(): number { return this.native.FontGlobalScale; }
     set FontGlobalScale(value: number) { this.native.FontGlobalScale = value; }
@@ -1848,18 +1848,18 @@ export class ImGuiIO
     set FontAllowUserScaling(value: boolean) { this.native.FontAllowUserScaling = value; }
     // ImFont*       FontDefault;              // = NULL               // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
     get FontDefault(): ImFont | null {
-        const font: Bind.reference_ImFont | null = this.native.getFontDefault();
+        const font: Bind.reference_ImFont | null = this.native._get_FontDefault();
         return (font === null) ? null : new ImFont(font);
     }
     set FontDefault(value: ImFont | null) {
-        this.native.setFontDefault(value && value.native);    
+        this.native._set_FontDefault(value && value.native);    
     }
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
-    get DisplayFramebufferScale(): Bind.reference_ImVec2 { return this.native.getDisplayFramebufferScale(); }
+    get DisplayFramebufferScale(): Bind.reference_ImVec2 { return this.native._get_DisplayFramebufferScale(); }
     // ImVec2        DisplayVisibleMin;        // <unset> (0.0f,0.0f)  // If you use DisplaySize as a virtual space larger than your screen, set DisplayVisibleMin/Max to the visible area.
-    get DisplayVisibleMin(): Bind.reference_ImVec2 { return this.native.getDisplayVisibleMin(); }
+    get DisplayVisibleMin(): Bind.reference_ImVec2 { return this.native._get_DisplayVisibleMin(); }
     // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
-    get DisplayVisibleMax(): Bind.reference_ImVec2 { return this.native.getDisplayVisibleMax(); }
+    get DisplayVisibleMax(): Bind.reference_ImVec2 { return this.native._get_DisplayVisibleMax(); }
 
     // Advanced/subtle behaviors
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
@@ -1900,15 +1900,15 @@ export class ImGuiIO
     //------------------------------------------------------------------
 
     // ImVec2      MousePos;                   // Mouse position, in pixels. Set to ImVec2(-FLT_MAX,-FLT_MAX) if mouse is unavailable (on another screen, etc.)
-    get MousePos(): Bind.reference_ImVec2 { return this.native.getMousePos(); }
+    get MousePos(): Bind.reference_ImVec2 { return this.native._get_MousePos(); }
     // bool        MouseDown[5];               // Mouse buttons: left, right, middle + extras. ImGui itself mostly only uses left button (BeginPopupContext** are using right button). Others buttons allows us to track if the mouse is being used by your application + available to user as a convenience via IsMouse** API.
     public MouseDown: boolean[] = new Proxy([], {
         get: (target: boolean[], key: PropertyKey): number | boolean => {
             if (key === "length") { return 5; }
-            return this.native.getMouseDownAt(Number(key));
+            return this.native._getAt_MouseDown(Number(key));
         },
         set: (target: boolean[], key: PropertyKey, value: boolean): boolean => {
-            return this.native.setMouseDownAt(Number(key), value);
+            return this.native._setAt_MouseDown(Number(key), value);
         },
     });
     // float       MouseWheel;                 // Mouse wheel: 1 unit scrolls about 5 lines text.
@@ -1931,10 +1931,10 @@ export class ImGuiIO
     public KeysDown: boolean[] = new Proxy([], {
         get: (target: boolean[], key: PropertyKey): number | boolean => {
             if (key === "length") { return 512; }
-            return this.native.getKeysDownAt(Number(key));
+            return this.native._getAt_KeysDown(Number(key));
         },
         set: (target: boolean[], key: PropertyKey, value: boolean): boolean => {
-            return this.native.setKeysDownAt(Number(key), value);
+            return this.native._setAt_KeysDown(Number(key), value);
         },
     });
     // ImWchar     InputCharacters[16+1];      // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
@@ -1943,10 +1943,10 @@ export class ImGuiIO
     public NavInputs: number[] = new Proxy([], {
         get: (target: number[], key: PropertyKey): number => {
             if (key === "length") { return ImGuiNavInput.COUNT; }
-            return this.native.getNavInputsAt(Number(key));
+            return this.native._getAt_NavInputs(Number(key));
         },
         set: (target: number[], key: PropertyKey, value: number): boolean => {
-            return this.native.setNavInputsAt(Number(key), value);
+            return this.native._setAt_NavInputs(Number(key), value);
         },
     });
 
@@ -1985,7 +1985,7 @@ export class ImGuiIO
     // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
     get MetricsActiveWindows(): number { return this.native.MetricsActiveWindows; }
     // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
-    get MouseDelta(): Readonly<Bind.reference_ImVec2> { return this.native.getMouseDelta(); }
+    get MouseDelta(): Readonly<Bind.reference_ImVec2> { return this.native._get_MouseDelta(); }
 
     //------------------------------------------------------------------
     // [Internal] ImGui will maintain those fields. Forward compatibility not guaranteed!
@@ -1996,7 +1996,7 @@ export class ImGuiIO
     public MouseClickedPos: Array<Readonly<Bind.reference_ImVec2>> = new Proxy([], {
         get: (target: Array<Readonly<Bind.reference_ImVec2>>, key: PropertyKey): number | Readonly<Bind.reference_ImVec2> => {
             if (key === "length") { return 5; }
-            return this.native.getMouseClickedPosAt(Number(key));
+            return this.native._getAt_MouseClickedPos(Number(key));
         },
     });
     // float       MouseClickedTime[5];        // Time of last click (used to figure out double-click)
@@ -2008,7 +2008,7 @@ export class ImGuiIO
     public MouseDownDuration: number[] = new Proxy([], {
         get: (target: number[], key: PropertyKey): number => {
             if (key === "length") { return 5; }
-            return this.native.getMouseDownDurationAt(Number(key));
+            return this.native._getAt_MouseDownDuration(Number(key));
         },
     });
     // float       MouseDownDurationPrev[5];   // Previous time the mouse button has been down
@@ -2018,7 +2018,7 @@ export class ImGuiIO
     public KeysDownDuration: number[] = new Proxy([], {
         get: (target: number[], key: PropertyKey): number => {
             if (key === "length") { return 512; }
-            return this.native.getKeysDownDurationAt(Number(key));
+            return this.native._getAt_KeysDownDuration(Number(key));
         },
     });
     // float       KeysDownDurationPrev[512];  // Previous duration the key has been down
@@ -2026,7 +2026,7 @@ export class ImGuiIO
     public NavInputsDownDuration: number[] = new Proxy([], {
         get: (target: number[], key: PropertyKey): number => {
             if (key === "length") { return ImGuiNavInput.COUNT; }
-            return this.native.getNavInputsDownDurationAt(Number(key));
+            return this.native._getAt_NavInputsDownDuration(Number(key));
         },
     });
     // float       NavInputsDownDurationPrev[ImGuiNavInput_COUNT];
