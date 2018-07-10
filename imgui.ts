@@ -889,8 +889,7 @@ export type ImGuiTextEditCallback = (data: ImGuiTextEditCallbackData) => number;
 
 // Shared state of InputText(), passed to callback when a ImGuiInputTextFlags_Callback* flag is used and the corresponding callback is triggered.
 export class ImGuiTextEditCallbackData {
-    constructor(public native: Bind.ImGuiTextEditCallbackData, public readonly UserData: any) {}
-    public delete(): void { if (this.native) { this.native.delete(); delete this.native; } }
+    constructor(public readonly native: Bind.reference_ImGuiTextEditCallbackData, public readonly UserData: any) {}
 
     // ImGuiInputTextFlags EventFlag;      // One of ImGuiInputTextFlags_Callback* // Read-only
     public get EventFlag(): ImGuiInputTextFlags { return this.native.EventFlag; }
@@ -911,8 +910,8 @@ export class ImGuiTextEditCallbackData {
     // ImGuiKey            EventKey;       // Key pressed (Up/Down/TAB)            // Read-only
     public get EventKey(): ImGuiKey { return this.native.EventKey; }
     // char*               Buf;            // Current text buffer                  // Read-write (pointed data only, can't replace the actual pointer)
-    public get Buf(): string { return this.native.getBuf(); }
-    public set Buf(value: string) { this.native.setBuf(value); }
+    public get Buf(): string { return this.native.Buf; }
+    public set Buf(value: string) { this.native.Buf = value; }
     // int                 BufTextLen;     // Current text length in bytes         // Read-write
     public get BufTextLen(): number { return this.native.BufTextLen; }
     public set BufTextLen(value: number) { this.native.BufTextLen = value; }
@@ -944,13 +943,11 @@ export type ImGuiSizeConstraintCallback = (data: ImGuiSizeCallbackData) => void;
 // Resizing callback data to apply custom constraint. As enabled by SetNextWindowSizeConstraints(). Callback is called during the next Begin().
 // NB: For basic min/max size constraint on each axis you don't need to use the callback! The SetNextWindowSizeConstraints() parameters are enough.
 export class ImGuiSizeCallbackData {
-    constructor(public native: Bind.ImGuiSizeCallbackData) {}
-    public delete(): void { if (this.native) { this.native.delete(); delete this.native; } }
+    constructor(public readonly native: Bind.reference_ImGuiSizeCallbackData, public readonly UserData: any) {}
 
-    get UserData(): any { return this.native.UserData; }
-    get Pos(): Readonly<Bind.interface_ImVec2> { return this.native.getPos(); }
-    get CurrentSize(): Readonly<Bind.interface_ImVec2> { return this.native.getCurrentSize(); }
-    get DesiredSize(): Bind.interface_ImVec2 { return this.native.getDesiredSize(); }
+    get Pos(): Readonly<Bind.interface_ImVec2> { return this.native.Pos; }
+    get CurrentSize(): Readonly<Bind.interface_ImVec2> { return this.native.CurrentSize; }
+    get DesiredSize(): Bind.interface_ImVec2 { return this.native.DesiredSize; }
 }
 
 export class ImGuiListClipper
@@ -989,7 +986,7 @@ export class ImGuiListClipper
         return busy;
     }
     // IMGUI_API void Begin(int items_count, float items_height = -1.0f);  // Automatically called by constructor if you passed 'items_count' or by Step() in Step 1.
-    public Begin(items_count: number, items_height: number): void {
+    public Begin(items_count: number, items_height: number = -1.0): void {
         if (!this.native) {
             this.native = new Bind.ImGuiListClipper(items_count, items_height);
         }
@@ -2290,14 +2287,9 @@ export function SetNextWindowSize(pos: Readonly<Bind.interface_ImVec2>, cond: Im
 // IMGUI_API void          SetNextWindowSizeConstraints(const ImVec2& size_min, const ImVec2& size_max, ImGuiSizeConstraintCallback custom_callback = NULL, void* custom_callback_data = NULL); // set next window size limits. use -1,-1 on either X/Y axis to preserve the current size. Use callback to apply non-trivial programmatic constraints.
 export function SetNextWindowSizeConstraints(size_min: Readonly<Bind.interface_ImVec2>, size_max: Readonly<Bind.interface_ImVec2>, custom_callback: ImGuiSizeConstraintCallback | null = null, custom_callback_data: any = null): void {
     if (custom_callback) {
-        function _custom_callback(data: Bind.ImGuiSizeCallbackData): void {
-            if (custom_callback) {
-                const _data: ImGuiSizeCallbackData = new ImGuiSizeCallbackData(data);
-                custom_callback(_data);
-                _data.delete();
-            }
-        }
-        bind.SetNextWindowSizeConstraints(size_min, size_max, _custom_callback, custom_callback_data);
+        bind.SetNextWindowSizeConstraints(size_min, size_max, (data: Bind.reference_ImGuiSizeCallbackData): void => {
+            custom_callback(new ImGuiSizeCallbackData(data, custom_callback_data));
+        }, null);
     } else {
         bind.SetNextWindowSizeConstraints(size_min, size_max, null, null);
     }
@@ -2845,51 +2837,37 @@ export function DragScalar(label: string, v: Int32Array | Uint32Array | Float32A
 
 // Widgets: Input with Keyboard
 // IMGUI_API bool          InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
-let InputText_user_data: any = null;
 export function InputText(label: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiTextEditDefaultSize, flags: ImGuiInputTextFlags = 0, callback: ImGuiTextEditCallback | null = null, user_data: any = null): boolean {
-    InputText_user_data = user_data;
-    function _callback(data: Bind.ImGuiTextEditCallbackData): number {
-        const _data: ImGuiTextEditCallbackData = new ImGuiTextEditCallbackData(data, InputText_user_data);
-        const ret: number = callback === null ? 0 : callback(_data);
-        _data.delete();
-        return ret;
-    }
+    const _callback = callback && ((data: Bind.reference_ImGuiTextEditCallbackData): number => callback(new ImGuiTextEditCallbackData(data, user_data))) || null;
     if (Array.isArray(buf)) {
-        return bind.InputText(label, buf, buf_size, flags, callback === null ? null : _callback, null);
+        return bind.InputText(label, buf, buf_size, flags, _callback, null);
     } else if (buf instanceof ImStringBuffer) {
         const ref_buf: Bind.ImScalar<string> = [ buf.buffer ];
         const _buf_size: number = Math.min(buf_size, buf.size);
-        const ret: boolean = bind.InputText(label, ref_buf, _buf_size, flags, callback === null ? null : _callback, null);
+        const ret: boolean = bind.InputText(label, ref_buf, _buf_size, flags, _callback, null);
         buf.buffer = ref_buf[0];
         return ret;
     } else {
         const ref_buf: Bind.ImScalar<string> = [ buf() ];
-        const ret: boolean = bind.InputText(label, ref_buf, buf_size, flags, callback === null ? null : _callback, null);
+        const ret: boolean = bind.InputText(label, ref_buf, buf_size, flags, _callback, null);
         buf(ref_buf[0]);
         return ret;
     }
 }
 // IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
-let InputTextMultiline_user_data: any = null;
 export function InputTextMultiline(label: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiTextEditDefaultSize, size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, flags: ImGuiInputTextFlags = 0, callback: ImGuiTextEditCallback | null = null, user_data: any = null): boolean {
-    InputTextMultiline_user_data = user_data;
-    function _callback(data: Bind.ImGuiTextEditCallbackData): number {
-        const _data: ImGuiTextEditCallbackData = new ImGuiTextEditCallbackData(data, InputTextMultiline_user_data);
-        const ret: number = callback === null ? 0 : callback(_data);
-        _data.delete();
-        return ret;
-    }
+    const _callback = callback && ((data: Bind.reference_ImGuiTextEditCallbackData): number => callback(new ImGuiTextEditCallbackData(data, user_data))) || null;
     if (Array.isArray(buf)) {
-        return bind.InputTextMultiline(label, buf, buf_size, size, flags, callback === null ? null : _callback, null);
+        return bind.InputTextMultiline(label, buf, buf_size, size, flags, _callback, null);
     } else if (buf instanceof ImStringBuffer) {
         const ref_buf: Bind.ImScalar<string> = [ buf.buffer ];
         const _buf_size: number = Math.min(buf_size, buf.size);
-        const ret: boolean = bind.InputTextMultiline(label, ref_buf, _buf_size, size, flags, callback === null ? null : _callback, null);
+        const ret: boolean = bind.InputTextMultiline(label, ref_buf, _buf_size, size, flags, _callback, null);
         buf.buffer = ref_buf[0];
         return ret;
     } else {
         const ref_buf: Bind.ImScalar<string> = [ buf() ];
-        const ret: boolean = bind.InputTextMultiline(label, ref_buf, buf_size, size, flags, callback === null ? null : _callback, null);
+        const ret: boolean = bind.InputTextMultiline(label, ref_buf, buf_size, size, flags, _callback, null);
         buf(ref_buf[0]);
         return ret;
     }

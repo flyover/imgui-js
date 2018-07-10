@@ -102,10 +102,10 @@ export class reference_ImVec4 extends Emscripten.EmscriptenClassReference implem
     public Equals(other: Readonly<interface_ImVec4>): boolean;
 }
 
-export type ImGuiTextEditCallback = (data: ImGuiTextEditCallbackData) => number;
+export type ImGuiTextEditCallback = (data: reference_ImGuiTextEditCallbackData) => number;
 
 // Shared state of InputText(), passed to callback when a ImGuiInputTextFlags_Callback* flag is used and the corresponding callback is triggered.
-export class ImGuiTextEditCallbackData extends Emscripten.EmscriptenClass {
+export class reference_ImGuiTextEditCallbackData extends Emscripten.EmscriptenClassReference {
     // ImGuiInputTextFlags EventFlag;      // One of ImGuiInputTextFlags_Callback* // Read-only
     public EventFlag: ImGuiInputTextFlags;
     // ImGuiInputTextFlags Flags;          // What user passed to InputText()      // Read-only
@@ -124,8 +124,7 @@ export class ImGuiTextEditCallbackData extends Emscripten.EmscriptenClass {
     // ImGuiKey            EventKey;       // Key pressed (Up/Down/TAB)            // Read-only
     public EventKey: ImGuiKey;
     // char*               Buf;            // Current text buffer                  // Read-write (pointed data only, can't replace the actual pointer)
-    public getBuf(): string;
-    public setBuf(value: string): void;
+    public Buf: string;
     // int                 BufTextLen;     // Current text length in bytes         // Read-write
     public BufTextLen: number;
     // int                 BufSize;        // Maximum text length in bytes         // Read-only
@@ -148,20 +147,20 @@ export class ImGuiTextEditCallbackData extends Emscripten.EmscriptenClass {
     public HasSelection(): boolean;
 }
 
-export type ImGuiSizeConstraintCallback = (data: ImGuiSizeCallbackData) => void;
+export type ImGuiSizeConstraintCallback = (data: reference_ImGuiSizeCallbackData) => void;
 
 // Resizing callback data to apply custom constraint. As enabled by SetNextWindowSizeConstraints(). Callback is called during the next Begin().
 // NB: For basic min/max size constraint on each axis you don't need to use the callback! The SetNextWindowSizeConstraints() parameters are enough.
-export class ImGuiSizeCallbackData extends Emscripten.EmscriptenClass
+export class reference_ImGuiSizeCallbackData extends Emscripten.EmscriptenClassReference
 {
     // void*   UserData;       // Read-only.   What user passed to SetNextWindowSizeConstraints()
-    public UserData: any;
+    // public UserData: any;
     // ImVec2  Pos;            // Read-only.   Window position, for reference.
-    public getPos(): Readonly<reference_ImVec2>;
+    public Pos: Readonly<reference_ImVec2>;
     // ImVec2  CurrentSize;    // Read-only.   Current window size.
-    public getCurrentSize(): Readonly<reference_ImVec2>;
+    public CurrentSize: Readonly<reference_ImVec2>;
     // ImVec2  DesiredSize;    // Read-write.  Desired size, based on user's mouse position. Write to this field to restrain resizing.
-    public getDesiredSize(): reference_ImVec2;
+    public DesiredSize: reference_ImVec2;
 }
 
 export class ImGuiListClipper extends Emscripten.EmscriptenClass {
@@ -931,8 +930,6 @@ ImDrawVertPosOffset: number;
 ImDrawVertUVOffset: number;
 ImDrawVertColOffset: number;
 
-ImGuiTextEditCallbackData: { new(): ImGuiTextEditCallbackData; };
-ImGuiSizeCallbackData: { new(): ImGuiSizeCallbackData; };
 ImGuiListClipper: { new(items_count: number, items_height: number): ImGuiListClipper; };
 ImGuiStyle: { new(): ImGuiStyle; };
 

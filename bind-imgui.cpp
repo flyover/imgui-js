@@ -157,7 +157,6 @@ EMSCRIPTEN_BINDINGS(ImVec4) {
 // struct ImGuiTextEditCallbackData
 EMSCRIPTEN_BINDINGS(ImGuiTextEditCallbackData) {
     emscripten::class_<ImGuiTextEditCallbackData>("ImGuiTextEditCallbackData")
-        .constructor()
         // ImGuiInputTextFlags EventFlag;      // One of ImGuiInputTextFlags_Callback* // Read-only
         .property("EventFlag", &ImGuiTextEditCallbackData::EventFlag)
         // ImGuiInputTextFlags Flags;          // What user passed to InputText()      // Read-only
@@ -175,12 +174,10 @@ EMSCRIPTEN_BINDINGS(ImGuiTextEditCallbackData) {
         // ImGuiKey            EventKey;       // Key pressed (Up/Down/TAB)            // Read-only
         .property("EventKey", &ImGuiTextEditCallbackData::EventKey)
         // char*               Buf;            // Current text buffer                  // Read-write (pointed data only, can't replace the actual pointer)
-        .function("getBuf", FUNCTION(std::string, (const ImGuiTextEditCallbackData& that), {
-            return that.Buf;
-        }))
-        .function("setBuf", FUNCTION(void, (const ImGuiTextEditCallbackData& that, std::string value), {
-            strcpy(that.Buf, value.c_str());
-        }))
+        .property("Buf",
+            FUNCTION(std::string, (const ImGuiTextEditCallbackData& that), { return that.Buf; }),
+            FUNCTION(void, (ImGuiTextEditCallbackData& that, std::string value), { strcpy(that.Buf, value.c_str()); })
+        )
         // int                 BufTextLen;     // Current text length in bytes         // Read-write
         .property("BufTextLen", &ImGuiTextEditCallbackData::BufTextLen)
         // int                 BufSize;        // Maximum text length in bytes         // Read-only
@@ -217,16 +214,15 @@ EMSCRIPTEN_BINDINGS(ImGuiTextEditCallbackData) {
 // };
 EMSCRIPTEN_BINDINGS(ImGuiSizeCallbackData) {
     emscripten::class_<ImGuiSizeCallbackData>("ImGuiSizeCallbackData")
-        .constructor()
-        .function("getPos", FUNCTION(emscripten::val, (const ImGuiSizeCallbackData& that), {
+        .property("Pos", FUNCTION(emscripten::val, (const ImGuiSizeCallbackData& that), {
             const ImVec2* p = &that.Pos; return emscripten::val(p);
-        }), emscripten::allow_raw_pointers())
-        .function("getCurrentSize", FUNCTION(emscripten::val, (const ImGuiSizeCallbackData& that), {
+        }))
+        .property("CurrentSize", FUNCTION(emscripten::val, (const ImGuiSizeCallbackData& that), {
             const ImVec2* p = &that.CurrentSize; return emscripten::val(p);
-        }), emscripten::allow_raw_pointers())
-        .function("getDesiredSize", FUNCTION(emscripten::val, (const ImGuiSizeCallbackData& that), {
+        }))
+        .property("DesiredSize", FUNCTION(emscripten::val, (const ImGuiSizeCallbackData& that), {
             const ImVec2* p = &that.DesiredSize; return emscripten::val(p);
-        }), emscripten::allow_raw_pointers())
+        }))
     ;
 }
 
@@ -1438,21 +1434,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("SetNextWindowSizeConstraints", FUNCTION(void, (emscripten::val size_min, emscripten::val size_max, emscripten::val custom_callback, emscripten::val custom_callback_data), {
         if (!custom_callback.isNull()) {
             static emscripten::val _custom_callback = custom_callback;
-            static emscripten::val _custom_callback_data = custom_callback_data;
             ImGui::SetNextWindowSizeConstraints(import_ImVec2(size_min), import_ImVec2(size_max), FUNCTION(void, (ImGuiSizeCallbackData* data), {
-                // void*   UserData;       // Read-only.   What user passed to SetNextWindowSizeConstraints()
-                // ImVec2  Pos;            // Read-only.   Window position, for reference.
-                // ImVec2  CurrentSize;    // Read-only.   Current window size.
-                // ImVec2  DesiredSize;    // Read-write.  Desired size, based on user's mouse position. Write to this field to restrain resizing.
-                // emscripten::val _data = emscripten::val::object();
-                // _data.set("UserData", _custom_callback_data);
-                // const ImVec2* Pos = &data->Pos; _data.set("Pos", emscripten::val(Pos));
-                // const ImVec2* CurrentSize = &data->CurrentSize; _data.set("CurrentSize", emscripten::val(CurrentSize));
-                // const ImVec2* DesiredSize = &data->DesiredSize; _data.set("DesiredSize", emscripten::val(DesiredSize));
-                // _custom_callback(_data);
-                emscripten::val _data = emscripten::val(data);
-                _data.set("UserData", _custom_callback_data);
-                _custom_callback(_data);
+                _custom_callback(emscripten::val(data));
             }), NULL);
         } else {
             ImGui::SetNextWindowSizeConstraints(import_ImVec2(size_min), import_ImVec2(size_max));
@@ -2004,11 +1987,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         bool ret = false;
         if (!callback.isNull()) {
             static emscripten::val _callback = callback;
-            // static emscripten::val _user_data = user_data;
             ret = ImGui::InputText(label.c_str(), (char*) _buf.data(), buf_size, flags, FUNCTION(int, (ImGuiTextEditCallbackData* data), {
-                emscripten::val _data = emscripten::val(data);
-                // _data.set("UserData", _user_data);
-                return _callback(_data).as<int>();
+                return _callback(emscripten::val(data)).as<int>();
             }), NULL);
         } else {
             ret = ImGui::InputText(label.c_str(), (char*) _buf.data(), buf_size, flags);
@@ -2023,11 +2003,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         bool ret = false;
         if (!callback.isNull()) {
             static emscripten::val _callback = callback;
-            // static emscripten::val _user_data = user_data;
             ret = ImGui::InputTextMultiline(label.c_str(), (char*) _buf.data(), buf_size, import_ImVec2(size), flags, FUNCTION(int, (ImGuiTextEditCallbackData* data), {
-                emscripten::val _data = emscripten::val(data);
-                // _data.set("UserData", _user_data);
-                return _callback(_data).as<int>();
+                return _callback(emscripten::val(data)).as<int>();
             }), NULL);
         } else {
             ret = ImGui::InputTextMultiline(label.c_str(), (char*) _buf.data(), buf_size, import_ImVec2(size), flags);
