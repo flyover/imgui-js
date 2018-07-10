@@ -1265,9 +1265,9 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
     ;
 }
 
-class ImGuiContext_ {};
+class ImGuiContext {};
 EMSCRIPTEN_BINDINGS(ImGuiContext) {
-    emscripten::class_<ImGuiContext_>("ImGuiContext")
+    emscripten::class_<ImGuiContext>("ImGuiContext")
     ;
 }
 
@@ -1309,25 +1309,23 @@ EMSCRIPTEN_BINDINGS(ImGui) {
             }
         });
         io.ClipboardUserData = NULL;
-        int p = (int)ctx;
-        return (ctx == NULL) ? emscripten::val::null() : emscripten::val(p);
+        return (ctx == NULL) ? emscripten::val::null() : emscripten::val(ctx);
     }), emscripten::allow_raw_pointers());
     // IMGUI_API void          DestroyContext(ImGuiContext* ctx = NULL);   // NULL = Destroy current context
     emscripten::function("DestroyContext", FUNCTION(void, (emscripten::val ctx), {
-        ImGuiContext* _ctx = ctx.isNull() ? NULL : (ImGuiContext*) ctx.as<int>();
+        ImGuiContext* _ctx = ctx.isNull() ? NULL : ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
         ImGui::DestroyContext(_ctx);
-    }));
+    }), emscripten::allow_raw_pointers());
     // IMGUI_API ImGuiContext* GetCurrentContext();
     emscripten::function("GetCurrentContext", FUNCTION(emscripten::val, (), {
         ImGuiContext* ctx = ImGui::GetCurrentContext();
-        int p = (int)ctx;
-        return (ctx == NULL) ? emscripten::val::null() : emscripten::val(p);
+        return (ctx == NULL) ? emscripten::val::null() : emscripten::val(ctx);
     }), emscripten::allow_raw_pointers());
     // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
     emscripten::function("SetCurrentContext", FUNCTION(void, (emscripten::val ctx), {
-        ImGuiContext* _ctx = ctx.isNull() ? NULL : (ImGuiContext*) ctx.as<int>();
+        ImGuiContext* _ctx = ctx.isNull() ? NULL : ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
         ImGui::SetCurrentContext(_ctx);
-    }));
+    }), emscripten::allow_raw_pointers());
     // IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert);
     emscripten::function("DebugCheckVersionAndDataLayout", FUNCTION(bool, (std::string version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert), {
         return ImGui::DebugCheckVersionAndDataLayout(version_str.c_str(), sz_io, sz_style, sz_vec2, sz_vec4, sz_drawvert);
