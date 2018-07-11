@@ -216,7 +216,7 @@ EMSCRIPTEN_BINDINGS(ImGuiTextEditCallbackData) {
         // char*               Buf;            // Current text buffer                  // Read-write (pointed data only, can't replace the actual pointer)
         .property("Buf",
             FUNCTION(std::string, (const ImGuiTextEditCallbackData& that), { return that.Buf; }),
-            FUNCTION(void, (ImGuiTextEditCallbackData& that, std::string value), { strcpy(that.Buf, value.c_str()); })
+            FUNCTION(void, (ImGuiTextEditCallbackData& that, std::string value), { strncpy(that.Buf, value.c_str(), that.BufSize - 1); })
         )
         // int                 BufTextLen;     // Current text length in bytes         // Read-write
         .property("BufTextLen", &ImGuiTextEditCallbackData::BufTextLen)
@@ -667,7 +667,7 @@ EMSCRIPTEN_BINDINGS(ImFontConfig) {
         // Name: string;
         .property("Name",
             FUNCTION(std::string, (const ImFontConfig& that), { return that.Name; }),
-            FUNCTION(void, (ImFontConfig& that, std::string value), { strcpy(that.Name, value.c_str()); })
+            FUNCTION(void, (ImFontConfig& that, std::string value), { strncpy(that.Name, value.c_str(), sizeof(that.Name) - 1); })
         )
         // ImFont*         DstFont;
         // DstFont: any;
