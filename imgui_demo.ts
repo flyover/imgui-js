@@ -2609,7 +2609,6 @@ function ShowExampleMenuFile(): void
         for (let i = 0; i < ImGuiCol.COUNT; i++)
         {
             const name: string = ImGui.GetStyleColorName(i as ImGuiCol);
-            ImGui.ColorButton(name, ImGui.GetStyleColorVec4(i as ImGuiCol));
             const p: ImGui.interface_ImVec2 = ImGui.GetCursorScreenPos();
             ImGui.GetWindowDrawList().AddRectFilled(p, new ImVec2(p.x + sz, p.y + sz), ImGui.GetColorU32(i as ImGuiCol));
             ImGui.Dummy(new ImVec2(sz, sz));

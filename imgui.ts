@@ -2423,14 +2423,12 @@ export function GetColorU32(col: Bind.ImU32): Bind.ImU32;
 export function GetColorU32(...args: any[]): Bind.ImU32 {
     if (args.length === 1) {
         if (typeof(args[0]) === "number") {
-            const col: Bind.ImU32 = args[0];
-            return bind.GetColorU32_C(col);
-        } else if (typeof(args[0]) === "object") {
-            const col: Readonly<Bind.reference_ImVec4> = args[0];
-            return bind.GetColorU32_B(col);
-        } else {
+            // TODO: ImGuiCol or ImU32
             const idx: ImGuiCol = args[0];
             return bind.GetColorU32_A(idx, 1.0);
+        } else {
+            const col: Readonly<Bind.reference_ImVec4> = args[0];
+            return bind.GetColorU32_B(col);
         }
     } else {
         const idx: ImGuiCol = args[0];
