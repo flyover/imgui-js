@@ -576,6 +576,109 @@ EMSCRIPTEN_BINDINGS(ImDrawData) {
     ;
 }
 
+EMSCRIPTEN_BINDINGS(ImFontGlyph) {
+    emscripten::class_<ImFontGlyph>("ImFontGlyph")
+        // ImWchar         Codepoint;          // 0x0000..0xFFFF
+        // Codepoint: number;
+        .property("Codepoint", &ImFontGlyph::Codepoint)
+        // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
+        // AdvanceX: number;
+        .property("AdvanceX", &ImFontGlyph::AdvanceX)
+        // float           X0, Y0, X1, Y1;     // Glyph corners
+        // X0: number;
+        .property("X0", &ImFontGlyph::X0)
+        // Y0: number;
+        .property("Y0", &ImFontGlyph::Y0)
+        // X1: number;
+        .property("X1", &ImFontGlyph::X1)
+        // Y1: number;
+        .property("Y1", &ImFontGlyph::Y1)
+        // float           U0, V0, U1, V1;     // Texture coordinates
+        // U0: number;
+        .property("U0", &ImFontGlyph::U0)
+        // V0: number;
+        .property("V0", &ImFontGlyph::V0)
+        // U1: number;
+        .property("U1", &ImFontGlyph::U1)
+        // V1: number;
+        .property("V1", &ImFontGlyph::V1)
+    ;
+}
+
+EMSCRIPTEN_BINDINGS(ImFontConfig) {
+    emscripten::class_<ImFontConfig>("ImFontConfig")
+        // void*           FontData;                   //          // TTF/OTF data
+        // int             FontDataSize;               //          // TTF/OTF data size
+        // FontData: DataView | null;
+        .function("_get_FontData", FUNCTION(emscripten::val, (ImFontConfig* that), {
+            return emscripten::val(emscripten::typed_memory_view(that->FontDataSize, (char*) that->FontData));
+        }), emscripten::allow_raw_pointers())
+        // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
+        // FontDataOwnedByAtlas: boolean;
+        .property("FontDataOwnedByAtlas", &ImFontConfig::FontDataOwnedByAtlas)
+        // int             FontNo;                     // 0        // Index of font within TTF/OTF file
+        // FontNo: number;
+        .property("FontNo", &ImFontConfig::FontNo)
+        // float           SizePixels;                 //          // Size in pixels for rasterizer.
+        // SizePixels: number;
+        .property("SizePixels", &ImFontConfig::SizePixels)
+        // int             OversampleH, OversampleV;   // 3, 1     // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis.
+        // OversampleH: number;
+        .property("OversampleH", &ImFontConfig::OversampleH)
+        // OversampleV: number;
+        .property("OversampleV", &ImFontConfig::OversampleV)
+        // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
+        // PixelSnapH: boolean;
+        .property("PixelSnapH", &ImFontConfig::PixelSnapH)
+        // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
+        // GlyphExtraSpacing: interface_ImVec2;
+        .function("_get_GlyphExtraSpacing", FUNCTION(emscripten::val, (ImFontConfig* that), {
+            ImVec2* p = &that->GlyphExtraSpacing; return emscripten::val(p);
+        }), emscripten::allow_raw_pointers())
+        // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
+        // GlyphOffset: interface_ImVec2;
+        .function("_get_GlyphOffset", FUNCTION(emscripten::val, (ImFontConfig* that), {
+            ImVec2* p = &that->GlyphOffset; return emscripten::val(p);
+        }), emscripten::allow_raw_pointers())
+        // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
+        // GlyphRanges: Uint16Array | null;
+        .property("GlyphRanges", FUNCTION(emscripten::val, (const ImFontConfig& that), {
+            const ImWchar* data = that.GlyphRanges;
+            return data == NULL ? emscripten::val::null() : emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+        }))
+        // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
+        // GlyphMinAdvanceX: number;
+        .property("GlyphMinAdvanceX", &ImFontConfig::GlyphMinAdvanceX)
+        // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
+        // GlyphMaxAdvanceX: number;
+        .property("GlyphMaxAdvanceX", &ImFontConfig::GlyphMaxAdvanceX)
+        // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
+        // MergeMode: boolean;
+        .property("MergeMode", &ImFontConfig::MergeMode)
+        // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
+        // RasterizerFlags: number;
+        .property("RasterizerFlags", &ImFontConfig::RasterizerFlags)
+        // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
+        // RasterizerMultiply: number;
+        .property("RasterizerMultiply", &ImFontConfig::RasterizerMultiply)
+
+        // [Internal]
+        // char            Name[32];                               // Name (strictly to ease debugging)
+        // Name: string;
+        .property("Name",
+            FUNCTION(std::string, (const ImFontConfig& that), { return that.Name; }),
+            FUNCTION(void, (ImFontConfig& that, std::string value), { strcpy(that.Name, value.c_str()); })
+        )
+        // ImFont*         DstFont;
+        // DstFont: any;
+        .function("_get_DstFont", FUNCTION(emscripten::val, (ImFontConfig* that), {
+            return that->DstFont == NULL ? emscripten::val::null() : emscripten::val(that->DstFont);
+        }), emscripten::allow_raw_pointers())
+
+        // IMGUI_API ImFontConfig();
+    ;
+}
+
 EMSCRIPTEN_BINDINGS(ImFont) {
     emscripten::class_<ImFont>("ImFont")
     // Members: Hot ~62/78 bytes
@@ -584,15 +687,30 @@ EMSCRIPTEN_BINDINGS(ImFont) {
     // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
     .property("Scale", &ImFont::Scale)
     // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
-    // .property("DisplayOffset", &ImFont::DisplayOffset)
+    .function("_get_DisplayOffset", FUNCTION(emscripten::val, (ImFont* that), {
+        ImVec2* p = &that->DisplayOffset; return emscripten::val(p);
+    }), emscripten::allow_raw_pointers())
     // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
     // .property("Glyphs", &ImFont::Glyphs)
+    .function("IterateGlyphs", FUNCTION(void, (ImFont* that, emscripten::val callback), {
+        for (int n = 0; n < that->Glyphs.Size; n++) {
+            ImFontGlyph* glyph = &that->Glyphs[n];
+            callback(emscripten::val(glyph));
+        }
+    }), emscripten::allow_raw_pointers())
     // ImVector<float>             IndexAdvanceX;      //              // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).
     // .property("IndexAdvanceX", &ImFont::IndexAdvanceX)
     // ImVector<unsigned short>    IndexLookup;        //              // Sparse. Index glyphs by Unicode code-point.
     // .property("IndexLookup", &ImFont::IndexLookup)
     // const ImFontGlyph*          FallbackGlyph;      // == FindGlyph(FontFallbackChar)
     // .property("FallbackGlyph", &ImFont::FallbackGlyph)
+    .function("_get_FallbackGlyph", FUNCTION(emscripten::val, (ImFont* that), {
+        const ImFontGlyph* p = that->FallbackGlyph;
+        return p == NULL ? emscripten::val::null() : emscripten::val(p);
+    }), emscripten::allow_raw_pointers())
+    .function("_set_FallbackGlyph", FUNCTION(void, (ImFont* that, emscripten::val value), {
+        that->FallbackGlyph = value.isNull() ? NULL : value.as<const ImFontGlyph*>(emscripten::allow_raw_pointers());
+    }), emscripten::allow_raw_pointers())
     // float                       FallbackAdvanceX;   // == FallbackGlyph->AdvanceX
     .property("FallbackAdvanceX", &ImFont::FallbackAdvanceX)
     // ImWchar                     FallbackChar;       // = '?'        // Replacement glyph if one isn't found. Only set via SetFallbackChar()
@@ -600,9 +718,15 @@ EMSCRIPTEN_BINDINGS(ImFont) {
 
     // Members: Cold ~18/26 bytes
     // short                       ConfigDataCount;    // ~ 1          // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
-    // .property("ConfigDataCount", &ImFont::ConfigDataCount)
+    .property("ConfigDataCount", &ImFont::ConfigDataCount)
     // ImFontConfig*               ConfigData;         //              // Pointer within ContainerAtlas->ConfigData
     // .property("ConfigData", &ImFont::ConfigData)
+    .function("IterateConfigData", FUNCTION(void, (ImFont* that, emscripten::val callback), {
+        for (int n = 0; n < that->ConfigDataCount; n++) {
+            ImFontConfig* cfg = &that->ConfigData[n];
+            callback(emscripten::val(cfg));
+        }
+    }), emscripten::allow_raw_pointers())
     // ImFontAtlas*                ContainerAtlas;     //              // What we has been loaded into
     // .property("ContainerAtlas", &ImFont::ContainerAtlas)
     // float                       Ascent, Descent;    //              // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
@@ -619,7 +743,15 @@ EMSCRIPTEN_BINDINGS(ImFont) {
     // IMGUI_API void              BuildLookupTable();
     .function("BuildLookupTable", &ImFont::BuildLookupTable)
     // IMGUI_API const ImFontGlyph*FindGlyph(ImWchar c) const;
-    // .function("FindGlyph", &ImFont::FindGlyph)
+    .function("FindGlyph", FUNCTION(emscripten::val, (const ImFont& that, ImWchar c), {
+        const ImFontGlyph* glyph = that.FindGlyph(c);
+        return glyph == NULL ? emscripten::val::null() : emscripten::val(glyph);
+    }), emscripten::allow_raw_pointers())
+    // IMGUI_API const ImFontGlyph*FindGlyphNoFallback(ImWchar c) const;
+    .function("FindGlyphNoFallback", FUNCTION(emscripten::val, (const ImFont& that, ImWchar c), {
+        const ImFontGlyph* glyph = that.FindGlyphNoFallback(c);
+        return glyph == NULL ? emscripten::val::null() : emscripten::val(glyph);
+    }), emscripten::allow_raw_pointers())
     // IMGUI_API void              SetFallbackChar(ImWchar c);
     .function("SetFallbackChar", &ImFont::SetFallbackChar)
     // float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
@@ -648,6 +780,9 @@ EMSCRIPTEN_BINDINGS(ImFont) {
         return (int)(pos - _text);
     }))
     // IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, unsigned short c) const;
+    .function("RenderChar", FUNCTION(void, (const ImFont& that, emscripten::val draw_list, float size, emscripten::val pos, ImU32 col, unsigned short c), {
+        that.RenderChar(draw_list.as<ImDrawList*>(emscripten::allow_raw_pointers()), size, import_ImVec2(pos), col, c);
+    }))
     // IMGUI_API void              RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
 
     // [Internal]
@@ -905,6 +1040,12 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
             ImVec2* p = &that->TexUvWhitePixel; return emscripten::val(p);
         }), emscripten::allow_raw_pointers())
         // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
+        .function("IterateFonts", FUNCTION(void, (ImFontAtlas* that, emscripten::val callback), {
+            for (int n = 0; n < that->Fonts.Size; n++) {
+                ImFont* font = that->Fonts.Data[n];
+                callback(emscripten::val(font));
+            }
+        }), emscripten::allow_raw_pointers())
         // ImVector<CustomRect>        CustomRects;        // Rectangles for packing custom texture data into the atlas.
         // ImVector<ImFontConfig>      ConfigData;         // Internal data
         // int                         CustomRectIds[1];   // Identifiers of custom texture rectangle used by ImFontAtlas/ImDrawList

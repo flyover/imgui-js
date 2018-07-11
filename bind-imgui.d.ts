@@ -490,15 +490,17 @@ export class reference_ImFont extends Emscripten.EmscriptenClassReference {
     // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
     public Scale: number;
     // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
-    public DisplayOffset: interface_ImVec2;
+    public _get_DisplayOffset(): interface_ImVec2;
     // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
-    // public Glyphs: any;
+    public IterateGlyphs(callback: (cfg: reference_ImFontGlyph) => void): void;
     // ImVector<float>             IndexAdvanceX;      //              // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).
     // public IndexAdvanceX: any;
     // ImVector<unsigned short>    IndexLookup;        //              // Sparse. Index glyphs by Unicode code-point.
     // public IndexLookup: any;
     // const ImFontGlyph*          FallbackGlyph;      // == FindGlyph(FontFallbackChar)
     // public FallbackGlyph: any;
+    public _get_FallbackGlyph(): Readonly<reference_ImFontGlyph> | null;
+    public _set_FallbackGlyph(value: Readonly<reference_ImFontGlyph> | null): void;
     // float                       FallbackAdvanceX;   // == FallbackGlyph->AdvanceX
     public FallbackAdvanceX: number;
     // ImWchar                     FallbackChar;       // = '?'        // Replacement glyph if one isn't found. Only set via SetFallbackChar()
@@ -506,9 +508,10 @@ export class reference_ImFont extends Emscripten.EmscriptenClassReference {
     
     // Members: Cold ~18/26 bytes
     // short                       ConfigDataCount;    // ~ 1          // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
-    // public ConfigDataCount: number;
+    public ConfigDataCount: number;
     // ImFontConfig*               ConfigData;         //              // Pointer within ContainerAtlas->ConfigData
     // public ConfigData: any;
+    public IterateConfigData(callback: (cfg: interface_ImFontConfig) => void): void;
     // ImFontAtlas*                ContainerAtlas;     //              // What we has been loaded into
     // public ContainerAtlas: any;
     // float                       Ascent, Descent;    //              // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
@@ -525,7 +528,9 @@ export class reference_ImFont extends Emscripten.EmscriptenClassReference {
     // IMGUI_API void              BuildLookupTable();
     public BuildLookupTable(): void;
     // IMGUI_API const ImFontGlyph*FindGlyph(ImWchar c) const;
-    // public FindGlyph(c: number): any;
+    public FindGlyph(c: number): Readonly<reference_ImFontGlyph> | null;
+    // IMGUI_API const ImFontGlyph*FindGlyphNoFallback(ImWchar c) const;
+    public FindGlyphNoFallback(c: number): Readonly<reference_ImFontGlyph> | null;
     // IMGUI_API void              SetFallbackChar(ImWchar c);
     public SetFallbackChar(c: number): void;
     // float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
@@ -542,6 +547,7 @@ export class reference_ImFont extends Emscripten.EmscriptenClassReference {
     // IMGUI_API const char*       CalcWordWrapPositionA(float scale, const char* text, const char* text_end, float wrap_width) const;
     public CalcWordWrapPositionA(scale: number, text: string, wrap_width: number): number;
     // IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, unsigned short c) const;
+    public RenderChar(draw_list: reference_ImDrawList, size: number, pos: Readonly<interface_ImVec2>, col: ImU32, c: ImWchar): void;
     // IMGUI_API void              RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
 
     // [Internal]
@@ -557,7 +563,7 @@ export class reference_ImFont extends Emscripten.EmscriptenClassReference {
 export interface interface_ImFontConfig {
     // void*           FontData;                   //          // TTF/OTF data
     // int             FontDataSize;               //          // TTF/OTF data size
-    FontData: DataView | null;
+    _get_FontData(): DataView | null;
     // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
     FontDataOwnedByAtlas: boolean;
     // int             FontNo;                     // 0        // Index of font within TTF/OTF file
@@ -570,9 +576,9 @@ export interface interface_ImFontConfig {
     // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
     PixelSnapH: boolean;
     // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
-    GlyphExtraSpacing: interface_ImVec2;
+    _get_GlyphExtraSpacing(): interface_ImVec2;
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
-    GlyphOffset: interface_ImVec2;
+    _get_GlyphOffset(): interface_ImVec2;
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
     GlyphRanges: Uint16Array | null;
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
@@ -590,12 +596,70 @@ export interface interface_ImFontConfig {
     // char            Name[32];                               // Name (strictly to ease debugging)
     Name: string;
     // ImFont*         DstFont;
-    DstFont: any;
+    _get_DstFont(): reference_ImFont | null;
+
+    // IMGUI_API ImFontConfig();
+}
+
+export class reference_ImFontConfig implements interface_ImFontConfig {
+    // void*           FontData;                   //          // TTF/OTF data
+    // int             FontDataSize;               //          // TTF/OTF data size
+    _get_FontData(): DataView | null;
+    // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
+    FontDataOwnedByAtlas: boolean;
+    // int             FontNo;                     // 0        // Index of font within TTF/OTF file
+    FontNo: number;
+    // float           SizePixels;                 //          // Size in pixels for rasterizer.
+    SizePixels: number;
+    // int             OversampleH, OversampleV;   // 3, 1     // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis.
+    OversampleH: number;
+    OversampleV: number;
+    // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
+    PixelSnapH: boolean;
+    // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
+    _get_GlyphExtraSpacing(): interface_ImVec2;
+    // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
+    _get_GlyphOffset(): interface_ImVec2;
+    // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
+    GlyphRanges: Uint16Array | null;
+    // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
+    GlyphMinAdvanceX: number;
+    // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
+    GlyphMaxAdvanceX: number;
+    // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
+    MergeMode: boolean;
+    // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
+    RasterizerFlags: number;
+    // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
+    RasterizerMultiply: number;
+
+    // [Internal]
+    // char            Name[32];                               // Name (strictly to ease debugging)
+    Name: string;
+    // ImFont*         DstFont;
+    _get_DstFont(): reference_ImFont | null;
 
     // IMGUI_API ImFontConfig();
 }
 
 export interface interface_ImFontGlyph {
+    // ImWchar         Codepoint;          // 0x0000..0xFFFF
+    Codepoint: number;
+    // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
+    AdvanceX: number;
+    // float           X0, Y0, X1, Y1;     // Glyph corners
+    X0: number;
+    Y0: number;
+    X1: number;
+    Y1: number;
+    // float           U0, V0, U1, V1;     // Texture coordinates
+    U0: number;
+    V0: number;
+    U1: number;
+    V1: number;
+}
+
+export class reference_ImFontGlyph implements interface_ImFontGlyph {
     // ImWchar         Codepoint;          // 0x0000..0xFFFF
     Codepoint: number;
     // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
@@ -734,6 +798,7 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // ImVec2                      TexUvWhitePixel;    // Texture coordinates to a white pixel
     public _get_TexUvWhitePixel(): Readonly<reference_ImVec2>;
     // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
+    public IterateFonts(callback: (font: reference_ImFont) => void): void;
     // ImVector<CustomRect>        CustomRects;        // Rectangles for packing custom texture data into the atlas.
     // ImVector<ImFontConfig>      ConfigData;         // Internal data
     // int                         CustomRectIds[1];   // Identifiers of custom texture rectangle used by ImFontAtlas/ImDrawList

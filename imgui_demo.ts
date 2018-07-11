@@ -100,6 +100,18 @@ import { ImGuiDataType } from "./imgui";
 // #endif
 // #endif
 
+function format_number(n: number, radix: number = 10, pad: number = 0, pad_char: string = "0"): string {
+    return pad > 0 ? (pad_char.repeat(pad) + n.toString(radix)).substr(-pad) : n.toString(radix);
+}
+
+function format_number_dec(n: number, pad: number = 0, pad_char: string = "0"): string {
+    return format_number(n, 10, pad, pad_char);
+}
+
+function format_number_hex(n: number, pad: number = 0, pad_char: string = "0"): string {
+    return format_number(n, 16, pad, pad_char);
+}
+
 // Play it nice with Windows users. Notepad in 2017 still doesn't display text data with Unix-style \n.
 // #ifdef _WIN32
 // #define IM_NEWLINE "\r\n"
@@ -1384,7 +1396,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 ImGui.BeginChild("Child1", new ImVec2(ImGui.GetWindowContentRegionWidth() * 0.5, 300), false, ImGuiWindowFlags.HorizontalScrollbar | (disable_mouse_wheel.value ? ImGuiWindowFlags.NoScrollWithMouse : 0));
                 for (let i = 0; i < 100; i++)
                 {
-                    ImGui.Text(`${("0000" + i.toString()).substr(-4)}: scrollable region`);
+                    ImGui.Text(`${format_number_dec(i, 4)}: scrollable region`);
                     if (goto_line && line.value === i)
                         ImGui.SetScrollHere();
                 }
@@ -1412,7 +1424,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 for (let i = 0; i < 100; i++)
                 {
                     // sprintf(buf, "%03d", i);
-                    const buf: string = `${("000" + i.toString()).substr(-3)}`;
+                    const buf: string = `${format_number_dec(i, 3)}`;
                     ImGui.Button(buf, new ImVec2(-1.0, 0.0));
                     ImGui.NextColumn();
                 }
@@ -1950,7 +1962,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             /* static */ const selected: Static<number> = STATIC("selected#1709", -1);
             for (let i = 0; i < 3; i++)
             {
-                const label: string = ("0000" + i.toString()).substr(-4);
+                const label: string = format_number_dec(i, 4);
                 if (ImGui.Selectable(label, selected.value === i, ImGuiSelectableFlags.SpanAllColumns))
                     selected.value = i;
                 const hovered: boolean = ImGui.IsItemHovered();
@@ -2446,8 +2458,7 @@ export function ShowStyleEditor(ref: ImGuiStyle | null = null): void
         ImGui.TreePop();
     }
 
-    // bool fonts_opened = ImGui.TreeNode("Fonts", "Fonts (%d)", ImGui.GetIO().Fonts->Fonts.Size);
-    const fonts_opened: boolean = ImGui.TreeNode("Fonts");
+    const fonts_opened: boolean = ImGui.TreeNode(`Fonts (${ImGui.GetIO().Fonts.Fonts.Size})`);
     if (fonts_opened)
     {
         const atlas: ImFontAtlas = ImGui.GetIO().Fonts;
@@ -2457,74 +2468,74 @@ export function ShowStyleEditor(ref: ImGuiStyle | null = null): void
             ImGui.TreePop();
         }
         ImGui.PushItemWidth(100);
-        // for (let i = 0; i < atlas->Fonts.Size; i++)
-        // {
-        //     ImFont* font = atlas->Fonts[i];
-        //     ImGui.PushID(font);
-        //     bool font_details_opened = ImGui.TreeNode(font, "Font %d: \'%s\', %.2f px, %d glyphs", i, font->ConfigData ? font->ConfigData[0].Name : "", font->FontSize, font->Glyphs.Size);
-        //     ImGui.SameLine(); if (ImGui.SmallButton("Set as default")) ImGui.GetIO().FontDefault = font;
-        //     if (font_details_opened)
-        //     {
-        //         ImGui.PushFont(font);
-        //         ImGui.Text("The quick brown fox jumps over the lazy dog");
-        //         ImGui.PopFont();
-        //         ImGui.DragFloat("Font scale", &font->Scale, 0.005f, 0.3f, 2.0f, "%.1f");   // Scale only this font
-        //         ImGui.InputFloat("Font offset", &font->DisplayOffset.y, 1, 1, 0);
-        //         ImGui.SameLine(); ShowHelpMarker("Note than the default embedded font is NOT meant to be scaled.\n\nFont are currently rendered into bitmaps at a given size at the time of building the atlas. You may oversample them to get some flexibility with scaling. You can also render at multiple sizes and select which one to use at runtime.\n\n(Glimmer of hope: the atlas system should hopefully be rewritten in the future to make scaling more natural and automatic.)");
-        //         ImGui.Text("Ascent: %f, Descent: %f, Height: %f", font->Ascent, font->Descent, font->Ascent - font->Descent);
-        //         ImGui.Text("Fallback character: '%c' (%d)", font->FallbackChar, font->FallbackChar);
-        //         ImGui.Text("Texture surface: %d pixels (approx) ~ %dx%d", font->MetricsTotalSurface, (int)sqrtf((float)font->MetricsTotalSurface), (int)sqrtf((float)font->MetricsTotalSurface));
-        //         for (let config_i = 0; config_i < font->ConfigDataCount; config_i++)
-        //         {
-        //             ImFontConfig* cfg = &font->ConfigData[config_i];
-        //             ImGui.BulletText("Input %d: \'%s\', Oversample: (%d,%d), PixelSnapH: %d", config_i, cfg->Name, cfg->OversampleH, cfg->OversampleV, cfg->PixelSnapH);
-        //         }
-        //         if (ImGui.TreeNode("Glyphs", "Glyphs (%d)", font->Glyphs.Size))
-        //         {
-        //             // Display all glyphs of the fonts in separate pages of 256 characters
-        //             const ImFontGlyph* glyph_fallback = font->FallbackGlyph; // Forcefully/dodgily make FindGlyph() return null on fallback, which isn't the default behavior.
-        //             font->FallbackGlyph = null;
-        //             for (let base = 0; base < 0x10000; base += 256)
-        //             {
-        //                 int count = 0;
-        //                 for (let n = 0; n < 256; n++)
-        //                     count += font->FindGlyph((ImWchar)(base + n)) ? 1 : 0;
-        //                 if (count > 0 && ImGui.TreeNode((void*)(intptr_t)base, "U+%04X..U+%04X (%d %s)", base, base+255, count, count > 1 ? "glyphs" : "glyph"))
-        //                 {
-        //                     float cell_size = font->FontSize * 1;
-        //                     float cell_spacing = style.ItemSpacing.y;
-        //                     ImVec2 base_pos = ImGui::GetCursorScreenPos();
-        //                     ImDrawList* draw_list = ImGui::GetWindowDrawList();
-        //                     for (int n = 0; n < 256; n++)
-        //                     {
-        //                         ImVec2 cell_p1(base_pos.x + (n % 16) * (cell_size + cell_spacing), base_pos.y + (n / 16) * (cell_size + cell_spacing));
-        //                         ImVec2 cell_p2(cell_p1.x + cell_size, cell_p1.y + cell_size);
-        //                         const ImFontGlyph* glyph = font->FindGlyphNoFallback((ImWchar)(base+n));
-        //                         draw_list->AddRect(cell_p1, cell_p2, glyph ? IM_COL32(255,255,255,100) : IM_COL32(255,255,255,50));
-        //                         if (glyph)
-        //                             font->RenderChar(draw_list, cell_size, cell_p1, ImGui::GetColorU32(ImGuiCol_Text), (ImWchar)(base+n)); // We use ImFont::RenderChar as a shortcut because we don't have UTF-8 conversion functions available to generate a string.
-        //                         if (glyph && ImGui::IsMouseHoveringRect(cell_p1, cell_p2))
-        //                         {
-        //                             ImGui::BeginTooltip();
-        //                             ImGui::Text("Codepoint: U+%04X", base+n);
-        //                             ImGui::Separator();
-        //                             ImGui::Text("AdvanceX: %.1f", glyph->AdvanceX);
-        //                             ImGui::Text("Pos: (%.2f,%.2f)->(%.2f,%.2f)", glyph->X0, glyph->Y0, glyph->X1, glyph->Y1);
-        //                             ImGui::Text("UV: (%.3f,%.3f)->(%.3f,%.3f)", glyph->U0, glyph->V0, glyph->U1, glyph->V1);
-        //                             ImGui::EndTooltip();
-        //                         }
-        //                     }
-        //                     ImGui::Dummy(ImVec2((cell_size + cell_spacing) * 16, (cell_size + cell_spacing) * 16));
-        //                     ImGui::TreePop();
-        //                 }
-        //             }
-        //             font->FallbackGlyph = glyph_fallback;
-        //             ImGui.TreePop();
-        //         }
-        //         ImGui.TreePop();
-        //     }
-        //     ImGui.PopID();
-        // }
+        for (let i = 0; i < atlas.Fonts.Size; i++)
+        {
+            const font: ImFont = atlas.Fonts[i];
+            ImGui.PushID(font.native.$$.ptr);
+            const font_details_opened = ImGui.TreeNode(font.native.$$.ptr, `Font ${i}: \'${font.ConfigData.length > 0 ? font.ConfigData[0].Name : ""}\', ${font.FontSize.toFixed(2)} px, ${font.Glyphs.Size} glyphs`);
+            ImGui.SameLine(); if (ImGui.SmallButton("Set as default")) ImGui.GetIO().FontDefault = font;
+            if (font_details_opened)
+            {
+                ImGui.PushFont(font);
+                ImGui.Text("The quick brown fox jumps over the lazy dog");
+                ImGui.PopFont();
+                ImGui.DragFloat("Font scale", (value = font.Scale) => font.Scale = value, 0.005, 0.3, 2.0, "%.1f");   // Scale only this font
+                ImGui.InputFloat("Font offset", (value = font.DisplayOffset.y) => font.DisplayOffset.y = value, 1, 1);
+                ImGui.SameLine(); ShowHelpMarker("Note than the default embedded font is NOT meant to be scaled.\n\nFont are currently rendered into bitmaps at a given size at the time of building the atlas. You may oversample them to get some flexibility with scaling. You can also render at multiple sizes and select which one to use at runtime.\n\n(Glimmer of hope: the atlas system should hopefully be rewritten in the future to make scaling more natural and automatic.)");
+                ImGui.Text(`Ascent: ${font.Ascent}, Descent: ${font.Descent}, Height: ${font.Ascent - font.Descent}`);
+                ImGui.Text(`Fallback character: '${String.fromCharCode(font.FallbackChar)}' (${font.FallbackChar})`);
+                ImGui.Text(`Texture surface: ${font.MetricsTotalSurface} pixels (approx) ~ ${0 | Math.sqrt(font.MetricsTotalSurface)}x${0 | Math.sqrt(font.MetricsTotalSurface)}`);
+                for (let config_i = 0; config_i < font.ConfigDataCount; config_i++)
+                {
+                    const cfg: ImGui.ImFontConfig = font.ConfigData[config_i];
+                    ImGui.BulletText(`Input ${config_i}: \'${cfg.Name}\', Oversample: (${cfg.OversampleH},${cfg.OversampleH}), PixelSnapH: ${cfg.PixelSnapH}`);
+                }
+                if (ImGui.TreeNode("Glyphs", `Glyphs (${font.Glyphs.Size})`))
+                {
+                    // Display all glyphs of the fonts in separate pages of 256 characters
+                    const glyph_fallback = font.FallbackGlyph; // Forcefully/dodgily make FindGlyph() return null on fallback, which isn't the default behavior.
+                    font.FallbackGlyph = null;
+                    for (let base = 0; base < 0x10000; base += 256)
+                    {
+                        let count = 0;
+                        for (let n = 0; n < 256; n++)
+                            count += font.FindGlyph((base + n) as ImGui.Bind.ImWchar) ? 1 : 0;
+                        if (count > 0 && ImGui.TreeNode(base, `U+${format_number_hex(base, 4).toUpperCase()}..U+${(format_number_hex(base + 255, 4).toUpperCase())} (${count} ${count > 1 ? "glyphs" : "glyph"})`))
+                        {
+                            const cell_size = font.FontSize * 1;
+                            const cell_spacing = style.ItemSpacing.y;
+                            const base_pos = ImGui.GetCursorScreenPos();
+                            const draw_list = ImGui.GetWindowDrawList();
+                            for (let n = 0; n < 256; n++)
+                            {
+                                const cell_p1 = new ImVec2(base_pos.x + (n % 16) * (cell_size + cell_spacing), base_pos.y + (0 | (n / 16)) * (cell_size + cell_spacing));
+                                const cell_p2 = new ImVec2(cell_p1.x + cell_size, cell_p1.y + cell_size);
+                                const glyph: ImGui.ImFontGlyph | null = font.FindGlyphNoFallback((base+n) as ImGui.Bind.ImWchar);
+                                draw_list.AddRect(cell_p1, cell_p2, glyph ? IM_COL32(255,255,255,100) : IM_COL32(255,255,255,50));
+                                if (glyph)
+                                    font.RenderChar(draw_list, cell_size, cell_p1, ImGui.GetColorU32(ImGuiCol.Text), (base+n) as ImGui.Bind.ImWchar); // We use ImFont.RenderChar as a shortcut because we don't have UTF-8 conversion functions available to generate a string.
+                                if (glyph && ImGui.IsMouseHoveringRect(cell_p1, cell_p2))
+                                {
+                                    ImGui.BeginTooltip();
+                                    ImGui.Text(`Codepoint: U+${format_number_hex(base + n, 4).toUpperCase()}`);
+                                    ImGui.Separator();
+                                    ImGui.Text(`AdvanceX: ${glyph.AdvanceX.toFixed(1)}`);
+                                    ImGui.Text(`Pos: (${glyph.X0.toFixed(2)},${glyph.Y0.toFixed(2)}).(${glyph.X1.toFixed(2)},${glyph.Y1.toFixed(2)})`);
+                                    ImGui.Text(`UV: (${glyph.U0.toFixed(3)},${glyph.V0.toFixed(3)}).(${glyph.U1.toFixed(3)},${glyph.V1.toFixed(3)})`);
+                                    ImGui.EndTooltip();
+                                }
+                            }
+                            ImGui.Dummy(new ImVec2((cell_size + cell_spacing) * 16, (cell_size + cell_spacing) * 16));
+                            ImGui.TreePop();
+                        }
+                    }
+                    font.FallbackGlyph = glyph_fallback;
+                    ImGui.TreePop();
+                }
+                ImGui.TreePop();
+            }
+            ImGui.PopID();
+        }
         /* static */ const window_scale: Static<number> = STATIC("window_scale", 1.0);
         ImGui.DragFloat("this window scale", (value = window_scale.value) => window_scale.value = value, 0.005, 0.3, 2.0, "%.1f");              // scale only this window
         ImGui.DragFloat("global scale", (value = ImGui.GetIO().FontGlobalScale) => ImGui.GetIO().FontGlobalScale = value, 0.005, 0.3, 2.0, "%.1f"); // scale everything

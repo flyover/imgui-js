@@ -534,14 +534,14 @@ export class ImVec4 implements Bind.interface_ImVec4 {
 
 // Lightweight std::vector<> like class to avoid dragging dependencies (also: windows implementation of STL with debug enabled is absurdly slow, so let's bypass it so our code runs fast in debug).
 // Our implementation does NOT call C++ constructors/destructors. This is intentional and we do not require it. Do not use this class as a straight std::vector replacement in your code!
-export class ImVector<T>
+export class ImVector<T> extends Array<T>
 {
-    public get Size(): number { return this.Data.length; }
-    public Data: T[] = [];
-    public empty(): boolean { return this.Data.length === 0; }
-    public clear(): void { this.Data.length = 0; }
-    public pop_back(): T | undefined { return this.Data.pop(); }
-    public push_back(value: T): void { this.Data.push(value); }
+    public get Size(): number { return this.length; }
+    public Data: T[] = this;
+    public empty(): boolean { return this.length === 0; }
+    public clear(): void { this.length = 0; }
+    public pop_back(): T | undefined { return this.pop(); }
+    public push_back(value: T): void { this.push(value); }
     // public:
     // int                         Size;
     // int                         Capacity;
@@ -1337,11 +1337,12 @@ export class ImDrawData
     }
 }
 
-export class ImFontConfig implements Bind.interface_ImFontConfig
+export class script_ImFontConfig implements Bind.interface_ImFontConfig
 {
     // void*           FontData;                   //          // TTF/OTF data
     // int             FontDataSize;               //          // TTF/OTF data size
     FontData: DataView | null = null;
+    _get_FontData(): DataView | null { return this.FontData; }
     // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
     FontDataOwnedByAtlas: boolean = true;
     // int             FontNo;                     // 0        // Index of font within TTF/OTF file
@@ -1355,8 +1356,10 @@ export class ImFontConfig implements Bind.interface_ImFontConfig
     PixelSnapH: boolean = false;
     // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
     GlyphExtraSpacing: ImVec2 = new ImVec2(0, 0);
+    _get_GlyphExtraSpacing(): ImVec2 { return this.GlyphExtraSpacing; }
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
     GlyphOffset: ImVec2 = new ImVec2(0, 0);
+    _get_GlyphOffset(): ImVec2 { return this.GlyphOffset; }
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
     GlyphRanges: Uint16Array | null = null;
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
@@ -1374,13 +1377,59 @@ export class ImFontConfig implements Bind.interface_ImFontConfig
     // char            Name[32];                               // Name (strictly to ease debugging)
     Name: string = "";
     // ImFont*         DstFont;
-    DstFont: ImFont | null = null;
+    _get_DstFont(): Bind.reference_ImFont | null { return null; }
+
+    // IMGUI_API ImFontConfig();
+}
+
+export class ImFontConfig {
+    constructor(public readonly internal: Bind.interface_ImFontConfig = new script_ImFontConfig()) {}
+
+    // void*           FontData;                   //          // TTF/OTF data
+    // int             FontDataSize;               //          // TTF/OTF data size
+    get FontData(): DataView | null { return this.internal._get_FontData(); }
+    // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
+    get FontDataOwnedByAtlas(): boolean { return this.internal.FontDataOwnedByAtlas; }
+    // int             FontNo;                     // 0        // Index of font within TTF/OTF file
+    get FontNo(): number { return this.internal.FontNo; }
+    // float           SizePixels;                 //          // Size in pixels for rasterizer.
+    get SizePixels(): number { return this.internal.SizePixels; }
+    // int             OversampleH, OversampleV;   // 3, 1     // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis.
+    get OversampleH(): number { return this.internal.OversampleH; }
+    get OversampleV(): number { return this.internal.OversampleV; }
+    // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
+    get PixelSnapH(): boolean { return this.internal.PixelSnapH; }
+    // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
+    get GlyphExtraSpacing(): ImVec2 { return this.internal._get_GlyphExtraSpacing(); }
+    // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
+    get GlyphOffset(): ImVec2 { return this.internal._get_GlyphOffset(); }
+    // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
+    get GlyphRanges(): Uint16Array | null { return this.internal.GlyphRanges; }
+    // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
+    get GlyphMinAdvanceX(): number { return this.internal.GlyphMinAdvanceX; }
+    // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
+    get GlyphMaxAdvanceX(): number { return this.internal.GlyphMaxAdvanceX; }
+    // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
+    get MergeMode(): boolean { return this.internal.MergeMode; }
+    // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
+    get RasterizerFlags(): number { return this.internal.RasterizerFlags; }
+    // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
+    get RasterizerMultiply(): number { return this.internal.RasterizerMultiply; }
+
+    // [Internal]
+    // char            Name[32];                               // Name (strictly to ease debugging)
+    get Name(): string { return this.internal.Name; }
+    // ImFont*         DstFont;
+    get DstFont(): ImFont | null {
+        const font = this.internal._get_DstFont();
+        return font && new ImFont(font);
+    }
 
     // IMGUI_API ImFontConfig();
 }
 
 // struct ImFontGlyph
-export class ImFontGlyph implements Bind.interface_ImFontGlyph
+export class script_ImFontGlyph implements Bind.interface_ImFontGlyph
 {
     // ImWchar         Codepoint;          // 0x0000..0xFFFF
     Codepoint: number = 0;
@@ -1396,6 +1445,24 @@ export class ImFontGlyph implements Bind.interface_ImFontGlyph
     V0: number = 0.0;
     U1: number = 1.0;
     V1: number = 1.0;
+}
+
+export class ImFontGlyph implements Bind.interface_ImFontGlyph {
+    constructor(public readonly internal: Bind.interface_ImFontGlyph = new script_ImFontGlyph()) {}
+    // ImWchar         Codepoint;          // 0x0000..0xFFFF
+    get Codepoint(): number {  return this.internal.Codepoint; }
+    // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
+    get AdvanceX(): number { return this.internal.AdvanceX; };
+    // float           X0, Y0, X1, Y1;     // Glyph corners
+    get X0(): number { return this.internal.X0; };
+    get Y0(): number { return this.internal.Y0; };
+    get X1(): number { return this.internal.X1; };
+    get Y1(): number { return this.internal.Y1; };
+    // float           U0, V0, U1, V1;     // Texture coordinates
+    get U0(): number { return this.internal.U0; };
+    get V0(): number { return this.internal.V0; };
+    get U1(): number { return this.internal.U1; };
+    get V1(): number { return this.internal.V1; };
 }
 
 export enum ImFontAtlasFlags
@@ -1420,12 +1487,12 @@ export class ImFontAtlas
     // IMGUI_API ~ImFontAtlas();
     // IMGUI_API ImFont*           AddFont(const ImFontConfig* font_cfg);
     // IMGUI_API ImFont*           AddFontDefault(const ImFontConfig* font_cfg = NULL);
-    public AddFontDefault(font_cfg: ImFontConfig | null = null): ImFont {
+    public AddFontDefault(font_cfg: Bind.interface_ImFontConfig | null = null): ImFont {
         return new ImFont(this.native.AddFontDefault(font_cfg));
     }
     // IMGUI_API ImFont*           AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);
     // IMGUI_API ImFont*           AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer ownership of 'ttf_data' to ImFontAtlas! Will be deleted after Build(). Set font_cfg->FontDataOwnedByAtlas to false to keep ownership.
-    public AddFontFromMemoryTTF(data: ArrayBuffer, size_pixels: number, font_cfg: ImFontConfig | null = null, glyph_ranges: Uint16Array | null = null): ImFont {
+    public AddFontFromMemoryTTF(data: ArrayBuffer, size_pixels: number, font_cfg: Bind.interface_ImFontConfig | null = null, glyph_ranges: Uint16Array | null = null): ImFont {
         return new ImFont(this.native.AddFontFromMemoryTTF(new Uint8Array(data), size_pixels, font_cfg, glyph_ranges));
     }
     // IMGUI_API ImFont*           AddFontFromMemoryCompressedTTF(const void* compressed_font_data, int compressed_font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // 'compressed_font_data' still owned by caller. Compress with binary_to_compressed_c.cpp.
@@ -1549,6 +1616,13 @@ export class ImFontAtlas
     // ImVec2                      TexUvWhitePixel;    // Texture coordinates to a white pixel
     get TexUvWhitePixel(): Readonly<Bind.reference_ImVec2> { return this.native._get_TexUvWhitePixel(); }
     // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
+    get Fonts(): ImVector<ImFont> {
+        const fonts: ImVector<ImFont> = new ImVector<ImFont>();
+        this.native.IterateFonts((font: Bind.reference_ImFont) => {
+            fonts.push(new ImFont(font));
+        });
+        return fonts;
+    }
     // ImVector<CustomRect>        CustomRects;        // Rectangles for packing custom texture data into the atlas.
     // ImVector<ImFontConfig>      ConfigData;         // Internal data
     // int                         CustomRectIds[1];   // Identifiers of custom texture rectangle used by ImFontAtlas/ImDrawList
@@ -1565,16 +1639,29 @@ export class ImFont
     get FontSize(): number { return this.native.FontSize; }
     // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
     get Scale(): number { return this.native.Scale; }
+    set Scale(value: number) { this.native.Scale = value; }
     // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
-    get DisplayOffset(): Bind.interface_ImVec2 { return this.native.DisplayOffset; }
+    get DisplayOffset(): Bind.interface_ImVec2 { return this.native._get_DisplayOffset(); }
     // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
-    // get Glyphs(): any { return this.native.Glyphs; }
+    get Glyphs(): ImVector<ImFontGlyph> {
+        const glyphs = new ImVector<ImFontGlyph>();
+        this.native.IterateGlyphs((glyph: Bind.reference_ImFontGlyph): void => {
+            glyphs.push(new ImFontGlyph(glyph)); // TODO: wrap native
+        });
+        return glyphs;
+    }
     // ImVector<float>             IndexAdvanceX;      //              // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).
     // get IndexAdvanceX(): any { return this.native.IndexAdvanceX; }
     // ImVector<unsigned short>    IndexLookup;        //              // Sparse. Index glyphs by Unicode code-point.
     // get IndexLookup(): any { return this.native.IndexLookup; }
     // const ImFontGlyph*          FallbackGlyph;      // == FindGlyph(FontFallbackChar)
-    // get FallbackGlyph(): any { return this.native.FallbackGlyph; }
+    get FallbackGlyph(): ImFontGlyph | null {
+        const glyph = this.native._get_FallbackGlyph();
+        return glyph && new ImFontGlyph(glyph);
+    }
+    set FallbackGlyph(value: ImFontGlyph | null) {
+        this.native._set_FallbackGlyph(value && value.internal);
+    }
     // float                       FallbackAdvanceX;   // == FallbackGlyph->AdvanceX
     get FallbackAdvanceX(): number { return this.native.FallbackAdvanceX; }
     // ImWchar                     FallbackChar;       // = '?'        // Replacement glyph if one isn't found. Only set via SetFallbackChar()
@@ -1582,11 +1669,17 @@ export class ImFont
 
     // Members: Cold ~18/26 bytes
     // short                       ConfigDataCount;    // ~ 1          // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
-    // get ConfigDataCount(): number { return this.native.ConfigDataCount; }
+    get ConfigDataCount(): number { return this.ConfigData.length; }
     // ImFontConfig*               ConfigData;         //              // Pointer within ContainerAtlas->ConfigData
-    // get ConfigData(): any { return this.native.ConfigData; }
+    get ConfigData(): ImFontConfig[] {
+        const cfg_data: ImFontConfig[] = [];
+        this.native.IterateConfigData((cfg: Bind.interface_ImFontConfig): void => {
+            cfg_data.push(new ImFontConfig(cfg));
+        });
+        return cfg_data;
+    }
     // ImFontAtlas*                ContainerAtlas;     //              // What we has been loaded into
-    // get ContainerAtlas(): any { return this.native.ContainerAtlas; }
+    get ContainerAtlas(): ImFontAtlas | null { return null; }
     // float                       Ascent, Descent;    //              // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
     get Ascent(): number { return this.native.Ascent; }
     get Descent(): number { return this.native.Descent; }
@@ -1601,7 +1694,15 @@ export class ImFont
     // IMGUI_API void              BuildLookupTable();
     public BuildLookupTable(): void { return this.native.BuildLookupTable(); }
     // IMGUI_API const ImFontGlyph*FindGlyph(ImWchar c) const;
-    // public FindGlyph(c: number): any { return this.native.FindGlyph(c); }
+    public FindGlyph(c: number): Readonly<ImFontGlyph> | null {
+        const glyph: Readonly<Bind.reference_ImFontGlyph> | null = this.native.FindGlyph(c);
+        return glyph && new ImFontGlyph(glyph);
+    }
+    // IMGUI_API const ImFontGlyph*FindGlyphNoFallback(ImWchar c) const;
+    public FindGlyphNoFallback(c: number): ImFontGlyph | null {
+        const glyph: Readonly<Bind.reference_ImFontGlyph> | null = this.native.FindGlyphNoFallback(c);
+        return glyph && new ImFontGlyph(glyph);
+    }
     // IMGUI_API void              SetFallbackChar(ImWchar c);
     public SetFallbackChar(c: number): void { return this.native.SetFallbackChar(c); }
     // float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
@@ -1622,7 +1723,11 @@ export class ImFont
         return this.native.CalcWordWrapPositionA(scale, text_end !== null ? text.substring(0, text_end) : text, wrap_width);
     }
     // IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, unsigned short c) const;
+    public RenderChar(draw_list: ImDrawList, size: number, pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, c: Bind.ImWchar): void {
+        this.native.RenderChar(draw_list.native, size, pos, col, c);
+    }
     // IMGUI_API void              RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
+    public RenderText(draw_list: ImDrawList, size: number, pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, clip_rect: Readonly<Bind.interface_ImVec4>, text_begin: string, text_end: number | null = null, wrap_width: number = 0.0, cpu_fine_clip: boolean = false): void {}
 
     // [Internal]
     // IMGUI_API void              GrowIndex(int new_size);
