@@ -490,7 +490,7 @@ export class reference_ImFont extends Emscripten.EmscriptenClassReference {
     // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
     public Scale: number;
     // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
-    public _get_DisplayOffset(): interface_ImVec2;
+    public _get_DisplayOffset(): reference_ImVec2;
     // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
     public IterateGlyphs(callback: (cfg: reference_ImFontGlyph) => void): void;
     // ImVector<float>             IndexAdvanceX;      //              // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).
@@ -617,9 +617,9 @@ export class reference_ImFontConfig implements interface_ImFontConfig {
     // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
     PixelSnapH: boolean;
     // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
-    _get_GlyphExtraSpacing(): interface_ImVec2;
+    _get_GlyphExtraSpacing(): reference_ImVec2;
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
-    _get_GlyphOffset(): interface_ImVec2;
+    _get_GlyphOffset(): reference_ImVec2;
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
     GlyphRanges: Uint16Array | null;
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
