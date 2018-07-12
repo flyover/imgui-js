@@ -46,6 +46,8 @@ export default async function main(): Promise<void> {
 }
 
 async function _init(): Promise<void> {
+    console.log("Total allocated space (uordblks) @ _init:", ImGui.bind.mallinfo().uordblks);
+
     // Setup Dear ImGui binding
     ImGui.IMGUI_CHECKVERSION();
     ImGui.CreateContext();
@@ -227,6 +229,8 @@ async function _done(): Promise<void> {
     // Cleanup
     ImGui_Impl.Shutdown();
     ImGui.DestroyContext();
+
+    console.log("Total allocated space (uordblks) @ _done:", ImGui.bind.mallinfo().uordblks);
 }
 
 function ShowHelpMarker(desc: string): void {
