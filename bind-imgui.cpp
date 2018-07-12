@@ -871,9 +871,12 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         // IMGUI_API ImFont*           AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer ownership of 'ttf_data' to ImFontAtlas! Will be deleted after Build(). Set font_cfg->FontDataOwnedByAtlas to false to keep ownership.
         .function("AddFontFromMemoryTTF", FUNCTION(emscripten::val, (ImFontAtlas& that, emscripten::val data, float size_pixels, emscripten::val font_cfg, emscripten::val glyph_ranges), {
             std::vector<unsigned char> _data = emscripten::vecFromJSArray<unsigned char>(data);
+            size_t _data_size = _data.size();
+            void* _data_copy = ImGui::MemAlloc(_data_size);
+            memcpy(_data_copy, _data.data(), _data_size);
             ImFontConfig _font_cfg = font_cfg.isNull() ? ImFontConfig() : import_ImFontConfig(font_cfg);
             std::vector<ImWchar> _glyph_ranges = glyph_ranges.isNull() ? std::vector<ImWchar>() : emscripten::vecFromJSArray<ImWchar>(glyph_ranges);
-            ImFont* font = that.AddFontFromMemoryTTF(_data.data(), _data.size(), size_pixels, font_cfg.isNull() ? NULL : &_font_cfg, glyph_ranges.isNull() ? NULL : _glyph_ranges.data());
+            ImFont* font = that.AddFontFromMemoryTTF(_data_copy, _data_size, size_pixels, font_cfg.isNull() ? NULL : &_font_cfg, glyph_ranges.isNull() ? NULL : _glyph_ranges.data());
             return emscripten::val(font);
         }), emscripten::allow_raw_pointers())
         // IMGUI_API ImFont*           AddFontFromMemoryCompressedTTF(const void* compressed_font_data, int compressed_font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // 'compressed_font_data' still owned by caller. Compress with binary_to_compressed_c.cpp.
@@ -1434,28 +1437,44 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API ImGuiContext* CreateContext(ImFontAtlas* shared_font_atlas = NULL);
     emscripten::function("CreateContext", FUNCTION(emscripten::val, (), {
         ImGuiContext* ctx = ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO();
-        io.IniFilename = NULL;
-        io.LogFilename = NULL;
-        io.GetClipboardTextFn = FUNCTION(const char*, (void* user_data), {
-            if (!_ImGuiIO_GetClipboardTextFn.isNull()) {
-                _ImGuiIO_ClipboardText = _ImGuiIO_GetClipboardTextFn(_ImGUiIO_ClipboardUserData).as<std::string>();
-            }
-            return _ImGuiIO_ClipboardText.c_str();
-        });
-        io.SetClipboardTextFn = FUNCTION(void, (void* user_data, const char* text), {
-            _ImGuiIO_ClipboardText = text;
-            if (!_ImGuiIO_SetClipboardTextFn.isNull()) {
-                _ImGuiIO_SetClipboardTextFn(_ImGUiIO_ClipboardUserData, _ImGuiIO_ClipboardText);
-            }
-        });
-        io.ClipboardUserData = NULL;
+        if (ctx != NULL) {
+            ImGuiContext* prev_ctx = ImGui::GetCurrentContext();
+            ImGui::SetCurrentContext(ctx);
+            ImGuiIO& io = ImGui::GetIO();
+            io.IniFilename = NULL;
+            io.LogFilename = NULL;
+            io.GetClipboardTextFn = FUNCTION(const char*, (void* user_data), {
+                if (!_ImGuiIO_GetClipboardTextFn.isNull()) {
+                    _ImGuiIO_ClipboardText = _ImGuiIO_GetClipboardTextFn(_ImGUiIO_ClipboardUserData).as<std::string>();
+                }
+                return _ImGuiIO_ClipboardText.c_str();
+            });
+            io.SetClipboardTextFn = FUNCTION(void, (void* user_data, const char* text), {
+                _ImGuiIO_ClipboardText = text;
+                if (!_ImGuiIO_SetClipboardTextFn.isNull()) {
+                    _ImGuiIO_SetClipboardTextFn(_ImGUiIO_ClipboardUserData, _ImGuiIO_ClipboardText);
+                }
+            });
+            io.ClipboardUserData = NULL;
+            ImGui::SetCurrentContext(prev_ctx);
+        }
         return (ctx == NULL) ? emscripten::val::null() : emscripten::val(ctx);
     }), emscripten::allow_raw_pointers());
     // IMGUI_API void          DestroyContext(ImGuiContext* ctx = NULL);   // NULL = Destroy current context
-    emscripten::function("DestroyContext", FUNCTION(void, (emscripten::val ctx), {
-        ImGuiContext* _ctx = ctx.isNull() ? NULL : ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
-        ImGui::DestroyContext(_ctx);
+    emscripten::function("DestroyContext", FUNCTION(void, (emscripten::val _ctx), {
+        ImGuiContext* ctx = _ctx.isNull() ? NULL : _ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
+        if (ctx != NULL) {
+            ImGuiContext* prev_ctx = ImGui::GetCurrentContext();
+            ImGui::SetCurrentContext(ctx);
+            ImGuiIO& io = ImGui::GetIO();
+            io.IniFilename = NULL;
+            io.LogFilename = NULL;
+            io.GetClipboardTextFn = NULL;
+            io.SetClipboardTextFn = NULL;
+            io.ClipboardUserData = NULL;
+            ImGui::SetCurrentContext(prev_ctx);
+        }
+        ImGui::DestroyContext(ctx);
     }), emscripten::allow_raw_pointers());
     // IMGUI_API ImGuiContext* GetCurrentContext();
     emscripten::function("GetCurrentContext", FUNCTION(emscripten::val, (), {
@@ -1463,9 +1482,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         return (ctx == NULL) ? emscripten::val::null() : emscripten::val(ctx);
     }), emscripten::allow_raw_pointers());
     // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
-    emscripten::function("SetCurrentContext", FUNCTION(void, (emscripten::val ctx), {
-        ImGuiContext* _ctx = ctx.isNull() ? NULL : ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
-        ImGui::SetCurrentContext(_ctx);
+    emscripten::function("SetCurrentContext", FUNCTION(void, (emscripten::val _ctx), {
+        ImGuiContext* ctx = _ctx.isNull() ? NULL : _ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
+        ImGui::SetCurrentContext(ctx);
     }), emscripten::allow_raw_pointers());
     // IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert);
     emscripten::function("DebugCheckVersionAndDataLayout", FUNCTION(bool, (std::string version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert), {

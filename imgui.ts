@@ -2160,10 +2160,7 @@ export class ImGuiContext {
     }
 
     private textures: Array<ImTextureID | null> = [];
-    constructor(public native: Bind.ImGuiContext) {}
-    public delete(): void {
-        this.textures.length = 0;
-    }
+    constructor(public readonly native: Bind.reference_ImGuiContext) {}
     private _getTexture(index: number): ImTextureID | null {
         return this.textures[index] || null;
     }
@@ -2184,9 +2181,7 @@ export class ImGuiContext {
 }
 // IMGUI_API ImGuiContext* CreateContext(ImFontAtlas* shared_font_atlas = NULL);
 export function CreateContext(shared_font_atlas: ImFontAtlas | null = null): ImGuiContext | null {
-    const ctx_native: Bind.ImGuiContext | null = bind.CreateContext();
-    if (ctx_native === null) { throw new Error(); }
-    const ctx: ImGuiContext = new ImGuiContext(ctx_native);
+    const ctx: ImGuiContext = new ImGuiContext(bind.CreateContext());
     if (ImGuiContext.current_ctx === null) {
         ImGuiContext.current_ctx = ctx;
     }
@@ -2199,7 +2194,6 @@ export function DestroyContext(ctx: ImGuiContext | null = null): void {
         ImGuiContext.current_ctx = null;
     }
     bind.DestroyContext((ctx === null) ? null : ctx.native);
-    if (ctx) { ctx.delete(); }
 }
 // IMGUI_API ImGuiContext* GetCurrentContext();
 export function GetCurrentContext(): ImGuiContext | null {
