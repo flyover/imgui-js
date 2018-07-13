@@ -1320,6 +1320,88 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             ImGui.TreePop();
         }
 
+        if (ImGui.TreeNode("Drag and Drop"))
+        {
+            {
+                // ColorEdit widgets automatically act as drag source and drag target.
+                // They are using standardized payload strings IMGUI_PAYLOAD_TYPE_COLOR_3F and IMGUI_PAYLOAD_TYPE_COLOR_4F to allow your own widgets
+                // to use colors in their drag and drop interaction. Also see the demo in Color Picker -> Palette demo.
+                ImGui.BulletText("Drag and drop in standard widgets");
+                ImGui.Indent();
+                /* static */ const col1: Static<ImTuple3<number>> = STATIC<ImTuple3<number>>("col1#1309", [ 1.0, 0.0, 0.2 ]);
+                /* static */ const col2: Static<ImTuple4<number>> = STATIC<ImTuple4<number>>("col2#1310", [ 0.4, 0.7, 0.0, 0.5 ]);
+                ImGui.ColorEdit3("color 1", col1.value);
+                ImGui.ColorEdit4("color 2", col2.value);
+                ImGui.Unindent();
+            }
+
+            {
+                ImGui.BulletText("Drag and drop to copy/swap items");
+                ImGui.Indent();
+                enum Mode
+                {
+                    Mode_Copy,
+                    Mode_Move,
+                    Mode_Swap
+                };
+                // static int mode = 0;
+                /* static */ const mode: Static<number> = STATIC("mode", 0);
+                if (ImGui.RadioButton("Copy", mode.value === Mode.Mode_Copy)) { mode.value = Mode.Mode_Copy; } ImGui.SameLine();
+                if (ImGui.RadioButton("Move", mode.value === Mode.Mode_Move)) { mode.value = Mode.Mode_Move; } ImGui.SameLine();
+                if (ImGui.RadioButton("Swap", mode.value === Mode.Mode_Swap)) { mode.value = Mode.Mode_Swap; } 
+                // static const char* names[9] = { "Bobby", "Beatrice", "Betty", "Brianna", "Barry", "Bernard", "Bibi", "Blaine", "Bryn" };
+                /* static */ const names: Static<string[/*9*/]> = STATIC("names", [ "Bobby", "Beatrice", "Betty", "Brianna", "Barry", "Bernard", "Bibi", "Blaine", "Bryn" ]);
+                for (let n = 0; n < IM_ARRAYSIZE(names.value); n++)
+                {
+                    ImGui.PushID(n);
+                    if ((n % 3) != 0)
+                        ImGui.SameLine();
+                    ImGui.Button(names.value[n], new ImVec2(60,60));
+
+                    // Our buttons are both drag sources and drag targets here!
+                    if (ImGui.BeginDragDropSource(ImGui.DragDropFlags.None))
+                    {
+                        // ImGui.SetDragDropPayload("DND_DEMO_CELL", &n, sizeof(int));        // Set payload to carry the index of our item (could be anything)
+                        ImGui.SetDragDropPayload("DND_DEMO_CELL", { n }); // Set payload to carry the index of our item (could be anything)
+                        if (mode.value === Mode.Mode_Copy) { ImGui.Text(`Copy ${names.value[n]}`); } // Display preview (could be anything, e.g. when dragging an image we could decide to display the filename and a small preview of the image, etc.)
+                        if (mode.value === Mode.Mode_Move) { ImGui.Text(`Move ${names.value[n]}`); }
+                        if (mode.value === Mode.Mode_Swap) { ImGui.Text(`Swap ${names.value[n]}`); }
+                        ImGui.EndDragDropSource();
+                    }
+                    if (ImGui.BeginDragDropTarget())
+                    {
+                        let payload: ImGui.ImGuiPayload<{ n: number }> | null;
+                        if (payload = ImGui.AcceptDragDropPayload("DND_DEMO_CELL"))
+                        {
+                            // IM_ASSERT(payload->DataSize == sizeof(int));
+                            // int payload_n = *(const int*)payload->Data;
+                            const payload_n: number = payload.Data.n;
+                            if (mode.value === Mode.Mode_Copy)
+                            {
+                                names.value[n] = names.value[payload_n];
+                            }
+                            if (mode.value === Mode.Mode_Move)
+                            {
+                                names.value[n] = names.value[payload_n];
+                                names.value[payload_n] = "";
+                            }
+                            if (mode.value === Mode.Mode_Swap)
+                            {
+                                const tmp: string = names.value[n];
+                                names.value[n] = names.value[payload_n];
+                                names.value[payload_n] = tmp;
+                            }
+                        }
+                        ImGui.EndDragDropTarget();
+                    }
+                    ImGui.PopID();
+                }
+                ImGui.Unindent();
+            }
+
+            ImGui.TreePop();
+        }
+
         if (ImGui.TreeNode("Active, Focused, Hovered & Focused Tests"))
         {
             // Display the value of IsItemHovered() and other common item state functions. Note that the flags can be combined.
