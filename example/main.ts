@@ -151,8 +151,13 @@ function _loop(time: number): void {
         ImGui.Text(`Total allocated space (uordblks):      ${mi.uordblks}`);
         ImGui.Text(`Total free space (fordblks):           ${mi.fordblks}`);
         // ImGui.Text(`Topmost releasable block (keepcost):   ${mi.keepcost}`);
-        if (ImGui.ImageButton(image_gl_texture, new ImVec2(48, 48)))
-            show_demo_window = !show_demo_window;
+        if (ImGui.ImageButton(image_gl_texture, new ImVec2(48, 48))) {
+            // show_demo_window = !show_demo_window;
+            image_url = image_urls[(image_urls.indexOf(image_url) + 1) % image_urls.length];
+            if (image_element) {
+                image_element.src = image_url;
+            }
+        }
         if (ImGui.IsItemHovered()) {
             ImGui.BeginTooltip();
             ImGui.Text(image_url);
@@ -298,7 +303,12 @@ function ShowGamepadWindow(title: string, p_open: ImGui.ImAccess<boolean> | null
     ImGui.End();
 }
 
-const image_url: string = "../imgui/examples/example_apple/imguiex-ios/imgui_ex_icon.png";
+const image_urls: string[] = [
+    "https://threejs.org/examples/textures/crate.gif",
+    "https://threejs.org/examples/textures/sprite.png",
+    "https://threejs.org/examples/textures/UV_Grid_Sm.jpg",
+];
+let image_url: string = image_urls[0];
 let image_element: HTMLImageElement | null = null;
 let image_gl_texture: WebGLTexture | null = null;
 
@@ -317,6 +327,7 @@ function StartUpImage(): void {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 
         const image: HTMLImageElement = image_element = new Image();
+        image.crossOrigin = "anonymous";
         image.addEventListener("load", (event: Event) => {
             gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -354,13 +365,18 @@ let video_url_index = -1;
 let video_url: string = video_urls[0];
 let video_element: HTMLVideoElement | null = null;
 let video_gl_texture: WebGLTexture | null = null;
+let video_w: number = 640;
+let video_h: number = 360;
+let video_time_active: boolean = false;
+let video_time: number = 0;
+let video_duration: number = 0;
 
 function StartUpVideo(): void {
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
     if (gl) {
         video_element = document.createElement("video");
-        video_element.src = video_url;
         video_element.crossOrigin = "anonymous";
+        video_element.src = video_url;
         video_element.load();
 
         const width: number = 256;
@@ -392,12 +408,6 @@ function UpdateVideo(): void {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video_element);
     }
 }
-
-let video_w: number = 640;
-let video_h: number = 360;
-let video_time_active: boolean = false;
-let video_time: number = 0;
-let video_duration: number = 0;
 
 function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
     ImGui.Begin("Movie Window", p_open, ImGui.WindowFlags.AlwaysAutoResize);
