@@ -143,6 +143,8 @@ function STATIC<T>(key: string, value: T): Static<T> {
     return _static[key] || (_static[key] = new Static<T>(value));
 }
 
+let done: boolean = false;
+
 // static void ShowExampleAppConsole(bool* p_open);
 // static void ShowExampleAppLog(bool* p_open);
 // static void ShowExampleAppLayout(bool* p_open);
@@ -192,8 +194,10 @@ export function ShowUserGuide(): void
 }
 
 // Demonstrate most ImGui features (big function!)
-export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | null = null): void
+export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | null = null): boolean
 {
+    done = false;
+
     // Examples apps
     /* static */ const show_app_main_menu_bar: Static<boolean> = STATIC("show_app_main_menu_bar", false);
     /* static */ const show_app_console: Static<boolean> = STATIC("show_app_console", false);
@@ -260,7 +264,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     {
         // Early out if the window is collapsed, as an optimization.
         ImGui.End();
-        return;
+        return done;
     }
 
     //ImGui.PushItemWidth(ImGui.GetWindowWidth() * 0.65);    // 2/3 of the space for widget and 1/3 for labels
@@ -2373,6 +2377,8 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     }
 
     ImGui.End();
+
+    return done;
 }
 
 // Demo helper function to select among default colors. See ShowStyleEditor() for more advanced options.
@@ -2733,7 +2739,7 @@ function ShowExampleMenuFile(): void
         IM_ASSERT(0);
     }
     if (ImGui.MenuItem("Checked", null, true)) {}
-    if (ImGui.MenuItem("Quit", "Alt+F4")) {}
+    if (ImGui.MenuItem("Quit", "Alt+F4")) { done = true; }
 }
 
 // Demonstrate creating a window which gets auto-resized according to its content.
