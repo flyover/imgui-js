@@ -3751,7 +3751,7 @@ export function CaptureMouseFromApp(capture: boolean = true): void {
 
 // Clipboard Utilities (also see the LogToClipboard() function to capture or output text data to the clipboard)
 // IMGUI_API const char*   GetClipboardText();
-export function GetClipboardText(): void { bind.GetClipboardText(); }
+export function GetClipboardText(): string { return bind.GetClipboardText(); }
 // IMGUI_API void          SetClipboardText(const char* text);
 export function SetClipboardText(text: string): void { bind.SetClipboardText(text); }
 
