@@ -20,20 +20,20 @@ let g_FontTexture: WebGLTexture | null = null;
 let prev_time: number = 0;
 
 function document_on_copy(event: ClipboardEvent): void {
-    const data: string = event.clipboardData.getData("text/plain");
-    console.log(event.type, clipboard_text, data);
+    event.clipboardData.setData("text/plain", clipboard_text);
+    // console.log(`${event.type}: "${clipboard_text}"`);
     event.preventDefault();
 }
 
 function document_on_cut(event: ClipboardEvent): void {
-    const data: string = event.clipboardData.getData("text/plain");
-    console.log(event.type, clipboard_text, data);
+    event.clipboardData.setData("text/plain", clipboard_text);
+    // console.log(`${event.type}: "${clipboard_text}"`);
     event.preventDefault();
 }
 
 function document_on_paste(event: ClipboardEvent): void {
-    const data: string = event.clipboardData.getData("text/plain");
-    console.log(event.type, clipboard_text, data);
+    clipboard_text = event.clipboardData.getData("text/plain");
+    // console.log(`${event.type}: "${clipboard_text}"`);
     event.preventDefault();
 }
 
@@ -71,7 +71,7 @@ function canvas_on_blur(event: FocusEvent): void {
 }
 
 function canvas_on_keydown(event: KeyboardEvent): void {
-    console.log(event.type, event.key, event.keyCode);
+    // console.log(event.type, event.key, event.keyCode);
     const io = ImGui.GetIO();
     io.KeyCtrl = event.ctrlKey;
     io.KeyShift = event.shiftKey;
@@ -86,7 +86,7 @@ function canvas_on_keydown(event: KeyboardEvent): void {
 }
 
 function canvas_on_keyup(event: KeyboardEvent): void  {
-    console.log(event.type, event.key, event.keyCode);
+    // console.log(event.type, event.key, event.keyCode);
     const io = ImGui.GetIO();
     io.KeyCtrl = event.ctrlKey;
     io.KeyShift = event.shiftKey;
@@ -100,7 +100,7 @@ function canvas_on_keyup(event: KeyboardEvent): void  {
 }
 
 function canvas_on_keypress(event: KeyboardEvent): void  {
-    console.log(event.type, event.key, event.keyCode);
+    // console.log(event.type, event.key, event.keyCode);
     const io = ImGui.GetIO();
     io.AddInputCharacter(event.charCode);
     if (io.WantCaptureKeyboard) {
@@ -183,13 +183,24 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
     }
 
     io.SetClipboardTextFn = (user_data: any, text: string): void => {
-        // TODO: write to system clipboard
         clipboard_text = text;
-        console.log("set system clipboard", clipboard_text);
+        // console.log(`set clipboard_text: "${clipboard_text}"`);
+        if (typeof navigator !== "undefined" && typeof (navigator as any).clipboard !== "undefined") {
+            // console.log(`clipboard.writeText: "${clipboard_text}"`);
+            (navigator as any).clipboard.writeText(clipboard_text).then((): void => {
+                // console.log(`clipboard.writeText: "${clipboard_text}" done.`);
+            });
+        }
     };
     io.GetClipboardTextFn = (user_data: any): string => {
-        // TODO: read from system clipboard
-        console.log("get system clipboard", clipboard_text);
+        // if (typeof navigator !== "undefined" && typeof (navigator as any).clipboard !== "undefined") {
+        //     console.log(`clipboard.readText: "${clipboard_text}"`);
+        //     (navigator as any).clipboard.readText().then((text: string): void => {
+        //         clipboard_text = text;
+        //         console.log(`clipboard.readText: "${clipboard_text}" done.`);
+        //     });
+        // }
+        // console.log(`get clipboard_text: "${clipboard_text}"`);
         return clipboard_text;
     };
     io.ClipboardUserData = null;
