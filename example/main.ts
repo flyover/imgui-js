@@ -334,7 +334,24 @@ function CleanUpImage(): void {
     }
 }
 
-let video_url: string = "https://threejs.org/examples/textures/sintel.ogv";
+const video_urls: string[] = [
+    "https://threejs.org/examples/textures/sintel.ogv",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+];
+let video_url_index = -1;
+let video_url: string = video_urls[0];
 let video_element: HTMLVideoElement | null = null;
 let video_gl_texture: WebGLTexture | null = null;
 
@@ -376,36 +393,71 @@ function UpdateVideo(): void {
     }
 }
 
+let video_w: number = 640;
+let video_h: number = 360;
 let video_time_active: boolean = false;
 let video_time: number = 0;
+let video_duration: number = 0;
 
 function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
     ImGui.Begin("Movie Window", p_open, ImGui.WindowFlags.AlwaysAutoResize);
     if (video_element !== null) {
-        ImGui.PushItemWidth(-1);
-        if (ImGui.InputText("", (value = video_url) => video_url = value)) {
+        const w: number = video_element.videoWidth;
+        const h: number = video_element.videoHeight;
+        if (w > 0) { video_w = w; }
+        if (h > 0) { video_h = h; }
+
+        ImGui.BeginGroup();
+        if (ImGui.BeginCombo("##urls", video_urls[video_url_index] || null, ImGui.ComboFlags.NoPreview | ImGui.ComboFlags.PopupAlignLeft)) // The second parameter is the label previewed before opening the combo.
+        {
+            for (let n = 0; n < ImGui.IM_ARRAYSIZE(video_urls); n++) {
+                const is_selected: boolean = (video_url_index === n);
+                if (ImGui.Selectable(video_urls[n], is_selected)) {
+                    video_url_index = n;
+                    video_url = video_urls[video_url_index];
+                    video_url_index = -1;
+                    console.log(video_url);
+                    video_element.src = video_url;
+                    video_element.autoplay = true;
+                }
+                if (is_selected)
+                    ImGui.SetItemDefaultFocus();
+            }
+            ImGui.EndCombo();
+        }
+        ImGui.SameLine();
+        ImGui.PushItemWidth(video_w - 20);
+        if (ImGui.InputText("##url", (value = video_url) => video_url = value)) {
             console.log(video_url);
             video_element.src = video_url;
         }
         ImGui.PopItemWidth();
-        const w: number = video_element.videoWidth;
-        const h: number = video_element.videoHeight;
-        if (ImGui.ImageButton(video_gl_texture, new ImVec2(w, h))) {
-            video_element.paused ? video_element.play() : video_element.pause();
+        ImGui.EndGroup();
+
+        if (ImGui.ImageButton(video_gl_texture, new ImVec2(video_w, video_h))) {
+            if (video_element.readyState >= video_element.HAVE_CURRENT_DATA) {
+                video_element.paused ? video_element.play() : video_element.pause();
+            }
         }
+
+        ImGui.BeginGroup();
         if (ImGui.Button(video_element.paused ? "Play" : "Stop")) {
-            video_element.paused ? video_element.play() : video_element.pause();
+            if (video_element.readyState >= video_element.HAVE_CURRENT_DATA) {
+                video_element.paused ? video_element.play() : video_element.pause();
+            }
         }
         ImGui.SameLine();
         if (!video_time_active) {
             video_time = video_element.currentTime;
+            video_duration = video_element.duration || 0;
         }
-        ImGui.SliderFloat("Time", (value = video_time) => video_time = value, 0, video_element.duration);
+        ImGui.SliderFloat("##time", (value = video_time) => video_time = value, 0, video_duration);
         const video_time_was_active: boolean = video_time_active;
         video_time_active = ImGui.IsItemActive();
         if (!video_time_active && video_time_was_active) {
             video_element.currentTime = video_time;
         }
+        ImGui.EndGroup();
     } else {
         ImGui.Text("No Video Element");
     }
