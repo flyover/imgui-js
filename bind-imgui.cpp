@@ -643,8 +643,7 @@ EMSCRIPTEN_BINDINGS(ImFontConfig) {
         // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
         // GlyphRanges: Uint16Array | null;
         .property("GlyphRanges", FUNCTION(emscripten::val, (const ImFontConfig& that), {
-            const ImWchar* data = that.GlyphRanges;
-            return data == NULL ? emscripten::val::null() : emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+            return that.GlyphRanges == NULL ? emscripten::val::null() : emscripten::val((intptr_t) that.GlyphRanges);
         }))
         // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
         // GlyphMinAdvanceX: number;
@@ -829,15 +828,7 @@ ImFontConfig import_ImFontConfig(emscripten::val value) {
     font_cfg.GlyphOffset = import_ImVec2(value["GlyphOffset"]);
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
     const emscripten::val GlyphRanges = value["GlyphRanges"];
-    if (GlyphRanges.isNull()) {
-        font_cfg.GlyphRanges = NULL;
-    } else {
-        const emscripten::val buffer = GlyphRanges["buffer"];
-        const size_t byteOffset = GlyphRanges["byteOffset"].as<size_t>();
-        const size_t byteLength = GlyphRanges["byteLength"].as<size_t>();
-        font_cfg.GlyphRanges = NULL; // TODO
-        printf("TODO: GlyphRanges %ud %ud\n", byteOffset, byteLength);
-    }
+    font_cfg.GlyphRanges = GlyphRanges.isNull() ? NULL : (const ImWchar*) GlyphRanges.as<intptr_t>();
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
     font_cfg.GlyphMinAdvanceX = import_float(value["GlyphMinAdvanceX"]);
     // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
@@ -875,8 +866,8 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
             void* _data_copy = ImGui::MemAlloc(_data_size);
             memcpy(_data_copy, _data.data(), _data_size);
             ImFontConfig _font_cfg = font_cfg.isNull() ? ImFontConfig() : import_ImFontConfig(font_cfg);
-            std::vector<ImWchar> _glyph_ranges = glyph_ranges.isNull() ? std::vector<ImWchar>() : emscripten::vecFromJSArray<ImWchar>(glyph_ranges);
-            ImFont* font = that.AddFontFromMemoryTTF(_data_copy, _data_size, size_pixels, font_cfg.isNull() ? NULL : &_font_cfg, glyph_ranges.isNull() ? NULL : _glyph_ranges.data());
+            ImWchar* _glyph_ranges = glyph_ranges.isNull() ? NULL : (ImWchar*) glyph_ranges.as<intptr_t>();
+            ImFont* font = that.AddFontFromMemoryTTF(_data_copy, _data_size, size_pixels, font_cfg.isNull() ? NULL : &_font_cfg, _glyph_ranges);
             return emscripten::val(font);
         }), emscripten::allow_raw_pointers())
         // IMGUI_API ImFont*           AddFontFromMemoryCompressedTTF(const void* compressed_font_data, int compressed_font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // 'compressed_font_data' still owned by caller. Compress with binary_to_compressed_c.cpp.
@@ -936,38 +927,31 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         // NB: Make sure that your string are UTF-8 and NOT in your local code page. In C++11, you can create UTF-8 string literal using the u8"Hello world" syntax. See FAQ for details.
         // IMGUI_API const ImWchar*    GetGlyphRangesDefault();    // Basic Latin, Extended Latin
         .function("GetGlyphRangesDefault", FUNCTION(emscripten::val, (ImFontAtlas& that), {
-            const ImWchar* data = that.GetGlyphRangesDefault();
-            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+            return emscripten::val((intptr_t) that.GetGlyphRangesDefault());
         }))
         // IMGUI_API const ImWchar*    GetGlyphRangesKorean();     // Default + Korean characters
         .function("GetGlyphRangesKorean", FUNCTION(emscripten::val, (ImFontAtlas& that), {
-            const ImWchar* data = that.GetGlyphRangesKorean();
-            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+            return emscripten::val((intptr_t) that.GetGlyphRangesKorean());
         }))
         // IMGUI_API const ImWchar*    GetGlyphRangesJapanese();   // Default + Hiragana, Katakana, Half-Width, Selection of 1946 Ideographs
         .function("GetGlyphRangesJapanese", FUNCTION(emscripten::val, (ImFontAtlas& that), {
-            const ImWchar* data = that.GetGlyphRangesJapanese();
-            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+            return emscripten::val((intptr_t) that.GetGlyphRangesJapanese());
         }))
         // IMGUI_API const ImWchar*    GetGlyphRangesChineseFull();            // Default + Half-Width + Japanese Hiragana/Katakana + full set of about 21000 CJK Unified Ideographs
         .function("GetGlyphRangesChineseFull", FUNCTION(emscripten::val, (ImFontAtlas& that), {
-            const ImWchar* data = that.GetGlyphRangesChineseFull();
-            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+            return emscripten::val((intptr_t) that.GetGlyphRangesChineseFull());
         }))
         // IMGUI_API const ImWchar*    GetGlyphRangesChineseSimplifiedCommon();// Default + Half-Width + Japanese Hiragana/Katakana + set of 2500 CJK Unified Ideographs for common simplified Chinese
         .function("GetGlyphRangesChineseSimplifiedCommon", FUNCTION(emscripten::val, (ImFontAtlas& that), {
-            const ImWchar* data = that.GetGlyphRangesChineseSimplifiedCommon();
-            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+            return emscripten::val((intptr_t) that.GetGlyphRangesChineseSimplifiedCommon());
         }))
         // IMGUI_API const ImWchar*    GetGlyphRangesCyrillic();   // Default + about 400 Cyrillic characters
         .function("GetGlyphRangesCyrillic", FUNCTION(emscripten::val, (ImFontAtlas& that), {
-            const ImWchar* data = that.GetGlyphRangesCyrillic();
-            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+            return emscripten::val((intptr_t) that.GetGlyphRangesCyrillic());
         }))
         // IMGUI_API const ImWchar*    GetGlyphRangesThai();       // Default + Thai characters
         .function("GetGlyphRangesThai", FUNCTION(emscripten::val, (ImFontAtlas& that), {
-            const ImWchar* data = that.GetGlyphRangesThai();
-            return emscripten::val(emscripten::typed_memory_view<ImWchar>(wcslen((wchar_t*) data), data));
+            return emscripten::val((intptr_t) that.GetGlyphRangesThai());
         }))
 
         // Helpers to build glyph ranges from text data. Feed your application strings/characters to it then call BuildRanges().

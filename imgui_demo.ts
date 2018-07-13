@@ -629,9 +629,23 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 //   Please use u8"text in any language" in your application!
                 // Note that characters values are preserved even by InputText() if the font cannot be displayed, so you can safely copy & paste garbled characters into another application.
                 ImGui.TextWrapped("CJK text will only appears if the font was loaded with the appropriate CJK character ranges. Call io.Font->LoadFromFileTTF() manually to load extra character ranges. Read misc/fonts/README.txt for details.");
-                ImGui.Text("Hiragana: \xe3\x81\x8b\xe3\x81\x8d\xe3\x81\x8f\xe3\x81\x91\xe3\x81\x93 (kakikukeko)"); // Normally we would use u8"blah blah" with the proper characters directly in the string.
-                ImGui.Text("Kanjis: \xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e (nihongo)");
-                /* static */ const buf: Static<ImStringBuffer> = STATIC("buf", new ImStringBuffer(32, "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e"));
+                // か \xe3\x81\x8b U+304B &#12363;
+                // き \xe3\x81\x8d U+304D &#12365;
+                // く \xe3\x81\x8f U+304F &#12367;
+                // け \xe3\x81\x91 U+3051 &#12369;
+                // こ \xe3\x81\x93 U+3053 &#12371;
+                // ImGui.Text("Hiragana: \xe3\x81\x8b\xe3\x81\x8d\xe3\x81\x8f\xe3\x81\x91\xe3\x81\x93 (kakikukeko)"); // Normally we would use u8"blah blah" with the proper characters directly in the string.
+                // ImGui.Text("Hiragana: \u304B\u304D\u304F\u3051\u3053 (kakikukeko)"); // Normally we would use u8"blah blah" with the proper characters directly in the string.
+                ImGui.Text("Hiragana: かきくけこ (kakikukeko)"); // Normally we would use u8"blah blah" with the proper characters directly in the string.
+                // 日 \xe6\x97\xa5 U+65E5 &#26085;
+                // 本 \xe6\x9c\xac U+672C &#26412;
+                // 語 \xe8\xaa\x9e U+8A9E &#35486;
+                // ImGui.Text("Kanjis: \xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e (nihongo)");
+                // ImGui.Text("Kanjis: \u65E5\u672C\u8A9E (nihongo)");
+                ImGui.Text("Kanjis: 日本語 (nihongo)");
+                // /* static */ const buf: Static<ImStringBuffer> = STATIC("buf", new ImStringBuffer(32, "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e"));
+                // /* static */ const buf: Static<ImStringBuffer> = STATIC("buf", new ImStringBuffer(32, "\u65E5\u672C\u8A9E"));
+                /* static */ const buf: Static<ImStringBuffer> = STATIC("buf", new ImStringBuffer(32, "日本語"));
                 //static char buf[32] = u8"NIHONGO"; // <- this is how you would write it with C++11, using real kanjis
                 ImGui.InputText("UTF-8 input", buf.value, IM_ARRAYSIZE(buf.value));
                 ImGui.TreePop();
@@ -2514,14 +2528,18 @@ export function ShowStyleEditor(ref: ImGuiStyle | null = null): void
                                 draw_list.AddRect(cell_p1, cell_p2, glyph ? IM_COL32(255,255,255,100) : IM_COL32(255,255,255,50));
                                 if (glyph)
                                     font.RenderChar(draw_list, cell_size, cell_p1, ImGui.GetColorU32(ImGuiCol.Text), (base+n) as ImGui.Bind.ImWchar); // We use ImFont.RenderChar as a shortcut because we don't have UTF-8 conversion functions available to generate a string.
-                                if (glyph && ImGui.IsMouseHoveringRect(cell_p1, cell_p2))
+                                if (glyph && ImGui.IsWindowHovered() && ImGui.IsMouseHoveringRect(cell_p1, cell_p2))
                                 {
                                     ImGui.BeginTooltip();
                                     ImGui.Text(`Codepoint: U+${format_number_hex(base + n, 4).toUpperCase()}`);
                                     ImGui.Separator();
+                                    ImGui.Image(ImGui.GetIO().Fonts.TexID, new ImVec2(8 * (glyph.X1 - glyph.X0), 8 * (glyph.Y1 - glyph.Y0)), new ImVec2(glyph.U0, glyph.V0), new ImVec2(glyph.U1, glyph.V1), new ImColor(255, 255, 255, 255).toImVec4(), new ImColor(255, 255, 255, 128).toImVec4());
+                                    ImGui.SameLine();
+                                    ImGui.BeginGroup();
                                     ImGui.Text(`AdvanceX: ${glyph.AdvanceX.toFixed(1)}`);
                                     ImGui.Text(`Pos: (${glyph.X0.toFixed(2)},${glyph.Y0.toFixed(2)}).(${glyph.X1.toFixed(2)},${glyph.Y1.toFixed(2)})`);
                                     ImGui.Text(`UV: (${glyph.U0.toFixed(3)},${glyph.V0.toFixed(3)}).(${glyph.U1.toFixed(3)},${glyph.V1.toFixed(3)})`);
+                                    ImGui.EndGroup();
                                     ImGui.EndTooltip();
                                 }
                             }

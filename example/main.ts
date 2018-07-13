@@ -45,6 +45,12 @@ export default async function main(): Promise<void> {
     }
 }
 
+async function AddFontFromFileTTF(url: string, size_pixels: number, font_cfg: ImGui.ImFontConfig | null = null, glyph_ranges: number | null = null): Promise<ImGui.ImFont> {
+    font_cfg = font_cfg || new ImGui.ImFontConfig();
+    font_cfg.Name = font_cfg.Name || `${url.split(/[\\\/]/).pop()}, ${size_pixels.toFixed(0)}px`;
+    return ImGui.GetIO().Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer(url), size_pixels, font_cfg, glyph_ranges);
+}
+
 async function _init(): Promise<void> {
     console.log("Total allocated space (uordblks) @ _init:", ImGui.bind.mallinfo().uordblks);
 
@@ -67,12 +73,13 @@ async function _init(): Promise<void> {
     // - Read 'misc/fonts/README.txt' for more instructions and details.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
     io.Fonts.AddFontDefault();
-    font = io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/Roboto-Medium.ttf"), 16.0);
-    // io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/Cousine-Regular.ttf"), 15.0);
-    // io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/DroidSans.ttf"), 16.0);
-    // io.Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer("../imgui/misc/fonts/ProggyTiny.ttf"), 10.0);
-    // const font: ImFont = io.Fonts.AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
-    // IM_ASSERT(font !== null);
+    font = await AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 16.0);
+    // font = await AddFontFromFileTTF("../imgui/misc/fonts/Cousine-Regular.ttf", 15.0);
+    // font = await AddFontFromFileTTF("../imgui/misc/fonts/DroidSans.ttf", 16.0);
+    // font = await AddFontFromFileTTF("../imgui/misc/fonts/ProggyTiny.ttf", 10.0);
+    // font = await AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
+    // font = await AddFontFromFileTTF("https://raw.githubusercontent.com/googlei18n/noto-cjk/master/NotoSansJP-Regular.otf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
+    ImGui.IM_ASSERT(font !== null);
 
     if (typeof(window) !== "undefined") {
         const output: HTMLElement = document.getElementById("output") || document.body;
@@ -174,7 +181,10 @@ function _loop(time: number): void {
 
         if (font) {
             ImGui.PushFont(font);
-            ImGui.Text(`Roboto-Medium.ttf, 16px`);
+            ImGui.Text(`${font.GetDebugName()}`);
+            if (font.FindGlyphNoFallback(0x5929)) {
+                ImGui.Text(`U+5929: \u5929`);
+            }
             ImGui.PopFont();
         }
     }

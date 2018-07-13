@@ -1,3 +1,11 @@
+function encode_utf8(s: string): string {
+    return unescape(encodeURIComponent(s));
+}
+
+function decode_utf8(s: string): string {
+    return decodeURIComponent(escape(s));
+}
+
 import * as Bind from "./bind-imgui";
 export { Bind };
 
@@ -1361,7 +1369,7 @@ export class script_ImFontConfig implements Bind.interface_ImFontConfig
     GlyphOffset: ImVec2 = new ImVec2(0, 0);
     _get_GlyphOffset(): ImVec2 { return this.GlyphOffset; }
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
-    GlyphRanges: Uint16Array | null = null;
+    GlyphRanges: number | null = null;
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
     GlyphMinAdvanceX: number = 0;
     // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
@@ -1404,7 +1412,7 @@ export class ImFontConfig {
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
     get GlyphOffset(): ImVec2 { return this.internal._get_GlyphOffset(); }
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
-    get GlyphRanges(): Uint16Array | null { return this.internal.GlyphRanges; }
+    get GlyphRanges(): number | null { return this.internal.GlyphRanges; }
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
     get GlyphMinAdvanceX(): number { return this.internal.GlyphMinAdvanceX; }
     // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
@@ -1419,6 +1427,7 @@ export class ImFontConfig {
     // [Internal]
     // char            Name[32];                               // Name (strictly to ease debugging)
     get Name(): string { return this.internal.Name; }
+    set Name(value: string) { this.internal.Name = value; }
     // ImFont*         DstFont;
     get DstFont(): ImFont | null {
         const font = this.internal._get_DstFont();
@@ -1492,8 +1501,8 @@ export class ImFontAtlas
     }
     // IMGUI_API ImFont*           AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);
     // IMGUI_API ImFont*           AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer ownership of 'ttf_data' to ImFontAtlas! Will be deleted after Build(). Set font_cfg->FontDataOwnedByAtlas to false to keep ownership.
-    public AddFontFromMemoryTTF(data: ArrayBuffer, size_pixels: number, font_cfg: Bind.interface_ImFontConfig | null = null, glyph_ranges: Uint16Array | null = null): ImFont {
-        return new ImFont(this.native.AddFontFromMemoryTTF(new Uint8Array(data), size_pixels, font_cfg, glyph_ranges));
+    public AddFontFromMemoryTTF(data: ArrayBuffer, size_pixels: number, font_cfg: ImFontConfig | null = null, glyph_ranges: number | null = null): ImFont {
+        return new ImFont(this.native.AddFontFromMemoryTTF(new Uint8Array(data), size_pixels, font_cfg && font_cfg.internal, glyph_ranges));
     }
     // IMGUI_API ImFont*           AddFontFromMemoryCompressedTTF(const void* compressed_font_data, int compressed_font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // 'compressed_font_data' still owned by caller. Compress with binary_to_compressed_c.cpp.
     // IMGUI_API ImFont*           AddFontFromMemoryCompressedBase85TTF(const char* compressed_font_data_base85, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);              // 'compressed_font_data_base85' still owned by caller. Compress with binary_to_compressed_c.cpp with -base85 parameter.
@@ -1532,19 +1541,19 @@ export class ImFontAtlas
     // Helpers to retrieve list of common Unicode ranges (2 value per range, values are inclusive, zero-terminated list)
     // NB: Make sure that your string are UTF-8 and NOT in your local code page. In C++11, you can create UTF-8 string literal using the u8"Hello world" syntax. See FAQ for details.
     // IMGUI_API const ImWchar*    GetGlyphRangesDefault();    // Basic Latin, Extended Latin
-    GetGlyphRangesDefault(): Uint16Array { return this.native.GetGlyphRangesDefault(); }
+    GetGlyphRangesDefault(): number { return this.native.GetGlyphRangesDefault(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesKorean();     // Default + Korean characters
-    GetGlyphRangesKorean(): Uint16Array { return this.native.GetGlyphRangesKorean(); }
+    GetGlyphRangesKorean(): number { return this.native.GetGlyphRangesKorean(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesJapanese();   // Default + Hiragana, Katakana, Half-Width, Selection of 1946 Ideographs
-    GetGlyphRangesJapanese(): Uint16Array { return this.native.GetGlyphRangesJapanese(); }
+    GetGlyphRangesJapanese(): number { return this.native.GetGlyphRangesJapanese(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesChineseFull();            // Default + Half-Width + Japanese Hiragana/Katakana + full set of about 21000 CJK Unified Ideographs
-    GetGlyphRangesChineseFull(): Uint16Array { return this.native.GetGlyphRangesChineseFull(); }
+    GetGlyphRangesChineseFull(): number { return this.native.GetGlyphRangesChineseFull(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesChineseSimplifiedCommon();// Default + Half-Width + Japanese Hiragana/Katakana + set of 2500 CJK Unified Ideographs for common simplified Chinese
-    GetGlyphRangesChineseSimplifiedCommon(): Uint16Array { return this.native.GetGlyphRangesChineseSimplifiedCommon(); }
+    GetGlyphRangesChineseSimplifiedCommon(): number { return this.native.GetGlyphRangesChineseSimplifiedCommon(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesCyrillic();   // Default + about 400 Cyrillic characters
-    GetGlyphRangesCyrillic(): Uint16Array { return this.native.GetGlyphRangesCyrillic(); }
+    GetGlyphRangesCyrillic(): number { return this.native.GetGlyphRangesCyrillic(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesThai();       // Default + Thai characters
-    GetGlyphRangesThai(): Uint16Array { return this.native.GetGlyphRangesThai(); }
+    GetGlyphRangesThai(): number { return this.native.GetGlyphRangesThai(); }
 
     // Helpers to build glyph ranges from text data. Feed your application strings/characters to it then call BuildRanges().
     // struct GlyphRangesBuilder
@@ -2654,7 +2663,7 @@ export function GetID(id: string | number): Bind.ImGuiID { return bind.GetID(id)
 export function TextUnformatted(text: string, text_end: number | null = null): void { bind.TextUnformatted(text_end !== null ? text.substring(0, text_end) : text); }
 // IMGUI_API void          Text(const char* fmt, ...)                                     IM_FMTARGS(1); // simple formatted text
 // IMGUI_API void          TextV(const char* fmt, va_list args)                           IM_FMTLIST(1);
-export function Text(fmt: string/*, ...args: any[]*/): void { bind.Text(fmt/*, ...args*/); }
+export function Text(fmt: string/*, ...args: any[]*/): void { bind.Text(encode_utf8(fmt)/*, ...args*/); }
 // IMGUI_API void          TextColored(const ImVec4& col, const char* fmt, ...)           IM_FMTARGS(2); // shortcut for PushStyleColor(ImGuiCol_Text, col); Text(fmt, ...); PopStyleColor();
 // IMGUI_API void          TextColoredV(const ImVec4& col, const char* fmt, va_list args) IM_FMTLIST(2);
 export function TextColored(col: Readonly<Bind.interface_ImVec4> | Readonly<ImColor>, fmt: string/*, ...args: any[]*/): void {
@@ -2945,15 +2954,15 @@ export function InputText(label: string, buf: ImStringBuffer | Bind.ImAccess<str
     if (Array.isArray(buf)) {
         return bind.InputText(label, buf, buf_size, flags, _callback, null);
     } else if (buf instanceof ImStringBuffer) {
-        const ref_buf: Bind.ImScalar<string> = [ buf.buffer ];
+        const ref_buf: Bind.ImScalar<string> = [ encode_utf8(buf.buffer) ];
         const _buf_size: number = Math.min(buf_size, buf.size);
         const ret: boolean = bind.InputText(label, ref_buf, _buf_size, flags, _callback, null);
-        buf.buffer = ref_buf[0];
+        buf.buffer = decode_utf8(ref_buf[0]);
         return ret;
     } else {
-        const ref_buf: Bind.ImScalar<string> = [ buf() ];
+        const ref_buf: Bind.ImScalar<string> = [ encode_utf8(buf()) ];
         const ret: boolean = bind.InputText(label, ref_buf, buf_size, flags, _callback, null);
-        buf(ref_buf[0]);
+        buf(decode_utf8(ref_buf[0]));
         return ret;
     }
 }

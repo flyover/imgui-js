@@ -580,7 +580,7 @@ export interface interface_ImFontConfig {
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
     _get_GlyphOffset(): interface_ImVec2;
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
-    GlyphRanges: Uint16Array | null;
+    GlyphRanges: number | null;
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
     GlyphMinAdvanceX: number;
     // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
@@ -621,7 +621,7 @@ export class reference_ImFontConfig implements interface_ImFontConfig {
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
     _get_GlyphOffset(): reference_ImVec2;
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
-    GlyphRanges: Uint16Array | null;
+    GlyphRanges: number | null;
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
     GlyphMinAdvanceX: number;
     // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
@@ -686,7 +686,7 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     AddFontDefault(font_cfg: interface_ImFontConfig | null): reference_ImFont;
     // IMGUI_API ImFont*           AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);
     // IMGUI_API ImFont*           AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer ownership of 'ttf_data' to ImFontAtlas! Will be deleted after Build(). Set font_cfg->FontDataOwnedByAtlas to false to keep ownership.
-    AddFontFromMemoryTTF(data: Uint8Array, size_pixels: number, font_cfg: interface_ImFontConfig | null, glyph_ranges: Uint16Array | null): reference_ImFont;
+    AddFontFromMemoryTTF(data: Uint8Array, size_pixels: number, font_cfg: interface_ImFontConfig | null, glyph_ranges: number | null): reference_ImFont;
     // IMGUI_API ImFont*           AddFontFromMemoryCompressedTTF(const void* compressed_font_data, int compressed_font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // 'compressed_font_data' still owned by caller. Compress with binary_to_compressed_c.cpp.
     // IMGUI_API ImFont*           AddFontFromMemoryCompressedBase85TTF(const char* compressed_font_data_base85, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);              // 'compressed_font_data_base85' still owned by caller. Compress with binary_to_compressed_c.cpp with -base85 parameter.
     // IMGUI_API void              ClearTexData();             // Clear the CPU-side texture data. Saves RAM once the texture has been copied to graphics memory.
@@ -719,19 +719,19 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // Helpers to retrieve list of common Unicode ranges (2 value per range, values are inclusive, zero-terminated list)
     // NB: Make sure that your string are UTF-8 and NOT in your local code page. In C++11, you can create UTF-8 string literal using the u8"Hello world" syntax. See FAQ for details.
     // IMGUI_API const ImWchar*    GetGlyphRangesDefault();    // Basic Latin, Extended Latin
-    GetGlyphRangesDefault(): Uint16Array;
+    GetGlyphRangesDefault(): number;
     // IMGUI_API const ImWchar*    GetGlyphRangesKorean();     // Default + Korean characters
-    GetGlyphRangesKorean(): Uint16Array;
+    GetGlyphRangesKorean(): number;
     // IMGUI_API const ImWchar*    GetGlyphRangesJapanese();   // Default + Hiragana, Katakana, Half-Width, Selection of 1946 Ideographs
-    GetGlyphRangesJapanese(): Uint16Array;
+    GetGlyphRangesJapanese(): number;
     // IMGUI_API const ImWchar*    GetGlyphRangesChineseFull();            // Default + Half-Width + Japanese Hiragana/Katakana + full set of about 21000 CJK Unified Ideographs
-    GetGlyphRangesChineseFull(): Uint16Array;
+    GetGlyphRangesChineseFull(): number;
     // IMGUI_API const ImWchar*    GetGlyphRangesChineseSimplifiedCommon();// Default + Half-Width + Japanese Hiragana/Katakana + set of 2500 CJK Unified Ideographs for common simplified Chinese
-    GetGlyphRangesChineseSimplifiedCommon(): Uint16Array;
+    GetGlyphRangesChineseSimplifiedCommon(): number;
     // IMGUI_API const ImWchar*    GetGlyphRangesCyrillic();   // Default + about 400 Cyrillic characters
-    GetGlyphRangesCyrillic(): Uint16Array;
+    GetGlyphRangesCyrillic(): number;
     // IMGUI_API const ImWchar*    GetGlyphRangesThai();       // Default + Thai characters
-    GetGlyphRangesThai(): Uint16Array;
+    GetGlyphRangesThai(): number;
 
     // Helpers to build glyph ranges from text data. Feed your application strings/characters to it then call BuildRanges().
     // struct GlyphRangesBuilder
