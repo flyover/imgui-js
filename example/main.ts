@@ -361,7 +361,6 @@ const video_urls: string[] = [
     "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
     "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
 ];
-let video_url_index = -1;
 let video_url: string = video_urls[0];
 let video_element: HTMLVideoElement | null = null;
 let video_gl_texture: WebGLTexture | null = null;
@@ -410,7 +409,7 @@ function UpdateVideo(): void {
 }
 
 function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
-    ImGui.Begin("Movie Window", p_open, ImGui.WindowFlags.AlwaysAutoResize);
+    ImGui.Begin(title, p_open, ImGui.WindowFlags.AlwaysAutoResize);
     if (video_element !== null) {
         const w: number = video_element.videoWidth;
         const h: number = video_element.videoHeight;
@@ -418,20 +417,14 @@ function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null =
         if (h > 0) { video_h = h; }
 
         ImGui.BeginGroup();
-        if (ImGui.BeginCombo("##urls", video_urls[video_url_index] || null, ImGui.ComboFlags.NoPreview | ImGui.ComboFlags.PopupAlignLeft)) // The second parameter is the label previewed before opening the combo.
-        {
+        if (ImGui.BeginCombo("##urls", null, ImGui.ComboFlags.NoPreview | ImGui.ComboFlags.PopupAlignLeft)) {
             for (let n = 0; n < ImGui.IM_ARRAYSIZE(video_urls); n++) {
-                const is_selected: boolean = (video_url_index === n);
-                if (ImGui.Selectable(video_urls[n], is_selected)) {
-                    video_url_index = n;
-                    video_url = video_urls[video_url_index];
-                    video_url_index = -1;
+                if (ImGui.Selectable(video_urls[n])) {
+                    video_url = video_urls[n];
                     console.log(video_url);
                     video_element.src = video_url;
                     video_element.autoplay = true;
                 }
-                if (is_selected)
-                    ImGui.SetItemDefaultFocus();
             }
             ImGui.EndCombo();
         }
