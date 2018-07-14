@@ -2169,7 +2169,7 @@ export class ImGuiContext {
     }
 
     private textures: Array<ImTextureID | null> = [];
-    constructor(public readonly native: Bind.reference_ImGuiContext) {}
+    constructor(public readonly native: Bind.WrapImGuiContext) {}
     private _getTexture(index: number): ImTextureID | null {
         return this.textures[index] || null;
     }

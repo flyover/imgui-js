@@ -58,7 +58,7 @@ type ImGuiCond = number;
 type ImDrawCornerFlags = number;
 type ImDrawListFlags = number;
 
-export class reference_ImGuiContext extends Emscripten.EmscriptenClassReference {}
+export class WrapImGuiContext extends Emscripten.EmscriptenClass {}
 
 export interface interface_ImVec2 {
     x: number;
@@ -1001,13 +1001,13 @@ ImGuiStyle: { new(): ImGuiStyle; };
 // All contexts share a same ImFontAtlas by default. If you want different font atlas, you can new() them and overwrite the GetIO().Fonts variable of an ImGui context.
 // All those functions are not reliant on the current context.
 // IMGUI_API ImGuiContext* CreateContext(ImFontAtlas* shared_font_atlas = NULL);
-CreateContext(): reference_ImGuiContext;
+CreateContext(): WrapImGuiContext;
 // IMGUI_API void          DestroyContext(ImGuiContext* ctx = NULL);   // NULL = Destroy current context
-DestroyContext(ctx: reference_ImGuiContext | null): void;
+DestroyContext(ctx: WrapImGuiContext | null): void;
 // IMGUI_API ImGuiContext* GetCurrentContext();
-GetCurrentContext(): reference_ImGuiContext | null;
+GetCurrentContext(): WrapImGuiContext | null;
 // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
-SetCurrentContext(ctx: reference_ImGuiContext | null): void;
+SetCurrentContext(ctx: WrapImGuiContext | null): void;
 // IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert);
 DebugCheckVersionAndDataLayout(version_str: string, sz_io: number, sz_style: number, sz_vec2: number, sz_vec4: number, sz_draw_vert: number): boolean;
 
