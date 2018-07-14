@@ -1028,7 +1028,7 @@ export class ImDrawCmd
     // unsigned int    ElemCount;              // Number of indices (multiple of 3) to be rendered as triangles. Vertices are stored in the callee ImDrawList's vtx_buffer[] array, indices in idx_buffer[].
     get ElemCount(): number { return this.native.ElemCount; }
     // ImVec4          ClipRect;               // Clipping rectangle (x1, y1, x2, y2)
-    get ClipRect(): Readonly<Bind.reference_ImVec4> { return this.native._get_ClipRect(); }
+    get ClipRect(): Readonly<Bind.reference_ImVec4> { return this.native.ClipRect; }
     // ImTextureID     TextureId;              // User-provided texture ID. Set by user in ImfontAtlas::SetTexID() for fonts or passed to Image*() functions. Ignore if never using images or multiple fonts atlas.
     get TextureId(): ImTextureID | null {
         return ImGuiContext.getTexture(this.native.TextureId);
@@ -1331,9 +1331,9 @@ export class ImDrawData
     // int             TotalVtxCount;          // For convenience, sum of all cmd_lists vtx_buffer.Size
     get TotalVtxCount(): number { return this.native.TotalVtxCount; }
     // ImVec2          DisplayPos;             // Upper-left position of the viewport to render (== upper-left of the orthogonal projection matrix to use)
-    get DisplayPos(): Readonly<Bind.reference_ImVec2> { return this.native._get_DisplayPos(); }
+    get DisplayPos(): Readonly<Bind.reference_ImVec2> { return this.native.DisplayPos; }
     // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
-    get DisplaySize(): Readonly<Bind.reference_ImVec2> { return this.native._get_DisplaySize(); }
+    get DisplaySize(): Readonly<Bind.reference_ImVec2> { return this.native.DisplaySize; }
 
     // Functions
     // ImDrawData() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; }
@@ -1350,7 +1350,6 @@ export class script_ImFontConfig implements Bind.interface_ImFontConfig
     // void*           FontData;                   //          // TTF/OTF data
     // int             FontDataSize;               //          // TTF/OTF data size
     FontData: DataView | null = null;
-    _get_FontData(): DataView | null { return this.FontData; }
     // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
     FontDataOwnedByAtlas: boolean = true;
     // int             FontNo;                     // 0        // Index of font within TTF/OTF file
@@ -1364,10 +1363,8 @@ export class script_ImFontConfig implements Bind.interface_ImFontConfig
     PixelSnapH: boolean = false;
     // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
     GlyphExtraSpacing: ImVec2 = new ImVec2(0, 0);
-    _get_GlyphExtraSpacing(): ImVec2 { return this.GlyphExtraSpacing; }
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
     GlyphOffset: ImVec2 = new ImVec2(0, 0);
-    _get_GlyphOffset(): ImVec2 { return this.GlyphOffset; }
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
     GlyphRanges: number | null = null;
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
@@ -1385,7 +1382,7 @@ export class script_ImFontConfig implements Bind.interface_ImFontConfig
     // char            Name[32];                               // Name (strictly to ease debugging)
     Name: string = "";
     // ImFont*         DstFont;
-    _get_DstFont(): Bind.reference_ImFont | null { return null; }
+    DstFont: Bind.reference_ImFont | null = null;
 
     // IMGUI_API ImFontConfig();
 }
@@ -1395,7 +1392,7 @@ export class ImFontConfig {
 
     // void*           FontData;                   //          // TTF/OTF data
     // int             FontDataSize;               //          // TTF/OTF data size
-    get FontData(): DataView | null { return this.internal._get_FontData(); }
+    get FontData(): DataView | null { return this.internal.FontData; }
     // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
     get FontDataOwnedByAtlas(): boolean { return this.internal.FontDataOwnedByAtlas; }
     // int             FontNo;                     // 0        // Index of font within TTF/OTF file
@@ -1408,9 +1405,9 @@ export class ImFontConfig {
     // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
     get PixelSnapH(): boolean { return this.internal.PixelSnapH; }
     // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
-    get GlyphExtraSpacing(): ImVec2 { return this.internal._get_GlyphExtraSpacing(); }
+    get GlyphExtraSpacing(): ImVec2 { return this.internal.GlyphExtraSpacing; }
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
-    get GlyphOffset(): ImVec2 { return this.internal._get_GlyphOffset(); }
+    get GlyphOffset(): ImVec2 { return this.internal.GlyphOffset; }
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
     get GlyphRanges(): number | null { return this.internal.GlyphRanges; }
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
@@ -1430,7 +1427,7 @@ export class ImFontConfig {
     set Name(value: string) { this.internal.Name = value; }
     // ImFont*         DstFont;
     get DstFont(): ImFont | null {
-        const font = this.internal._get_DstFont();
+        const font = this.internal.DstFont;
         return font && new ImFont(font);
     }
 
@@ -1621,9 +1618,9 @@ export class ImFontAtlas
     // int                         TexHeight;          // Texture height calculated during Build().
     get TexHeight(): number { return this.native.TexHeight; }
     // ImVec2                      TexUvScale;         // = (1.0f/TexWidth, 1.0f/TexHeight)
-    get TexUvScale(): Readonly<Bind.reference_ImVec2> { return this.native._get_TexUvScale(); }
+    get TexUvScale(): Readonly<Bind.reference_ImVec2> { return this.native.TexUvScale; }
     // ImVec2                      TexUvWhitePixel;    // Texture coordinates to a white pixel
-    get TexUvWhitePixel(): Readonly<Bind.reference_ImVec2> { return this.native._get_TexUvWhitePixel(); }
+    get TexUvWhitePixel(): Readonly<Bind.reference_ImVec2> { return this.native.TexUvWhitePixel; }
     // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
     get Fonts(): ImVector<ImFont> {
         const fonts: ImVector<ImFont> = new ImVector<ImFont>();
@@ -1650,7 +1647,7 @@ export class ImFont
     get Scale(): number { return this.native.Scale; }
     set Scale(value: number) { this.native.Scale = value; }
     // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
-    get DisplayOffset(): Bind.interface_ImVec2 { return this.native._get_DisplayOffset(); }
+    get DisplayOffset(): Bind.interface_ImVec2 { return this.native.DisplayOffset; }
     // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
     get Glyphs(): ImVector<ImFontGlyph> {
         const glyphs = new ImVector<ImFontGlyph>();
@@ -1665,11 +1662,11 @@ export class ImFont
     // get IndexLookup(): any { return this.native.IndexLookup; }
     // const ImFontGlyph*          FallbackGlyph;      // == FindGlyph(FontFallbackChar)
     get FallbackGlyph(): ImFontGlyph | null {
-        const glyph = this.native._get_FallbackGlyph();
+        const glyph = this.native.FallbackGlyph;
         return glyph && new ImFontGlyph(glyph);
     }
     set FallbackGlyph(value: ImFontGlyph | null) {
-        this.native._set_FallbackGlyph(value && value.internal);
+        this.native.FallbackGlyph = value && value.internal;
     }
     // float                       FallbackAdvanceX;   // == FallbackGlyph->AdvanceX
     get FallbackAdvanceX(): number { return this.native.FallbackAdvanceX; }
@@ -1751,40 +1748,30 @@ export class ImFont
 // a script version of BindImGui.ImGuiStyle with matching interface
 class script_ImGuiStyle implements Bind.interface_ImGuiStyle {
     public Alpha: number = 1.0;
-    private WindowPadding: ImVec2 = new ImVec2(8, 8);
-    public _get_WindowPadding(): Bind.interface_ImVec2 { return this.WindowPadding; }
+    public WindowPadding: ImVec2 = new ImVec2(8, 8);
     public WindowRounding: number = 7.0;
     public WindowBorderSize: number = 0.0;
-    private WindowMinSize: ImVec2 = new ImVec2(32, 32);
-    public _get_WindowMinSize(): Bind.interface_ImVec2 { return this.WindowMinSize; }
-    private WindowTitleAlign: ImVec2 = new ImVec2(0.0, 0.5);
-    public _get_WindowTitleAlign(): Bind.interface_ImVec2 { return this.WindowTitleAlign; }
+    public WindowMinSize: ImVec2 = new ImVec2(32, 32);
+    public WindowTitleAlign: ImVec2 = new ImVec2(0.0, 0.5);
     public ChildRounding: number = 0.0;
     public ChildBorderSize: number = 1.0;
     public PopupRounding: number = 0.0;
     public PopupBorderSize: number = 1.0;
-    private FramePadding: ImVec2 = new ImVec2(4, 3);
-    public _get_FramePadding(): Bind.interface_ImVec2 { return this.FramePadding; }
+    public FramePadding: ImVec2 = new ImVec2(4, 3);
     public FrameRounding: number = 0.0;
     public FrameBorderSize: number = 0.0;
-    private ItemSpacing: ImVec2 = new ImVec2(8, 4);
-    public _get_ItemSpacing(): Bind.interface_ImVec2 { return this.ItemSpacing; }
-    private ItemInnerSpacing: ImVec2 = new ImVec2(4, 4);
-    public _get_ItemInnerSpacing(): Bind.interface_ImVec2 { return this.ItemInnerSpacing; }
-    private TouchExtraPadding: ImVec2 = new ImVec2(0, 0);
-    public _get_TouchExtraPadding(): Bind.interface_ImVec2 { return this.TouchExtraPadding; }
+    public ItemSpacing: ImVec2 = new ImVec2(8, 4);
+    public ItemInnerSpacing: ImVec2 = new ImVec2(4, 4);
+    public TouchExtraPadding: ImVec2 = new ImVec2(0, 0);
     public IndentSpacing: number = 21.0;
     public ColumnsMinSpacing: number = 6.0;
     public ScrollbarSize: number = 16.0;
     public ScrollbarRounding: number = 9.0;
     public GrabMinSize: number = 10.0;
     public GrabRounding: number = 0.0;
-    private ButtonTextAlign: ImVec2 = new ImVec2(0.5, 0.5);
-    public _get_ButtonTextAlign(): Bind.interface_ImVec2 { return this.ButtonTextAlign; }
-    private DisplayWindowPadding: ImVec2 = new ImVec2(22, 22);
-    public _get_DisplayWindowPadding(): Bind.interface_ImVec2 { return this.DisplayWindowPadding; }
-    private DisplaySafeAreaPadding: ImVec2 = new ImVec2(4, 4);
-    public _get_DisplaySafeAreaPadding(): Bind.interface_ImVec2 { return this.DisplaySafeAreaPadding; }
+    public ButtonTextAlign: ImVec2 = new ImVec2(0.5, 0.5);
+    public DisplayWindowPadding: ImVec2 = new ImVec2(22, 22);
+    public DisplaySafeAreaPadding: ImVec2 = new ImVec2(4, 4);
     public MouseCursorScale: number = 1;
     public AntiAliasedLines: boolean = true;
     public AntiAliasedFill: boolean = true;
@@ -1822,30 +1809,30 @@ export class ImGuiStyle
     constructor(public readonly internal: Bind.interface_ImGuiStyle = new script_ImGuiStyle()) {}
 
     get Alpha(): number { return this.internal.Alpha; } set Alpha(value: number) { this.internal.Alpha = value; }
-    get WindowPadding(): Bind.interface_ImVec2 { return this.internal._get_WindowPadding(); }
+    get WindowPadding(): Bind.interface_ImVec2 { return this.internal.WindowPadding; }
     get WindowRounding(): number { return this.internal.WindowRounding; } set WindowRounding(value: number) { this.internal.WindowRounding = value; }
     get WindowBorderSize(): number { return this.internal.WindowBorderSize; } set WindowBorderSize(value: number) { this.internal.WindowBorderSize = value; }
-    get WindowMinSize(): Bind.interface_ImVec2 { return this.internal._get_WindowMinSize(); }
-    get WindowTitleAlign(): Bind.interface_ImVec2 { return this.internal._get_WindowTitleAlign(); }
+    get WindowMinSize(): Bind.interface_ImVec2 { return this.internal.WindowMinSize; }
+    get WindowTitleAlign(): Bind.interface_ImVec2 { return this.internal.WindowTitleAlign; }
     get ChildRounding(): number { return this.internal.ChildRounding; } set ChildRounding(value: number) { this.internal.ChildRounding = value; }
     get ChildBorderSize(): number { return this.internal.ChildBorderSize; } set ChildBorderSize(value: number) { this.internal.ChildBorderSize = value; }
     get PopupRounding(): number { return this.internal.PopupRounding; } set PopupRounding(value: number) { this.internal.PopupRounding = value; }
     get PopupBorderSize(): number { return this.internal.PopupBorderSize; } set PopupBorderSize(value: number) { this.internal.PopupBorderSize = value; }
-    get FramePadding(): Bind.interface_ImVec2 { return this.internal._get_FramePadding(); }
+    get FramePadding(): Bind.interface_ImVec2 { return this.internal.FramePadding; }
     get FrameRounding(): number { return this.internal.FrameRounding; } set FrameRounding(value: number) { this.internal.FrameRounding = value; }
     get FrameBorderSize(): number { return this.internal.FrameBorderSize; } set FrameBorderSize(value: number) { this.internal.FrameBorderSize = value; }
-    get ItemSpacing(): Bind.interface_ImVec2 { return this.internal._get_ItemSpacing(); }
-    get ItemInnerSpacing(): Bind.interface_ImVec2 { return this.internal._get_ItemInnerSpacing(); }
-    get TouchExtraPadding(): Bind.interface_ImVec2 { return this.internal._get_TouchExtraPadding(); }
+    get ItemSpacing(): Bind.interface_ImVec2 { return this.internal.ItemSpacing; }
+    get ItemInnerSpacing(): Bind.interface_ImVec2 { return this.internal.ItemInnerSpacing; }
+    get TouchExtraPadding(): Bind.interface_ImVec2 { return this.internal.TouchExtraPadding; }
     get IndentSpacing(): number { return this.internal.IndentSpacing; } set IndentSpacing(value: number) { this.internal.IndentSpacing = value; }
     get ColumnsMinSpacing(): number { return this.internal.ColumnsMinSpacing; } set ColumnsMinSpacing(value: number) { this.internal.ColumnsMinSpacing = value; }
     get ScrollbarSize(): number { return this.internal.ScrollbarSize; } set ScrollbarSize(value: number) { this.internal.ScrollbarSize = value; }
     get ScrollbarRounding(): number { return this.internal.ScrollbarRounding; } set ScrollbarRounding(value: number) { this.internal.ScrollbarRounding = value; }
     get GrabMinSize(): number { return this.internal.GrabMinSize; } set GrabMinSize(value: number) { this.internal.GrabMinSize = value; }
     get GrabRounding(): number { return this.internal.GrabRounding; } set GrabRounding(value: number) { this.internal.GrabRounding = value; }
-    get ButtonTextAlign(): Bind.interface_ImVec2 { return this.internal._get_ButtonTextAlign(); }
-    get DisplayWindowPadding(): Bind.interface_ImVec2 { return this.internal._get_DisplayWindowPadding(); }
-    get DisplaySafeAreaPadding(): Bind.interface_ImVec2 { return this.internal._get_DisplaySafeAreaPadding(); }
+    get ButtonTextAlign(): Bind.interface_ImVec2 { return this.internal.ButtonTextAlign; }
+    get DisplayWindowPadding(): Bind.interface_ImVec2 { return this.internal.DisplayWindowPadding; }
+    get DisplaySafeAreaPadding(): Bind.interface_ImVec2 { return this.internal.DisplaySafeAreaPadding; }
     get MouseCursorScale(): number { return this.internal.MouseCursorScale; } set MouseCursorScale(value: number) { this.internal.MouseCursorScale = value; }
     get AntiAliasedLines(): boolean { return this.internal.AntiAliasedLines; } set AntiAliasedLines(value: boolean) { this.internal.AntiAliasedLines = value; }
     get AntiAliasedFill(): boolean { return this.internal.AntiAliasedFill; } set AntiAliasedFill(value: boolean) { this.internal.AntiAliasedFill = value; }
@@ -1916,7 +1903,7 @@ export class ImGuiIO
     get BackendFlags(): ImGuiBackendFlags { return this.native.BackendFlags; }
     set BackendFlags(value: ImGuiBackendFlags) { this.native.BackendFlags = value; }
     // ImVec2        DisplaySize;              // <unset>              // Display size, in pixels. For clamping windows positions.
-    get DisplaySize(): Bind.reference_ImVec2 { return this.native._get_DisplaySize(); }
+    get DisplaySize(): Bind.reference_ImVec2 { return this.native.DisplaySize; }
     // float         DeltaTime;                // = 1.0f/60.0f         // Time elapsed since last frame, in seconds.
     get DeltaTime(): number { return this.native.DeltaTime; }
     set DeltaTime(value: number) { this.native.DeltaTime = value; }
@@ -1959,7 +1946,7 @@ export class ImGuiIO
     set UserData(value: any) { this.native.UserData = value; }
 
     // ImFontAtlas*  Fonts;                    // <auto>               // Load and assemble one or more fonts into a single tightly packed texture. Output to Fonts array.
-    get Fonts(): ImFontAtlas { return new ImFontAtlas(this.native._get_Fonts()); }
+    get Fonts(): ImFontAtlas { return new ImFontAtlas(this.native.Fonts); }
     // float         FontGlobalScale;          // = 1.0f               // Global scale all fonts
     get FontGlobalScale(): number { return this.native.FontGlobalScale; }
     set FontGlobalScale(value: number) { this.native.FontGlobalScale = value; }
@@ -1968,18 +1955,18 @@ export class ImGuiIO
     set FontAllowUserScaling(value: boolean) { this.native.FontAllowUserScaling = value; }
     // ImFont*       FontDefault;              // = NULL               // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
     get FontDefault(): ImFont | null {
-        const font: Bind.reference_ImFont | null = this.native._get_FontDefault();
+        const font: Bind.reference_ImFont | null = this.native.FontDefault;
         return (font === null) ? null : new ImFont(font);
     }
     set FontDefault(value: ImFont | null) {
-        this.native._set_FontDefault(value && value.native);    
+        this.native.FontDefault = value && value.native;
     }
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
-    get DisplayFramebufferScale(): Bind.reference_ImVec2 { return this.native._get_DisplayFramebufferScale(); }
+    get DisplayFramebufferScale(): Bind.reference_ImVec2 { return this.native.DisplayFramebufferScale; }
     // ImVec2        DisplayVisibleMin;        // <unset> (0.0f,0.0f)  // If you use DisplaySize as a virtual space larger than your screen, set DisplayVisibleMin/Max to the visible area.
-    get DisplayVisibleMin(): Bind.reference_ImVec2 { return this.native._get_DisplayVisibleMin(); }
+    get DisplayVisibleMin(): Bind.reference_ImVec2 { return this.native.DisplayVisibleMin; }
     // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
-    get DisplayVisibleMax(): Bind.reference_ImVec2 { return this.native._get_DisplayVisibleMax(); }
+    get DisplayVisibleMax(): Bind.reference_ImVec2 { return this.native.DisplayVisibleMax; }
 
     // Advanced/subtle behaviors
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
@@ -2020,7 +2007,7 @@ export class ImGuiIO
     //------------------------------------------------------------------
 
     // ImVec2      MousePos;                   // Mouse position, in pixels. Set to ImVec2(-FLT_MAX,-FLT_MAX) if mouse is unavailable (on another screen, etc.)
-    get MousePos(): Bind.reference_ImVec2 { return this.native._get_MousePos(); }
+    get MousePos(): Bind.reference_ImVec2 { return this.native.MousePos; }
     // bool        MouseDown[5];               // Mouse buttons: left, right, middle + extras. ImGui itself mostly only uses left button (BeginPopupContext** are using right button). Others buttons allows us to track if the mouse is being used by your application + available to user as a convenience via IsMouse** API.
     public MouseDown: boolean[] = new Proxy([], {
         get: (target: boolean[], key: PropertyKey): number | boolean => {
@@ -2105,7 +2092,7 @@ export class ImGuiIO
     // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
     get MetricsActiveWindows(): number { return this.native.MetricsActiveWindows; }
     // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
-    get MouseDelta(): Readonly<Bind.reference_ImVec2> { return this.native._get_MouseDelta(); }
+    get MouseDelta(): Readonly<Bind.reference_ImVec2> { return this.native.MouseDelta; }
 
     //------------------------------------------------------------------
     // [Internal] ImGui will maintain those fields. Forward compatibility not guaranteed!

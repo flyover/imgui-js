@@ -192,15 +192,15 @@ export interface interface_ImGuiStyle {
     // float       Alpha;                      // Global alpha applies to everything in ImGui.
     Alpha: number;
     // ImVec2      WindowPadding;              // Padding within a window.
-    _get_WindowPadding(): interface_ImVec2;
+    readonly WindowPadding: interface_ImVec2;
     // float       WindowRounding;             // Radius of window corners rounding. Set to 0.0f to have rectangular windows.
     WindowRounding: number;
     // float       WindowBorderSize;           // Thickness of border around windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
     WindowBorderSize: number;
     // ImVec2      WindowMinSize;              // Minimum window size. This is a global setting. If you want to constraint individual windows, use SetNextWindowSizeConstraints().
-    _get_WindowMinSize(): interface_ImVec2;
+    readonly WindowMinSize: interface_ImVec2;
     // ImVec2      WindowTitleAlign;           // Alignment for title bar text. Defaults to (0.0f,0.5f) for left-aligned,vertically centered.
-    _get_WindowTitleAlign(): interface_ImVec2;
+    readonly WindowTitleAlign: interface_ImVec2;
     // float       ChildRounding;              // Radius of child window corners rounding. Set to 0.0f to have rectangular windows.
     ChildRounding: number;
     // float       ChildBorderSize;            // Thickness of border around child windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
@@ -210,17 +210,17 @@ export interface interface_ImGuiStyle {
     // float       PopupBorderSize;            // Thickness of border around popup windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
     PopupBorderSize: number;
     // ImVec2      FramePadding;               // Padding within a framed rectangle (used by most widgets).
-    _get_FramePadding(): interface_ImVec2;
+    readonly FramePadding: interface_ImVec2;
     // float       FrameRounding;              // Radius of frame corners rounding. Set to 0.0f to have rectangular frame (used by most widgets).
     FrameRounding: number;
     // float       FrameBorderSize;            // Thickness of border around frames. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
     FrameBorderSize: number;
     // ImVec2      ItemSpacing;                // Horizontal and vertical spacing between widgets/lines.
-    _get_ItemSpacing(): interface_ImVec2;
+    readonly ItemSpacing: interface_ImVec2;
     // ImVec2      ItemInnerSpacing;           // Horizontal and vertical spacing between within elements of a composed widget (e.g. a slider and its label).
-    _get_ItemInnerSpacing(): interface_ImVec2;
+    readonly ItemInnerSpacing: interface_ImVec2;
     // ImVec2      TouchExtraPadding;          // Expand reactive bounding box for touch-based system where touch position is not accurate enough. Unfortunately we don't sort widgets so priority on overlap will always be given to the first widget. So don't grow this too much!
-    _get_TouchExtraPadding(): interface_ImVec2;
+    readonly TouchExtraPadding: interface_ImVec2;
     // float       IndentSpacing;              // Horizontal indentation when e.g. entering a tree node. Generally == (FontSize + FramePadding.x*2).
     IndentSpacing: number;
     // float       ColumnsMinSpacing;          // Minimum horizontal spacing between two columns.
@@ -234,11 +234,11 @@ export interface interface_ImGuiStyle {
     // float       GrabRounding;               // Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs.
     GrabRounding: number;
     // ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f,0.5f) for horizontally+vertically centered.
-    _get_ButtonTextAlign(): interface_ImVec2;
+    readonly ButtonTextAlign: interface_ImVec2;
     // ImVec2      DisplayWindowPadding;       // Window positions are clamped to be visible within the display area by at least this amount. Only covers regular windows.
-    _get_DisplayWindowPadding(): interface_ImVec2;
+    readonly DisplayWindowPadding: interface_ImVec2;
     // ImVec2      DisplaySafeAreaPadding;     // If you cannot see the edge of your screen (e.g. on a TV) increase the safe area padding. Covers popups/tooltips as well regular windows.
-    _get_DisplaySafeAreaPadding(): interface_ImVec2;
+    readonly DisplaySafeAreaPadding: interface_ImVec2;
     // float       MouseCursorScale;           // Scale software rendered mouse cursor (when io.MouseDrawCursor is enabled). May be removed later.
     MouseCursorScale: number;
     // bool        AntiAliasedLines;           // Enable anti-aliasing on lines/borders. Disable if you are really tight on CPU/GPU.
@@ -258,30 +258,30 @@ export interface interface_ImGuiStyle {
 
 export class ImGuiStyle extends Emscripten.EmscriptenClass implements interface_ImGuiStyle {
     Alpha: number;
-    _get_WindowPadding(): reference_ImVec2;
+    readonly WindowPadding: reference_ImVec2;
     WindowRounding: number;
     WindowBorderSize: number;
-    _get_WindowMinSize(): reference_ImVec2;
-    _get_WindowTitleAlign(): reference_ImVec2;
+    readonly WindowMinSize: reference_ImVec2;
+    readonly WindowTitleAlign: reference_ImVec2;
     ChildRounding: number;
     ChildBorderSize: number;
     PopupRounding: number;
     PopupBorderSize: number;
-    _get_FramePadding(): reference_ImVec2;
+    readonly FramePadding: reference_ImVec2;
     FrameRounding: number;
     FrameBorderSize: number;
-    _get_ItemSpacing(): reference_ImVec2;
-    _get_ItemInnerSpacing(): reference_ImVec2;
-    _get_TouchExtraPadding(): reference_ImVec2;
+    readonly ItemSpacing: reference_ImVec2;
+    readonly ItemInnerSpacing: reference_ImVec2;
+    readonly TouchExtraPadding: reference_ImVec2;
     IndentSpacing: number;
     ColumnsMinSpacing: number;
     ScrollbarSize: number;
     ScrollbarRounding: number;
     GrabMinSize: number;
     GrabRounding: number;
-    _get_ButtonTextAlign(): reference_ImVec2;
-    _get_DisplayWindowPadding(): reference_ImVec2;
-    _get_DisplaySafeAreaPadding(): reference_ImVec2;
+    readonly ButtonTextAlign: reference_ImVec2;
+    readonly DisplayWindowPadding: reference_ImVec2;
+    readonly DisplaySafeAreaPadding: reference_ImVec2;
     MouseCursorScale: number;
     AntiAliasedLines: boolean;
     AntiAliasedFill: boolean;
@@ -299,7 +299,7 @@ export class reference_ImDrawCmd extends Emscripten.EmscriptenClassReference {
     // unsigned int    ElemCount;              // Number of indices (multiple of 3) to be rendered as triangles. Vertices are stored in the callee ImDrawList's vtx_buffer[] array, indices in idx_buffer[].
     readonly ElemCount: number;
     // ImVec4          ClipRect;               // Clipping rectangle (x1, y1, x2, y2)
-    _get_ClipRect(): Readonly<reference_ImVec4>;
+    readonly ClipRect: Readonly<reference_ImVec4>;
     // ImTextureID     TextureId;              // User-provided texture ID. Set by user in ImfontAtlas::SetTexID() for fonts or passed to Image*() functions. Ignore if never using images or multiple fonts atlas.
     readonly TextureId: ImTextureID;
     // ImDrawCallback  UserCallback;           // If != NULL, call the function instead of rendering the vertices. clip_rect and texture_id will be set normally.
@@ -470,9 +470,9 @@ export class reference_ImDrawData extends Emscripten.EmscriptenClassReference {
     // int             TotalIdxCount;          // For convenience, sum of all cmd_lists idx_buffer.Size
     public readonly TotalIdxCount: number;
     // ImVec2          DisplayPos;             // Upper-left position of the viewport to render (== upper-left of the orthogonal projection matrix to use)
-    public _get_DisplayPos(): Readonly<reference_ImVec2>;
+    public readonly DisplayPos: Readonly<reference_ImVec2>;
     // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
-    public _get_DisplaySize(): Readonly<reference_ImVec2>;
+    public readonly DisplaySize: Readonly<reference_ImVec2>;
 
     // Functions
     // ImDrawData() { Clear(); }
@@ -490,7 +490,7 @@ export class reference_ImFont extends Emscripten.EmscriptenClassReference {
     // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
     public Scale: number;
     // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
-    public _get_DisplayOffset(): reference_ImVec2;
+    public readonly DisplayOffset: reference_ImVec2;
     // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
     public IterateGlyphs(callback: (cfg: reference_ImFontGlyph) => void): void;
     // ImVector<float>             IndexAdvanceX;      //              // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).
@@ -499,8 +499,7 @@ export class reference_ImFont extends Emscripten.EmscriptenClassReference {
     // public IndexLookup: any;
     // const ImFontGlyph*          FallbackGlyph;      // == FindGlyph(FontFallbackChar)
     // public FallbackGlyph: any;
-    public _get_FallbackGlyph(): Readonly<reference_ImFontGlyph> | null;
-    public _set_FallbackGlyph(value: Readonly<reference_ImFontGlyph> | null): void;
+    public FallbackGlyph: Readonly<reference_ImFontGlyph> | null;
     // float                       FallbackAdvanceX;   // == FallbackGlyph->AdvanceX
     public FallbackAdvanceX: number;
     // ImWchar                     FallbackChar;       // = '?'        // Replacement glyph if one isn't found. Only set via SetFallbackChar()
@@ -563,7 +562,7 @@ export class reference_ImFont extends Emscripten.EmscriptenClassReference {
 export interface interface_ImFontConfig {
     // void*           FontData;                   //          // TTF/OTF data
     // int             FontDataSize;               //          // TTF/OTF data size
-    _get_FontData(): DataView | null;
+    FontData: DataView | null;
     // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
     FontDataOwnedByAtlas: boolean;
     // int             FontNo;                     // 0        // Index of font within TTF/OTF file
@@ -576,9 +575,9 @@ export interface interface_ImFontConfig {
     // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
     PixelSnapH: boolean;
     // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
-    _get_GlyphExtraSpacing(): interface_ImVec2;
+    readonly GlyphExtraSpacing: interface_ImVec2;
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
-    _get_GlyphOffset(): interface_ImVec2;
+    readonly GlyphOffset: interface_ImVec2;
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
     GlyphRanges: number | null;
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
@@ -596,7 +595,7 @@ export interface interface_ImFontConfig {
     // char            Name[32];                               // Name (strictly to ease debugging)
     Name: string;
     // ImFont*         DstFont;
-    _get_DstFont(): reference_ImFont | null;
+    DstFont: reference_ImFont | null;
 
     // IMGUI_API ImFontConfig();
 }
@@ -604,7 +603,7 @@ export interface interface_ImFontConfig {
 export class reference_ImFontConfig implements interface_ImFontConfig {
     // void*           FontData;                   //          // TTF/OTF data
     // int             FontDataSize;               //          // TTF/OTF data size
-    _get_FontData(): DataView | null;
+    FontData: DataView | null;
     // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
     FontDataOwnedByAtlas: boolean;
     // int             FontNo;                     // 0        // Index of font within TTF/OTF file
@@ -617,9 +616,9 @@ export class reference_ImFontConfig implements interface_ImFontConfig {
     // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
     PixelSnapH: boolean;
     // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
-    _get_GlyphExtraSpacing(): reference_ImVec2;
+    readonly GlyphExtraSpacing: reference_ImVec2;
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
-    _get_GlyphOffset(): reference_ImVec2;
+    readonly GlyphOffset: reference_ImVec2;
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
     GlyphRanges: number | null;
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
@@ -637,7 +636,7 @@ export class reference_ImFontConfig implements interface_ImFontConfig {
     // char            Name[32];                               // Name (strictly to ease debugging)
     Name: string;
     // ImFont*         DstFont;
-    _get_DstFont(): reference_ImFont | null;
+    DstFont: reference_ImFont | null;
 
     // IMGUI_API ImFontConfig();
 }
@@ -794,9 +793,9 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // int                         TexHeight;          // Texture height calculated during Build().
     readonly TexHeight: number;
     // ImVec2                      TexUvScale;         // = (1.0f/TexWidth, 1.0f/TexHeight)
-    public _get_TexUvScale(): Readonly<reference_ImVec2>;
+    public readonly TexUvScale: Readonly<reference_ImVec2>;
     // ImVec2                      TexUvWhitePixel;    // Texture coordinates to a white pixel
-    public _get_TexUvWhitePixel(): Readonly<reference_ImVec2>;
+    public readonly TexUvWhitePixel: Readonly<reference_ImVec2>;
     // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
     public IterateFonts(callback: (font: reference_ImFont) => void): void;
     // ImVector<CustomRect>        CustomRects;        // Rectangles for packing custom texture data into the atlas.
@@ -813,8 +812,8 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     public ConfigFlags: ImGuiConfigFlags;
     // ImGuiBackendFlags BackendFlags;               // = 0                  // Set ImGuiBackendFlags_ enum. Set by imgui_impl_xxx files or custom back-end.
     public BackendFlags: ImGuiBackendFlags;
-    // ImVec2        DisplaySize;              // <unset>              // Display size, in pixels. For clamping windows positions.
-    public _get_DisplaySize(): reference_ImVec2;
+    // ImVec2        DisplayS0ize;              // <unset>              // Display size, in pixels. For clamping windows positions.
+    public readonly DisplaySize: reference_ImVec2;
     // float         DeltaTime;                // = 1.0f/60.0f         // Time elapsed since last frame, in seconds.
     public DeltaTime: number;
     // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
@@ -840,20 +839,19 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     public UserData: any;
 
     // ImFontAtlas*  Fonts;                    // <auto>               // Load and assemble one or more fonts into a single tightly packed texture. Output to Fonts array.
-    public _get_Fonts(): reference_ImFontAtlas;
+    public readonly Fonts: reference_ImFontAtlas;
     // float         FontGlobalScale;          // = 1.0f               // Global scale all fonts
     public FontGlobalScale: number;
     // bool          FontAllowUserScaling;     // = false              // Allow user scaling text of individual window with CTRL+Wheel.
     public FontAllowUserScaling: boolean;
     // ImFont*       FontDefault;              // = NULL               // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
-    public _get_FontDefault(): reference_ImFont | null;
-    public _set_FontDefault(value: reference_ImFont | null): void;
+    public FontDefault: reference_ImFont | null;
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
-    public _get_DisplayFramebufferScale(): reference_ImVec2;
+    public readonly DisplayFramebufferScale: reference_ImVec2;
     // ImVec2        DisplayVisibleMin;        // <unset> (0.0f,0.0f)  // If you use DisplaySize as a virtual space larger than your screen, set DisplayVisibleMin/Max to the visible area.
-    public _get_DisplayVisibleMin(): reference_ImVec2;
+    public readonly DisplayVisibleMin: reference_ImVec2;
     // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
-    public _get_DisplayVisibleMax(): reference_ImVec2;
+    public readonly DisplayVisibleMax: reference_ImVec2;
 
     // Advanced/subtle behaviors
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
@@ -884,7 +882,7 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     //------------------------------------------------------------------
 
     // ImVec2      MousePos;                       // Mouse position, in pixels. Set to ImVec2(-FLT_MAX,-FLT_MAX) if mouse is unavailable (on another screen, etc.)
-    public _get_MousePos(): reference_ImVec2;
+    public readonly MousePos: reference_ImVec2;
     // bool        MouseDown[5];                   // Mouse buttons: left, right, middle + extras. ImGui itself mostly only uses left button (BeginPopupContext** are using right button). Others buttons allows us to track if the mouse is being used by your application + available to user as a convenience via IsMouse** API.
     public _getAt_MouseDown(index: number): boolean;
     public _setAt_MouseDown(index: number, value: boolean): boolean;
@@ -946,7 +944,7 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
     public MetricsActiveWindows: number;
     // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
-    public _get_MouseDelta(): Readonly<reference_ImVec2>;
+    public readonly MouseDelta: Readonly<reference_ImVec2>;
 
     //------------------------------------------------------------------
     // [Internal] ImGui will maintain those fields. Forward compatibility not guaranteed!
