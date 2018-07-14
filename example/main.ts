@@ -195,7 +195,7 @@ function _loop(time: number): void {
     }
 
     // 3. Show the ImGui demo window. Most of the sample code is in ImGui::ShowDemoWindow(). Read its code to learn more about Dear ImGui!
-    if (show_demo_window) {
+    if (!done && show_demo_window) {
         ImGui.SetNextWindowPos(new ImVec2(650, 20), ImGui.Cond.FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
         done = /*ImGui.*/ShowDemoWindow((value = show_demo_window) => show_demo_window = value);
     }
@@ -411,6 +411,9 @@ function UpdateVideo(): void {
 function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
     ImGui.Begin(title, p_open, ImGui.WindowFlags.AlwaysAutoResize);
     if (video_element !== null) {
+        if (p_open && !p_open()) {
+            video_element.pause();
+        }
         const w: number = video_element.videoWidth;
         const h: number = video_element.videoHeight;
         if (w > 0) { video_w = w; }
