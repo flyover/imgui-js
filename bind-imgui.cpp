@@ -204,14 +204,51 @@ emscripten::val export_float(float value) {
     return emscripten::val(value);
 }
 
-ImVec2 import_ImVec2(const emscripten::val& value) {
-    return ImVec2(import_float(value["x"]), import_float(value["y"]));
+template <typename T>
+T import_number(const emscripten::val& value) {
+    return value.as<T>();
 }
 
-emscripten::val export_ImVec2(const ImVec2& v, emscripten::val out) {
-    out.set("x", export_float(v.x));
-    out.set("y", export_float(v.y));
+float import_number(const emscripten::val& value) {
+    return import_float(value);
+}
+
+template <typename T>
+const T* import_number_or_null(const emscripten::val& value, T& out) {
+    return value.isNull() ? NULL : &(out = import_number<T>(value));
+}
+
+template <typename T>
+emscripten::val export_number(T value) {
+    return emscripten::val(value);
+}
+
+emscripten::val export_number(float value) {
+    return export_float(value);
+}
+
+ImVec2& import_ImVec2(const emscripten::val& value, ImVec2& out) {
+    out.x = import_float(value["x"]);
+    out.y = import_float(value["y"]);
     return out;
+}
+
+ImVec2 import_ImVec2(const emscripten::val& value) {
+    ImVec2 out; import_ImVec2(value, out); return out;
+}
+
+const ImVec2* import_ImVec2_or_null(const emscripten::val& value, ImVec2& out) {
+    return value.isNull() ? NULL : &import_ImVec2(value, out);
+}
+
+emscripten::val export_ImVec2(const ImVec2& value, emscripten::val out) {
+    out.set("x", export_float(value.x));
+    out.set("y", export_float(value.y));
+    return out;
+}
+
+emscripten::val export_ImVec2(const ImVec2& value) {
+    return export_ImVec2(value, emscripten::val::object());
 }
 
 emscripten::val ImVec2_Set(emscripten::val that, emscripten::val x, emscripten::val y) {
@@ -245,19 +282,35 @@ EMSCRIPTEN_BINDINGS(ImVec2) {
     ;
 }
 
-ImVec4 import_ImVec4(const emscripten::val& value) {
-    return ImVec4(import_float(value["x"]), import_float(value["y"]), import_float(value["z"]), import_float(value["w"]));
-}
-
-emscripten::val export_ImVec4(const ImVec4& v, emscripten::val out) {
-    out.set("x", export_float(v.x));
-    out.set("y", export_float(v.y));
-    out.set("z", export_float(v.z));
-    out.set("w", export_float(v.w));
+ImVec4& import_ImVec4(const emscripten::val& value, ImVec4& out) {
+    out.x = import_float(value["x"]);
+    out.y = import_float(value["y"]);
+    out.z = import_float(value["z"]);
+    out.w = import_float(value["w"]);
     return out;
 }
 
-emscripten::val ImVec4_Set(emscripten::val that, emscripten::val x, emscripten::val y, emscripten::val z, emscripten::val w) {
+ImVec4 import_ImVec4(const emscripten::val& value) {
+    ImVec4 out; import_ImVec4(value, out); return out;
+}
+
+const ImVec4* import_ImVec4_or_null(const emscripten::val& value, ImVec4& out) {
+    return value.isNull() ? NULL : &import_ImVec4(value, out);
+}
+
+emscripten::val export_ImVec4(const ImVec4& value, emscripten::val out) {
+    out.set("x", export_float(value.x));
+    out.set("y", export_float(value.y));
+    out.set("z", export_float(value.z));
+    out.set("w", export_float(value.w));
+    return out;
+}
+
+emscripten::val export_ImVec4(const ImVec4& value) {
+    return export_ImVec4(value, emscripten::val::object());
+}
+
+emscripten::val ImVec4_Set(emscripten::val that, const emscripten::val x, const emscripten::val y, const emscripten::val z, const emscripten::val w) {
     that.set("x", x);
     that.set("y", y);
     that.set("z", z);
@@ -497,10 +550,7 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
         .function("AddText_B", FUNCTION(void, (ImDrawList& that, emscripten::val font, float font_size, emscripten::val pos, ImU32 col, std::string text_begin, float wrap_width, emscripten::val cpu_fine_clip_rect), {
             ImFont* _font = font.as<ImFont*>(emscripten::allow_raw_pointers());
             ImVec4 _cpu_fine_clip_rect;
-            if (!cpu_fine_clip_rect.isNull()) {
-                _cpu_fine_clip_rect = import_ImVec4(cpu_fine_clip_rect);
-            }
-            that.AddText(_font, font_size, import_ImVec2(pos), col, text_begin.c_str(), NULL, wrap_width, cpu_fine_clip_rect.isNull() ? NULL : &_cpu_fine_clip_rect);
+            that.AddText(_font, font_size, import_ImVec2(pos), col, text_begin.c_str(), NULL, wrap_width, import_ImVec4_or_null(cpu_fine_clip_rect, _cpu_fine_clip_rect));
         }))
         // IMGUI_API void  AddImage(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,1), ImU32 col = 0xFFFFFFFF);
         .function("AddImage", FUNCTION(void, (ImDrawList& that, emscripten::val user_texture_id, emscripten::val a, emscripten::val b, emscripten::val uv_a, emscripten::val uv_b, ImU32 col), {
@@ -2078,49 +2128,49 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         switch (data_type) {
             case ImGuiDataType_S32: {
                 std::vector<ImS32> _v = emscripten::vecFromJSArray<ImS32>(v);
-                ImS32 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImS32>();
-                ImS32 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImS32>();
-                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_float(v_speed), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                ImS32 _v_min;
+                ImS32 _v_max;
+                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_float(v_speed), import_number_or_null<ImS32>(v_min, _v_min), import_number_or_null<ImS32>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 v.call<void>("set", emscripten::typed_memory_view<ImS32>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_U32: {
                 std::vector<ImU32> _v = emscripten::vecFromJSArray<ImU32>(v);
-                ImU32 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImU32>();
-                ImU32 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImU32>();
-                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_float(v_speed), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                ImU32 _v_min;
+                ImU32 _v_max;
+                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_float(v_speed), import_number_or_null<ImU32>(v_min, _v_min), import_number_or_null<ImU32>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 v.call<void>("set", emscripten::typed_memory_view<ImU32>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_S64: {
                 // std::vector<ImS64> _v = emscripten::vecFromJSArray<ImS64>(v);
-                // ImS64 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImS64>();
-                // ImS64 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImS64>();
-                // ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_float(v_speed), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                // ImS64 _v_min;
+                // ImS64 _v_max;
+                // ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_float(v_speed), import_number_or_null<ImS64>(v_min, _v_min), import_number_or_null<ImS64>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 // v.call<void>("set", emscripten::typed_memory_view<ImS64>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_U64: {
                 // std::vector<ImU64> _v = emscripten::vecFromJSArray<ImU64>(v);
-                // ImU64 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImU64>();
-                // ImU64 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImU64>();
-                // ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_float(v_speed), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                // ImU64 _v_min;
+                // ImU64 _v_max;
+                // ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_float(v_speed), import_number_or_null<ImU64>(v_min, _v_min), import_number_or_null<ImU64>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 // v.call<void>("set", emscripten::typed_memory_view<ImU64>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_Float: {
                 std::vector<float> _v = emscripten::vecFromJSArray<float>(v);
-                float _v_min = v_min.isNull() ? 0.0 : import_float(v_min);
-                float _v_max = v_max.isNull() ? 1.0 : import_float(v_max);
-                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_float(v_speed), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                float _v_min;
+                float _v_max;
+                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_float(v_speed), import_number_or_null(v_min, _v_min), import_number_or_null(v_max, _v_max), import_string_or_null(format), import_float(power));
                 v.call<void>("set", emscripten::typed_memory_view<float>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_Double: {
                 std::vector<double> _v = emscripten::vecFromJSArray<double>(v);
-                double _v_min = v_min.isNull() ? 0.0 : v_min.as<double>();
-                double _v_max = v_max.isNull() ? 1.0 : v_max.as<double>();
-                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_float(v_speed), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                double _v_min;
+                double _v_max;
+                ret = ImGui::DragScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_float(v_speed), import_number_or_null<double>(v_min, _v_min), import_number_or_null<double>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 v.call<void>("set", emscripten::typed_memory_view<double>(_v.size(), _v.data()));
                 break;
             }
@@ -2243,49 +2293,49 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         switch (data_type) {
             case ImGuiDataType_S32: {
                 std::vector<ImS32> _v = emscripten::vecFromJSArray<ImS32>(v);
-                ImS32 _step = step.isNull() ? 0.0 : step.as<ImS32>();
-                ImS32 _step_fast = step_fast.isNull() ? 1.0 : step_fast.as<ImS32>();
-                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, import_string_or_null(format), extra_flags);
+                ImS32 _step;
+                ImS32 _step_fast;
+                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_number_or_null<ImS32>(step, _step), import_number_or_null<ImS32>(step_fast, _step_fast), import_string_or_null(format), extra_flags);
                 v.call<void>("set", emscripten::typed_memory_view<ImS32>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_U32: {
                 std::vector<ImU32> _v = emscripten::vecFromJSArray<ImU32>(v);
-                ImU32 _step = step.isNull() ? 0.0 : step.as<ImU32>();
-                ImU32 _step_fast = step_fast.isNull() ? 1.0 : step_fast.as<ImU32>();
-                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, import_string_or_null(format), extra_flags);
+                ImU32 _step;
+                ImU32 _step_fast;
+                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_number_or_null<ImU32>(step, _step), import_number_or_null<ImU32>(step_fast, _step_fast), import_string_or_null(format), extra_flags);
                 v.call<void>("set", emscripten::typed_memory_view<ImU32>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_S64: {
                 // std::vector<ImS64> _v = emscripten::vecFromJSArray<ImS64>(v);
-                // ImS64 _step = step.isNull() ? 0.0 : step.as<ImS64>();
-                // ImS64 _step_fast = step_fast.isNull() ? 1.0 : step_fast.as<ImS64>();
-                // ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, import_string_or_null(format), extra_flags);
+                // ImS64 _step;
+                // ImS64 _step_fast;
+                // ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_number_or_null<ImS64>(step, _step), import_number_or_null<ImS64>(step_fast, _step_fast), import_string_or_null(format), extra_flags);
                 // v.call<void>("set", emscripten::typed_memory_view<ImS64>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_U64: {
                 // std::vector<ImU64> _v = emscripten::vecFromJSArray<ImU64>(v);
-                // ImU64 _step = step.isNull() ? 0.0 : step.as<ImU64>();
-                // ImU64 _step_fast = step_fast.isNull() ? 1.0 : step_fast.as<ImU64>();
-                // ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, import_string_or_null(format), extra_flags);
+                // ImU64 _step;
+                // ImU64 _step_fast;
+                // ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_number_or_null<ImU64>(step, _step), import_number_or_null<ImU64>(step_fast, _step_fast), import_string_or_null(format), extra_flags);
                 // v.call<void>("set", emscripten::typed_memory_view<ImU64>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_Float: {
                 std::vector<float> _v = emscripten::vecFromJSArray<float>(v);
-                float _step = step.isNull() ? 0.0 : import_float(step);
-                float _step_fast = step_fast.isNull() ? 1.0 : import_float(step_fast);
-                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, import_string_or_null(format), extra_flags);
+                float _step;
+                float _step_fast;
+                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_number_or_null(step, _step), import_number_or_null(step_fast, _step_fast), import_string_or_null(format), extra_flags);
                 v.call<void>("set", emscripten::typed_memory_view<float>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_Double: {
                 std::vector<double> _v = emscripten::vecFromJSArray<double>(v);
-                double _step = step.isNull() ? 0.0 : step.as<double>();
-                double _step_fast = step_fast.isNull() ? 1.0 : step_fast.as<double>();
-                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), step.isNull() ? NULL : &_step, step_fast.isNull() ? NULL : &_step_fast, import_string_or_null(format), extra_flags);
+                double _step;
+                double _step_fast;
+                ret = ImGui::InputScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_number_or_null<double>(step, _step), import_number_or_null<double>(step_fast, _step_fast), import_string_or_null(format), extra_flags);
                 v.call<void>("set", emscripten::typed_memory_view<double>(_v.size(), _v.data()));
                 break;
             }
@@ -2376,49 +2426,49 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         switch (data_type) {
             case ImGuiDataType_S32: {
                 std::vector<ImS32> _v = emscripten::vecFromJSArray<ImS32>(v);
-                ImS32 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImS32>();
-                ImS32 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImS32>();
-                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                ImS32 _v_min;
+                ImS32 _v_max;
+                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_number_or_null<ImS32>(v_min, _v_min), import_number_or_null<ImS32>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 v.call<void>("set", emscripten::typed_memory_view<ImS32>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_U32: {
                 std::vector<ImU32> _v = emscripten::vecFromJSArray<ImU32>(v);
-                ImU32 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImU32>();
-                ImU32 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImU32>();
-                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                ImU32 _v_min;
+                ImU32 _v_max;
+                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_number_or_null<ImU32>(v_min, _v_min), import_number_or_null<ImU32>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 v.call<void>("set", emscripten::typed_memory_view<ImU32>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_S64: {
                 // std::vector<ImS64> _v = emscripten::vecFromJSArray<ImS64>(v);
-                // ImS64 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImS64>();
-                // ImS64 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImS64>();
-                // ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                // ImS64 _v_min;
+                // ImS64 _v_max;
+                // ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_number_or_null<ImS64>(v_min, _v_min), import_number_or_null<ImS64>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 // v.call<void>("set", emscripten::typed_memory_view<ImS64>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_U64: {
                 // std::vector<ImU64> _v = emscripten::vecFromJSArray<ImU64>(v);
-                // ImU64 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImU64>();
-                // ImU64 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImU64>();
-                // ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                // ImU64 _v_min;
+                // ImU64 _v_max;
+                // ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_number_or_null<ImU64>(v_min, _v_min), import_number_or_null<ImU64>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 // v.call<void>("set", emscripten::typed_memory_view<ImU64>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_Float: {
                 std::vector<float> _v = emscripten::vecFromJSArray<float>(v);
-                float _v_min = v_min.isNull() ? 0.0 : import_float(v_min);
-                float _v_max = v_max.isNull() ? 1.0 : import_float(v_max);
-                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                float _v_min;
+                float _v_max;
+                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_number_or_null(v_min, _v_min), import_number_or_null(v_max, _v_max), import_string_or_null(format), import_float(power));
                 v.call<void>("set", emscripten::typed_memory_view<float>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_Double: {
                 std::vector<double> _v = emscripten::vecFromJSArray<double>(v);
-                double _v_min = v_min.isNull() ? 0.0 : v_min.as<double>();
-                double _v_max = v_max.isNull() ? 1.0 : v_max.as<double>();
-                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                double _v_min;
+                double _v_max;
+                ret = ImGui::SliderScalarN(label.c_str(), data_type, _v.data(), _v.size(), import_number_or_null<double>(v_min, _v_min), import_number_or_null<double>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 v.call<void>("set", emscripten::typed_memory_view<double>(_v.size(), _v.data()));
                 break;
             }
@@ -2445,49 +2495,49 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         switch (data_type) {
             case ImGuiDataType_S32: {
                 std::vector<ImS32> _v = emscripten::vecFromJSArray<ImS32>(v);
-                ImS32 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImS32>();
-                ImS32 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImS32>();
-                ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                ImS32 _v_min;
+                ImS32 _v_max;
+                ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), import_number_or_null<ImS32>(v_min, _v_min), import_number_or_null<ImS32>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 v.call<void>("set", emscripten::typed_memory_view<ImS32>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_U32: {
                 std::vector<ImU32> _v = emscripten::vecFromJSArray<ImU32>(v);
-                ImU32 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImU32>();
-                ImU32 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImU32>();
-                ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                ImU32 _v_min;
+                ImU32 _v_max;
+                ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), import_number_or_null<ImU32>(v_min, _v_min), import_number_or_null<ImU32>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 v.call<void>("set", emscripten::typed_memory_view<ImU32>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_S64: {
                 // std::vector<ImS64> _v = emscripten::vecFromJSArray<ImS64>(v);
-                // ImS64 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImS64>();
-                // ImS64 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImS64>();
-                // ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                // ImS64 _v_min;
+                // ImS64 _v_max;
+                // ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), import_number_or_null<ImS64>(v_min, _v_min), import_number_or_null<ImS64>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 // v.call<void>("set", emscripten::typed_memory_view<ImS64>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_U64: {
                 // std::vector<ImU64> _v = emscripten::vecFromJSArray<ImU64>(v);
-                // ImU64 _v_min = v_min.isNull() ? 0.0 : v_min.as<ImU64>();
-                // ImU64 _v_max = v_max.isNull() ? 1.0 : v_max.as<ImU64>();
-                // ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                // ImU64 _v_min;
+                // ImU64 _v_max;
+                // ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), import_number_or_null<ImU64>(v_min, _v_min), import_number_or_null<ImU64>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 // v.call<void>("set", emscripten::typed_memory_view<ImU64>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_Float: {
                 std::vector<float> _v = emscripten::vecFromJSArray<float>(v);
-                float _v_min = v_min.isNull() ? 0.0 : import_float(v_min);
-                float _v_max = v_max.isNull() ? 1.0 : import_float(v_max);
-                ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                float _v_min;
+                float _v_max;
+                ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), import_number_or_null(v_min, _v_min), import_number_or_null(v_max, _v_max), import_string_or_null(format), import_float(power));
                 v.call<void>("set", emscripten::typed_memory_view<float>(_v.size(), _v.data()));
                 break;
             }
             case ImGuiDataType_Double: {
                 std::vector<double> _v = emscripten::vecFromJSArray<double>(v);
-                double _v_min = v_min.isNull() ? 0.0 : v_min.as<double>();
-                double _v_max = v_max.isNull() ? 1.0 : v_max.as<double>();
-                ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), v_min.isNull() ? NULL : &_v_min, v_max.isNull() ? NULL : &_v_max, import_string_or_null(format), import_float(power));
+                double _v_min;
+                double _v_max;
+                ret = ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, _v.data(), import_number_or_null<double>(v_min, _v_min), import_number_or_null<double>(v_max, _v_max), import_string_or_null(format), import_float(power));
                 v.call<void>("set", emscripten::typed_memory_view<double>(_v.size(), _v.data()));
                 break;
             }
@@ -2952,12 +3002,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API bool          IsMousePosValid(const ImVec2* mouse_pos = NULL);                    //
     emscripten::function("IsMousePosValid", FUNCTION(bool, (emscripten::val mouse_pos), {
-        if (mouse_pos.isNull()) {
-            return ImGui::IsMousePosValid();
-        } else {
-            ImVec2 _mouse_pos = import_ImVec2(mouse_pos);
-            return ImGui::IsMousePosValid(&_mouse_pos);
-        }
+        ImVec2 _mouse_pos;
+        return ImGui::IsMousePosValid(import_ImVec2_or_null(mouse_pos, _mouse_pos));
     }));
     // IMGUI_API ImVec2        GetMousePos();                                                      // shortcut to ImGui::GetIO().MousePos provided by user, to be consistent with other calls
     emscripten::function("GetMousePos", FUNCTION(emscripten::val, (emscripten::val out), {
