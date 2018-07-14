@@ -1393,12 +1393,6 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
     ;
 }
 
-class ImGuiContext {};
-EMSCRIPTEN_BINDINGS(ImGuiContext) {
-    emscripten::class_<ImGuiContext>("ImGuiContext")
-    ;
-}
-
 EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::constant("IMGUI_VERSION", std::string(IMGUI_VERSION));
 
@@ -1442,11 +1436,11 @@ EMSCRIPTEN_BINDINGS(ImGui) {
             io.ClipboardUserData = NULL;
             ImGui::SetCurrentContext(prev_ctx);
         }
-        return (ctx == NULL) ? emscripten::val::null() : emscripten::val(ctx);
-    }), emscripten::allow_raw_pointers());
+        return (ctx == NULL) ? emscripten::val::null() : emscripten::val((intptr_t) ctx);
+    }));
     // IMGUI_API void          DestroyContext(ImGuiContext* ctx = NULL);   // NULL = Destroy current context
     emscripten::function("DestroyContext", FUNCTION(void, (emscripten::val _ctx), {
-        ImGuiContext* ctx = _ctx.isNull() ? NULL : _ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
+        ImGuiContext* ctx = _ctx.isNull() ? NULL : (ImGuiContext*) _ctx.as<intptr_t>();
         if (ctx != NULL) {
             ImGuiContext* prev_ctx = ImGui::GetCurrentContext();
             ImGui::SetCurrentContext(ctx);
@@ -1459,17 +1453,17 @@ EMSCRIPTEN_BINDINGS(ImGui) {
             ImGui::SetCurrentContext(prev_ctx);
         }
         ImGui::DestroyContext(ctx);
-    }), emscripten::allow_raw_pointers());
+    }));
     // IMGUI_API ImGuiContext* GetCurrentContext();
     emscripten::function("GetCurrentContext", FUNCTION(emscripten::val, (), {
         ImGuiContext* ctx = ImGui::GetCurrentContext();
-        return (ctx == NULL) ? emscripten::val::null() : emscripten::val(ctx);
-    }), emscripten::allow_raw_pointers());
+        return (ctx == NULL) ? emscripten::val::null() : emscripten::val((intptr_t) ctx);
+    }));
     // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
     emscripten::function("SetCurrentContext", FUNCTION(void, (emscripten::val _ctx), {
-        ImGuiContext* ctx = _ctx.isNull() ? NULL : _ctx.as<ImGuiContext*>(emscripten::allow_raw_pointers());
+        ImGuiContext* ctx = _ctx.isNull() ? NULL : (ImGuiContext*) _ctx.as<intptr_t>();
         ImGui::SetCurrentContext(ctx);
-    }), emscripten::allow_raw_pointers());
+    }));
     // IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert);
     emscripten::function("DebugCheckVersionAndDataLayout", FUNCTION(bool, (std::string version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert), {
         return ImGui::DebugCheckVersionAndDataLayout(version_str.c_str(), sz_io, sz_style, sz_vec2, sz_vec4, sz_drawvert);
