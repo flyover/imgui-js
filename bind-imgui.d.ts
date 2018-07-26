@@ -68,16 +68,7 @@ export interface interface_ImVec2 {
     Equals(other: Readonly<interface_ImVec2>): boolean;
 }
 
-export class reference_ImVec2 extends Emscripten.EmscriptenClassReference implements interface_ImVec2 {
-    public x: number;
-    public y: number;
-    // no constructors for EmscriptenClassReference
-    // public constructor();
-    // public constructor(x: number, y: number);
-    public Set(x: number, y: number): this;
-    public Copy(other: Readonly<interface_ImVec2>): this;
-    public Equals(other: Readonly<interface_ImVec2>): boolean;
-}
+export interface reference_ImVec2 extends Emscripten.EmscriptenClassReference, interface_ImVec2 {}
 
 export interface interface_ImVec4 {
     x: number;
@@ -89,78 +80,67 @@ export interface interface_ImVec4 {
     Equals(other: Readonly<interface_ImVec4>): boolean;
 }
 
-export class reference_ImVec4 extends Emscripten.EmscriptenClassReference implements interface_ImVec4 {
-    public x: number;
-    public y: number;
-    public z: number;
-    public w: number;
-    // no constructors for EmscriptenClassReference
-    // public constructor();
-    // public constructor(x: number, y: number, z: number, w: number);
-    public Set(x: number, y: number, z: number, w: number): this;
-    public Copy(other: Readonly<interface_ImVec4>): this;
-    public Equals(other: Readonly<interface_ImVec4>): boolean;
-}
+export interface reference_ImVec4 extends Emscripten.EmscriptenClassReference, interface_ImVec4 {}
 
 export type ImGuiTextEditCallback = (data: reference_ImGuiTextEditCallbackData) => number;
 
 // Shared state of InputText(), passed to callback when a ImGuiInputTextFlags_Callback* flag is used and the corresponding callback is triggered.
-export class reference_ImGuiTextEditCallbackData extends Emscripten.EmscriptenClassReference {
+export interface reference_ImGuiTextEditCallbackData extends Emscripten.EmscriptenClassReference {
     // ImGuiInputTextFlags EventFlag;      // One of ImGuiInputTextFlags_Callback* // Read-only
-    public EventFlag: ImGuiInputTextFlags;
+    EventFlag: ImGuiInputTextFlags;
     // ImGuiInputTextFlags Flags;          // What user passed to InputText()      // Read-only
-    public Flags: ImGuiInputTextFlags;
+    Flags: ImGuiInputTextFlags;
     // void*               UserData;       // What user passed to InputText()      // Read-only
-    public UserData: any;
+    UserData: any;
     // bool                ReadOnly;       // Read-only mode                       // Read-only
-    public ReadOnly: boolean;
+    ReadOnly: boolean;
 
     // CharFilter event:
     // ImWchar             EventChar;      // Character input                      // Read-write (replace character or set to zero)
-    public EventChar: ImWchar;
+    EventChar: ImWchar;
 
     // Completion,History,Always events:
     // If you modify the buffer contents make sure you update 'BufTextLen' and set 'BufDirty' to true.
     // ImGuiKey            EventKey;       // Key pressed (Up/Down/TAB)            // Read-only
-    public EventKey: ImGuiKey;
+    EventKey: ImGuiKey;
     // char*               Buf;            // Current text buffer                  // Read-write (pointed data only, can't replace the actual pointer)
-    public Buf: string;
+    Buf: string;
     // int                 BufTextLen;     // Current text length in bytes         // Read-write
-    public BufTextLen: number;
+    BufTextLen: number;
     // int                 BufSize;        // Maximum text length in bytes         // Read-only
-    public BufSize: number;
+    BufSize: number;
     // bool                BufDirty;       // Set if you modify Buf/BufTextLen!!   // Write
-    public BufDirty: boolean;
+    BufDirty: boolean;
     // int                 CursorPos;      //                                      // Read-write
-    public CursorPos: number;
+    CursorPos: number;
     // int                 SelectionStart; //                                      // Read-write (== to SelectionEnd when no selection)
-    public SelectionStart: number;
+    SelectionStart: number;
     // int                 SelectionEnd;   //                                      // Read-write
-    public SelectionEnd: number;
+    SelectionEnd: number;
 
     // NB: Helper functions for text manipulation. Calling those function loses selection.
     // IMGUI_API void    DeleteChars(int pos, int bytes_count);
-    public DeleteChars(pos: number, bytes_count: number): void;
+    DeleteChars(pos: number, bytes_count: number): void;
     // IMGUI_API void    InsertChars(int pos, const char* text, const char* text_end = NULL);
-    public InsertChars(pos: number, text: string): void;
+    InsertChars(pos: number, text: string): void;
     // bool              HasSelection() const { return SelectionStart != SelectionEnd; }
-    public HasSelection(): boolean;
+    HasSelection(): boolean;
 }
 
 export type ImGuiSizeConstraintCallback = (data: reference_ImGuiSizeCallbackData) => void;
 
 // Resizing callback data to apply custom constraint. As enabled by SetNextWindowSizeConstraints(). Callback is called during the next Begin().
 // NB: For basic min/max size constraint on each axis you don't need to use the callback! The SetNextWindowSizeConstraints() parameters are enough.
-export class reference_ImGuiSizeCallbackData extends Emscripten.EmscriptenClassReference
+export interface reference_ImGuiSizeCallbackData extends Emscripten.EmscriptenClassReference
 {
     // void*   UserData;       // Read-only.   What user passed to SetNextWindowSizeConstraints()
-    // public UserData: any;
+    // UserData: any;
     // ImVec2  Pos;            // Read-only.   Window position, for reference.
-    public Pos: Readonly<reference_ImVec2>;
+    Pos: Readonly<reference_ImVec2>;
     // ImVec2  CurrentSize;    // Read-only.   Current window size.
-    public CurrentSize: Readonly<reference_ImVec2>;
+    CurrentSize: Readonly<reference_ImVec2>;
     // ImVec2  DesiredSize;    // Read-write.  Desired size, based on user's mouse position. Write to this field to restrain resizing.
-    public DesiredSize: reference_ImVec2;
+    DesiredSize: reference_ImVec2;
 }
 
 export class ImGuiListClipper extends Emscripten.EmscriptenClass {
@@ -294,8 +274,7 @@ export class ImGuiStyle extends Emscripten.EmscriptenClass implements interface_
 
 export type ImDrawCallback = (parent_list: Readonly<reference_ImDrawList>, cmd: Readonly<reference_ImDrawCmd>) => void;
 
-// export class ImDrawCmd extends Emscripten.EmscriptenClass {
-export class reference_ImDrawCmd extends Emscripten.EmscriptenClassReference {
+export interface reference_ImDrawCmd extends Emscripten.EmscriptenClassReference {
     // unsigned int    ElemCount;              // Number of indices (multiple of 3) to be rendered as triangles. Vertices are stored in the callee ImDrawList's vtx_buffer[] array, indices in idx_buffer[].
     readonly ElemCount: number;
     // ImVec4          ClipRect;               // Clipping rectangle (x1, y1, x2, y2)
@@ -306,26 +285,24 @@ export class reference_ImDrawCmd extends Emscripten.EmscriptenClassReference {
     // void*           UserCallbackData;       // The draw callback code can access this.
 
     // ImDrawCmd() { ElemCount = 0; ClipRect.x = ClipRect.y = ClipRect.z = ClipRect.w = 0.0f; TextureId = NULL; UserCallback = NULL; UserCallbackData = NULL; }
-    // public readonly ClipRect: Readonly<ImVec4>;
+    // readonly ClipRect: Readonly<ImVec4>;
 }
 
-export class reference_ImDrawListSharedData extends Emscripten.EmscriptenClassReference {
-}
+export interface reference_ImDrawListSharedData extends Emscripten.EmscriptenClassReference {}
 
-// export class ImDrawList extends Emscripten.EmscriptenClass {
-export class reference_ImDrawList extends Emscripten.EmscriptenClassReference {
-    public IterateDrawCmds(callback: (draw_cmd: reference_ImDrawCmd, ElemStart: number) => void): void;
+export interface reference_ImDrawList extends Emscripten.EmscriptenClassReference {
+    IterateDrawCmds(callback: (draw_cmd: reference_ImDrawCmd, ElemStart: number) => void): void;
     
     // This is what you have to render
     // ImVector<ImDrawCmd>     CmdBuffer;          // Draw commands. Typically 1 command = 1 GPU draw call, unless the command is a callback.
     // ImVector<ImDrawIdx>     IdxBuffer;          // Index buffer. Each command consume ImDrawCmd::ElemCount of those
-    public readonly IdxBuffer: Uint8Array;
+    readonly IdxBuffer: Uint8Array;
     // ImVector<ImDrawVert>    VtxBuffer;          // Vertex buffer.
-    public readonly VtxBuffer: Uint8Array;
+    readonly VtxBuffer: Uint8Array;
 
     // [Internal, used while building lists]
     // ImDrawListFlags         Flags;              // Flags, you may poke into these to adjust anti-aliasing settings per-primitive.
-    public Flags: ImDrawListFlags;
+    Flags: ImDrawListFlags;
     // const ImDrawListSharedData* _Data;          // Pointer to shared draw data (you can use ImGui::GetDrawListSharedData() to get the one from current ImGui context)
     // const char*             _OwnerName;         // Pointer to owner window's name for debugging
     // unsigned int            _VtxCurrentIdx;     // [Internal] == VtxBuffer.Size
@@ -342,211 +319,210 @@ export class reference_ImDrawList extends Emscripten.EmscriptenClassReference {
     // ImDrawList(const ImDrawListSharedData* shared_data) { _Data = shared_data; _OwnerName = NULL; Clear(); }
     // ~ImDrawList() { ClearFreeMemory(); }
     // IMGUI_API void  PushClipRect(ImVec2 clip_rect_min, ImVec2 clip_rect_max, bool intersect_with_current_clip_rect = false);  // Render-level scissoring. This is passed down to your render function but not used for CPU-side coarse clipping. Prefer using higher-level ImGui::PushClipRect() to affect logic (hit-testing and widget culling)
-    public PushClipRect(clip_rect_min: Readonly<interface_ImVec2>, clip_rect_max: Readonly<interface_ImVec2>, intersect_with_current_clip_rect: boolean): void;
+    PushClipRect(clip_rect_min: Readonly<interface_ImVec2>, clip_rect_max: Readonly<interface_ImVec2>, intersect_with_current_clip_rect: boolean): void;
     // IMGUI_API void  PushClipRectFullScreen();
-    public PushClipRectFullScreen(): void;
+    PushClipRectFullScreen(): void;
     // IMGUI_API void  PopClipRect();
-    public PopClipRect(): void;
+    PopClipRect(): void;
     // IMGUI_API void  PushTextureID(const ImTextureID& texture_id);
-    public PushTextureID(texture_id: ImTextureID): void;
+    PushTextureID(texture_id: ImTextureID): void;
     // IMGUI_API void  PopTextureID();
-    public PopTextureID(): void;
+    PopTextureID(): void;
     // inline ImVec2   GetClipRectMin() const { const ImVec4& cr = _ClipRectStack.back(); return ImVec2(cr.x, cr.y); }
-    public GetClipRectMin(out: interface_ImVec2): typeof out;
+    GetClipRectMin(out: interface_ImVec2): typeof out;
     // inline ImVec2   GetClipRectMax() const { const ImVec4& cr = _ClipRectStack.back(); return ImVec2(cr.z, cr.w); }
-    public GetClipRectMax(out: interface_ImVec2): typeof out;
+    GetClipRectMax(out: interface_ImVec2): typeof out;
 
     // Primitives
     // IMGUI_API void  AddLine(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness = 1.0f);
-    public AddLine(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32, thickness: number): void;
+    AddLine(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32, thickness: number): void;
     // IMGUI_API void  AddRect(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All, float thickness = 1.0f);   // a: upper-left, b: lower-right, rounding_corners_flags: 4-bits corresponding to which corner to round
-    public AddRect(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, rounding_corners_flags: ImDrawCornerFlags, thickness: number): void;
+    AddRect(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, rounding_corners_flags: ImDrawCornerFlags, thickness: number): void;
     // IMGUI_API void  AddRectFilled(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);                     // a: upper-left, b: lower-right
-    public AddRectFilled(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, rounding_corners_flags: ImDrawCornerFlags): void;
+    AddRectFilled(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, rounding_corners_flags: ImDrawCornerFlags): void;
     // IMGUI_API void  AddRectFilledMultiColor(const ImVec2& a, const ImVec2& b, ImU32 col_upr_left, ImU32 col_upr_right, ImU32 col_bot_right, ImU32 col_bot_left);
-    public AddRectFilledMultiColor(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col_upr_left: ImU32, col_upr_right: ImU32, col_bot_right: ImU32, col_bot_left: ImU32): void;
+    AddRectFilledMultiColor(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col_upr_left: ImU32, col_upr_right: ImU32, col_bot_right: ImU32, col_bot_left: ImU32): void;
     // IMGUI_API void  AddQuad(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, ImU32 col, float thickness = 1.0f);
-    public AddQuad(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, d: Readonly<interface_ImVec2>, col: ImU32, thickness: number): void;
+    AddQuad(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, d: Readonly<interface_ImVec2>, col: ImU32, thickness: number): void;
     // IMGUI_API void  AddQuadFilled(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, ImU32 col);
-    public AddQuadFilled(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, d: Readonly<interface_ImVec2>, col: ImU32): void;
+    AddQuadFilled(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, d: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  AddTriangle(const ImVec2& a, const ImVec2& b, const ImVec2& c, ImU32 col, float thickness = 1.0f);
-    public AddTriangle(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, col: ImU32, thickness: number): void;
+    AddTriangle(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, col: ImU32, thickness: number): void;
     // IMGUI_API void  AddTriangleFilled(const ImVec2& a, const ImVec2& b, const ImVec2& c, ImU32 col);
-    public AddTriangleFilled(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, col: ImU32): void;
+    AddTriangleFilled(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  AddCircle(const ImVec2& centre, float radius, ImU32 col, int num_segments = 12, float thickness = 1.0f);
-    public AddCircle(centre: Readonly<interface_ImVec2>, radius: number, col: ImU32, num_segments: number, thickness: number): void;
+    AddCircle(centre: Readonly<interface_ImVec2>, radius: number, col: ImU32, num_segments: number, thickness: number): void;
     // IMGUI_API void  AddCircleFilled(const ImVec2& centre, float radius, ImU32 col, int num_segments = 12);
-    public AddCircleFilled(centre: Readonly<interface_ImVec2>, radius: number, col: ImU32, num_segments: number): void;
+    AddCircleFilled(centre: Readonly<interface_ImVec2>, radius: number, col: ImU32, num_segments: number): void;
     // IMGUI_API void  AddText(const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL);
-    public AddText_A(pos: Readonly<interface_ImVec2>, col: ImU32, text_begin: string): void;
+    AddText_A(pos: Readonly<interface_ImVec2>, col: ImU32, text_begin: string): void;
     // IMGUI_API void  AddText(const ImFont* font, float font_size, const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL, float wrap_width = 0.0f, const ImVec4* cpu_fine_clip_rect = NULL);
-    public AddText_B(font: reference_ImFont, font_size: number, pos: Readonly<interface_ImVec2>, col: ImU32, text_begin: string, wrap_width: number, cpu_fine_clip_rect: Readonly<interface_ImVec4> | null): void;
+    AddText_B(font: reference_ImFont, font_size: number, pos: Readonly<interface_ImVec2>, col: ImU32, text_begin: string, wrap_width: number, cpu_fine_clip_rect: Readonly<interface_ImVec4> | null): void;
     // IMGUI_API void  AddImage(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,1), ImU32 col = 0xFFFFFFFF);
-    public AddImage(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32): void;
+    AddImage(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  AddImageQuad(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,0), const ImVec2& uv_c = ImVec2(1,1), const ImVec2& uv_d = ImVec2(0,1), ImU32 col = 0xFFFFFFFF);
-    public AddImageQuad(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, d: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, uv_c: Readonly<interface_ImVec2>, uv_d: Readonly<interface_ImVec2>, col: ImU32): void;
+    AddImageQuad(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, d: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, uv_c: Readonly<interface_ImVec2>, uv_d: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  AddImageRounded(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col, float rounding, int rounding_corners = ImDrawCornerFlags_All);
-    public AddImageRounded(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, rounding_corners: ImDrawCornerFlags): void;
+    AddImageRounded(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, rounding_corners: ImDrawCornerFlags): void;
     // IMGUI_API void  AddPolyline(const ImVec2* points, const int num_points, ImU32 col, bool closed, float thickness);
-    public AddPolyline(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32, closed: boolean, thickness: number): void;
+    AddPolyline(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32, closed: boolean, thickness: number): void;
     // IMGUI_API void  AddConvexPolyFilled(const ImVec2* points, const int num_points, ImU32 col);
-    public AddConvexPolyFilled(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32): void;
+    AddConvexPolyFilled(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32): void;
     // IMGUI_API void  AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
-    public AddBezierCurve(pos0: Readonly<interface_ImVec2>, cp0: Readonly<interface_ImVec2>, cp1: Readonly<interface_ImVec2>, pos1: Readonly<interface_ImVec2>, col: ImU32, thickness: number, num_segments: number): void;
+    AddBezierCurve(pos0: Readonly<interface_ImVec2>, cp0: Readonly<interface_ImVec2>, cp1: Readonly<interface_ImVec2>, pos1: Readonly<interface_ImVec2>, col: ImU32, thickness: number, num_segments: number): void;
 
     // Stateful path API, add points then finish with PathFill() or PathStroke()
     // inline    void  PathClear()                                                 { _Path.resize(0); }
-    public PathClear(): void;
+    PathClear(): void;
     // inline    void  PathLineTo(const ImVec2& pos)                               { _Path.push_back(pos); }
-    public PathLineTo(pos: Readonly<interface_ImVec2>): void;
+    PathLineTo(pos: Readonly<interface_ImVec2>): void;
     // inline    void  PathLineToMergeDuplicate(const ImVec2& pos)                 { if (_Path.Size == 0 || memcmp(&_Path[_Path.Size-1], &pos, 8) != 0) _Path.push_back(pos); }
-    public PathLineToMergeDuplicate(pos: Readonly<interface_ImVec2>): void;
+    PathLineToMergeDuplicate(pos: Readonly<interface_ImVec2>): void;
     // inline    void  PathFillConvex(ImU32 col)                                   { AddConvexPolyFilled(_Path.Data, _Path.Size, col); PathClear(); }
-    public PathFillConvex(col: ImU32): void;
+    PathFillConvex(col: ImU32): void;
     // inline    void  PathStroke(ImU32 col, bool closed, float thickness = 1.0f)  { AddPolyline(_Path.Data, _Path.Size, col, closed, thickness); PathClear(); }
-    public PathStroke(col: ImU32, closed: boolean, thickness: number): void;
+    PathStroke(col: ImU32, closed: boolean, thickness: number): void;
     // IMGUI_API void  PathArcTo(const ImVec2& centre, float radius, float a_min, float a_max, int num_segments = 10);
-    public PathArcTo(centre: Readonly<interface_ImVec2>, radius: number, a_min: number, a_max: number, num_segments: number): void;
+    PathArcTo(centre: Readonly<interface_ImVec2>, radius: number, a_min: number, a_max: number, num_segments: number): void;
     // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
-    public PathArcToFast(centre: Readonly<interface_ImVec2>, radius: number, a_min_of_12: number, a_max_of_12: number): void;
+    PathArcToFast(centre: Readonly<interface_ImVec2>, radius: number, a_min_of_12: number, a_max_of_12: number): void;
     // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
-    public PathBezierCurveTo(p1: Readonly<interface_ImVec2>, p2: Readonly<interface_ImVec2>, p3: Readonly<interface_ImVec2>, num_segments: number): void;
+    PathBezierCurveTo(p1: Readonly<interface_ImVec2>, p2: Readonly<interface_ImVec2>, p3: Readonly<interface_ImVec2>, num_segments: number): void;
     // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
-    public PathRect(rect_min: Readonly<interface_ImVec2>, rect_max: Readonly<interface_ImVec2>, rounding: number, rounding_corners_flags: ImDrawCornerFlags): void;
+    PathRect(rect_min: Readonly<interface_ImVec2>, rect_max: Readonly<interface_ImVec2>, rounding: number, rounding_corners_flags: ImDrawCornerFlags): void;
 
     // Channels
     // - Use to simulate layers. By switching channels to can render out-of-order (e.g. submit foreground primitives before background primitives)
     // - Use to minimize draw calls (e.g. if going back-and-forth between multiple non-overlapping clipping rectangles, prefer to append into separate channels then merge at the end)
     // IMGUI_API void  ChannelsSplit(int channels_count);
-    public ChannelsSplit(channels_count: number): void;
+    ChannelsSplit(channels_count: number): void;
     // IMGUI_API void  ChannelsMerge();
-    public ChannelsMerge(): void;
+    ChannelsMerge(): void;
     // IMGUI_API void  ChannelsSetCurrent(int channel_index);
-    public ChannelsSetCurrent(channel_index: number): void;
+    ChannelsSetCurrent(channel_index: number): void;
 
     // Advanced
     // IMGUI_API void  AddCallback(ImDrawCallback callback, void* callback_data);  // Your rendering function must check for 'UserCallback' in ImDrawCmd and call the function instead of rendering triangles.
-    public AddCallback(callback: ImDrawCallback, callback_data: any): void;
+    AddCallback(callback: ImDrawCallback, callback_data: any): void;
     // IMGUI_API void  AddDrawCmd();                                               // This is useful if you need to forcefully create a new draw call (to allow for dependent rendering / blending). Otherwise primitives are merged into the same draw-call as much as possible
-    public AddDrawCmd(): void;
+    AddDrawCmd(): void;
 
     // Internal helpers
     // NB: all primitives needs to be reserved via PrimReserve() beforehand!
     // IMGUI_API void  Clear();
-    public Clear(): void;
+    Clear(): void;
     // IMGUI_API void  ClearFreeMemory();
-    public ClearFreeMemory(): void;
+    ClearFreeMemory(): void;
     // IMGUI_API void  PrimReserve(int idx_count, int vtx_count);
-    public PrimReserve(idx_count: number, vtx_count: number): void;
+    PrimReserve(idx_count: number, vtx_count: number): void;
     // IMGUI_API void  PrimRect(const ImVec2& a, const ImVec2& b, ImU32 col);      // Axis aligned rectangle (composed of two triangles)
-    public PrimRect(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32): void;
+    PrimRect(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  PrimRectUV(const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col);
-    public PrimRectUV(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32): void;
+    PrimRectUV(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  PrimQuadUV(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, const ImVec2& uv_a, const ImVec2& uv_b, const ImVec2& uv_c, const ImVec2& uv_d, ImU32 col);
-    public PrimQuadUV(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, d: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, uv_c: Readonly<interface_ImVec2>, uv_d: Readonly<interface_ImVec2>, col: ImU32): void;
+    PrimQuadUV(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, d: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, uv_c: Readonly<interface_ImVec2>, uv_d: Readonly<interface_ImVec2>, col: ImU32): void;
     // inline    void  PrimWriteVtx(const ImVec2& pos, const ImVec2& uv, ImU32 col){ _VtxWritePtr->pos = pos; _VtxWritePtr->uv = uv; _VtxWritePtr->col = col; _VtxWritePtr++; _VtxCurrentIdx++; }
-    public PrimWriteVtx(pos: Readonly<interface_ImVec2>, us: Readonly<interface_ImVec2>, col: ImU32): void;
+    PrimWriteVtx(pos: Readonly<interface_ImVec2>, us: Readonly<interface_ImVec2>, col: ImU32): void;
     // inline    void  PrimWriteIdx(ImDrawIdx idx)                                 { *_IdxWritePtr = idx; _IdxWritePtr++; }
-    public PrimWriteIdx(idx: number): void;
+    PrimWriteIdx(idx: number): void;
     // inline    void  PrimVtx(const ImVec2& pos, const ImVec2& uv, ImU32 col)     { PrimWriteIdx((ImDrawIdx)_VtxCurrentIdx); PrimWriteVtx(pos, uv, col); }
-    public PrimVtx(pos: Readonly<interface_ImVec2>, uv: Readonly<interface_ImVec2>, col: ImU32): void;
+    PrimVtx(pos: Readonly<interface_ImVec2>, uv: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  UpdateClipRect();
-    public UpdateClipRect(): void;
+    UpdateClipRect(): void;
     // IMGUI_API void  UpdateTextureID();
-    public UpdateTextureID(): void;
+    UpdateTextureID(): void;
 }
 
-// export class ImDrawData extends Emscripten.EmscriptenClass {
-export class reference_ImDrawData extends Emscripten.EmscriptenClassReference {
-    public IterateDrawLists(callback: (draw_list: reference_ImDrawList) => void): void;
+export interface reference_ImDrawData extends Emscripten.EmscriptenClassReference {
+    IterateDrawLists(callback: (draw_list: reference_ImDrawList) => void): void;
 
     // bool            Valid;                  // Only valid after Render() is called and before the next NewFrame() is called.
-    public readonly Valid: boolean;
+    readonly Valid: boolean;
     // ImDrawList**    CmdLists;
     // int             CmdListsCount;
-    public readonly CmdListsCount: number;
+    readonly CmdListsCount: number;
     // int             TotalVtxCount;          // For convenience, sum of all cmd_lists vtx_buffer.Size
-    public readonly TotalVtxCount: number;
+    readonly TotalVtxCount: number;
     // int             TotalIdxCount;          // For convenience, sum of all cmd_lists idx_buffer.Size
-    public readonly TotalIdxCount: number;
+    readonly TotalIdxCount: number;
     // ImVec2          DisplayPos;             // Upper-left position of the viewport to render (== upper-left of the orthogonal projection matrix to use)
-    public readonly DisplayPos: Readonly<reference_ImVec2>;
+    readonly DisplayPos: Readonly<reference_ImVec2>;
     // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
-    public readonly DisplaySize: Readonly<reference_ImVec2>;
+    readonly DisplaySize: Readonly<reference_ImVec2>;
 
     // Functions
     // ImDrawData() { Clear(); }
     // void Clear() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; } // Draw lists are owned by the ImGuiContext and only pointed to here.
     // IMGUI_API void DeIndexAllBuffers();               // For backward compatibility or convenience: convert all buffers from indexed to de-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
-    public DeIndexAllBuffers(): void;
+    DeIndexAllBuffers(): void;
     // IMGUI_API void ScaleClipRects(const ImVec2& sc);  // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
-    public ScaleClipRects(sc: Readonly<interface_ImVec2>): void;
+    ScaleClipRects(sc: Readonly<interface_ImVec2>): void;
 }
 
-export class reference_ImFont extends Emscripten.EmscriptenClassReference {
+export interface reference_ImFont extends Emscripten.EmscriptenClassReference {
     // Members: Hot ~62/78 bytes
     // float                       FontSize;           // <user set>   // Height of characters, set during loading (don't change after loading)
-    public FontSize: number;
+    FontSize: number;
     // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
-    public Scale: number;
+    Scale: number;
     // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
-    public readonly DisplayOffset: reference_ImVec2;
+    readonly DisplayOffset: reference_ImVec2;
     // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
-    public IterateGlyphs(callback: (cfg: reference_ImFontGlyph) => void): void;
+    IterateGlyphs(callback: (cfg: reference_ImFontGlyph) => void): void;
     // ImVector<float>             IndexAdvanceX;      //              // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).
-    // public IndexAdvanceX: any;
+    // IndexAdvanceX: any;
     // ImVector<unsigned short>    IndexLookup;        //              // Sparse. Index glyphs by Unicode code-point.
-    // public IndexLookup: any;
+    // IndexLookup: any;
     // const ImFontGlyph*          FallbackGlyph;      // == FindGlyph(FontFallbackChar)
-    // public FallbackGlyph: any;
-    public FallbackGlyph: Readonly<reference_ImFontGlyph> | null;
+    // FallbackGlyph: any;
+    FallbackGlyph: Readonly<reference_ImFontGlyph> | null;
     // float                       FallbackAdvanceX;   // == FallbackGlyph->AdvanceX
-    public FallbackAdvanceX: number;
+    FallbackAdvanceX: number;
     // ImWchar                     FallbackChar;       // = '?'        // Replacement glyph if one isn't found. Only set via SetFallbackChar()
-    public FallbackChar: number;
+    FallbackChar: number;
     
     // Members: Cold ~18/26 bytes
     // short                       ConfigDataCount;    // ~ 1          // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
-    public ConfigDataCount: number;
+    ConfigDataCount: number;
     // ImFontConfig*               ConfigData;         //              // Pointer within ContainerAtlas->ConfigData
-    // public ConfigData: any;
-    public IterateConfigData(callback: (cfg: interface_ImFontConfig) => void): void;
+    // ConfigData: any;
+    IterateConfigData(callback: (cfg: interface_ImFontConfig) => void): void;
     // ImFontAtlas*                ContainerAtlas;     //              // What we has been loaded into
-    // public ContainerAtlas: any;
+    // ContainerAtlas: any;
     // float                       Ascent, Descent;    //              // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
-    public Ascent: number;
-    public Descent: number;
+    Ascent: number;
+    Descent: number;
     // int                         MetricsTotalSurface;//              // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
-    public MetricsTotalSurface: number;
+    MetricsTotalSurface: number;
     
     // Methods
     // IMGUI_API ImFont();
     // IMGUI_API ~ImFont();
     // IMGUI_API void              ClearOutputData();
-    public ClearOutputData(): void;
+    ClearOutputData(): void;
     // IMGUI_API void              BuildLookupTable();
-    public BuildLookupTable(): void;
+    BuildLookupTable(): void;
     // IMGUI_API const ImFontGlyph*FindGlyph(ImWchar c) const;
-    public FindGlyph(c: number): Readonly<reference_ImFontGlyph> | null;
+    FindGlyph(c: number): Readonly<reference_ImFontGlyph> | null;
     // IMGUI_API const ImFontGlyph*FindGlyphNoFallback(ImWchar c) const;
-    public FindGlyphNoFallback(c: number): Readonly<reference_ImFontGlyph> | null;
+    FindGlyphNoFallback(c: number): Readonly<reference_ImFontGlyph> | null;
     // IMGUI_API void              SetFallbackChar(ImWchar c);
-    public SetFallbackChar(c: number): void;
+    SetFallbackChar(c: number): void;
     // float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
-    public GetCharAdvance(c: number): number;
+    GetCharAdvance(c: number): number;
     // bool                        IsLoaded() const                    { return ContainerAtlas != NULL; }
-    public IsLoaded(): boolean;
+    IsLoaded(): boolean;
     // const char*                 GetDebugName() const                { return ConfigData ? ConfigData->Name : "<unknown>"; }
-    public GetDebugName(): string;
+    GetDebugName(): string;
 
     // 'max_width' stops rendering after a certain width (could be turned into a 2d size). FLT_MAX to disable.
     // 'wrap_width' enable automatic word-wrapping across multiple lines to fit into given width. 0.0f to disable.
     // IMGUI_API ImVec2            CalcTextSizeA(float size, float max_width, float wrap_width, const char* text_begin, const char* text_end = NULL, const char** remaining = NULL) const; // utf8
-    public CalcTextSizeA(size: number, max_width: number, wrap_width: number, text_begin: string, remaining: ImScalar<number> | null, out: interface_ImVec2): interface_ImVec2;
+    CalcTextSizeA(size: number, max_width: number, wrap_width: number, text_begin: string, remaining: ImScalar<number> | null, out: interface_ImVec2): interface_ImVec2;
     // IMGUI_API const char*       CalcWordWrapPositionA(float scale, const char* text, const char* text_end, float wrap_width) const;
-    public CalcWordWrapPositionA(scale: number, text: string, wrap_width: number): number;
+    CalcWordWrapPositionA(scale: number, text: string, wrap_width: number): number;
     // IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, unsigned short c) const;
-    public RenderChar(draw_list: reference_ImDrawList, size: number, pos: Readonly<interface_ImVec2>, col: ImU32, c: ImWchar): void;
+    RenderChar(draw_list: reference_ImDrawList, size: number, pos: Readonly<interface_ImVec2>, col: ImU32, c: ImWchar): void;
     // IMGUI_API void              RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
 
     // [Internal]
@@ -600,46 +576,7 @@ export interface interface_ImFontConfig {
     // IMGUI_API ImFontConfig();
 }
 
-export class reference_ImFontConfig implements interface_ImFontConfig {
-    // void*           FontData;                   //          // TTF/OTF data
-    // int             FontDataSize;               //          // TTF/OTF data size
-    FontData: DataView | null;
-    // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
-    FontDataOwnedByAtlas: boolean;
-    // int             FontNo;                     // 0        // Index of font within TTF/OTF file
-    FontNo: number;
-    // float           SizePixels;                 //          // Size in pixels for rasterizer.
-    SizePixels: number;
-    // int             OversampleH, OversampleV;   // 3, 1     // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis.
-    OversampleH: number;
-    OversampleV: number;
-    // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
-    PixelSnapH: boolean;
-    // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
-    readonly GlyphExtraSpacing: reference_ImVec2;
-    // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
-    readonly GlyphOffset: reference_ImVec2;
-    // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
-    GlyphRanges: number | null;
-    // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
-    GlyphMinAdvanceX: number;
-    // float           GlyphMaxAdvanceX;           // FLT_MAX  // Maximum AdvanceX for glyphs
-    GlyphMaxAdvanceX: number;
-    // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
-    MergeMode: boolean;
-    // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
-    RasterizerFlags: number;
-    // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
-    RasterizerMultiply: number;
-
-    // [Internal]
-    // char            Name[32];                               // Name (strictly to ease debugging)
-    Name: string;
-    // ImFont*         DstFont;
-    DstFont: reference_ImFont | null;
-
-    // IMGUI_API ImFontConfig();
-}
+export interface reference_ImFontConfig extends Emscripten.EmscriptenClassReference, interface_ImFontConfig {}
 
 export interface interface_ImFontGlyph {
     // ImWchar         Codepoint;          // 0x0000..0xFFFF
@@ -658,26 +595,11 @@ export interface interface_ImFontGlyph {
     V1: number;
 }
 
-export class reference_ImFontGlyph implements interface_ImFontGlyph {
-    // ImWchar         Codepoint;          // 0x0000..0xFFFF
-    Codepoint: number;
-    // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
-    AdvanceX: number;
-    // float           X0, Y0, X1, Y1;     // Glyph corners
-    X0: number;
-    Y0: number;
-    X1: number;
-    Y1: number;
-    // float           U0, V0, U1, V1;     // Texture coordinates
-    U0: number;
-    V0: number;
-    U1: number;
-    V1: number;
-}
+export interface reference_ImFontGlyph extends Emscripten.EmscriptenClassReference, interface_ImFontGlyph {}
 
 export type ImFontAtlasFlags = number;
 
-export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
+export interface reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // IMGUI_API ImFontAtlas();
     // IMGUI_API ~ImFontAtlas();
     // IMGUI_API ImFont*           AddFont(const ImFontConfig* font_cfg);
@@ -793,71 +715,71 @@ export class reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // int                         TexHeight;          // Texture height calculated during Build().
     readonly TexHeight: number;
     // ImVec2                      TexUvScale;         // = (1.0f/TexWidth, 1.0f/TexHeight)
-    public readonly TexUvScale: Readonly<reference_ImVec2>;
+    readonly TexUvScale: Readonly<reference_ImVec2>;
     // ImVec2                      TexUvWhitePixel;    // Texture coordinates to a white pixel
-    public readonly TexUvWhitePixel: Readonly<reference_ImVec2>;
+    readonly TexUvWhitePixel: Readonly<reference_ImVec2>;
     // ImVector<ImFont*>           Fonts;              // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
-    public IterateFonts(callback: (font: reference_ImFont) => void): void;
+    IterateFonts(callback: (font: reference_ImFont) => void): void;
     // ImVector<CustomRect>        CustomRects;        // Rectangles for packing custom texture data into the atlas.
     // ImVector<ImFontConfig>      ConfigData;         // Internal data
     // int                         CustomRectIds[1];   // Identifiers of custom texture rectangle used by ImFontAtlas/ImDrawList
 }
 
-export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
+export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     //------------------------------------------------------------------
     // Settings (fill once)                 // Default value:
     //------------------------------------------------------------------
 
     // ImGuiConfigFlags ConfigFlags;                 // = 0                  // See ImGuiConfigFlags_. Gamepad/keyboard navigation options.
-    public ConfigFlags: ImGuiConfigFlags;
+    ConfigFlags: ImGuiConfigFlags;
     // ImGuiBackendFlags BackendFlags;               // = 0                  // Set ImGuiBackendFlags_ enum. Set by imgui_impl_xxx files or custom back-end.
-    public BackendFlags: ImGuiBackendFlags;
+    BackendFlags: ImGuiBackendFlags;
     // ImVec2        DisplayS0ize;              // <unset>              // Display size, in pixels. For clamping windows positions.
-    public readonly DisplaySize: reference_ImVec2;
+    readonly DisplaySize: reference_ImVec2;
     // float         DeltaTime;                // = 1.0f/60.0f         // Time elapsed since last frame, in seconds.
-    public DeltaTime: number;
+    DeltaTime: number;
     // float         IniSavingRate;            // = 5.0f               // Maximum time between saving positions/sizes to .ini file, in seconds.
-    public IniSavingRate: number;
+    IniSavingRate: number;
     // const char*   IniFilename;              // = "imgui.ini"        // Path to .ini file. NULL to disable .ini saving.
-    public IniFilename: string;
+    IniFilename: string;
     // const char*   LogFilename;              // = "imgui_log.txt"    // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
-    public LogFilename: string;
+    LogFilename: string;
     // float         MouseDoubleClickTime;     // = 0.30f              // Time for a double-click, in seconds.
-    public MouseDoubleClickTime: number;
+    MouseDoubleClickTime: number;
     // float         MouseDoubleClickMaxDist;  // = 6.0f               // Distance threshold to stay in to validate a double-click, in pixels.
-    public MouseDoubleClickMaxDist: number;
+    MouseDoubleClickMaxDist: number;
     // float         MouseDragThreshold;       // = 6.0f               // Distance threshold before considering we are dragging.
-    public MouseDragThreshold: number;
+    MouseDragThreshold: number;
     // int           KeyMap[ImGuiKey_COUNT];   // <unset>              // Map of indices into the KeysDown[512] entries array which represent your "native" keyboard state.
-    public _getAt_KeyMap(index: ImGuiKey): number;
-    public _setAt_KeyMap(index: ImGuiKey, value: number): boolean;
+    _getAt_KeyMap(index: ImGuiKey): number;
+    _setAt_KeyMap(index: ImGuiKey, value: number): boolean;
     // float         KeyRepeatDelay;           // = 0.250f             // When holding a key/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.).
-    public KeyRepeatDelay: number;
+    KeyRepeatDelay: number;
     // float         KeyRepeatRate;            // = 0.050f             // When holding a key/button, rate at which it repeats, in seconds.
-    public KeyRepeatRate: number;
+    KeyRepeatRate: number;
     // void*         UserData;                 // = NULL               // Store your own data for retrieval by callbacks.
-    public UserData: any;
+    UserData: any;
 
     // ImFontAtlas*  Fonts;                    // <auto>               // Load and assemble one or more fonts into a single tightly packed texture. Output to Fonts array.
-    public readonly Fonts: reference_ImFontAtlas;
+    readonly Fonts: reference_ImFontAtlas;
     // float         FontGlobalScale;          // = 1.0f               // Global scale all fonts
-    public FontGlobalScale: number;
+    FontGlobalScale: number;
     // bool          FontAllowUserScaling;     // = false              // Allow user scaling text of individual window with CTRL+Wheel.
-    public FontAllowUserScaling: boolean;
+    FontAllowUserScaling: boolean;
     // ImFont*       FontDefault;              // = NULL               // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
-    public FontDefault: reference_ImFont | null;
+    FontDefault: reference_ImFont | null;
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
-    public readonly DisplayFramebufferScale: reference_ImVec2;
+    readonly DisplayFramebufferScale: reference_ImVec2;
     // ImVec2        DisplayVisibleMin;        // <unset> (0.0f,0.0f)  // If you use DisplaySize as a virtual space larger than your screen, set DisplayVisibleMin/Max to the visible area.
-    public readonly DisplayVisibleMin: reference_ImVec2;
+    readonly DisplayVisibleMin: reference_ImVec2;
     // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
-    public readonly DisplayVisibleMax: reference_ImVec2;
+    readonly DisplayVisibleMax: reference_ImVec2;
 
     // Advanced/subtle behaviors
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
-    public OptMacOSXBehaviors: boolean;
+    OptMacOSXBehaviors: boolean;
     // bool          OptCursorBlink;           // = true               // Enable blinking cursor, for users who consider it annoying.
-    public OptCursorBlink: boolean;
+    OptCursorBlink: boolean;
 
     //------------------------------------------------------------------
     // Settings (User Functions)
@@ -866,11 +788,11 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // Optional: access OS clipboard
     // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
     // const char* (*GetClipboardTextFn)(void* user_data);
-    public GetClipboardTextFn: ((user_data: any) => string) | null;
+    GetClipboardTextFn: ((user_data: any) => string) | null;
     // void        (*SetClipboardTextFn)(void* user_data, const char* text);
-    public SetClipboardTextFn: ((user_data: any, text: string) => void) | null;
+    SetClipboardTextFn: ((user_data: any, text: string) => void) | null;
     // void*       ClipboardUserData;
-    public ClipboardUserData: any;
+    ClipboardUserData: any;
 
     // Optional: notify OS Input Method Editor of the screen position of your cursor for text input position (e.g. when using Japanese/Chinese IME in Windows)
     // (default to use native imm32 api on Windows)
@@ -882,69 +804,69 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     //------------------------------------------------------------------
 
     // ImVec2      MousePos;                       // Mouse position, in pixels. Set to ImVec2(-FLT_MAX,-FLT_MAX) if mouse is unavailable (on another screen, etc.)
-    public readonly MousePos: reference_ImVec2;
+    readonly MousePos: reference_ImVec2;
     // bool        MouseDown[5];                   // Mouse buttons: left, right, middle + extras. ImGui itself mostly only uses left button (BeginPopupContext** are using right button). Others buttons allows us to track if the mouse is being used by your application + available to user as a convenience via IsMouse** API.
-    public _getAt_MouseDown(index: number): boolean;
-    public _setAt_MouseDown(index: number, value: boolean): boolean;
+    _getAt_MouseDown(index: number): boolean;
+    _setAt_MouseDown(index: number, value: boolean): boolean;
     // float       MouseWheel;                     // Mouse wheel: 1 unit scrolls about 5 lines text.
-    public MouseWheel: number;
+    MouseWheel: number;
     // float       MouseWheelH;                    // Mouse wheel (Horizontal). Most users don't have a mouse with an horizontal wheel, may not be filled by all back ends.
-    public MouseWheelH: number;
+    MouseWheelH: number;
     // bool        MouseDrawCursor;                // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
-    public MouseDrawCursor: boolean;
+    MouseDrawCursor: boolean;
     // bool        KeyCtrl;                        // Keyboard modifier pressed: Control
-    public KeyCtrl: boolean;
+    KeyCtrl: boolean;
     // bool        KeyShift;                       // Keyboard modifier pressed: Shift
-    public KeyShift: boolean;
+    KeyShift: boolean;
     // bool        KeyAlt;                         // Keyboard modifier pressed: Alt
-    public KeyAlt: boolean;
+    KeyAlt: boolean;
     // bool        KeySuper;                       // Keyboard modifier pressed: Cmd/Super/Windows
-    public KeySuper: boolean;
+    KeySuper: boolean;
     // bool        KeysDown[512];                  // Keyboard keys that are pressed (ideally left in the "native" order your engine has access to keyboard keys, so you can use your own defines/enums for keys).
-    public _getAt_KeysDown(index: number): boolean;
-    public _setAt_KeysDown(index: number, value: boolean): boolean;
+    _getAt_KeysDown(index: number): boolean;
+    _setAt_KeysDown(index: number, value: boolean): boolean;
     // ImWchar     InputCharacters[16+1];          // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
-    public readonly InputCharacters: Readonly<Uint16Array>;
+    readonly InputCharacters: Readonly<Uint16Array>;
     // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
-    public _getAt_NavInputs(index: number): number;
-    public _setAt_NavInputs(index: number, value: number): boolean;
+    _getAt_NavInputs(index: number): number;
+    _setAt_NavInputs(index: number, value: number): boolean;
     
     // Functions
     // IMGUI_API void AddInputCharacter(ImWchar c);                        // Add new character into InputCharacters[]
-    public AddInputCharacter(c: number): void;
+    AddInputCharacter(c: number): void;
     // IMGUI_API void AddInputCharactersUTF8(const char* utf8_chars);      // Add new characters into InputCharacters[] from an UTF-8 string
-    public AddInputCharactersUTF8(utf8_chars: string): void;
+    AddInputCharactersUTF8(utf8_chars: string): void;
     // inline void    ClearInputCharacters() { InputCharacters[0] = 0; }   // Clear the text input buffer manually
-    public ClearInputCharacters(): void;
+    ClearInputCharacters(): void;
 
     //------------------------------------------------------------------
     // Output - Retrieve after calling NewFrame()
     //------------------------------------------------------------------
 
     // bool        WantCaptureMouse;           // When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application. This is set by ImGui when it wants to use your mouse (e.g. unclicked mouse is hovering a window, or a widget is active). 
-    public WantCaptureMouse: boolean;
+    WantCaptureMouse: boolean;
     // bool        WantCaptureKeyboard;        // When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application. This is set by ImGui when it wants to use your keyboard inputs.
-    public WantCaptureKeyboard: boolean;
+    WantCaptureKeyboard: boolean;
     // bool        WantTextInput;              // Mobile/console: when io.WantTextInput is true, you may display an on-screen keyboard. This is set by ImGui when it wants textual keyboard input to happen (e.g. when a InputText widget is active).
-    public WantTextInput: boolean;
+    WantTextInput: boolean;
     // bool        WantSetMousePos;              // MousePos has been altered, back-end should reposition mouse on next frame. Set only when ImGuiConfigFlags_MoveMouse flag is enabled in io.ConfigFlags.
-    public WantSetMousePos: boolean;
+    WantSetMousePos: boolean;
     // bool        WantSaveIniSettings;        // When manual .ini load/save is active (io.IniFilename == NULL), this will be set to notify your application that you can call SaveIniSettingsToMemory() and save yourself. IMPORTANT: You need to clear io.WantSaveIniSettings yourself.
-    public WantSaveIniSettings: boolean;
+    WantSaveIniSettings: boolean;
     // bool        NavActive;                  // Directional navigation is currently allowed (will handle ImGuiKey_NavXXX events) = a window is focused and it doesn't use the ImGuiWindowFlags_NoNavInputs flag.
-    public NavActive: boolean;
+    NavActive: boolean;
     // bool        NavVisible;                 // Directional navigation is visible and allowed (will handle ImGuiKey_NavXXX events).
-    public NavVisible: boolean;
+    NavVisible: boolean;
     // float       Framerate;                  // Application framerate estimation, in frame per second. Solely for convenience. Rolling average estimation based on IO.DeltaTime over 120 frames
-    public Framerate: number;
+    Framerate: number;
     // int         MetricsRenderVertices;      // Vertices output during last call to Render()
-    public MetricsRenderVertices: number;
+    MetricsRenderVertices: number;
     // int         MetricsRenderIndices;       // Indices output during last call to Render() = number of triangles * 3
-    public MetricsRenderIndices: number;
+    MetricsRenderIndices: number;
     // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
-    public MetricsActiveWindows: number;
+    MetricsActiveWindows: number;
     // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
-    public readonly MouseDelta: Readonly<reference_ImVec2>;
+    readonly MouseDelta: Readonly<reference_ImVec2>;
 
     //------------------------------------------------------------------
     // [Internal] ImGui will maintain those fields. Forward compatibility not guaranteed!
@@ -952,22 +874,22 @@ export class reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
 
     // ImVec2      MousePosPrev;               // Previous mouse position temporary storage (nb: not for public use, set to MousePos in NewFrame())
     // ImVec2      MouseClickedPos[5];         // Position at time of clicking
-    public _getAt_MouseClickedPos(index: number): Readonly<reference_ImVec2>;
+    _getAt_MouseClickedPos(index: number): Readonly<reference_ImVec2>;
     // float       MouseClickedTime[5];        // Time of last click (used to figure out double-click)
     // bool        MouseClicked[5];            // Mouse button went from !Down to Down
     // bool        MouseDoubleClicked[5];      // Has mouse button been double-clicked?
     // bool        MouseReleased[5];           // Mouse button went from Down to !Down
     // bool        MouseDownOwned[5];          // Track if button was clicked inside a window. We don't request mouse capture from the application if click started outside ImGui bounds.
     // float       MouseDownDuration[5];       // Duration the mouse button has been down (0.0f == just clicked)
-    public _getAt_MouseDownDuration(index: number): number;
+    _getAt_MouseDownDuration(index: number): number;
     // float       MouseDownDurationPrev[5];   // Previous time the mouse button has been down
     // ImVec2      MouseDragMaxDistanceAbs[5]; // Maximum distance, absolute, on each axis, of how much mouse has traveled from the clicking point
     // float       MouseDragMaxDistanceSqr[5]; // Squared maximum distance of how much mouse has traveled from the clicking point
     // float       KeysDownDuration[512];      // Duration the keyboard key has been down (0.0f == just pressed)
-    public _getAt_KeysDownDuration(index: number): number;
+    _getAt_KeysDownDuration(index: number): number;
     // float       KeysDownDurationPrev[512];  // Previous duration the key has been down
     // float       NavInputsDownDuration[ImGuiNavInput_COUNT];
-    public _getAt_NavInputsDownDuration(index: number): number;
+    _getAt_NavInputsDownDuration(index: number): number;
     // float       NavInputsDownDurationPrev[ImGuiNavInput_COUNT];
 
     // IMGUI_API   ImGuiIO();

@@ -1666,7 +1666,7 @@ export class ImFont
         return glyph && new ImFontGlyph(glyph);
     }
     set FallbackGlyph(value: ImFontGlyph | null) {
-        this.native.FallbackGlyph = value && value.internal;
+        this.native.FallbackGlyph = value && value.internal as Bind.reference_ImFontGlyph;
     }
     // float                       FallbackAdvanceX;   // == FallbackGlyph->AdvanceX
     get FallbackAdvanceX(): number { return this.native.FallbackAdvanceX; }
