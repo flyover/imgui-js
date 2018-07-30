@@ -9,6 +9,7 @@
     "clean": "make clean-bind-imgui && npm run clean-imgui",
     "watch": "npm run watch-example",
     "start": "npm run start-example",
+    "dist": "rollup -c",
     "build-imgui": "tsc",
     "watch-imgui": "tsc --watch",
     "clean-imgui": "echo TODO: clean-imgui",
@@ -24,12 +25,12 @@
   "license": "MIT",
   "dependencies": {
     "@types/emscripten": "0.0.31",
-    "@types/node": "^10.5.1",
+    "@types/node": "^10.5.4",
     "@types/systemjs": "^0.20.6"
   },
   "devDependencies": {
     "http-server": "^0.11.1",
-    "node-fetch": "^2.1.2",
+    "node-fetch": "^2.2.0",
     "systemjs": "^0.21.4",
     "typescript": "^2.9.2"
   }

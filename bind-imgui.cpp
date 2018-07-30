@@ -980,7 +980,7 @@ ImFontConfig import_ImFontConfig(emscripten::val value) {
         const size_t byteLength = FontData["byteLength"].as<size_t>();
         font_cfg.FontData = NULL; // TODO
         font_cfg.FontDataSize = 0; // TODO
-        printf("TODO: FontData %ud %ud\n", byteOffset, byteLength);
+        printf("TODO: FontData %zu %zu\n", byteOffset, byteLength);
     }
     // bool            FontDataOwnedByAtlas;       // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
     font_cfg.FontDataOwnedByAtlas = value["FontDataOwnedByAtlas"].as<bool>();
