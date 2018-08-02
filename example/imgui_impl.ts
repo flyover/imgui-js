@@ -85,6 +85,15 @@ function canvas_on_keydown(event: KeyboardEvent): void {
     }
 }
 
+function unset_meta_shortcut_keys() {
+    // console.log("Unset meta shortcut keys");
+    const io = ImGui.GetIO();
+    const keys = [ImGui.Key.A, ImGui.Key.C, ImGui.Key.V, ImGui.Key.X, ImGui.Key.Y, ImGui.Key.Z];
+    keys.map(k => io.KeysDown[io.KeyMap[k]] = false);
+}
+
+const MetaKeyCode : number = 91;
+
 function canvas_on_keyup(event: KeyboardEvent): void  {
     // console.log(event.type, event.key, event.keyCode);
     const io = ImGui.GetIO();
@@ -94,6 +103,11 @@ function canvas_on_keyup(event: KeyboardEvent): void  {
     io.KeySuper = event.metaKey;
     ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
     io.KeysDown[event.keyCode] = false;
+    // Because of osx metakey weirdness,
+    // unset the states for some of the keys
+    if (event.keyCode === MetaKeyCode) {
+        unset_meta_shortcut_keys();
+    }
     if (io.WantCaptureKeyboard) {
         event.preventDefault();
     }
