@@ -10,6 +10,10 @@ The original Dear ImGui demo code from [imgui_demo.cpp](imgui/imgui_demo.cpp) ha
 
 A [CodePen](https://codepen.io) using the [Ace](https://ace.c9.io) editor to live-edit a window.
 
+[ImGui JavaScript+Three.js example](https://codepen.io/flyovergames/pen/ejXjXj)
+
+A [CodePen](https://codepen.io) using Dear ImGui with [Three.js](https://threejs.org).
+
 ## Support
 If you find this useful, please consider donating to this and the [Dear ImGui](https://github.com/ocornut/imgui) project.  I can also invoice for private support, custom development, etc.
 
