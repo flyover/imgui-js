@@ -27,25 +27,67 @@ export default async function(value?: Partial<Bind.Module>): Promise<void> {
 }
 export { bind };
 
-function import_Color3(col: Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA | RGB): Bind.ImTuple3<number> {
+function import_Scalar(sca: XY | XYZ | XYZW | Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4): Bind.ImScalar<number> {
+    if (Array.isArray(sca)) { return [ sca[0] ]; }
+    if (typeof sca === "function") { return [ sca() ]; }
+    return [ sca.x ];
+}
+
+function export_Scalar(tuple: Bind.ImScalar<number>, sca: XY | XYZ | XYZW | Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4): void {
+    if (Array.isArray(sca)) { sca[0] = tuple[0]; return; }
+    if (typeof sca === "function") { sca(tuple[0]); return; }
+    sca.x = tuple[0];
+}
+
+function import_Vector2(vec: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4): Bind.ImTuple2<number> {
+    if (Array.isArray(vec)) { return [ vec[0], vec[1] ]; }
+    return [ vec.x, vec.y ];
+}
+
+function export_Vector2(tuple: Bind.ImTuple2<number>, vec: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4): void {
+    if (Array.isArray(vec)) { vec[0] = tuple[0]; vec[1] = tuple[1]; return; }
+    vec.x = tuple[0]; vec.y = tuple[1];
+}
+
+function import_Vector3(vec: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4): Bind.ImTuple3<number> {
+    if (Array.isArray(vec)) { return [ vec[0], vec[1], vec[2] ]; }
+    return [ vec.x, vec.y, vec.z ];
+}
+
+function export_Vector3(tuple: Bind.ImTuple3<number>, vec: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4): void {
+    if (Array.isArray(vec)) { vec[0] = tuple[0]; vec[1] = tuple[1]; vec[2] = tuple[2]; return; }
+    vec.x = tuple[0]; vec.y = tuple[1]; vec.z = tuple[2];
+}
+
+function import_Vector4(vec: XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4 | XYZW): Bind.ImTuple4<number> {
+    if (Array.isArray(vec)) { return [ vec[0], vec[1], vec[2], vec[3] ]; }
+    return [ vec.x, vec.y, vec.z, vec.w ];
+}
+
+function export_Vector4(tuple: Bind.ImTuple4<number>, vec: XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4 | XYZW): void {
+    if (Array.isArray(vec)) { vec[0] = tuple[0]; vec[1] = tuple[1]; vec[2] = tuple[2]; vec[3] = tuple[3]; return; }
+    vec.x = tuple[0]; vec.y = tuple[1]; vec.z = tuple[2]; vec.w = tuple[3];
+}
+
+function import_Color3(col: RGB | RGBA | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4): Bind.ImTuple3<number> {
     if (Array.isArray(col)) { return [ col[0], col[1], col[2] ]; }
     if ("r" in col) { return [ col.r, col.g, col.b ]; }
     return [ col.x, col.y, col.z ];
 }
 
-function export_Color3(tuple: Bind.ImTuple3<number>, col: Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA | RGB): void {
+function export_Color3(tuple: Bind.ImTuple3<number>, col: RGB | RGBA | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4): void {
     if (Array.isArray(col)) { col[0] = tuple[0]; col[1] = tuple[1]; col[2] = tuple[2]; return; }
     if ("r" in col) { col.r = tuple[0]; col.g = tuple[1]; col.b = tuple[2]; return; }
     col.x = tuple[0]; col.y = tuple[1]; col.z = tuple[2];
 }
 
-function import_Color4(col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA): Bind.ImTuple4<number> {
+function import_Color4(col: RGBA | Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA): Bind.ImTuple4<number> {
     if (Array.isArray(col)) { return [ col[0], col[1], col[2], col[3] ]; }
     if ("r" in col) { return [ col.r, col.g, col.b, col.a ]; }
     return [ col.x, col.y, col.z, col.w ];
 }
 
-function export_Color4(tuple: Bind.ImTuple4<number>, col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA): void {
+function export_Color4(tuple: Bind.ImTuple4<number>, col: RGBA | Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA): void {
     if (Array.isArray(col)) { col[0] = tuple[0]; col[1] = tuple[1]; col[2] = tuple[2]; return; }
     if ("r" in col) { col.r = tuple[0]; col.g = tuple[1]; col.b = tuple[2]; return; }
     col.x = tuple[0]; col.y = tuple[1]; col.z = tuple[2];
@@ -2871,86 +2913,77 @@ export function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.
 // Widgets: Drags (tip: ctrl+click on a drag box to input with keyboard. manually input values aren't clamped, can go off-bounds)
 // For all the Float2/Float3/Float4/Int2/Int3/Int4 versions of every functions, note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can pass address of your first element out of a contiguous set, e.g. &myvector.x
 // IMGUI_API bool          DragFloat(const char* label, float* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);     // If v_min >= v_max we have no bound
-export function DragFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, display_format: string | null = "%.3f", power: number = 1.0): boolean {
-    if (Array.isArray(v)) {
-        return bind.DragFloat(label, v, v_speed, v_min, v_max, display_format, power);
-    } else {
-        const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret = bind.DragFloat(label, ref_v, v_speed, v_min, v_max, display_format, power);
-        v(ref_v[0]);
-        return ret;
-    }
+export function DragFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, display_format: string | null = "%.3f", power: number = 1.0): boolean {
+    const _v = import_Scalar(v);
+    const ret = bind.DragFloat(label, _v, v_speed, v_min, v_max, display_format, power);
+    export_Scalar(_v, v);
+    return ret;
 }
 // IMGUI_API bool          DragFloat2(const char* label, float v[2], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);
-export function DragFloat2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | ImVec2, v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, display_format: string = "%.3f", power: number = 1.0): boolean {
-    if (v instanceof ImVec2) {
-        const _v: Bind.ImTuple2<number> = [ v.x, v.y ];
-        const ret = bind.DragFloat2(label, _v, v_speed, v_min, v_max, display_format, power);
-        v.x = _v[0];
-        v.y = _v[1];
-        return ret;
-    } else {
-        return bind.DragFloat2(label, v, v_speed, v_min, v_max, display_format, power);
-    }
+export function DragFloat2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | ImVec2, v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, display_format: string = "%.3f", power: number = 1.0): boolean {
+    const _v = import_Vector2(v);
+    const ret = bind.DragFloat2(label, _v, v_speed, v_min, v_max, display_format, power);
+    export_Vector2(_v, v);
+    return ret;
 }
 // IMGUI_API bool          DragFloat3(const char* label, float v[3], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);
-export function DragFloat3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, display_format: string = "%.3f", power: number = 1.0): boolean {
-    return bind.DragFloat3(label, v, v_speed, v_min, v_max, display_format, power);
+export function DragFloat3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, display_format: string = "%.3f", power: number = 1.0): boolean {
+    const _v = import_Vector3(v);
+    const ret = bind.DragFloat3(label, _v, v_speed, v_min, v_max, display_format, power);
+    export_Vector3(_v, v);
+    return ret;
 }
 // IMGUI_API bool          DragFloat4(const char* label, float v[4], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);
-export function DragFloat4(label: string, v: Bind.ImTuple4<number> | ImVec4, v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, display_format: string = "%.3f", power: number = 1.0): boolean {
-    if (v instanceof ImVec4) {
-        const _v: Bind.ImTuple4<number> = [ v.x, v.y, v.z, v.w ];
-        const ret = bind.DragFloat4(label, _v, v_speed, v_min, v_max, display_format, power);
-        v.x = _v[0];
-        v.y = _v[1];
-        v.z = _v[2];
-        v.w = _v[3];
-        return ret;
-    } else {
-        return bind.DragFloat4(label, v, v_speed, v_min, v_max, display_format, power);
-    }
+export function DragFloat4(label: string, v: XYZW | Bind.ImTuple4<number> | ImVec4, v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, display_format: string = "%.3f", power: number = 1.0): boolean {
+    const _v = import_Vector4(v);
+    const ret = bind.DragFloat4(label, _v, v_speed, v_min, v_max, display_format, power);
+    export_Vector4(_v, v);
+    return ret;
 }
 // IMGUI_API bool          DragFloatRange2(const char* label, float* v_current_min, float* v_current_max, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", const char* display_format_max = NULL, float power = 1.0f);
-export function DragFloatRange2(label: string, v_current_min: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_current_max: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, display_format: string = "%.3f", display_format_max: string | null = null, power: number = 1.0): boolean {
-    const ref_v_current_min: Bind.ImScalar<number> = Array.isArray(v_current_min) ? v_current_min as any : [ v_current_min() ];
-    const ref_v_current_max: Bind.ImScalar<number> = Array.isArray(v_current_max) ? v_current_max as any : [ v_current_max() ];
-    const ret = bind.DragFloatRange2(label, ref_v_current_min, ref_v_current_max, v_speed, v_min, v_max, display_format, display_format_max, power);
-    if (!Array.isArray(v_current_min)) { v_current_min(ref_v_current_min[0]); }
-    if (!Array.isArray(v_current_max)) { v_current_max(ref_v_current_max[0]); }
+export function DragFloatRange2(label: string, v_current_min: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_current_max: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0.0, v_max: number = 0.0, display_format: string = "%.3f", display_format_max: string | null = null, power: number = 1.0): boolean {
+    const _v_current_min = import_Scalar(v_current_min);
+    const _v_current_max = import_Scalar(v_current_max);
+    const ret = bind.DragFloatRange2(label, _v_current_min, _v_current_max, v_speed, v_min, v_max, display_format, display_format_max, power);
+    export_Scalar(_v_current_min, v_current_min);
+    export_Scalar(_v_current_max, v_current_max);
     return ret;
-
 }
 // IMGUI_API bool          DragInt(const char* label, int* v, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%d");                                       // If v_min >= v_max we have no bound
-export function DragInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d"): boolean {
-    if (Array.isArray(v)) {
-        return bind.DragInt(label, v, v_speed, v_min, v_max, format);
-    } else {
-        const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret = bind.DragInt(label, ref_v, v_speed, v_min, v_max, format);
-        v(ref_v[0]);
-        return ret;
-    }
+export function DragInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d"): boolean {
+    const _v = import_Scalar(v);
+    const ret = bind.DragInt(label, _v, v_speed, v_min, v_max, format);
+    export_Scalar(_v, v);
+    return ret;
 }
 // IMGUI_API bool          DragInt2(const char* label, int v[2], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%d");
-export function DragInt2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d"): boolean {
-    return bind.DragInt2(label, v, v_speed, v_min, v_max, format);
+export function DragInt2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d"): boolean {
+    const _v = import_Vector2(v);
+    const ret = bind.DragInt2(label, _v, v_speed, v_min, v_max, format);
+    export_Vector2(_v, v);
+    return ret;
 }
 // IMGUI_API bool          DragInt3(const char* label, int v[3], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%d");
-export function DragInt3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d"): boolean {
-    return bind.DragInt3(label, v, v_speed, v_min, v_max, format);
+export function DragInt3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d"): boolean {
+    const _v = import_Vector3(v);
+    const ret = bind.DragInt3(label, _v, v_speed, v_min, v_max, format);
+    export_Vector3(_v, v);
+    return ret;
 }
 // IMGUI_API bool          DragInt4(const char* label, int v[4], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%d");
-export function DragInt4(label: string, v: Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d"): boolean {
-    return bind.DragInt4(label, v, v_speed, v_min, v_max, format);
+export function DragInt4(label: string, v: XYZW | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d"): boolean {
+    const _v = import_Vector4(v);
+    const ret = bind.DragInt4(label, _v, v_speed, v_min, v_max, format);
+    export_Vector4(_v, v);
+    return ret;
 }
 // IMGUI_API bool          DragIntRange2(const char* label, int* v_current_min, int* v_current_max, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%.0f", const char* display_format_max = NULL);
-export function DragIntRange2(label: string, v_current_min: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_current_max: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d", format_max: string | null = null): boolean {
-    const ref_v_current_min: Bind.ImScalar<number> = Array.isArray(v_current_min) ? v_current_min as any : [ v_current_min() ];
-    const ref_v_current_max: Bind.ImScalar<number> = Array.isArray(v_current_max) ? v_current_max as any : [ v_current_max() ];
-    const ret = bind.DragIntRange2(label, ref_v_current_min, ref_v_current_max, v_speed, v_min, v_max, format, format_max);
-    if (!Array.isArray(v_current_min)) { v_current_min(ref_v_current_min[0]); }
-    if (!Array.isArray(v_current_max)) { v_current_max(ref_v_current_max[0]); }
+export function DragIntRange2(label: string, v_current_min: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_current_max: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed: number = 1.0, v_min: number = 0, v_max: number = 0, format: string = "%d", format_max: string | null = null): boolean {
+    const _v_current_min = import_Scalar(v_current_min);
+    const _v_current_max = import_Scalar(v_current_max);
+    const ret = bind.DragIntRange2(label, _v_current_min, _v_current_max, v_speed, v_min, v_max, format, format_max);
+    export_Scalar(_v_current_min, v_current_min);
+    export_Scalar(_v_current_max, v_current_max);
     return ret;
 }
 // IMGUI_API bool          DragScalar(const char* label, ImGuiDataType data_type, void* v, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
@@ -3003,61 +3036,67 @@ export function InputTextMultiline(label: string, buf: ImStringBuffer | Bind.ImA
     }
 }
 // IMGUI_API bool          InputFloat(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
-    if (Array.isArray(v)) {
-        return bind.InputFloat(label, v, step, step_fast, format, extra_flags);
-    } else {
-        const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret = bind.InputFloat(label, ref_v, step, step_fast, format, extra_flags);
-        v(ref_v[0]);
-        return ret;
-    }
+export function InputFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+    const _v = import_Scalar(v);
+    const ret = bind.InputFloat(label, _v, step, step_fast, format, extra_flags);
+    export_Scalar(_v, v);
+    return ret;
 }
 // IMGUI_API bool          InputFloat2(const char* label, float v[2], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
-    return bind.InputFloat2(label, v, format, extra_flags);
+export function InputFloat2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+    const _v = import_Vector2(v);
+    const ret = bind.InputFloat2(label, _v, format, extra_flags);
+    export_Vector2(_v, v);
+    return ret;
 }
 // IMGUI_API bool          InputFloat3(const char* label, float v[3], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
-    return bind.InputFloat3(label, v, format, extra_flags);
+export function InputFloat3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+    const _v = import_Vector3(v);
+    const ret = bind.InputFloat3(label, _v, format, extra_flags);
+    export_Vector3(_v, v);
+    return ret;
 }
 // IMGUI_API bool          InputFloat4(const char* label, float v[4], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat4(label: string, v: Bind.ImTuple4<number>, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
-    return bind.InputFloat4(label, v, format, extra_flags);
+export function InputFloat4(label: string, v: XYZW | Bind.ImTuple4<number>, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+    const _v = import_Vector4(v);
+    const ret = bind.InputFloat4(label, _v, format, extra_flags);
+    export_Vector4(_v, v);
+    return ret;
 }
 // IMGUI_API bool          InputInt(const char* label, int* v, int step = 1, int step_fast = 100, ImGuiInputTextFlags extra_flags = 0);
-export function InputInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 1, step_fast: number = 100, extra_flags: ImGuiInputTextFlags = 0): boolean {
-    if (Array.isArray(v)) {
-        return bind.InputInt(label, v, step, step_fast, extra_flags);
-    } else {
-        const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret = bind.InputInt(label, ref_v, step, step_fast, extra_flags);
-        v(ref_v[0]);
-        return ret;
-    }
+export function InputInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 1, step_fast: number = 100, extra_flags: ImGuiInputTextFlags = 0): boolean {
+    const _v = import_Scalar(v);
+    const ret = bind.InputInt(label, _v, step, step_fast, extra_flags);
+    export_Scalar(_v, v);
+    return ret;
 }
 // IMGUI_API bool          InputInt2(const char* label, int v[2], ImGuiInputTextFlags extra_flags = 0);
-export function InputInt2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
-    return bind.InputInt2(label, v, extra_flags);
+export function InputInt2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
+    const _v = import_Vector2(v);
+    const ret = bind.InputInt2(label, _v, extra_flags);
+    export_Vector2(_v, v);
+    return ret;
 }
 // IMGUI_API bool          InputInt3(const char* label, int v[3], ImGuiInputTextFlags extra_flags = 0);
-export function InputInt3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
-    return bind.InputInt3(label, v, extra_flags);
+export function InputInt3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
+    const _v = import_Vector3(v);
+    const ret = bind.InputInt3(label, _v, extra_flags);
+    export_Vector3(_v, v);
+    return ret;
 }
 // IMGUI_API bool          InputInt4(const char* label, int v[4], ImGuiInputTextFlags extra_flags = 0);
-export function InputInt4(label: string, v: Bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
-    return bind.InputInt4(label, v, extra_flags);
+export function InputInt4(label: string, v: XYZW | Bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
+    const _v = import_Vector4(v);
+    const ret = bind.InputInt4(label, _v, extra_flags);
+    export_Vector4(_v, v);
+    return ret;
 }
 // IMGUI_API bool          InputDouble(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.6f", ImGuiInputTextFlags extra_flags = 0);
-export function InputDouble(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, format: string = "%.6f", extra_flags: ImGuiInputTextFlags = 0): boolean {
-    if (Array.isArray(v)) {
-        return bind.InputDouble(label, v, step, step_fast, format, extra_flags);
-    } else {
-        const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret = bind.InputDouble(label, ref_v, step, step_fast, format, extra_flags);
-        v(ref_v[0]);
-        return ret;
-    }
+export function InputDouble(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, format: string = "%.6f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+    const _v = import_Scalar(v);
+    const ret = bind.InputDouble(label, _v, step, step_fast, format, extra_flags);
+    export_Scalar(_v, v);
+    return ret;
 }
 // IMGUI_API bool          InputScalar(const char* label, ImGuiDataType data_type, void* v, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
 // IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
@@ -3073,69 +3112,67 @@ export function InputScalar(label: string, v: Int32Array | Uint32Array | Float32
 
 // Widgets: Sliders (tip: ctrl+click on a slider to input with keyboard. manually input values aren't clamped, can go off-bounds)
 // IMGUI_API bool          SliderFloat(const char* label, float* v, float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);     // adjust format to decorate the value with a prefix or a suffix for in-slider labels or unit display. Use power!=1.0 for logarithmic sliders
-export function SliderFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
-    if (Array.isArray(v)) {
-        return bind.SliderFloat(label, v, v_min, v_max, format, power);
-    } else {
-        const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret: boolean = bind.SliderFloat(label, ref_v, v_min, v_max, format, power);
-        v(ref_v[0]);
-        return ret;
-    }
+export function SliderFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
+    const _v = import_Scalar(v);
+    const ret = bind.SliderFloat(label, _v, v_min, v_max, format, power);
+    export_Scalar(_v, v);
+    return ret;
 }
 // IMGUI_API bool          SliderFloat2(const char* label, float v[2], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
-export function SliderFloat2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec2, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
-    if (Array.isArray(v)) {
-        return bind.SliderFloat2(label, v, v_min, v_max, format, power);
-    } else {
-        const _v: Bind.ImTuple2<number> = [ v.x, v.y ];
-        const ret = bind.SliderFloat2(label, _v, v_min, v_max, format, power);
-        v.x = _v[0];
-        v.y = _v[1];
-        return ret;
-    }
+export function SliderFloat2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec2, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
+    const _v = import_Vector2(v);
+    const ret = bind.SliderFloat2(label, _v, v_min, v_max, format, power);
+    export_Vector2(_v, v);
+    return ret;
 }
 // IMGUI_API bool          SliderFloat3(const char* label, float v[3], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
-export function SliderFloat3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
-    return bind.SliderFloat3(label, v, v_min, v_max, format, power);
+export function SliderFloat3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
+    const _v = import_Vector3(v);
+    const ret = bind.SliderFloat3(label, _v, v_min, v_max, format, power);
+    export_Vector3(_v, v);
+    return ret;
 }
 // IMGUI_API bool          SliderFloat4(const char* label, float v[4], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
-export function SliderFloat4(label: string, v: Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
-    return bind.SliderFloat4(label, v, v_min, v_max, format, power);
+export function SliderFloat4(label: string, v: XYZW | Bind.ImTuple4<number> | XYZW, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
+    const _v = import_Vector4(v);
+    const ret = bind.SliderFloat4(label, _v, v_min, v_max, format, power);
+    export_Vector4(_v, v);
+    return ret;
 }
 // IMGUI_API bool          SliderAngle(const char* label, float* v_rad, float v_degrees_min = -360.0f, float v_degrees_max = +360.0f);
-export function SliderAngle(label: string, v_rad: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_degrees_min: number = -360.0, v_degrees_max: number = +360.0): boolean {
-    if (Array.isArray(v_rad)) {
-        return bind.SliderAngle(label, v_rad, v_degrees_min, v_degrees_max);
-    } else {
-        const ref_v_rad: Bind.ImScalar<number> = [ v_rad() ];
-        const ret: boolean = bind.SliderAngle(label, ref_v_rad, v_degrees_min, v_degrees_max);
-        v_rad(ref_v_rad[0]);
-        return ret;
-    }
+export function SliderAngle(label: string, v_rad: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_degrees_min: number = -360.0, v_degrees_max: number = +360.0): boolean {
+    const _v_rad = import_Scalar(v_rad);
+    const ret = bind.SliderAngle(label, _v_rad, v_degrees_min, v_degrees_max);
+    export_Scalar(_v_rad, v_rad);
+    return ret;
 }
 // IMGUI_API bool          SliderInt(const char* label, int* v, int v_min, int v_max, const char* format = "%d");
-export function SliderInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
-    if (Array.isArray(v)) {
-        return bind.SliderInt(label, v, v_min, v_max, format);
-    } else {
-        const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret: boolean = bind.SliderInt(label, ref_v, v_min, v_max, format);
-        v(ref_v[0]);
-        return ret;
-    }
+export function SliderInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
+    const _v = import_Scalar(v);
+    const ret = bind.SliderInt(label, _v, v_min, v_max, format);
+    export_Scalar(_v, v);
+    return ret;
 }
 // IMGUI_API bool          SliderInt2(const char* label, int v[2], int v_min, int v_max, const char* format = "%d");
-export function SliderInt2(label: string, v: Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
-    return bind.SliderInt2(label, v, v_min, v_max, format);
+export function SliderInt2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
+    const _v = import_Vector2(v);
+    const ret = bind.SliderInt2(label, _v, v_min, v_max, format);
+    export_Vector2(_v, v);
+    return ret;
 }
 // IMGUI_API bool          SliderInt3(const char* label, int v[3], int v_min, int v_max, const char* format = "%d");
-export function SliderInt3(label: string, v: Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
-    return bind.SliderInt3(label, v, v_min, v_max, format);
+export function SliderInt3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
+    const _v = import_Vector3(v);
+    const ret = bind.SliderInt3(label, _v, v_min, v_max, format);
+    export_Vector3(_v, v);
+    return ret;
 }
 // IMGUI_API bool          SliderInt4(const char* label, int v[4], int v_min, int v_max, const char* format = "%d");
-export function SliderInt4(label: string, v: Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
-    return bind.SliderInt4(label, v, v_min, v_max, format);
+export function SliderInt4(label: string, v: XYZW | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
+    const _v = import_Vector4(v);
+    const ret = bind.SliderInt4(label, _v, v_min, v_max, format);
+    export_Vector4(_v, v);
+    return ret;
 }
 // IMGUI_API bool          SliderScalar(const char* label, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
 // IMGUI_API bool          SliderScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
@@ -3149,26 +3186,18 @@ export function SliderScalar(label: string, v: Int32Array | Uint32Array | Float3
     throw new Error();
 }
 // IMGUI_API bool          VSliderFloat(const char* label, const ImVec2& size, float* v, float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
-export function VSliderFloat(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
-    if (Array.isArray(v)) {
-        return bind.VSliderFloat(label, size, v, v_min, v_max, format, power);
-    } else {
-        const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret: boolean = bind.VSliderFloat(label, size, ref_v, v_min, v_max, format, power);
-        v(ref_v[0]);
-        return ret;
-    }
+export function VSliderFloat(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%.3f", power: number = 1.0): boolean {
+    const _v = import_Scalar(v);
+    const ret = bind.VSliderFloat(label, size, _v, v_min, v_max, format, power);
+    export_Scalar(_v, v);
+    return ret;
 }
 // IMGUI_API bool          VSliderInt(const char* label, const ImVec2& size, int* v, int v_min, int v_max, const char* format = "%d");
-export function VSliderInt(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
-    if (Array.isArray(v)) {
-        return bind.VSliderInt(label, size, v, v_min, v_max, format);
-    } else {
-        const ref_v: Bind.ImScalar<number> = [ v() ];
-        const ret: boolean = bind.VSliderInt(label, size, ref_v, v_min, v_max, format);
-        v(ref_v[0]);
-        return ret;
-    }
+export function VSliderInt(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
+    const _v = import_Scalar(v);
+    const ret = bind.VSliderInt(label, size, _v, v_min, v_max, format);
+    export_Scalar(_v, v);
+    return ret;
 }
 // IMGUI_API bool          VSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
 export function VSliderScalar(label: string, size: Readonly<Bind.interface_ImVec2>, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, v_min: number, v_max: number, format: string | null = null, power: number = 1.0): boolean {
@@ -3184,28 +3213,28 @@ export function VSliderScalar(label: string, size: Readonly<Bind.interface_ImVec
 // Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little colored preview square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
 // Note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can the pass the address of a first float element out of a contiguous structure, e.g. &myvector.x
 // IMGUI_API bool          ColorEdit3(const char* label, float col[3], ImGuiColorEditFlags flags = 0);
-export function ColorEdit3(label: string, col: Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA | RGB, flags: ImGuiColorEditFlags = 0): boolean {
+export function ColorEdit3(label: string, col: RGB | RGBA | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0): boolean {
     const _col = import_Color3(col);
     const ret = bind.ColorEdit3(label, _col, flags);
     export_Color3(_col, col);
     return ret;
 }
 // IMGUI_API bool          ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flags = 0);
-export function ColorEdit4(label: string, col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA, flags: ImGuiColorEditFlags = 0): boolean {
+export function ColorEdit4(label: string, col: RGBA | Bind.ImTuple4<number> | Bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0): boolean {
     const _col = import_Color4(col);
     const ret = bind.ColorEdit4(label, _col, flags);
     export_Color4(_col, col);
     return ret;
 }
 // IMGUI_API bool          ColorPicker3(const char* label, float col[3], ImGuiColorEditFlags flags = 0);
-export function ColorPicker3(label: string, col: Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA | RGB, flags: ImGuiColorEditFlags = 0): boolean {
+export function ColorPicker3(label: string, col: RGB | RGBA | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0): boolean {
     const _col = import_Color3(col);
     const ret = bind.ColorPicker3(label, _col, flags);
     export_Color3(_col, col);
     return ret;
 }
 // IMGUI_API bool          ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags flags = 0, const float* ref_col = NULL);
-export function ColorPicker4(label: string, col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA, flags: ImGuiColorEditFlags = 0, ref_col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | null = null): boolean {
+export function ColorPicker4(label: string, col: RGBA | Bind.ImTuple4<number> | Bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0, ref_col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | null = null): boolean {
     const _col = import_Color4(col);
     const _ref_col = ref_col ? import_Color4(ref_col) : null;
     const ret = bind.ColorPicker4(label, _col, flags, _ref_col);
