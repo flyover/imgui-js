@@ -6,6 +6,13 @@ function decode_utf8(s: string): string {
     return decodeURIComponent(escape(s));
 }
 
+export interface XY { x: number, y: number; }
+export interface XYZ extends XY { z: number; }
+export interface XYZW extends XYZ { w: number; }
+
+export interface RGB { r: number; g: number; b: number; }
+export interface RGBA extends RGB { a: number; }
+
 import * as Bind from "./bind-imgui";
 export { Bind };
 
@@ -19,6 +26,30 @@ export default async function(value?: Partial<Bind.Module>): Promise<void> {
     });
 }
 export { bind };
+
+function import_Color3(col: Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA | RGB): Bind.ImTuple3<number> {
+    if (Array.isArray(col)) { return [ col[0], col[1], col[2] ]; }
+    if ("r" in col) { return [ col.r, col.g, col.b ]; }
+    return [ col.x, col.y, col.z ];
+}
+
+function export_Color3(tuple: Bind.ImTuple3<number>, col: Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA | RGB): void {
+    if (Array.isArray(col)) { col[0] = tuple[0]; col[1] = tuple[1]; col[2] = tuple[2]; return; }
+    if ("r" in col) { col.r = tuple[0]; col.g = tuple[1]; col.b = tuple[2]; return; }
+    col.x = tuple[0]; col.y = tuple[1]; col.z = tuple[2];
+}
+
+function import_Color4(col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA): Bind.ImTuple4<number> {
+    if (Array.isArray(col)) { return [ col[0], col[1], col[2], col[3] ]; }
+    if ("r" in col) { return [ col.r, col.g, col.b, col.a ]; }
+    return [ col.x, col.y, col.z, col.w ];
+}
+
+function export_Color4(tuple: Bind.ImTuple4<number>, col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA): void {
+    if (Array.isArray(col)) { col[0] = tuple[0]; col[1] = tuple[1]; col[2] = tuple[2]; return; }
+    if ("r" in col) { col.r = tuple[0]; col.g = tuple[1]; col.b = tuple[2]; return; }
+    col.x = tuple[0]; col.y = tuple[1]; col.z = tuple[2];
+}
 
 import * as config from "./imconfig";
 
@@ -3153,49 +3184,34 @@ export function VSliderScalar(label: string, size: Readonly<Bind.interface_ImVec
 // Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little colored preview square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
 // Note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can the pass the address of a first float element out of a contiguous structure, e.g. &myvector.x
 // IMGUI_API bool          ColorEdit3(const char* label, float col[3], ImGuiColorEditFlags flags = 0);
-export function ColorEdit3(label: string, col: Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0): boolean {
-    if (Array.isArray(col)) {
-        return bind.ColorEdit3(label, col, flags);
-    } else {
-        const _col: Bind.ImTuple3<number> = [ col.x, col.y, col.z ];
-        const ret = bind.ColorEdit3(label, _col, flags);
-        col.x = _col[0]; col.y = _col[1]; col.z = _col[2];
-        return ret;
-    }
+export function ColorEdit3(label: string, col: Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA | RGB, flags: ImGuiColorEditFlags = 0): boolean {
+    const _col = import_Color3(col);
+    const ret = bind.ColorEdit3(label, _col, flags);
+    export_Color3(_col, col);
+    return ret;
 }
 // IMGUI_API bool          ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flags = 0);
-export function ColorEdit4(label: string, col: Bind.ImTuple4<number> | Bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0): boolean {
-    if (Array.isArray(col)) {
-        return bind.ColorEdit4(label, col, flags);
-    } else {
-        const _col: Bind.ImTuple4<number> = [ col.x, col.y, col.z, col.w ];
-        const ret = bind.ColorEdit4(label, _col, flags);
-        col.x = _col[0]; col.y = _col[1]; col.z = _col[2]; col.w = _col[3];
-        return ret;
-    }
+export function ColorEdit4(label: string, col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA, flags: ImGuiColorEditFlags = 0): boolean {
+    const _col = import_Color4(col);
+    const ret = bind.ColorEdit4(label, _col, flags);
+    export_Color4(_col, col);
+    return ret;
 }
 // IMGUI_API bool          ColorPicker3(const char* label, float col[3], ImGuiColorEditFlags flags = 0);
-export function ColorPicker3(label: string, col: Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0): boolean {
-    if (Array.isArray(col)) {
-        return bind.ColorPicker3(label, col, flags);
-    } else {
-        const _col: Bind.ImTuple3<number> = [ col.x, col.y, col.z ];
-        const ret = bind.ColorPicker3(label, _col, flags);
-        col.x = _col[0]; col.y = _col[1]; col.z = _col[2];
-        return ret;
-    }
+export function ColorPicker3(label: string, col: Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA | RGB, flags: ImGuiColorEditFlags = 0): boolean {
+    const _col = import_Color3(col);
+    const ret = bind.ColorPicker3(label, _col, flags);
+    export_Color3(_col, col);
+    return ret;
 }
 // IMGUI_API bool          ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags flags = 0, const float* ref_col = NULL);
-export function ColorPicker4(label: string, col: Bind.ImTuple4<number> | Bind.interface_ImVec4, flags: ImGuiColorEditFlags = 0, ref_col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | null = null): boolean {
-    const _ref_col: Bind.ImTuple4<number> | null = Array.isArray(ref_col) ? ref_col : ref_col ? [ ref_col.x, ref_col.y, ref_col.z, ref_col.w ] : null;
-    if (Array.isArray(col)) {
-        return bind.ColorPicker4(label, col, flags, _ref_col);
-    } else {
-        const _col: Bind.ImTuple4<number> = [ col.x, col.y, col.z, col.w ];
-        const ret = bind.ColorPicker4(label, _col, flags, _ref_col);
-        col.x = _col[0]; col.y = _col[1]; col.z = _col[2]; col.w = _col[3];
-        return ret;
-    }
+export function ColorPicker4(label: string, col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA, flags: ImGuiColorEditFlags = 0, ref_col: Bind.ImTuple4<number> | Bind.interface_ImVec4 | null = null): boolean {
+    const _col = import_Color4(col);
+    const _ref_col = ref_col ? import_Color4(ref_col) : null;
+    const ret = bind.ColorPicker4(label, _col, flags, _ref_col);
+    export_Color4(_col, col);
+    if (_ref_col && ref_col) { export_Color4(_ref_col, ref_col); }
+    return ret;
 }
 // IMGUI_API bool          ColorButton(const char* desc_id, const ImVec4& col, ImGuiColorEditFlags flags = 0, ImVec2 size = ImVec2(0,0));  // display a colored square/button, hover for details, return true when pressed.
 export function ColorButton(desc_id: string, col: Readonly<Bind.interface_ImVec4>, flags: ImGuiColorEditFlags = 0, size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO): boolean {
