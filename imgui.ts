@@ -3146,6 +3146,18 @@ export function SliderAngle(label: string, v_rad: Bind.ImAccess<number> | Bind.I
     export_Scalar(_v_rad, v_rad);
     return ret;
 }
+export function SliderAngle3(label: string, v_rad: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_degrees_min: number = -360.0, v_degrees_max: number = +360.0): boolean {
+    const _v_rad = import_Vector3(v_rad);
+    _v_rad[0] = Math.floor(_v_rad[0] * 180 / Math.PI);
+    _v_rad[1] = Math.floor(_v_rad[1] * 180 / Math.PI);
+    _v_rad[2] = Math.floor(_v_rad[2] * 180 / Math.PI);
+    const ret = bind.SliderInt3(label, _v_rad, v_degrees_min, v_degrees_max, "%d deg");
+    _v_rad[0] = _v_rad[0] * Math.PI / 180;
+    _v_rad[1] = _v_rad[1] * Math.PI / 180;
+    _v_rad[2] = _v_rad[2] * Math.PI / 180;
+    export_Vector3(_v_rad, v_rad);
+    return ret;
+}
 // IMGUI_API bool          SliderInt(const char* label, int* v, int v_min, int v_max, const char* format = "%d");
 export function SliderInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format: string = "%d"): boolean {
     const _v = import_Scalar(v);

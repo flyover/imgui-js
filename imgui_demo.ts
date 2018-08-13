@@ -454,6 +454,8 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
                 ImGui.SliderFloat("slider float (curve)", (value = f2.value) => f2.value = value, -10.0, 10.0, "%.4f", 2.0);
                 /* static */ const angle: Static<number> = STATIC("angle", 0.0);
                 ImGui.SliderAngle("slider angle", (value = angle.value) => angle.value = value);
+                /* static */ const angle3: Static<ImTuple3<number>> = STATIC<ImTuple3<number>>("angle3", [ 0.0, 0.0, 0.0 ]);
+                ImGui.SliderAngle3("slider angle3", angle3.value);
             }
 
             {
