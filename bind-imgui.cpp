@@ -288,7 +288,10 @@ protected:
     std::vector<T> _value;
     emscripten::val& _access;
 public:
-    access_typed_array(emscripten::val& access): _access(access), _value(emscripten::vecFromJSArray<T>(access)) {}
+    access_typed_array(emscripten::val& access): _access(access) {
+        _value.resize(_access["length"].template as<size_t>());
+        emscripten::val(emscripten::typed_memory_view<T>(_value.size(), _value.data())).call<void>("set", _access);
+    }
     ~access_typed_array() {
         _access.call<void>("set", emscripten::typed_memory_view<T>(_value.size(), _value.data()));
     }
@@ -1032,7 +1035,9 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         // IMGUI_API ImFont*           AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL);
         // IMGUI_API ImFont*           AddFontFromMemoryTTF(void* font_data, int font_size, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // Note: Transfer ownership of 'ttf_data' to ImFontAtlas! Will be deleted after Build(). Set font_cfg->FontDataOwnedByAtlas to false to keep ownership.
         .function("AddFontFromMemoryTTF", FUNCTION(emscripten::val, (ImFontAtlas& that, emscripten::val data, float size_pixels, emscripten::val font_cfg, emscripten::val glyph_ranges), {
-            std::vector<unsigned char> _data = emscripten::vecFromJSArray<unsigned char>(data);
+            std::vector<unsigned char> _data;
+            _data.resize(data["length"].as<size_t>());
+            emscripten::val(emscripten::typed_memory_view<unsigned char>(_data.size(), _data.data())).call<void>("set", data);
             size_t _data_size = _data.size();
             void* _data_copy = ImGui::MemAlloc(_data_size);
             memcpy(_data_copy, _data.data(), _data_size);
