@@ -2871,7 +2871,7 @@ export function ProgressBar(fraction: number, size_arg: Readonly<Bind.interface_
 // The new BeginCombo()/EndCombo() api allows you to manage your contents and selection state however you want it.
 // The old Combo() api are helpers over BeginCombo()/EndCombo() which are kept available for convenience purpose.
 // IMGUI_API bool          BeginCombo(const char* label, const char* preview_value, ImGuiComboFlags flags = 0);
-export function BeginCombo(label: string, preview_value: string | null, flags: ImGuiComboFlags = 0): boolean {
+export function BeginCombo(label: string, preview_value: string | null = null, flags: ImGuiComboFlags = 0): boolean {
     return bind.BeginCombo(label, preview_value, flags);
 }
 // IMGUI_API void          EndCombo();
