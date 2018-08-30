@@ -427,52 +427,52 @@ EMSCRIPTEN_BINDINGS(ImVec4) {
 }
 
 // Shared state of InputText(), passed to callback when a ImGuiInputTextFlags_Callback* flag is used and the corresponding callback is triggered.
-// struct ImGuiTextEditCallbackData
-EMSCRIPTEN_BINDINGS(ImGuiTextEditCallbackData) {
-    emscripten::class_<ImGuiTextEditCallbackData>("ImGuiTextEditCallbackData")
+// struct ImGuiInputTextCallbackData
+EMSCRIPTEN_BINDINGS(ImGuiInputTextCallbackData) {
+    emscripten::class_<ImGuiInputTextCallbackData>("ImGuiInputTextCallbackData")
         // ImGuiInputTextFlags EventFlag;      // One of ImGuiInputTextFlags_Callback* // Read-only
-        CLASS_MEMBER(ImGuiTextEditCallbackData, EventFlag)
+        CLASS_MEMBER(ImGuiInputTextCallbackData, EventFlag)
         // ImGuiInputTextFlags Flags;          // What user passed to InputText()      // Read-only
-        CLASS_MEMBER(ImGuiTextEditCallbackData, Flags)
+        CLASS_MEMBER(ImGuiInputTextCallbackData, Flags)
         // void*               UserData;       // What user passed to InputText()      // Read-only
         // bool                ReadOnly;       // Read-only mode                       // Read-only
-        CLASS_MEMBER(ImGuiTextEditCallbackData, ReadOnly)
+        // CLASS_MEMBER(ImGuiInputTextCallbackData, ReadOnly)
 
         // CharFilter event:
         // ImWchar             EventChar;      // Character input                      // Read-write (replace character or set to zero)
-        CLASS_MEMBER(ImGuiTextEditCallbackData, EventChar)
+        CLASS_MEMBER(ImGuiInputTextCallbackData, EventChar)
 
         // Completion,History,Always events:
         // If you modify the buffer contents make sure you update 'BufTextLen' and set 'BufDirty' to true.
         // ImGuiKey            EventKey;       // Key pressed (Up/Down/TAB)            // Read-only
-        CLASS_MEMBER(ImGuiTextEditCallbackData, EventKey)
+        CLASS_MEMBER(ImGuiInputTextCallbackData, EventKey)
         // char*               Buf;            // Current text buffer                  // Read-write (pointed data only, can't replace the actual pointer)
-        CLASS_MEMBER_GET_SET(ImGuiTextEditCallbackData, Buf, 
+        CLASS_MEMBER_GET_SET(ImGuiInputTextCallbackData, Buf, 
             { return emscripten::val(std::string(that.Buf)); },
             { strncpy(that.Buf, value.as<std::string>().c_str(), that.BufSize - 1); }
         )
         // int                 BufTextLen;     // Current text length in bytes         // Read-write
-        CLASS_MEMBER(ImGuiTextEditCallbackData, BufTextLen)
+        CLASS_MEMBER(ImGuiInputTextCallbackData, BufTextLen)
         // int                 BufSize;        // Maximum text length in bytes         // Read-only
-        CLASS_MEMBER(ImGuiTextEditCallbackData, BufSize)
+        CLASS_MEMBER(ImGuiInputTextCallbackData, BufSize)
         // bool                BufDirty;       // Set if you modify Buf/BufTextLen!!   // Write
-        CLASS_MEMBER(ImGuiTextEditCallbackData, BufDirty)
+        CLASS_MEMBER(ImGuiInputTextCallbackData, BufDirty)
         // int                 CursorPos;      //                                      // Read-write
-        CLASS_MEMBER(ImGuiTextEditCallbackData, CursorPos)
+        CLASS_MEMBER(ImGuiInputTextCallbackData, CursorPos)
         // int                 SelectionStart; //                                      // Read-write (== to SelectionEnd when no selection)
-        CLASS_MEMBER(ImGuiTextEditCallbackData, SelectionStart)
+        CLASS_MEMBER(ImGuiInputTextCallbackData, SelectionStart)
         // int                 SelectionEnd;   //                                      // Read-write
-        CLASS_MEMBER(ImGuiTextEditCallbackData, SelectionEnd)
+        CLASS_MEMBER(ImGuiInputTextCallbackData, SelectionEnd)
 
         // NB: Helper functions for text manipulation. Calling those function loses selection.
         // IMGUI_API void    DeleteChars(int pos, int bytes_count);
-        CLASS_METHOD(ImGuiTextEditCallbackData, DeleteChars)
+        CLASS_METHOD(ImGuiInputTextCallbackData, DeleteChars)
         // IMGUI_API void    InsertChars(int pos, const char* text, const char* text_end = NULL);
-        .function("InsertChars", FUNCTION(void, (ImGuiTextEditCallbackData& that, int pos, std::string text), {
+        .function("InsertChars", FUNCTION(void, (ImGuiInputTextCallbackData& that, int pos, std::string text), {
             that.InsertChars(pos, text.c_str(), NULL);
         }))
         // bool              HasSelection() const { return SelectionStart != SelectionEnd; }
-        CLASS_METHOD(ImGuiTextEditCallbackData, HasSelection)
+        CLASS_METHOD(ImGuiInputTextCallbackData, HasSelection)
     ;
 }
 
@@ -1170,6 +1170,8 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         // Members
         //-------------------------------------------
 
+        // bool                        Locked;             // Marked as Locked by ImGui::NewFrame() so attempt to modify the atlas will assert.
+        CLASS_MEMBER(ImFontAtlas, Locked)
         // ImFontAtlasFlags            Flags;              // Build flags (see ImFontAtlasFlags_)
         CLASS_MEMBER(ImFontAtlas, Flags)
         // ImTextureID                 TexID;              // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
@@ -1281,10 +1283,12 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiIO, DisplayVisibleMax)
 
         // Advanced/subtle behaviors
-        // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
-        CLASS_MEMBER(ImGuiIO, OptMacOSXBehaviors)
-        // bool          OptCursorBlink;           // = true               // Enable blinking cursor, for users who consider it annoying.
-        CLASS_MEMBER(ImGuiIO, OptCursorBlink)
+        // bool          ConfigMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
+        CLASS_MEMBER(ImGuiIO, ConfigMacOSXBehaviors)
+        // bool          ConfigCursorBlink;           // = true               // Enable blinking cursor, for users who consider it annoying.
+        CLASS_MEMBER(ImGuiIO, ConfigCursorBlink)
+        // bool          ConfigResizeWindowsFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
+        CLASS_MEMBER(ImGuiIO, ConfigResizeWindowsFromEdges)
 
         //------------------------------------------------------------------
         // Settings (User Functions)
@@ -1396,8 +1400,12 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         CLASS_MEMBER(ImGuiIO, MetricsRenderVertices)
         // int         MetricsRenderIndices;       // Indices output during last call to Render() = number of triangles * 3
         CLASS_MEMBER(ImGuiIO, MetricsRenderIndices)
+        // int         MetricsRenderWindows;       // Number of visible windows
+        CLASS_MEMBER(ImGuiIO, MetricsRenderWindows)
         // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
         CLASS_MEMBER(ImGuiIO, MetricsActiveWindows)
+        // int         MetricsActiveAllocations;   // Number of active allocations, updated by MemAlloc/MemFree based on current context. May be off if you have multiple imgui contexts.
+        CLASS_MEMBER(ImGuiIO, MetricsActiveAllocations)
         // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiIO, MouseDelta)
 
@@ -2158,14 +2166,14 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
 
     // Widgets: Input with Keyboard
-    // IMGUI_API bool          InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
+    // IMGUI_API bool          InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
     emscripten::function("InputText", FUNCTION(bool, (std::string label, emscripten::val buf, size_t buf_size, ImGuiInputTextFlags flags, emscripten::val callback, emscripten::val user_data), {
         std::string _buf = buf[0].as<std::string>();
         _buf.reserve(buf_size);
         bool ret = false;
         if (!callback.isNull()) {
             WrapImGuiContext::GetCurrentContext()->_ImGui_InputText_callback = callback;
-            ret = ImGui::InputText(label.c_str(), (char*) _buf.data(), buf_size, flags, FUNCTION(int, (ImGuiTextEditCallbackData* data), {
+            ret = ImGui::InputText(label.c_str(), (char*) _buf.data(), buf_size, flags, FUNCTION(int, (ImGuiInputTextCallbackData* data), {
                 return WrapImGuiContext::GetCurrentContext()->_ImGui_InputText_callback(emscripten::val(data)).as<int>();
             }), NULL);
         } else {
@@ -2174,14 +2182,14 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         buf.set(0, emscripten::val(_buf.c_str()));
         return ret;
     }), emscripten::allow_raw_pointers());
-    // IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
+    // IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
     emscripten::function("InputTextMultiline", FUNCTION(bool, (std::string label, emscripten::val buf, size_t buf_size, emscripten::val size, ImGuiInputTextFlags flags, emscripten::val callback, emscripten::val user_data), {
         std::string _buf = buf[0].as<std::string>();
         _buf.reserve(buf_size);
         bool ret = false;
         if (!callback.isNull()) {
             WrapImGuiContext::GetCurrentContext()->_ImGui_InputTextMultiline_callback = callback;
-            ret = ImGui::InputTextMultiline(label.c_str(), (char*) _buf.data(), buf_size, import_ImVec2(size), flags, FUNCTION(int, (ImGuiTextEditCallbackData* data), {
+            ret = ImGui::InputTextMultiline(label.c_str(), (char*) _buf.data(), buf_size, import_ImVec2(size), flags, FUNCTION(int, (ImGuiInputTextCallbackData* data), {
                 return WrapImGuiContext::GetCurrentContext()->_ImGui_InputTextMultiline_callback(emscripten::val(data)).as<int>();
             }), NULL);
         } else {
@@ -2608,6 +2616,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsItemHovered", &ImGui::IsItemHovered);
     // IMGUI_API bool          IsItemActive();                                                     // is the last item active? (e.g. button being held, text field being edited- items that don't interact will always return false)
     emscripten::function("IsItemActive", &ImGui::IsItemActive);
+    // IMGUI_API bool          IsItemEdited();
+    emscripten::function("IsItemEdited", &ImGui::IsItemEdited);
     // IMGUI_API bool          IsItemFocused();                                                    // is the last item focused for keyboard/gamepad navigation?
     emscripten::function("IsItemFocused", &ImGui::IsItemFocused);
     // IMGUI_API bool          IsItemClicked(int mouse_button = 0);                                // is the last item clicked? (e.g. button/node just clicked on)
@@ -2616,8 +2626,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsItemVisible", &ImGui::IsItemVisible);
     // IMGUI_API bool          IsItemDeactivated();                                                // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that requires continuous editing.
     emscripten::function("IsItemDeactivated", &ImGui::IsItemDeactivated);
-    // IMGUI_API bool          IsItemDeactivatedAfterChange();                                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
-    emscripten::function("IsItemDeactivatedAfterChange", &ImGui::IsItemDeactivatedAfterChange);
+    // IMGUI_API bool          IsItemDeactivatedAfterEdit();                                       // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
+    emscripten::function("IsItemDeactivatedAfterEdit", &ImGui::IsItemDeactivatedAfterEdit);
     // IMGUI_API bool          IsAnyItemHovered();
     emscripten::function("IsAnyItemHovered", &ImGui::IsAnyItemHovered);
     // IMGUI_API bool          IsAnyItemActive();

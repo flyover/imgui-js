@@ -95,7 +95,8 @@ function export_Color4(tuple: Bind.ImTuple4<number>, col: RGBA | Bind.ImTuple4<n
 
 import * as config from "./imconfig";
 
-export const IMGUI_VERSION: string = "1.62"; // bind.IMGUI_VERSION;
+export const IMGUI_VERSION: string = "1.63"; // bind.IMGUI_VERSION;
+export const IMGUI_VERSION_NUM: number = 16301; // bind.IMGUI_VERSION_NUM;
 
 // #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
 export function IMGUI_CHECKVERSION(): boolean { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, bind.ImGuiIOSize, bind.ImGuiStyleSize, bind.ImVec2Size, bind.ImVec4Size, bind.ImDrawVertSize); }
@@ -133,7 +134,6 @@ export enum ImGuiWindowFlags {
     NoScrollWithMouse      = 1 << 4,   // Disable user vertically scrolling with mouse wheel. On child window, mouse wheel will be forwarded to the parent unless NoScrollbar is also set.
     NoCollapse             = 1 << 5,   // Disable user collapsing window by double-clicking on it
     AlwaysAutoResize       = 1 << 6,   // Resize every window to its content every frame
-    //ShowBorders          = 1 << 7,   // Show borders around windows and items (OBSOLETE! Use e.g. style.FrameBorderSize=1.0f to enable borders).
     NoSavedSettings        = 1 << 8,   // Never load/save settings in .ini file
     NoInputs               = 1 << 9,   // Disable catching mouse or keyboard inputs, hovering test with pass through.
     MenuBar                = 1 << 10,  // Has a menu-bar
@@ -143,7 +143,6 @@ export enum ImGuiWindowFlags {
     AlwaysVerticalScrollbar= 1 << 14,  // Always show vertical scrollbar (even if ContentSize.y < Size.y)
     AlwaysHorizontalScrollbar= 1 << 15,  // Always show horizontal scrollbar (even if ContentSize.x < Size.x)
     AlwaysUseWindowPadding = 1 << 16,  // Ensure child windows without border uses style.WindowPadding (ignored by default for non-bordered child windows, because more convenient)
-    ResizeFromAnySide      = 1 << 17,  // (WIP) Enable resize from any corners and borders. Your back-end needs to honor the different values of io.MouseCursor set by imgui.
     NoNavInputs            = 1 << 18,  // No gamepad/keyboard navigation within the window
     NoNavFocus             = 1 << 19,  // No focusing toward this window with gamepad/keyboard navigation (e.g. skipped by CTRL+TAB)
     NoNav                  = NoNavInputs | NoNavFocus,
@@ -179,6 +178,7 @@ export enum ImGuiInputTextFlags {
     Password            = 1 << 15,  // Password mode, display all characters as '*'
     NoUndoRedo          = 1 << 16,  // Disable undo/redo. Note that input text owns the text data while active, if you want to provide your own undo/redo stack you need e.g. to call ClearActiveID().
     CharsScientific     = 1 << 17,  // Allow 0123456789.+-*/eE (Scientific notation input)
+    CallbackResize      = 1 << 18,  // Allow buffer capacity resize + notify when the string wants to be resized (for string types which hold a cache of their Size) (see misc/stl/imgui_stl.h for an example of using this)
     // [Internal]
     Multiline           = 1 << 20,   // For internal use by InputTextMultiline()
 }
@@ -210,7 +210,8 @@ export enum ImGuiSelectableFlags {
     None               = 0,
     DontClosePopups    = 1 << 0,   // Clicking this don't close parent popup window
     SpanAllColumns     = 1 << 1,   // Selectable frame can span all columns (text will still fit in current column)
-    AllowDoubleClick   = 1 << 2,    // Generate press events on double clicks too
+    AllowDoubleClick   = 1 << 2,   // Generate press events on double clicks too
+    Disabled           = 1 << 3    // Cannot be selected, display greyed out text
 }
 
 // Flags for ImGui::BeginCombo()
@@ -248,6 +249,7 @@ export enum ImGuiHoveredFlags {
     //AllowWhenBlockedByModal     = 1 << 4,   // Return true even if a modal popup window is normally blocking access to this item/window. FIXME-TODO: Unavailable yet.
     AllowWhenBlockedByActiveItem  = 1 << 5,   // Return true even if an active item is blocking access to this item/window. Useful for Drag and Drop patterns.
     AllowWhenOverlapped           = 1 << 6,   // Return true even if the position is overlapped by another window
+    AllowWhenDisabled             = 1 << 7,   // Return true even if the item is disabled
     RectOnly                      = AllowWhenBlockedByPopup | AllowWhenBlockedByActiveItem | AllowWhenOverlapped,
     RootAndChildWindows           = RootWindow | ChildWindows,
 }
@@ -262,6 +264,7 @@ export enum ImGuiDragDropFlags {
     SourceNoHoldToOpenOthers     = 1 << 2,       // Disable the behavior that allows to open tree nodes and collapsing header by holding over them while dragging a source item.
     SourceAllowNullID            = 1 << 3,       // Allow items such as Text(), Image() that have no unique identifier to be used as drag source, by manufacturing a temporary identifier based on their window-relative position. This is extremely unusual within the dear imgui ecosystem and so we made it explicit.
     SourceExtern                 = 1 << 4,       // External source (from outside of imgui), won't attempt to read current item/window info. Will always return true. Only one Extern source can be active simultaneously.
+    SourceAutoExpirePayload      = 1 << 5,   // Automatically expire the payload if the source cease to be submitted (otherwise payloads are persisting while being dragged)
     // AcceptDragDropPayload() flags
     AcceptBeforeDelivery         = 1 << 10,      // AcceptDragDropPayload() will returns true even before the mouse button is released. You can then call IsDelivery() to test if the payload needs to be delivered.
     AcceptNoDrawDefaultRect      = 1 << 11,      // Do not draw the default highlight rectangle when hovering over target.
@@ -415,10 +418,11 @@ export enum ImGuiCol {
     PlotHistogram,
     PlotHistogramHovered,
     TextSelectedBg,
-    ModalWindowDarkening,  // darken entire screen when a modal window is active
     DragDropTarget,
-    NavHighlight,          // gamepad/keyboard: current highlighted item
-    NavWindowingHighlight, // gamepad/keyboard: when holding NavMenu to focus/move/resize windows
+    NavHighlight,          // Gamepad/keyboard: current highlighted item
+    NavWindowingHighlight, // Highlight window when using CTRL+TAB
+    NavWindowingDimBg,     // Darken/colorize entire screen behind the CTRL+TAB window list, when active
+    ModalWindowDimBg,      // Darken/colorize entire screen behind a modal window, when one is active
     COUNT,
 }
 
@@ -498,11 +502,12 @@ export enum ImGuiMouseCursor {
     None = -1,
     Arrow = 0,
     TextInput,         // When hovering over InputText, etc.
-    ResizeAll,         // Unused
+    ResizeAll,         // (Unused by imgui functions)
     ResizeNS,          // When hovering over an horizontal border
     ResizeEW,          // When hovering over a vertical border or a column
     ResizeNESW,        // When hovering over the bottom-left corner of a window
     ResizeNWSE,        // When hovering over the bottom-right corner of a window
+    Hand,              // (Unused by imgui functions. Use for e.g. hyperlinks)
     Count_, COUNT = Count_,
 }
 
@@ -683,28 +688,6 @@ export class ImVector<T> extends Array<T>
 // Helper: Parse and apply text filters. In format "aaaaa[,bbbb][,ccccc]"
 export class ImGuiTextFilter
 {
-    // struct TextRange
-    // {
-    //     const char* b;
-    //     const char* e;
-
-    //     TextRange() { b = e = NULL; }
-    //     TextRange(const char* _b, const char* _e) { b = _b; e = _e; }
-    //     const char* begin() const { return b; }
-    //     const char* end() const { return e; }
-    //     bool empty() const { return b == e; }
-    //     char front() const { return *b; }
-    //     static bool is_blank(char c) { return c == ' ' || c == '\t'; }
-    //     void trim_blanks() { while (b < e && is_blank(*b)) b++; while (e > b && is_blank(*(e-1))) e--; }
-    //     IMGUI_API void split(char separator, ImVector<TextRange>& out);
-    // };
-
-    // char                InputBuf[256];
-    public InputBuf: ImStringBuffer = new ImStringBuffer(256);
-    // ImVector<TextRange> Filters;
-    // int                 CountGrep;
-    public CountGrep: number = 0;
-
     // IMGUI_API           ImGuiTextFilter(const char* default_filter = "");
     constructor(default_filter: string = "") {
         if (default_filter)
@@ -784,6 +767,29 @@ export class ImGuiTextFilter
     public Clear(): void { this.InputBuf.buffer = ""; this.Build(); }
     // bool                IsActive() const { return !Filters.empty(); }
     public IsActive(): boolean { return false; }
+
+    // [Internal]
+    // struct TextRange
+    // {
+    //     const char* b;
+    //     const char* e;
+
+    //     TextRange() { b = e = NULL; }
+    //     TextRange(const char* _b, const char* _e) { b = _b; e = _e; }
+    //     const char* begin() const { return b; }
+    //     const char* end() const { return e; }
+    //     bool empty() const { return b == e; }
+    //     char front() const { return *b; }
+    //     static bool is_blank(char c) { return c == ' ' || c == '\t'; }
+    //     void trim_blanks() { while (b < e && is_blank(*b)) b++; while (e > b && is_blank(*(e-1))) e--; }
+    //     IMGUI_API void split(char separator, ImVector<TextRange>& out);
+    // };
+
+    // char                InputBuf[256];
+    public InputBuf: ImStringBuffer = new ImStringBuffer(256);
+    // ImVector<TextRange> Filters;
+    // int                 CountGrep;
+    public CountGrep: number = 0;
 }
 
 // Helper: Text buffer for logging/accumulating text
@@ -964,13 +970,13 @@ export class ImColor
     }
 }
 
-export const ImGuiTextEditDefaultSize: number = 128;
+export const ImGuiInputTextDefaultSize: number = 128;
 
-export type ImGuiTextEditCallback = (data: ImGuiTextEditCallbackData) => number;
+export type ImGuiInputTextCallback = (data: ImGuiInputTextCallbackData) => number;
 
 // Shared state of InputText(), passed to callback when a ImGuiInputTextFlags_Callback* flag is used and the corresponding callback is triggered.
-export class ImGuiTextEditCallbackData {
-    constructor(public readonly native: Bind.reference_ImGuiTextEditCallbackData, public readonly UserData: any) {}
+export class ImGuiInputTextCallbackData {
+    constructor(public readonly native: Bind.reference_ImGuiInputTextCallbackData, public readonly UserData: any) {}
 
     // ImGuiInputTextFlags EventFlag;      // One of ImGuiInputTextFlags_Callback* // Read-only
     public get EventFlag(): ImGuiInputTextFlags { return this.native.EventFlag; }
@@ -978,8 +984,6 @@ export class ImGuiTextEditCallbackData {
     public get Flags(): ImGuiInputTextFlags { return this.native.Flags; }
     // void*               UserData;       // What user passed to InputText()      // Read-only
     // public get UserData(): any { return this.native.UserData; }
-    // bool                ReadOnly;       // Read-only mode                       // Read-only
-    public get ReadOnly(): boolean { return this.native.ReadOnly; }
 
     // CharFilter event:
     // ImWchar             EventChar;      // Character input                      // Read-write (replace character or set to zero)
@@ -1546,6 +1550,7 @@ export class ImFontGlyph implements Bind.interface_ImFontGlyph {
 
 export enum ImFontAtlasFlags
 {
+    None               = 0,
     NoPowerOfTwoHeight = 1 << 0,   // Don't round the height to next power of two
     NoMouseCursors     = 1 << 1,   // Don't build software mouse cursors into the atlas
 }
@@ -1665,6 +1670,9 @@ export class ImFontAtlas
     // Members
     //-------------------------------------------
 
+    // bool                        Locked;             // Marked as Locked by ImGui::NewFrame() so attempt to modify the atlas will assert.
+    get Locked(): boolean { return this.native.Locked; }
+    set Locked(value: boolean) { this.native.Locked = value; }
     // ImFontAtlasFlags            Flags;              // Build flags (see ImFontAtlasFlags_)
     get Flags(): ImFontAtlasFlags { return this.native.Flags; }
     set Flags(value: ImFontAtlasFlags) { this.native.Flags = value; }
@@ -1959,7 +1967,7 @@ export class ImGuiStyle
     public ScaleAllSizes(scale_factor: number): void { this.internal.ScaleAllSizes(scale_factor); }
 }
 
-// This is where your app communicate with ImGui. Access via ImGui::GetIO().
+// This is where your app communicate with Dear ImGui. Access via ImGui::GetIO().
 // Read 'Programmer guide' section in .cpp file for general usage.
 export class ImGuiIO
 {
@@ -2041,13 +2049,16 @@ export class ImGuiIO
     // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
     get DisplayVisibleMax(): Bind.reference_ImVec2 { return this.native.DisplayVisibleMax; }
 
-    // Advanced/subtle behaviors
+    // Miscellaneous configuration options
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
-    get OptMacOSXBehaviors(): boolean { return this.native.OptMacOSXBehaviors; }
-    set OptMacOSXBehaviors(value: boolean) { this.native.OptMacOSXBehaviors = value; }
+    get ConfigMacOSXBehaviors(): boolean { return this.native.ConfigMacOSXBehaviors; }
+    set ConfigMacOSXBehaviors(value: boolean) { this.native.ConfigMacOSXBehaviors = value; }
     // bool          OptCursorBlink;           // = true               // Enable blinking cursor, for users who consider it annoying.
-    get OptCursorBlink(): boolean { return this.native.OptCursorBlink; }
-    set OptCursorBlink(value: boolean) { this.native.OptCursorBlink = value; }
+    get ConfigCursorBlink(): boolean { return this.native.ConfigCursorBlink; }
+    set ConfigCursorBlink(value: boolean) { this.native.ConfigCursorBlink = value; }
+    // bool          ConfigResizeWindowsFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
+    get ConfigResizeWindowsFromEdges(): boolean { return this.native.ConfigResizeWindowsFromEdges; }
+    set ConfigResizeWindowsFromEdges(value: boolean) { this.native.ConfigResizeWindowsFromEdges = value; }
 
     //------------------------------------------------------------------
     // Settings (User Functions)
@@ -2162,8 +2173,12 @@ export class ImGuiIO
     get MetricsRenderVertices(): number { return this.native.MetricsRenderVertices; }
     // int         MetricsRenderIndices;       // Indices output during last call to Render() = number of triangles * 3
     get MetricsRenderIndices(): number { return this.native.MetricsRenderIndices; }
+    // int         MetricsRenderWindows;       // Number of visible windows
+    get MetricsRenderWindows(): number { return this.native.MetricsRenderWindows; }
     // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
     get MetricsActiveWindows(): number { return this.native.MetricsActiveWindows; }
+    // int         MetricsActiveAllocations;   // Number of active allocations, updated by MemAlloc/MemFree based on current context. May be off if you have multiple imgui contexts.
+    get MetricsActiveAllocations(): number { return this.native.MetricsActiveAllocations; }
     // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
     get MouseDelta(): Readonly<Bind.reference_ImVec2> { return this.native.MouseDelta; }
 
@@ -2999,9 +3014,9 @@ export function DragScalar(label: string, v: Int32Array | Uint32Array | Float32A
 }
 
 // Widgets: Input with Keyboard
-// IMGUI_API bool          InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
-export function InputText(label: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiTextEditDefaultSize, flags: ImGuiInputTextFlags = 0, callback: ImGuiTextEditCallback | null = null, user_data: any = null): boolean {
-    const _callback = callback && ((data: Bind.reference_ImGuiTextEditCallbackData): number => callback(new ImGuiTextEditCallbackData(data, user_data))) || null;
+// IMGUI_API bool          InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+export function InputText(label: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiInputTextDefaultSize, flags: ImGuiInputTextFlags = 0, callback: ImGuiInputTextCallback | null = null, user_data: any = null): boolean {
+    const _callback = callback && ((data: Bind.reference_ImGuiInputTextCallbackData): number => callback(new ImGuiInputTextCallbackData(data, user_data))) || null;
     if (Array.isArray(buf)) {
         return bind.InputText(label, buf, buf_size, flags, _callback, null);
     } else if (buf instanceof ImStringBuffer) {
@@ -3017,9 +3032,9 @@ export function InputText(label: string, buf: ImStringBuffer | Bind.ImAccess<str
         return ret;
     }
 }
-// IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
-export function InputTextMultiline(label: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiTextEditDefaultSize, size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, flags: ImGuiInputTextFlags = 0, callback: ImGuiTextEditCallback | null = null, user_data: any = null): boolean {
-    const _callback = callback && ((data: Bind.reference_ImGuiTextEditCallbackData): number => callback(new ImGuiTextEditCallbackData(data, user_data))) || null;
+// IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+export function InputTextMultiline(label: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiInputTextDefaultSize, size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, flags: ImGuiInputTextFlags = 0, callback: ImGuiInputTextCallback | null = null, user_data: any = null): boolean {
+    const _callback = callback && ((data: Bind.reference_ImGuiInputTextCallbackData): number => callback(new ImGuiInputTextCallbackData(data, user_data))) || null;
     if (Array.isArray(buf)) {
         return bind.InputTextMultiline(label, buf, buf_size, size, flags, _callback, null);
     } else if (buf instanceof ImStringBuffer) {
@@ -3618,6 +3633,8 @@ export function IsItemHovered(flags: ImGuiHoveredFlags = 0): boolean {
 }
 // IMGUI_API bool          IsItemActive();                                                     // is the last item active? (e.g. button being held, text field being edited- items that don't interact will always return false)
 export function IsItemActive(): boolean { return bind.IsItemActive(); }
+// IMGUI_API bool          IsItemEdited();                                                     // is the last item active? (e.g. button being held, text field being edited- items that don't interact will always return false)
+export function IsItemEdited(): boolean { return bind.IsItemEdited(); }
 // IMGUI_API bool          IsItemFocused();                                                    // is the last item focused for keyboard/gamepad navigation?
 export function IsItemFocused(): boolean { return bind.IsItemFocused(); }
 // IMGUI_API bool          IsItemClicked(int mouse_button = 0);                                // is the last item clicked? (e.g. button/node just clicked on)
@@ -3628,8 +3645,8 @@ export function IsItemClicked(mouse_button: number = 0): boolean {
 export function IsItemVisible(): boolean { return bind.IsItemVisible(); }
 // IMGUI_API bool          IsItemDeactivated();                                                // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that requires continuous editing.
 export function IsItemDeactivated(): boolean { return bind.IsItemDeactivated(); }
-// IMGUI_API bool          IsItemDeactivatedAfterChange();                                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
-export function IsItemDeactivatedAfterChange(): boolean { return bind.IsItemDeactivatedAfterChange(); }
+// IMGUI_API bool          IsItemDeactivatedAfterEdit();                                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
+export function IsItemDeactivatedAfterEdit(): boolean { return bind.IsItemDeactivatedAfterEdit(); }
 // IMGUI_API bool          IsAnyItemHovered();
 export function IsAnyItemHovered(): boolean { return bind.IsAnyItemHovered(); }
 // IMGUI_API bool          IsAnyItemActive();

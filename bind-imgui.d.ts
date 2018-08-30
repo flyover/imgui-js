@@ -82,18 +82,16 @@ export interface interface_ImVec4 {
 
 export interface reference_ImVec4 extends Emscripten.EmscriptenClassReference, interface_ImVec4 {}
 
-export type ImGuiTextEditCallback = (data: reference_ImGuiTextEditCallbackData) => number;
+export type ImGuiInputTextCallback = (data: reference_ImGuiInputTextCallbackData) => number;
 
 // Shared state of InputText(), passed to callback when a ImGuiInputTextFlags_Callback* flag is used and the corresponding callback is triggered.
-export interface reference_ImGuiTextEditCallbackData extends Emscripten.EmscriptenClassReference {
+export interface reference_ImGuiInputTextCallbackData extends Emscripten.EmscriptenClassReference {
     // ImGuiInputTextFlags EventFlag;      // One of ImGuiInputTextFlags_Callback* // Read-only
     EventFlag: ImGuiInputTextFlags;
     // ImGuiInputTextFlags Flags;          // What user passed to InputText()      // Read-only
     Flags: ImGuiInputTextFlags;
     // void*               UserData;       // What user passed to InputText()      // Read-only
     UserData: any;
-    // bool                ReadOnly;       // Read-only mode                       // Read-only
-    ReadOnly: boolean;
 
     // CharFilter event:
     // ImWchar             EventChar;      // Character input                      // Read-write (replace character or set to zero)
@@ -697,6 +695,8 @@ export interface reference_ImFontAtlas extends Emscripten.EmscriptenClassReferen
     // Members
     // //-------------------------------------------
 
+    // bool                        Locked;             // Marked as Locked by ImGui::NewFrame() so attempt to modify the atlas will assert.
+    Locked: boolean;
     // ImFontAtlasFlags            Flags;              // Build flags (see ImFontAtlasFlags_)
     Flags: ImFontAtlasFlags;
     // ImTextureID                 TexID;              // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
@@ -777,9 +777,11 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
 
     // Advanced/subtle behaviors
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
-    OptMacOSXBehaviors: boolean;
+    ConfigMacOSXBehaviors: boolean;
     // bool          OptCursorBlink;           // = true               // Enable blinking cursor, for users who consider it annoying.
-    OptCursorBlink: boolean;
+    ConfigCursorBlink: boolean;
+    // bool          ConfigResizeWindowsFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
+    ConfigResizeWindowsFromEdges: boolean;
 
     //------------------------------------------------------------------
     // Settings (User Functions)
@@ -863,8 +865,12 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     MetricsRenderVertices: number;
     // int         MetricsRenderIndices;       // Indices output during last call to Render() = number of triangles * 3
     MetricsRenderIndices: number;
+    // int         MetricsRenderWindows;       // Number of visible windows
+    MetricsRenderWindows: number;
     // int         MetricsActiveWindows;       // Number of visible root windows (exclude child windows)
     MetricsActiveWindows: number;
+    // int         MetricsActiveAllocations;   // Number of active allocations, updated by MemAlloc/MemFree based on current context. May be off if you have multiple imgui contexts.
+    MetricsActiveAllocations: number;
     // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
     readonly MouseDelta: Readonly<reference_ImVec2>;
 
@@ -1171,9 +1177,9 @@ DragIntRange2(label: string, v_current_min: ImScalar<number>, v_current_max: ImS
 DragScalar(label: string, data_type: ImGuiDataType, v: Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
 
 // Widgets: Input with Keyboard
-InputText(label: string, buf: [ string ], buf_size: number, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiTextEditCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
-// IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = NULL, void* user_data = NULL);
-InputTextMultiline(label: string, buf: [ string ], buf_size: number, size: Readonly<interface_ImVec2>, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiTextEditCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
+InputText(label: string, buf: [ string ], buf_size: number, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiInputTextCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
+// IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+InputTextMultiline(label: string, buf: [ string ], buf_size: number, size: Readonly<interface_ImVec2>, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiInputTextCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
 InputFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number/* = 0.0f */, step_fast: number/* = 0.0f */, format: string/* = "%.3f"*/, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 InputFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, format: string/* = "%.3f"*/, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 InputFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, format: string/* = "%.3f"*/, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
@@ -1350,6 +1356,8 @@ SetKeyboardFocusHere(offset: number/* = 0 */): void;
 IsItemHovered(flags: ImGuiHoveredFlags/* = 0 */): boolean;
 // IMGUI_API bool          IsItemActive();                                                     // is the last item active? (e.g. button being held, text field being edited- items that don't interact will always return false)
 IsItemActive(): boolean;
+// IMGUI_API bool          IsItemEdited();
+IsItemEdited(): boolean;
 // IMGUI_API bool          IsItemFocused();                                                    // is the last item focused for keyboard/gamepad navigation?
 IsItemFocused(): boolean;
 // IMGUI_API bool          IsItemClicked(int mouse_button = 0);                                // is the last item clicked? (e.g. button/node just clicked on)
@@ -1358,8 +1366,8 @@ IsItemClicked(mouse_button: number/* = 0 */): boolean;
 IsItemVisible(): boolean;
 // IMGUI_API bool          IsItemDeactivated();                                                // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that requires continuous editing.
 IsItemDeactivated(): boolean;
-// IMGUI_API bool          IsItemDeactivatedAfterChange();                                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
-IsItemDeactivatedAfterChange(): boolean;
+// IMGUI_API bool          IsItemDeactivatedAfterEdit();                                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
+IsItemDeactivatedAfterEdit(): boolean;
 // IMGUI_API bool          IsAnyItemHovered();
 IsAnyItemHovered(): boolean;
 // IMGUI_API bool          IsAnyItemActive();

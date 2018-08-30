@@ -113,22 +113,28 @@ function _loop(time: number): void {
     // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
     // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
 
-    // Start the ImGui frame
+    // Start the Dear ImGui frame
     ImGui_Impl.NewFrame(time);
     ImGui.NewFrame();
 
-    // 1. Show a simple window.
-    // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
+    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+    if (!done && show_demo_window) {
+        done = /*ImGui.*/ShowDemoWindow((value = show_demo_window) => show_demo_window = value);
+    }
+
+    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
     {
         // static float f = 0.0f;
         // static int counter = 0;
 
-        ImGui.Text("Hello, world!");                           // Display some text (you can use a format string too)
-        ImGui.SliderFloat("float", (value = f) => f = value, 0.0, 1.0);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui.ColorEdit3("clear color", clear_color); // Edit 3 floats representing a color
+        ImGui.Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
+        ImGui.Text("This is some useful text.");               // Display some text (you can use a format strings too)
         ImGui.Checkbox("Demo Window", (value = show_demo_window) => show_demo_window = value);      // Edit bools storing our windows open/close state
         ImGui.Checkbox("Another Window", (value = show_another_window) => show_another_window = value);
+
+        ImGui.SliderFloat("float", (value = f) => f = value, 0.0, 1.0);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui.ColorEdit3("clear color", clear_color); // Edit 3 floats representing a color
 
         if (ImGui.Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
             counter++;
@@ -183,21 +189,17 @@ function _loop(time: number): void {
             }
             ImGui.PopFont();
         }
+
+        ImGui.End();
     }
 
-    // 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name your windows.
+    // 3. Show another simple window.
     if (show_another_window) {
         ImGui.Begin("Another Window", (value = show_another_window) => show_another_window = value, ImGui.WindowFlags.AlwaysAutoResize);
         ImGui.Text("Hello from another window!");
         if (ImGui.Button("Close Me"))
             show_another_window = false;
         ImGui.End();
-    }
-
-    // 3. Show the ImGui demo window. Most of the sample code is in ImGui::ShowDemoWindow(). Read its code to learn more about Dear ImGui!
-    if (!done && show_demo_window) {
-        ImGui.SetNextWindowPos(new ImVec2(650, 20), ImGui.Cond.FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
-        done = /*ImGui.*/ShowDemoWindow((value = show_demo_window) => show_demo_window = value);
     }
 
     ImGui.EndFrame();

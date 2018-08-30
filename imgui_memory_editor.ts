@@ -47,7 +47,7 @@ import { ImVec2 } from "./imgui";
 import { ImGuiStyle } from "./imgui";
 import { ImGuiListClipper } from "./imgui";
 import { ImDrawList } from "./imgui";
-import { ImGuiTextEditCallbackData } from "./imgui";
+import { ImGuiInputTextCallbackData } from "./imgui";
 
 export class MemoryEditor
 {
@@ -299,7 +299,7 @@ export class MemoryEditor
                     //     int    CursorPos;               // Output
                     // };
                     // FIXME: We should have a way to retrieve the text edit cursor position more easily in the API, this is rather tedious. This is such a ugly mess we may be better off not using InputText() at all here.
-                    function UserData_Callback(data: ImGuiTextEditCallbackData): number
+                    function UserData_Callback(data: ImGuiInputTextCallbackData): number
                     {
                         const user_data: UserData = data.UserData;
                         if (!data.HasSelection())

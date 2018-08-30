@@ -173,7 +173,7 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
     }
 
     if (typeof(navigator) !== "undefined") {
-        io.OptMacOSXBehaviors = navigator.platform.match(/Mac/) !== null;
+        io.ConfigMacOSXBehaviors = navigator.platform.match(/Mac/) !== null;
     }
 
     if (typeof(document) !== "undefined") {
@@ -333,6 +333,7 @@ export function NewFrame(time: number): void {
                 case ImGui.MouseCursor.ResizeEW: document.body.style.cursor = "ew-resize"; break;     // When hovering over a vertical border or a column
                 case ImGui.MouseCursor.ResizeNESW: document.body.style.cursor = "nesw-resize"; break; // When hovering over the bottom-left corner of a window
                 case ImGui.MouseCursor.ResizeNWSE: document.body.style.cursor = "nwse-resize"; break; // When hovering over the bottom-right corner of a window
+                case ImGui.MouseCursor.Hand: document.body.style.cursor = "move"; break;
             }
         }
     }
