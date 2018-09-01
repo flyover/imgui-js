@@ -18,8 +18,9 @@ IMGUI_SOURCE_HXX += $(IMGUI_PATH)/stb_rect_pack.h
 IMGUI_SOURCE_HXX += $(IMGUI_PATH)/stb_textedit.h
 IMGUI_SOURCE_HXX += $(IMGUI_PATH)/stb_truetype.h
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui.cpp
-IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_draw.cpp
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_demo.cpp
+IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_draw.cpp
+IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_widgets.cpp
 IMGUI_OUTPUT_BC = $(IMGUI_SOURCE_CXX:%.cpp=%.bc)
 
 BIND_IMGUI_SOURCE_D_TS = bind-imgui.d.ts
@@ -27,7 +28,13 @@ BIND_IMGUI_SOURCE_CXX = bind-imgui.cpp
 BIND_IMGUI_OUTPUT_BC = bind-imgui.bc
 BIND_IMGUI_OUTPUT_JS = bind-imgui.js
 
+# debug flags
 # FLAGS += -g4
+# FLAGS += -O0
+# FLAGS += --source-map-base http://127.0.0.1:8080/
+# FLAGS += -s ASSERTIONS=1
+# FLAGS += -s SAFE_HEAP=1
+
 FLAGS += -Os
 FLAGS += -s NO_FILESYSTEM=1
 # FLAGS += -s WASM=1
@@ -42,6 +49,7 @@ FLAGS += -s SINGLE_FILE=1
 # FLAGS += -s BINARYEN_METHOD=\"native-wasm,asmjs\"
 # FLAGS += -s BINARYEN_METHOD=\"interpret-asm2wasm,asmjs\"
 # FLAGS += -s TOTAL_MEMORY=4194304
+# FLAGS += -s ALLOW_MEMORY_GROWTH=1
 
 FLAGS += -D IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 FLAGS += -D IMGUI_DISABLE_DEMO_WINDOWS

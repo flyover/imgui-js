@@ -2022,8 +2022,8 @@ System.register(["./bind-imgui", "./imconfig"], function (exports_1, context_1) 
         ],
         execute: function () {
             exports_1("Bind", Bind);
-            exports_1("IMGUI_VERSION", IMGUI_VERSION = "1.63"); // bind.IMGUI_VERSION;
-            exports_1("IMGUI_VERSION_NUM", IMGUI_VERSION_NUM = 16301); // bind.IMGUI_VERSION_NUM;
+            exports_1("IMGUI_VERSION", IMGUI_VERSION = "1.64"); // bind.IMGUI_VERSION;
+            exports_1("IMGUI_VERSION_NUM", IMGUI_VERSION_NUM = 16401); // bind.IMGUI_VERSION_NUM;
             ImStringBuffer = class ImStringBuffer {
                 constructor(size, buffer = "") {
                     this.size = size;
