@@ -891,7 +891,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
 
             ShowHelpMarker("You can use the ImGuiInputTextFlags_CallbackResize facility if you need to wire InputTextMultiline() to a dynamic string type. See misc/stl/imgui_stl.h for an example. (This is not demonstrated in imgui_demo.cpp)");
             ImGui.Checkbox("Read-only", (value = read_only.value) => read_only.value = value);
-            const flags: ImGuiInputTextFlags = ImGuiInputTextFlags.AllowTabInput | (read_only ? ImGuiInputTextFlags.ReadOnly : 0);
+            const flags: ImGuiInputTextFlags = ImGuiInputTextFlags.AllowTabInput | (read_only.value ? ImGuiInputTextFlags.ReadOnly : 0);
             ImGui.InputTextMultiline("##source", text.value, IM_ARRAYSIZE(text.value), new ImVec2(-1.0, ImGui.GetTextLineHeight() * 16), flags);
             ImGui.TreePop();
         }

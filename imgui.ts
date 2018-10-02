@@ -1,11 +1,3 @@
-function encode_utf8(s: string): string {
-    return unescape(encodeURIComponent(s));
-}
-
-function decode_utf8(s: string): string {
-    return decodeURIComponent(escape(s));
-}
-
 export interface XY { x: number, y: number; }
 export interface XYZ extends XY { z: number; }
 export interface XYZW extends XYZ { w: number; }
@@ -2738,7 +2730,7 @@ export function GetID(id: string | number): Bind.ImGuiID { return bind.GetID(id)
 export function TextUnformatted(text: string, text_end: number | null = null): void { bind.TextUnformatted(text_end !== null ? text.substring(0, text_end) : text); }
 // IMGUI_API void          Text(const char* fmt, ...)                                     IM_FMTARGS(1); // simple formatted text
 // IMGUI_API void          TextV(const char* fmt, va_list args)                           IM_FMTLIST(1);
-export function Text(fmt: string/*, ...args: any[]*/): void { bind.Text(encode_utf8(fmt)/*, ...args*/); }
+export function Text(fmt: string/*, ...args: any[]*/): void { bind.Text(fmt/*, ...args*/); }
 // IMGUI_API void          TextColored(const ImVec4& col, const char* fmt, ...)           IM_FMTARGS(2); // shortcut for PushStyleColor(ImGuiCol_Text, col); Text(fmt, ...); PopStyleColor();
 // IMGUI_API void          TextColoredV(const ImVec4& col, const char* fmt, va_list args) IM_FMTLIST(2);
 export function TextColored(col: Readonly<Bind.interface_ImVec4> | Readonly<ImColor>, fmt: string/*, ...args: any[]*/): void {
@@ -3020,15 +3012,15 @@ export function InputText(label: string, buf: ImStringBuffer | Bind.ImAccess<str
     if (Array.isArray(buf)) {
         return bind.InputText(label, buf, buf_size, flags, _callback, null);
     } else if (buf instanceof ImStringBuffer) {
-        const ref_buf: Bind.ImScalar<string> = [ encode_utf8(buf.buffer) ];
+        const ref_buf: Bind.ImScalar<string> = [ buf.buffer ];
         const _buf_size: number = Math.min(buf_size, buf.size);
         const ret: boolean = bind.InputText(label, ref_buf, _buf_size, flags, _callback, null);
-        buf.buffer = decode_utf8(ref_buf[0]);
+        buf.buffer = ref_buf[0];
         return ret;
     } else {
-        const ref_buf: Bind.ImScalar<string> = [ encode_utf8(buf()) ];
+        const ref_buf: Bind.ImScalar<string> = [ buf() ];
         const ret: boolean = bind.InputText(label, ref_buf, buf_size, flags, _callback, null);
-        buf(decode_utf8(ref_buf[0]));
+        buf(ref_buf[0]);
         return ret;
     }
 }

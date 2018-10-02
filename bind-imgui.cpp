@@ -2179,7 +2179,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         } else {
             ret = ImGui::InputText(label.c_str(), (char*) _buf.data(), buf_size, flags);
         }
-        buf.set(0, emscripten::val(_buf.c_str()));
+        std::string out_buf (_buf.c_str());
+        buf.set(0, out_buf);
         return ret;
     }), emscripten::allow_raw_pointers());
     // IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
@@ -2195,7 +2196,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         } else {
             ret = ImGui::InputTextMultiline(label.c_str(), (char*) _buf.data(), buf_size, import_ImVec2(size), flags);
         }
-        buf.set(0, emscripten::val(_buf.c_str()));
+        std::string out_buf (_buf.c_str());
+        buf.set(0, out_buf);
         return ret;
     }));
     // IMGUI_API bool          InputFloat(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
