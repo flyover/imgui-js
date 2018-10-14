@@ -776,10 +776,12 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     readonly DisplayVisibleMax: reference_ImVec2;
 
     // Advanced/subtle behaviors
+    // bool        MouseDrawCursor;                // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
+    MouseDrawCursor: boolean;
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
     ConfigMacOSXBehaviors: boolean;
-    // bool          OptCursorBlink;           // = true               // Enable blinking cursor, for users who consider it annoying.
-    ConfigCursorBlink: boolean;
+    // bool          ConfigInputTextCursorBlink;   // = true               // Enable blinking cursor, for users who consider it annoying.
+    ConfigInputTextCursorBlink: boolean;
     // bool          ConfigResizeWindowsFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
     ConfigResizeWindowsFromEdges: boolean;
 
@@ -814,8 +816,6 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     MouseWheel: number;
     // float       MouseWheelH;                    // Mouse wheel (Horizontal). Most users don't have a mouse with an horizontal wheel, may not be filled by all back ends.
     MouseWheelH: number;
-    // bool        MouseDrawCursor;                // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
-    MouseDrawCursor: boolean;
     // bool        KeyCtrl;                        // Keyboard modifier pressed: Control
     KeyCtrl: boolean;
     // bool        KeyShift;                       // Keyboard modifier pressed: Shift
@@ -1134,7 +1134,7 @@ InvisibleButton(str_id: string, size: Readonly<interface_ImVec2>): boolean;
 // IMGUI_API void          Image(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0), const ImVec2& uv1 = ImVec2(1,1), const ImVec4& tint_col = ImVec4(1,1,1,1), const ImVec4& border_col = ImVec4(0,0,0,0));
 Image(user_texture_id: any, size: Readonly<interface_ImVec2>, uv0: Readonly<interface_ImVec2>, uv1: Readonly<interface_ImVec2>, tint_col: Readonly<interface_ImVec4>, border_col: Readonly<interface_ImVec4>): void;
 // IMGUI_API bool          ImageButton(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0),  const ImVec2& uv1 = ImVec2(1,1), int frame_padding = -1, const ImVec4& bg_col = ImVec4(0,0,0,0), const ImVec4& tint_col = ImVec4(1,1,1,1));    // <0 frame_padding uses default frame padding settings. 0 for no padding
-ImageButton(user_texture_id: any, size: Readonly<interface_ImVec2>, uv0: Readonly<interface_ImVec2>, uv1: Readonly<interface_ImVec2>, frame_padding: number, bg_col: Readonly<interface_ImVec4>, tint_col: Readonly<interface_ImVec4>): void;
+ImageButton(user_texture_id: any, size: Readonly<interface_ImVec2>, uv0: Readonly<interface_ImVec2>, uv1: Readonly<interface_ImVec2>, frame_padding: number, bg_col: Readonly<interface_ImVec4>, tint_col: Readonly<interface_ImVec4>): boolean;
 Checkbox(label: string, v: ImScalar<boolean>): boolean;
 CheckboxFlags(label: string, flags: ImScalar<number> | null, flags_value: number): boolean;
 // RadioButton(label: string, active: boolean): boolean;

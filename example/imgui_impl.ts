@@ -135,7 +135,7 @@ function canvas_on_pointerdown(event: PointerEvent): void  {
     //     event.preventDefault();
     // }
 }
-function canvas_on_contextmenu(event: PointerEvent): void  {
+function canvas_on_contextmenu(event: Event): void  {
     const io = ImGui.GetIO();
     if (io.WantCaptureMouse) {
         event.preventDefault();
@@ -648,19 +648,19 @@ export function CreateDeviceObjects(): void {
     g_ShaderHandle = gl && gl.createProgram();
     g_VertHandle = gl && gl.createShader(gl.VERTEX_SHADER);
     g_FragHandle = gl && gl.createShader(gl.FRAGMENT_SHADER);
-    gl && gl.shaderSource(g_VertHandle, vertex_shader.join("\n"));
-    gl && gl.shaderSource(g_FragHandle, fragment_shader.join("\n"));
-    gl && gl.compileShader(g_VertHandle);
-    gl && gl.compileShader(g_FragHandle);
-    gl && gl.attachShader(g_ShaderHandle, g_VertHandle);
-    gl && gl.attachShader(g_ShaderHandle, g_FragHandle);
-    gl && gl.linkProgram(g_ShaderHandle);
+    gl && gl.shaderSource(g_VertHandle as WebGLShader, vertex_shader.join("\n"));
+    gl && gl.shaderSource(g_FragHandle as WebGLShader, fragment_shader.join("\n"));
+    gl && gl.compileShader(g_VertHandle as WebGLShader);
+    gl && gl.compileShader(g_FragHandle as WebGLShader);
+    gl && gl.attachShader(g_ShaderHandle as WebGLProgram, g_VertHandle as WebGLShader);
+    gl && gl.attachShader(g_ShaderHandle as WebGLProgram, g_FragHandle as WebGLShader);
+    gl && gl.linkProgram(g_ShaderHandle as WebGLProgram);
 
-    g_AttribLocationTex = gl && gl.getUniformLocation(g_ShaderHandle, "Texture");
-    g_AttribLocationProjMtx = gl && gl.getUniformLocation(g_ShaderHandle, "ProjMtx");
-    g_AttribLocationPosition = gl && gl.getAttribLocation(g_ShaderHandle, "Position") || 0;
-    g_AttribLocationUV = gl && gl.getAttribLocation(g_ShaderHandle, "UV") || 0;
-    g_AttribLocationColor = gl && gl.getAttribLocation(g_ShaderHandle, "Color") || 0;
+    g_AttribLocationTex = gl && gl.getUniformLocation(g_ShaderHandle as WebGLProgram, "Texture");
+    g_AttribLocationProjMtx = gl && gl.getUniformLocation(g_ShaderHandle as WebGLProgram, "ProjMtx");
+    g_AttribLocationPosition = gl && gl.getAttribLocation(g_ShaderHandle as WebGLProgram, "Position") || 0;
+    g_AttribLocationUV = gl && gl.getAttribLocation(g_ShaderHandle as WebGLProgram, "UV") || 0;
+    g_AttribLocationColor = gl && gl.getAttribLocation(g_ShaderHandle as WebGLProgram, "Color") || 0;
 
     g_VboHandle = gl && gl.createBuffer();
     g_ElementsHandle = gl && gl.createBuffer();

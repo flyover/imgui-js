@@ -87,8 +87,8 @@ function export_Color4(tuple: Bind.ImTuple4<number>, col: RGBA | Bind.ImTuple4<n
 
 import * as config from "./imconfig";
 
-export const IMGUI_VERSION: string = "1.64"; // bind.IMGUI_VERSION;
-export const IMGUI_VERSION_NUM: number = 16401; // bind.IMGUI_VERSION_NUM;
+export const IMGUI_VERSION: string = "1.65"; // bind.IMGUI_VERSION;
+export const IMGUI_VERSION_NUM: number = 16501; // bind.IMGUI_VERSION_NUM;
 
 // #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
 export function IMGUI_CHECKVERSION(): boolean { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, bind.ImGuiIOSize, bind.ImGuiStyleSize, bind.ImVec2Size, bind.ImVec4Size, bind.ImDrawVertSize); }
@@ -2045,9 +2045,9 @@ export class ImGuiIO
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
     get ConfigMacOSXBehaviors(): boolean { return this.native.ConfigMacOSXBehaviors; }
     set ConfigMacOSXBehaviors(value: boolean) { this.native.ConfigMacOSXBehaviors = value; }
-    // bool          OptCursorBlink;           // = true               // Enable blinking cursor, for users who consider it annoying.
-    get ConfigCursorBlink(): boolean { return this.native.ConfigCursorBlink; }
-    set ConfigCursorBlink(value: boolean) { this.native.ConfigCursorBlink = value; }
+    // bool          ConfigInputTextCursorBlink;   // = true               // Enable blinking cursor, for users who consider it annoying.
+    get ConfigInputTextCursorBlink(): boolean { return this.native.ConfigInputTextCursorBlink; }
+    set ConfigInputTextCursorBlink(value: boolean) { this.native.ConfigInputTextCursorBlink = value; }
     // bool          ConfigResizeWindowsFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
     get ConfigResizeWindowsFromEdges(): boolean { return this.native.ConfigResizeWindowsFromEdges; }
     set ConfigResizeWindowsFromEdges(value: boolean) { this.native.ConfigResizeWindowsFromEdges = value; }
@@ -2769,7 +2769,7 @@ export function Image(user_texture_id: ImTextureID | null, size: Readonly<Bind.i
     bind.Image(ImGuiContext.setTexture(user_texture_id), size, uv0, uv1, tint_col, border_col);
 }
 // IMGUI_API bool          ImageButton(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0),  const ImVec2& uv1 = ImVec2(1,1), int frame_padding = -1, const ImVec4& bg_col = ImVec4(0,0,0,0), const ImVec4& tint_col = ImVec4(1,1,1,1));    // <0 frame_padding uses default frame padding settings. 0 for no padding
-export function ImageButton(user_texture_id: ImTextureID | null, size: Readonly<Bind.interface_ImVec2>, uv0: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, uv1: Readonly<Bind.interface_ImVec2> = ImVec2.UNIT, frame_padding: number = -1, bg_col: Readonly<Bind.interface_ImVec4> = ImVec4.ZERO, tint_col: Readonly<Bind.interface_ImVec4> = ImVec4.WHITE): void {
+export function ImageButton(user_texture_id: ImTextureID | null, size: Readonly<Bind.interface_ImVec2>, uv0: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, uv1: Readonly<Bind.interface_ImVec2> = ImVec2.UNIT, frame_padding: number = -1, bg_col: Readonly<Bind.interface_ImVec4> = ImVec4.ZERO, tint_col: Readonly<Bind.interface_ImVec4> = ImVec4.WHITE): boolean {
     return bind.ImageButton(ImGuiContext.setTexture(user_texture_id), size, uv0, uv1, frame_padding, bg_col, tint_col);
 }
 // IMGUI_API bool          Checkbox(const char* label, bool* v);

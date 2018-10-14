@@ -1283,10 +1283,12 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiIO, DisplayVisibleMax)
 
         // Advanced/subtle behaviors
+        // bool        MouseDrawCursor;            // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
+        CLASS_MEMBER(ImGuiIO, MouseDrawCursor)
         // bool          ConfigMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
         CLASS_MEMBER(ImGuiIO, ConfigMacOSXBehaviors)
-        // bool          ConfigCursorBlink;           // = true               // Enable blinking cursor, for users who consider it annoying.
-        CLASS_MEMBER(ImGuiIO, ConfigCursorBlink)
+        // bool          ConfigInputTextCursorBlink;  // = true               // Enable blinking cursor, for users who consider it annoying.
+        CLASS_MEMBER(ImGuiIO, ConfigInputTextCursorBlink)
         // bool          ConfigResizeWindowsFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
         CLASS_MEMBER(ImGuiIO, ConfigResizeWindowsFromEdges)
 
@@ -1337,8 +1339,6 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         }), emscripten::allow_raw_pointers())
         // float       MouseWheel;                 // Mouse wheel: 1 unit scrolls about 5 lines text.
         CLASS_MEMBER(ImGuiIO, MouseWheel)
-        // bool        MouseDrawCursor;            // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
-        CLASS_MEMBER(ImGuiIO, MouseDrawCursor)
         // bool        KeyCtrl;                    // Keyboard modifier pressed: Control
         CLASS_MEMBER(ImGuiIO, KeyCtrl)
         // bool        KeyShift;                   // Keyboard modifier pressed: Shift

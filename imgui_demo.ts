@@ -1,4 +1,4 @@
-// dear imgui, v1.60 WIP
+// dear imgui, v1.65
 // (demo code)
 
 // Message to the person tempted to delete this file when integrating ImGui into their code base:
@@ -17,6 +17,27 @@
 // A static variable persist across calls, so it is essentially like a global variable but declared inside the scope of the function.
 // It also happens to be a convenient way of storing simple UI related information as long as your function doesn't need to be reentrant or used in threads.
 // This might be a pattern you occasionally want to use in your code, but most of the real data you would be editing is likely to be stored outside your function.
+
+/*
+
+Index of this file:
+
+// [SECTION] Forward Declarations, Helpers
+// [SECTION] Demo Window / ShowDemoWindow()
+// [SECTION] Style Editor / ShowStyleEditor()
+// [SECTION] Example App: Main Menu Bar / ShowExampleAppMainMenuBar()
+// [SECTION] Example App: Debug Console / ShowExampleAppConsole()
+// [SECTION] Example App: Debug Log / ShowExampleAppLog()
+// [SECTION] Example App: Simple Layout / ShowExampleAppLayout()
+// [SECTION] Example App: Property Editor / ShowExampleAppPropertyEditor()
+// [SECTION] Example App: Long Text / ShowExampleAppLongText()
+// [SECTION] Example App: Auto Resize / ShowExampleAppAutoResize()
+// [SECTION] Example App: Constrained Resize / ShowExampleAppConstrainedResize()
+// [SECTION] Example App: Simple Overlay / ShowExampleAppSimpleOverlay()
+// [SECTION] Example App: Manipulating Window Titles / ShowExampleAppWindowTitles()
+// [SECTION] Example App: Custom Rendering using ImDrawList API / ShowExampleAppCustomRendering()
+
+*/
 
 // #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 // #define _CRT_SECURE_NO_WARNINGS
@@ -124,7 +145,7 @@ const IM_NEWLINE: string = "\n";
 function IM_MAX(_A: number, _B: number): number { return ((_A) >= (_B)) ? (_A) : (_B); }
 
 //-----------------------------------------------------------------------------
-// DEMO CODE
+// [SECTION] Forward Declarations, Helpers
 //-----------------------------------------------------------------------------
 
 // #if !defined(IMGUI_DISABLE_OBSOLETE_FUNCTIONS) && defined(IMGUI_DISABLE_TEST_WINDOWS) && !defined(IMGUI_DISABLE_DEMO_WINDOWS)   // Obsolete name since 1.53, TEST->DEMO
@@ -192,6 +213,10 @@ export function ShowUserGuide(): void
     ImGui.BulletText("You can apply arithmetic operators +,*,/ on numerical values.\nUse +- to subtract.");
     ImGui.Unindent();
 }
+
+//-----------------------------------------------------------------------------
+// [SECTION] Demo Window / ShowDemoWindow()
+//-----------------------------------------------------------------------------
 
 // Demonstrate most Dear ImGui features (this is big function!)
 // You may execute this function to experiment with the UI and understand what it does. You may then search for keywords in the code when you are interested by a specific feature.
@@ -314,9 +339,83 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     ImGui.Spacing();
     if (ImGui.CollapsingHeader("Help"))
     {
-        ImGui.TextWrapped("This window is being created by the ShowDemoWindow() function. Please refer to the code in imgui_demo.ts for reference.\n\n");
+        ImGui.Text("PROGRAMMER GUIDE:");
+        ImGui.BulletText("Please see the ShowDemoWindow() code in imgui_demo.cpp. <- you are here!");
+        ImGui.BulletText("Please see the comments in imgui.cpp.");
+        ImGui.BulletText("Please see the examples/ in application.");
+        ImGui.BulletText("Enable 'io.ConfigFlags |= NavEnableKeyboard' for keyboard controls.");
+        ImGui.BulletText("Enable 'io.ConfigFlags |= NavEnableGamepad' for gamepad controls.");
+        ImGui.Separator();
+
         ImGui.Text("USER GUIDE:");
         /*ImGui.*/ShowUserGuide();
+    }
+
+    if (ImGui.CollapsingHeader("Configuration"))
+    {
+        const io: ImGuiIO = ImGui.GetIO();
+
+        if (ImGui.TreeNode("Configuration##2"))
+        {
+            ImGui.CheckboxFlags("io.ConfigFlags: NavEnableKeyboard", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ConfigFlags.NavEnableKeyboard);
+            ImGui.CheckboxFlags("io.ConfigFlags: NavEnableGamepad", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ConfigFlags.NavEnableGamepad);
+            ImGui.SameLine(); ShowHelpMarker("Required back-end to feed in gamepad inputs in io.NavInputs[] and set io.BackendFlags |= ImGuiBackendFlags_HasGamepad.\n\nRead instructions in imgui.cpp for details.");
+            ImGui.CheckboxFlags("io.ConfigFlags: NavEnableSetMousePos", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ConfigFlags.NavEnableSetMousePos);
+            ImGui.SameLine(); ShowHelpMarker("Instruct navigation to move the mouse cursor. See comment for ImGuiConfigFlags_NavEnableSetMousePos.");
+            ImGui.CheckboxFlags("io.ConfigFlags: NoMouse", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ConfigFlags.NoMouse);
+            if (io.ConfigFlags & ImGui.ConfigFlags.NoMouse) // Create a way to restore this flag otherwise we could be stuck completely!
+            {
+                if ((ImGui.GetTime() % 0.40) < 0.20)
+                {
+                    ImGui.SameLine();
+                    ImGui.Text("<<PRESS SPACE TO DISABLE>>");
+                }
+                if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGui.Key.Space)))
+                    io.ConfigFlags &= ~ImGui.ConfigFlags.NoMouse;
+            }
+            ImGui.CheckboxFlags("io.ConfigFlags: NoMouseCursorChange", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ConfigFlags.NoMouseCursorChange);
+            ImGui.SameLine(); ShowHelpMarker("Instruct back-end to not alter mouse cursor shape and visibility.");
+            ImGui.Checkbox("io.ConfigInputTextCursorBlink", (value = io.ConfigInputTextCursorBlink) => io.ConfigInputTextCursorBlink = value);
+            ImGui.SameLine(); ShowHelpMarker("Set to false to disable blinking cursor, for users who consider it distracting");
+            ImGui.Checkbox("io.ConfigResizeWindowsFromEdges [beta]", (value = io.ConfigResizeWindowsFromEdges) => io.ConfigResizeWindowsFromEdges = value);
+            ImGui.SameLine(); ShowHelpMarker("Enable resizing of windows from their edges and from the lower-left corner.\nThis requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback.");
+            ImGui.Checkbox("io.MouseDrawCursor", (value = io.MouseDrawCursor) => io.MouseDrawCursor = value);
+            ImGui.SameLine(); ShowHelpMarker("Instruct Dear ImGui to render a mouse cursor for you. Note that a mouse cursor rendered via your application GPU rendering path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
+            ImGui.TreePop();
+            ImGui.Separator();
+        }
+
+        if (ImGui.TreeNode("Backend Flags"))
+        {
+            let backend_flags: ImGui.BackendFlags = io.BackendFlags; // Make a local copy to avoid modifying the back-end flags.
+            ImGui.CheckboxFlags("io.BackendFlags: HasGamepad", (value = backend_flags) => backend_flags = value, ImGui.BackendFlags.HasGamepad);
+            ImGui.CheckboxFlags("io.BackendFlags: HasMouseCursors", (value = backend_flags) => backend_flags = value, ImGui.BackendFlags.HasMouseCursors);
+            ImGui.CheckboxFlags("io.BackendFlags: HasSetMousePos", (value = backend_flags) => backend_flags = value, ImGui.BackendFlags.HasSetMousePos);
+            ImGui.TreePop();
+            ImGui.Separator();
+        }
+
+        if (ImGui.TreeNode("Style"))
+        {
+            /*ImGui.*/ShowStyleEditor();
+            ImGui.TreePop();
+            ImGui.Separator();
+        }
+
+        if (ImGui.TreeNode("Capture/Logging"))
+        {
+            ImGui.TextWrapped("The logging API redirects all text output so you can easily capture the content of a window or a block. Tree nodes can be automatically expanded.");
+            ShowHelpMarker("Try opening any of the contents below in this window and then click one of the \"Log To\" button.");
+            ImGui.LogButtons();
+            ImGui.TextWrapped("You can also call ImGui.LogText() to output directly to the log without a visual output.");
+            if (ImGui.Button("Copy \"Hello, world!\" to clipboard"))
+            {
+                ImGui.LogToClipboard();
+                ImGui.LogText("Hello, world!");
+                ImGui.LogFinish();
+            }
+            ImGui.TreePop();
+        }
     }
 
     if (ImGui.CollapsingHeader("Window options"))
@@ -329,19 +428,6 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
         ImGui.Checkbox("No collapse", (value = no_collapse.value) => no_collapse.value = value);
         ImGui.Checkbox("No close", (value = no_close.value) => no_close.value = value); ImGui.SameLine(150);
         ImGui.Checkbox("No nav", (value = no_nav.value) => no_nav.value = value);
-
-        if (ImGui.TreeNode("Style"))
-        {
-            /*ImGui.*/ShowStyleEditor();
-            ImGui.TreePop();
-        }
-
-        if (ImGui.TreeNode("Capture/Logging"))
-        {
-            ImGui.TextWrapped("The logging API redirects all text output so you can easily capture the content of a window or a block. Tree nodes can be automatically expanded. You can also call ImGui.LogText() to output directly to the log without a visual output.");
-            ImGui.LogButtons();
-            ImGui.TreePop();
-        }
     }
 
     if (ImGui.CollapsingHeader("Widgets"))
@@ -2287,20 +2373,6 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
         ImGui.Text(`WantSetMousePos: ${io.WantSetMousePos}`);
         ImGui.Text(`NavActive: ${io.NavActive}, NavVisible: ${io.NavVisible}`);
 
-        ImGui.Checkbox("io.MouseDrawCursor", (value = io.MouseDrawCursor) => io.MouseDrawCursor = value);
-        ImGui.SameLine(); ShowHelpMarker("Instruct ImGui to render a mouse cursor for you in software. Note that a mouse cursor rendered via your application GPU rendering path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
-
-        ImGui.CheckboxFlags("io.ConfigFlags: EnableGamepad [beta]", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.NavEnableGamepad);
-        ImGui.CheckboxFlags("io.ConfigFlags: EnableKeyboard [beta]", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.NavEnableKeyboard);
-        ImGui.CheckboxFlags("io.ConfigFlags: NavEnableSetMousePos", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.NavEnableSetMousePos); 
-        ImGui.SameLine(); ShowHelpMarker("Instruct navigation to move the mouse cursor. See comment for ImGuiConfigFlags_NavEnableSetMousePos.");
-        ImGui.CheckboxFlags("io.ConfigFlags: NoMouseCursorChange", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ImGuiConfigFlags.NoMouseCursorChange);   
-        ImGui.SameLine(); ShowHelpMarker("Instruct back-end to not alter mouse cursor shape and visibility.");
-        ImGui.Checkbox("io.ConfigCursorBlink", (value = io.ConfigCursorBlink) => io.ConfigCursorBlink = value);
-        ImGui.SameLine(); ShowHelpMarker("Set to false to disable blinking cursor, for users who consider it distracting");
-        ImGui.Checkbox("io.ConfigResizeWindowsFromEdges [beta]", (value = io.ConfigResizeWindowsFromEdges) => io.ConfigResizeWindowsFromEdges = value);
-        ImGui.SameLine(); ShowHelpMarker("Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback.");
-
         if (ImGui.TreeNode("Keyboard, Mouse & Navigation State"))
         {
             if (ImGui.IsMousePosValid())
@@ -2437,6 +2509,10 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
 
     return done;
 }
+
+//-----------------------------------------------------------------------------
+// [SECTION] Style Editor / ShowStyleEditor()
+//-----------------------------------------------------------------------------
 
 // Demo helper function to select among default colors. See ShowStyleEditor() for more advanced options.
 // Here we use the simplified Combo() api that packs items into a single literal string. Useful for quick combo boxes where the choices are known locally.
@@ -2711,7 +2787,7 @@ export function ShowStyleEditor(ref: ImGuiStyle | null = null): void
 }
 
 //-----------------------------------------------------------------------------
-// EXAMPLE APP CODE: MAIN MENU BAR
+// [SECTION] Example App: Main Menu Bar / ShowExampleAppMainMenuBar()
 //-----------------------------------------------------------------------------
 
 // Demonstrate creating a fullscreen menu bar and populating it.
@@ -2804,10 +2880,10 @@ function ShowExampleMenuFile(): void
 }
 
 //-----------------------------------------------------------------------------
-// EXAMPLE APP CODE: CONSOLE
+// [SECTION] Example App: Debug Console / ShowExampleAppConsole()
 //-----------------------------------------------------------------------------
 
-// Demonstrating creating a simple console window, with scrolling, filtering, completion and history.
+// Demonstrate creating a simple console window, with scrolling, filtering, completion and history.
 // For the console example, here we are using a more C++ like approach of declaring a class to hold the data and the functions.
 class ExampleAppConsole {
     // char                  InputBuf[256];
@@ -3136,7 +3212,7 @@ function ShowExampleAppConsole(p_open: ImAccess<boolean>): void
 }
 
 //-----------------------------------------------------------------------------
-// EXAMPLE APP CODE: LOG
+// [SECTION] Example App: Debug Log / ShowExampleAppLog()
 //-----------------------------------------------------------------------------
 
 // Usage:
@@ -3234,7 +3310,7 @@ function ShowExampleAppLog(p_open: ImAccess<boolean>): void
 }
 
 //-----------------------------------------------------------------------------
-// EXAMPLE APP CODE: SIMPLE LAYOUT
+// [SECTION] Example App: Simple Layout / ShowExampleAppLayout()
 //-----------------------------------------------------------------------------
 
 // Demonstrate create a window with multiple child windows.
@@ -3281,7 +3357,7 @@ function ShowExampleAppLayout(p_open: ImAccess<boolean>): void
 }
 
 //-----------------------------------------------------------------------------
-// EXAMPLE APP CODE: PROPERTY EDITOR
+// [SECTION] Example App: Property Editor / ShowExampleAppPropertyEditor()
 //-----------------------------------------------------------------------------
 
 // Demonstrate create a simple property editor.
@@ -3357,7 +3433,7 @@ function ShowExampleAppPropertyEditor(p_open: ImAccess<boolean>): void
 }
 
 //-----------------------------------------------------------------------------
-// EXAMPLE APP CODE: LONG TEXT
+// [SECTION] Example App: Long Text / ShowExampleAppLongText()
 //-----------------------------------------------------------------------------
 
 // Demonstrate/test rendering huge amount of text, and the incidence of clipping.
@@ -3417,7 +3493,7 @@ function ShowExampleAppLongText(p_open: ImAccess<boolean>): void
 }
 
 //-----------------------------------------------------------------------------
-// EXAMPLE APP CODE: AUTO RESIZE
+// [SECTION] Example App: Auto Resize / ShowExampleAppAutoResize()
 //-----------------------------------------------------------------------------
 
 // Demonstrate creating a window which gets auto-resized according to its content.
@@ -3438,7 +3514,7 @@ function ShowExampleAppAutoResize(p_open: ImAccess<boolean>): void
 }
 
 //-----------------------------------------------------------------------------
-// EXAMPLE APP CODE: CONSTRAINED RESIZE
+// [SECTION] Example App: Constrained Resize / ShowExampleAppConstrainedResize()
 //-----------------------------------------------------------------------------
 
 // Demonstrate creating a window with custom resize constraints.
@@ -3494,7 +3570,7 @@ function ShowExampleAppConstrainedResize(p_open: ImAccess<boolean>): void
 }
 
 //-----------------------------------------------------------------------------
-// EXAMPLE APP CODE: SIMPLE OVERLAY
+// [SECTION] Example App: Simple Overlay / ShowExampleAppSimpleOverlay()
 //-----------------------------------------------------------------------------
 
 // Demonstrate creating a simple static window with no decoration + a context-menu to choose which corner of the screen to use.
@@ -3530,7 +3606,7 @@ function ShowExampleAppSimpleOverlay(p_open: ImAccess<boolean>): void
 }
 
 //-----------------------------------------------------------------------------
-// EXAMPLE APP CODE: WINDOW TITLES
+// [SECTION] Example App: Manipulating Window Titles / ShowExampleAppWindowTitles()
 //-----------------------------------------------------------------------------
 
 // Demonstrate using "##" and "###" in identifiers to manipulate ID generation.
@@ -3560,7 +3636,7 @@ function ShowExampleAppWindowTitles(p_open: ImAccess<boolean>): void
 }
 
 //-----------------------------------------------------------------------------
-// EXAMPLE APP CODE: CUSTOM RENDERING
+// [SECTION] Example App: Custom Rendering using ImDrawList API / ShowExampleAppCustomRendering()
 //-----------------------------------------------------------------------------
 
 // Demonstrate using the low-level ImDrawList to draw custom shapes.
