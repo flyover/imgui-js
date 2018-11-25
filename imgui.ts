@@ -87,8 +87,8 @@ function export_Color4(tuple: Bind.ImTuple4<number>, col: RGBA | Bind.ImTuple4<n
 
 import * as config from "./imconfig";
 
-export const IMGUI_VERSION: string = "1.65"; // bind.IMGUI_VERSION;
-export const IMGUI_VERSION_NUM: number = 16501; // bind.IMGUI_VERSION_NUM;
+export const IMGUI_VERSION: string = "1.66"; // bind.IMGUI_VERSION;
+export const IMGUI_VERSION_NUM: number = 16601; // bind.IMGUI_VERSION_NUM;
 
 // #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
 export function IMGUI_CHECKVERSION(): boolean { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, bind.ImGuiIOSize, bind.ImGuiStyleSize, bind.ImVec2Size, bind.ImVec4Size, bind.ImDrawVertSize); }
@@ -126,8 +126,9 @@ export enum ImGuiWindowFlags {
     NoScrollWithMouse      = 1 << 4,   // Disable user vertically scrolling with mouse wheel. On child window, mouse wheel will be forwarded to the parent unless NoScrollbar is also set.
     NoCollapse             = 1 << 5,   // Disable user collapsing window by double-clicking on it
     AlwaysAutoResize       = 1 << 6,   // Resize every window to its content every frame
+    NoBackground           = 1 << 7,   // Disable drawing background color (WindowBg, etc.) and outside border. Similar as using SetNextWindowBgAlpha(0.0f).
     NoSavedSettings        = 1 << 8,   // Never load/save settings in .ini file
-    NoInputs               = 1 << 9,   // Disable catching mouse or keyboard inputs, hovering test with pass through.
+    NoMouseInputs          = 1 << 9,   // Disable catching mouse or keyboard inputs, hovering test with pass through.
     MenuBar                = 1 << 10,  // Has a menu-bar
     HorizontalScrollbar    = 1 << 11,  // Allow horizontal scrollbar to appear (off by default). You may use SetNextWindowContentSize(ImVec2(width,0.0f)); prior to calling Begin() to specify width. Read code in imgui_demo in the "Horizontal Scrolling" section.
     NoFocusOnAppearing     = 1 << 12,  // Disable taking focus when transitioning from hidden to visible state
@@ -138,6 +139,8 @@ export enum ImGuiWindowFlags {
     NoNavInputs            = 1 << 18,  // No gamepad/keyboard navigation within the window
     NoNavFocus             = 1 << 19,  // No focusing toward this window with gamepad/keyboard navigation (e.g. skipped by CTRL+TAB)
     NoNav                  = NoNavInputs | NoNavFocus,
+    NoDecoration           = NoTitleBar | NoResize | NoScrollbar | NoCollapse,
+    NoInputs               = NoMouseInputs | NoNavInputs | NoNavFocus,
 
     // [Internal]
     NavFlattened           = 1 << 23,  // (WIP) Allow gamepad/keyboard navigation to cross over parent border to this child (only use on child that have no scrolling!)
@@ -2537,9 +2540,9 @@ export function GetScrollMaxY(): number { return bind.GetScrollMaxY(); }
 export function SetScrollX(scroll_x: number): void { bind.SetScrollX(scroll_x); }
 // IMGUI_API void          SetScrollY(float scroll_y);                                         // set scrolling amount [0..GetScrollMaxY()]
 export function SetScrollY(scroll_y: number): void { bind.SetScrollY(scroll_y); }
-// IMGUI_API void          SetScrollHere(float center_y_ratio = 0.5f);                         // adjust scrolling amount to make current cursor position visible. center_y_ratio=0.0: top, 0.5: center, 1.0: bottom. When using to make a "default/current item" visible, consider using SetItemDefaultFocus() instead.
-export function SetScrollHere(center_y_ratio: number = 0.5): void {
-    bind.SetScrollHere(center_y_ratio);
+// IMGUI_API void          SetScrollHereY(float center_y_ratio = 0.5f);                         // adjust scrolling amount to make current cursor position visible. center_y_ratio=0.0: top, 0.5: center, 1.0: bottom. When using to make a "default/current item" visible, consider using SetItemDefaultFocus() instead.
+export function SetScrollHereY(center_y_ratio: number = 0.5): void {
+    bind.SetScrollHereY(center_y_ratio);
 }
 // IMGUI_API void          SetScrollFromPosY(float pos_y, float center_y_ratio = 0.5f);        // adjust scrolling amount to make given position valid. use GetCursorPos() or GetCursorStartPos()+offset to get valid positions.
 export function SetScrollFromPosY(pos_y: number, center_y_ratio: number = 0.5): void {

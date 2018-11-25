@@ -1017,7 +1017,7 @@ GetScrollMaxX(): number;
 GetScrollMaxY(): number;
 SetScrollX(scroll_x: number): void;
 SetScrollY(scroll_y: number): void;
-SetScrollHere(center_y_ratio: number/* = 0.5f */): void;
+SetScrollHereY(center_y_ratio: number/* = 0.5f */): void;
 SetScrollFromPosY(pos_y: number, center_y_ratio: number/* = 0.5f */): void;
 // function SetStateStorage(tree: ImGuiStorage | null): void;
 // function GetStateStorage(): ImGuiStorage | null;

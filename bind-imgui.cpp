@@ -1777,8 +1777,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("SetScrollX", &ImGui::SetScrollX);
     // IMGUI_API void          SetScrollY(float scroll_y);                                         // set scrolling amount [0..GetScrollMaxY()]
     emscripten::function("SetScrollY", &ImGui::SetScrollY);
-    // IMGUI_API void          SetScrollHere(float center_y_ratio = 0.5f);                         // adjust scrolling amount to make current cursor position visible. center_y_ratio=0.0: top, 0.5: center, 1.0: bottom. When using to make a "default/current item" visible, consider using SetItemDefaultFocus() instead.
-    emscripten::function("SetScrollHere", &ImGui::SetScrollHere);
+    // IMGUI_API void          SetScrollHereY(float center_y_ratio = 0.5f);                         // adjust scrolling amount to make current cursor position visible. center_y_ratio=0.0: top, 0.5: center, 1.0: bottom. When using to make a "default/current item" visible, consider using SetItemDefaultFocus() instead.
+    emscripten::function("SetScrollHereY", &ImGui::SetScrollHereY);
     // IMGUI_API void          SetScrollFromPosY(float pos_y, float center_y_ratio = 0.5f);        // adjust scrolling amount to make given position valid. use GetCursorPos() or GetCursorStartPos()+offset to get valid positions.
     emscripten::function("SetScrollFromPosY", &ImGui::SetScrollFromPosY);
     // IMGUI_API void          SetStateStorage(ImGuiStorage* tree);                                // replace tree state storage with our own (if you want to manipulate it yourself, typically clear subsection of it)
@@ -2596,6 +2596,10 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API void          EndDragDropTarget();
     emscripten::function("EndDragDropTarget", &ImGui::EndDragDropTarget);
+    // IMGUI_API const ImGuiPayload*   GetDragDropPayload();                                                           // peek directly into the current payload from anywhere. may return NULL. use ImGuiPayload::IsDataType() to test for the payload type.
+    emscripten::function("GetDragDropPayload", FUNCTION(emscripten::val, (), {
+        return emscripten::val::null(); // TODO
+    }));
 
     // Clipping
     // IMGUI_API void          PushClipRect(const ImVec2& clip_rect_min, const ImVec2& clip_rect_max, bool intersect_with_current_clip_rect);
