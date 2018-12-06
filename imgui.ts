@@ -51,12 +51,12 @@ function export_Vector3(tuple: Bind.ImTuple3<number>, vec: XYZ | XYZW | Bind.ImT
     vec.x = tuple[0]; vec.y = tuple[1]; vec.z = tuple[2];
 }
 
-function import_Vector4(vec: XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4 | XYZW): Bind.ImTuple4<number> {
-    if (Array.isArray(vec)) { return [ vec[0], vec[1], vec[2], vec[3] ]; }
+function import_Vector4(vec: XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4): Bind.ImTuple4<number> {
+    if (Array.isArray(vec)) { return [ vec[0], vec[1], vec[2], vec[3] || 0 ]; }
     return [ vec.x, vec.y, vec.z, vec.w ];
 }
 
-function export_Vector4(tuple: Bind.ImTuple4<number>, vec: XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4 | XYZW): void {
+function export_Vector4(tuple: Bind.ImTuple4<number>, vec: XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4): void {
     if (Array.isArray(vec)) { vec[0] = tuple[0]; vec[1] = tuple[1]; vec[2] = tuple[2]; vec[3] = tuple[3]; return; }
     vec.x = tuple[0]; vec.y = tuple[1]; vec.z = tuple[2]; vec.w = tuple[3];
 }
