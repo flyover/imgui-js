@@ -1289,8 +1289,10 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         CLASS_MEMBER(ImGuiIO, ConfigMacOSXBehaviors)
         // bool          ConfigInputTextCursorBlink;  // = true               // Enable blinking cursor, for users who consider it annoying.
         CLASS_MEMBER(ImGuiIO, ConfigInputTextCursorBlink)
-        // bool          ConfigResizeWindowsFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
-        CLASS_MEMBER(ImGuiIO, ConfigResizeWindowsFromEdges)
+        // bool          ConfigWindowsResizeFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
+        CLASS_MEMBER(ImGuiIO, ConfigWindowsResizeFromEdges)
+        // bool        ConfigWindowsMoveFromTitleBarOnly;// = false        // [BETA] Set to true to only allow moving windows when clicked+dragged from the title bar. Windows without a title bar are not affected.
+        CLASS_MEMBER(ImGuiIO, ConfigWindowsMoveFromTitleBarOnly)
 
         //------------------------------------------------------------------
         // Settings (User Functions)
@@ -1354,10 +1356,6 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         .function("_setAt_KeysDown", FUNCTION(bool, (ImGuiIO& that, int index, bool value), {
             if (0 <= index && index < IM_ARRAYSIZE(that.KeysDown)) { that.KeysDown[index] = value; return true; } return false;
         }), emscripten::allow_raw_pointers())
-        // ImWchar     InputCharacters[16+1];      // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
-        CLASS_MEMBER_GET(ImGuiIO, InputCharacters, {
-            return emscripten::val(emscripten::typed_memory_view<ImWchar>(sizeof(that.InputCharacters), that.InputCharacters));
-        })
         // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
         .function("_getAt_NavInputs", FUNCTION(float, (const ImGuiIO& that, ImGuiNavInput index), {
             return (0 <= index && index < ImGuiNavInput_COUNT) ? that.NavInputs[index] : 0.0f;
@@ -1495,6 +1493,10 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         CLASS_MEMBER(ImGuiStyle, GrabMinSize)
         // float       GrabRounding;               // Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs.
         CLASS_MEMBER(ImGuiStyle, GrabRounding)
+        // float       TabRounding;                // Radius of upper corners of a tab. Set to 0.0f to have rectangular tabs.
+        CLASS_MEMBER(ImGuiStyle, TabRounding)
+        // float       TabBorderSize;              // Thickness of border around tabs. 
+        CLASS_MEMBER(ImGuiStyle, TabBorderSize)
         // ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f,0.5f) for horizontally+vertically centered.
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiStyle, ButtonTextAlign)
         // ImVec2      DisplayWindowPadding;       // Window positions are clamped to be visible within the display area by at least this amount. Only covers regular windows.
@@ -1610,6 +1612,10 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create demo/test window (previously called ShowTestWindow). demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
     emscripten::function("ShowDemoWindow", FUNCTION(void, (emscripten::val p_open), {
         ImGui::ShowDemoWindow(access_maybe_null_value<bool>(p_open));
+    }));
+    // IMGUI_API void          ShowAboutWindow(bool* p_open = NULL);       // create about window. display Dear ImGui version, credits and build/system information.
+    emscripten::function("ShowAboutWindow", FUNCTION(void, (emscripten::val p_open), {
+        ImGui::ShowAboutWindow(access_maybe_null_value<bool>(p_open));
     }));
     // IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // create metrics window. display ImGui internals: draw commands (with individual draw calls and vertices), window list, basic internal state, etc.
     emscripten::function("ShowMetricsWindow", FUNCTION(void, (emscripten::val p_open), {
@@ -2551,6 +2557,30 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsPopupOpen", FUNCTION(bool, (std::string str_id), { return ImGui::IsPopupOpen(str_id.c_str()); }));
     // IMGUI_API void          CloseCurrentPopup();                                                // close the popup we have begin-ed into. clicking on a MenuItem or Selectable automatically close the current popup.
     emscripten::function("CloseCurrentPopup", &ImGui::CloseCurrentPopup);
+
+    // Tab Bars, Tabs
+    // [BETA API] API may evolve!
+    // IMGUI_API bool          BeginTabBar(const char* str_id, ImGuiTabBarFlags flags = 0);        // create and append into a TabBar
+    // BeginTabBar(str_id: string, flags: ImGuiTabBarFlags): boolean;
+    emscripten::function("BeginTabBar", FUNCTION(bool, (std::string str_id, int flags), {
+        return ImGui::BeginTabBar(str_id.c_str(), flags);
+    }));
+    // IMGUI_API void          EndTabBar();                                                        // only call EndTabBar() if BeginTabBar() returns true!
+    // EndTabBar(): void;
+    emscripten::function("EndTabBar", &ImGui::EndTabBar);
+    // IMGUI_API bool          BeginTabItem(const char* label, bool* p_open = NULL, ImGuiTabItemFlags flags = 0);// create a Tab. Returns true if the Tab is selected.
+    // BeginTabItem(label: string, p_open: ImScalar<boolean> | null, flags: ImGuiTabBarFlags): boolean;
+    emscripten::function("BeginTabItem", FUNCTION(bool, (std::string label, emscripten::val p_open, int flags), {
+        return ImGui::BeginTabItem(label.c_str(), access_maybe_null_value<bool>(p_open), flags);
+    }));
+    // IMGUI_API void          EndTabItem();                                                       // only call EndTabItem() if BeginTabItem() returns true!
+    // EndTabItem(): void;
+    emscripten::function("EndTabItem", &ImGui::EndTabItem);
+    // IMGUI_API void          SetTabItemClosed(const char* tab_or_docked_window_label);           // notify TabBar or Docking system of a closed tab/window ahead (useful to reduce visual flicker on reorderable tab bars). For tab-bar: call after BeginTabBar() and before Tab submissions. Otherwise call with a window name.
+    // SetTabItemClosed(tab_or_docked_window_label: string): void;
+    emscripten::function("SetTabItemClosed", FUNCTION(void, (std::string tab_or_docked_window_label), {
+        ImGui::SetTabItemClosed(tab_or_docked_window_label.c_str());
+    }));
 
     // Logging/Capture: all text output from interface is captured to tty/file/clipboard. By default, tree nodes are automatically opened during logging.
     // IMGUI_API void          LogToTTY(int max_depth = -1);                                       // start logging to tty

@@ -40,6 +40,8 @@ type ImGuiInputTextFlags = number;
 type ImGuiTreeNodeFlags = number;
 type ImGuiSelectableFlags = number;
 type ImGuiComboFlags = number;
+type ImGuiTabBarFlags = number;
+type ImGuiTabItemFlags = number;
 type ImGuiFocusedFlags = number;
 type ImGuiHoveredFlags = number;
 type ImGuiDragDropFlags = number;
@@ -211,6 +213,10 @@ export interface interface_ImGuiStyle {
     GrabMinSize: number;
     // float       GrabRounding;               // Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs.
     GrabRounding: number;
+    // float       TabRounding;                // Radius of upper corners of a tab. Set to 0.0f to have rectangular tabs.
+    TabRounding: number;
+    // float       TabBorderSize;              // Thickness of border around tabs. 
+    TabBorderSize: number;
     // ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f,0.5f) for horizontally+vertically centered.
     readonly ButtonTextAlign: interface_ImVec2;
     // ImVec2      DisplayWindowPadding;       // Window positions are clamped to be visible within the display area by at least this amount. Only covers regular windows.
@@ -257,6 +263,8 @@ export class ImGuiStyle extends Emscripten.EmscriptenClass implements interface_
     ScrollbarRounding: number;
     GrabMinSize: number;
     GrabRounding: number;
+    TabRounding: number;
+    TabBorderSize: number;
     readonly ButtonTextAlign: reference_ImVec2;
     readonly DisplayWindowPadding: reference_ImVec2;
     readonly DisplaySafeAreaPadding: reference_ImVec2;
@@ -782,12 +790,21 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     ConfigMacOSXBehaviors: boolean;
     // bool          ConfigInputTextCursorBlink;   // = true               // Enable blinking cursor, for users who consider it annoying.
     ConfigInputTextCursorBlink: boolean;
-    // bool          ConfigResizeWindowsFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
-    ConfigResizeWindowsFromEdges: boolean;
+    // bool          ConfigWindowsResizeFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
+    ConfigWindowsResizeFromEdges: boolean;
+    // bool        ConfigWindowsMoveFromTitleBarOnly;// = false        // [BETA] Set to true to only allow moving windows when clicked+dragged from the title bar. Windows without a title bar are not affected.
+    ConfigWindowsMoveFromTitleBarOnly: boolean;
 
     //------------------------------------------------------------------
     // Settings (User Functions)
     //------------------------------------------------------------------
+
+    // Optional: Platform/Renderer back-end name (informational only! will be displayed in About Window) + User data for back-end/wrappers to store their own stuff.
+    // const char* BackendPlatformName;            // = NULL
+    // const char* BackendRendererName;            // = NULL
+    // void*       BackendPlatformUserData;        // = NULL
+    // void*       BackendRendererUserData;        // = NULL
+    // void*       BackendLanguageUserData;        // = NULL
 
     // Optional: access OS clipboard
     // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
@@ -827,8 +844,6 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // bool        KeysDown[512];                  // Keyboard keys that are pressed (ideally left in the "native" order your engine has access to keyboard keys, so you can use your own defines/enums for keys).
     _getAt_KeysDown(index: number): boolean;
     _setAt_KeysDown(index: number, value: boolean): boolean;
-    // ImWchar     InputCharacters[16+1];          // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
-    readonly InputCharacters: Readonly<Uint16Array>;
     // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
     _getAt_NavInputs(index: number): number;
     _setAt_NavInputs(index: number, value: number): boolean;
@@ -954,6 +969,8 @@ EndFrame(): void;
 // Demo, Debug, Informations
 // IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create demo/test window (previously called ShowTestWindow). demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
 ShowDemoWindow(p_open: ImScalar<boolean> | null): void;
+// IMGUI_API void          ShowAboutWindow(bool* p_open = NULL);       // create about window. display Dear ImGui version, credits and build/system information.
+ShowAboutWindow(p_open: ImScalar<boolean> | null): void;
 // IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // create metrics window. display ImGui internals: draw commands (with individual draw calls and vertices), window list, basic internal state, etc.
 ShowMetricsWindow(p_open: ImScalar<boolean> | null): void;
 // IMGUI_API void          ShowStyleEditor(ImGuiStyle* ref = NULL);    // add style editor block (not a window). you can pass in a reference ImGuiStyle structure to compare to, revert to and save to (else it uses the default style)
@@ -1306,6 +1323,19 @@ BeginPopupContextVoid(str_id: string | null/* = NULL */, mouse_button: number/* 
 EndPopup(): void;
 IsPopupOpen(str_id: string): boolean;
 CloseCurrentPopup(): void;
+
+// Tab Bars, Tabs
+// [BETA API] API may evolve!
+// IMGUI_API bool          BeginTabBar(const char* str_id, ImGuiTabBarFlags flags = 0);        // create and append into a TabBar
+BeginTabBar(str_id: string, flags: ImGuiTabBarFlags): boolean;
+// IMGUI_API void          EndTabBar();                                                        // only call EndTabBar() if BeginTabBar() returns true!
+EndTabBar(): void;
+// IMGUI_API bool          BeginTabItem(const char* label, bool* p_open = NULL, ImGuiTabItemFlags flags = 0);// create a Tab. Returns true if the Tab is selected.
+BeginTabItem(label: string, p_open: ImScalar<boolean> | null, flags: ImGuiTabBarFlags): boolean;
+// IMGUI_API void          EndTabItem();                                                       // only call EndTabItem() if BeginTabItem() returns true!
+EndTabItem(): void;
+// IMGUI_API void          SetTabItemClosed(const char* tab_or_docked_window_label);           // notify TabBar or Docking system of a closed tab/window ahead (useful to reduce visual flicker on reorderable tab bars). For tab-bar: call after BeginTabBar() and before Tab submissions. Otherwise call with a window name.
+SetTabItemClosed(tab_or_docked_window_label: string): void;
 
 // Logging/Capture: all text output from interface is captured to tty/file/clipboard. By default, tree nodes are automatically opened during logging.
 // IMGUI_API void          LogToTTY(int max_depth = -1);                                       // start logging to tty

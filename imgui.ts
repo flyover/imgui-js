@@ -87,8 +87,8 @@ function export_Color4(tuple: Bind.ImTuple4<number>, col: RGBA | Bind.ImTuple4<n
 
 import * as config from "./imconfig";
 
-export const IMGUI_VERSION: string = "1.66"; // bind.IMGUI_VERSION;
-export const IMGUI_VERSION_NUM: number = 16601; // bind.IMGUI_VERSION_NUM;
+export const IMGUI_VERSION: string = "1.67"; // bind.IMGUI_VERSION;
+export const IMGUI_VERSION_NUM: number = 16603; // bind.IMGUI_VERSION_NUM;
 
 // #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
 export function IMGUI_CHECKVERSION(): boolean { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, bind.ImGuiIOSize, bind.ImGuiStyleSize, bind.ImVec2Size, bind.ImVec4Size, bind.ImDrawVertSize); }
@@ -138,6 +138,7 @@ export enum ImGuiWindowFlags {
     AlwaysUseWindowPadding = 1 << 16,  // Ensure child windows without border uses style.WindowPadding (ignored by default for non-bordered child windows, because more convenient)
     NoNavInputs            = 1 << 18,  // No gamepad/keyboard navigation within the window
     NoNavFocus             = 1 << 19,  // No focusing toward this window with gamepad/keyboard navigation (e.g. skipped by CTRL+TAB)
+    UnsavedDocument        = 1 << 20,  // Append '*' to title without affecting the ID, as a convenience to avoid using the ### operator. When used in a tab/docking context, tab is selected on closure and closure is deferred by one frame to allow code to cancel the closure (with a confirmation popup, etc.) without flicker.
     NoNav                  = NoNavInputs | NoNavFocus,
     NoDecoration           = NoTitleBar | NoResize | NoScrollbar | NoCollapse,
     NoInputs               = NoMouseInputs | NoNavInputs | NoNavFocus,
@@ -222,6 +223,33 @@ export enum ImGuiComboFlags {
     NoPreview               = 1 << 6,   // Display only a square arrow button
     HeightMask_             = HeightSmall | HeightRegular | HeightLarge | HeightLargest,
 }
+
+// Flags for ImGui::BeginTabBar()
+export { ImGuiTabBarFlags as TabBarFlags };
+export enum ImGuiTabBarFlags {
+    None                           = 0,
+    Reorderable                    = 1 << 0,   // Allow manually dragging tabs to re-order them + New tabs are appended at the end of list
+    AutoSelectNewTabs              = 1 << 1,   // Automatically select new tabs when they appear
+    NoCloseWithMiddleMouseButton   = 1 << 2,   // Disable behavior of closing tabs (that are submitted with p_open != NULL) with middle mouse button. You can still repro this behavior on user's side with if (IsItemHovered() && IsMouseClicked(2)) *p_open = false.
+    NoTabListPopupButton           = 1 << 3,
+    NoTabListScrollingButtons      = 1 << 4,
+    NoTooltip                      = 1 << 5,   // Disable tooltips when hovering a tab
+    FittingPolicyResizeDown        = 1 << 6,   // Resize tabs when they don't fit
+    FittingPolicyScroll            = 1 << 7,   // Add scroll buttons when tabs don't fit
+    FittingPolicyMask_             = FittingPolicyResizeDown | FittingPolicyScroll,
+    FittingPolicyDefault_          = FittingPolicyResizeDown
+};
+
+// Flags for ImGui::BeginTabItem()
+export { ImGuiTabItemFlags as TabItemFlags };
+export enum ImGuiTabItemFlags
+{
+    ImGuiTabItemFlags_None                          = 0,
+    ImGuiTabItemFlags_UnsavedDocument               = 1 << 0,   // Append '*' to title without affecting the ID, as a convenience to avoid using the ### operator. Also: tab is selected on closure and closure is deferred by one frame to allow code to undo it without flicker.
+    ImGuiTabItemFlags_SetSelected                   = 1 << 1,   // Trigger flag to programatically make the tab selected when calling BeginTabItem()
+    ImGuiTabItemFlags_NoCloseWithMiddleMouseButton  = 1 << 2,   // Disable behavior of closing tabs (that are submitted with p_open != NULL) with middle mouse button. You can still repro this behavior on user's side with if (IsItemHovered() && IsMouseClicked(2)) *p_open = false.
+    ImGuiTabItemFlags_NoPushId                      = 1 << 3    // Don't call PushID(tab->ID)/PopID() on BeginTabItem()/EndTabItem()
+};
 
 // Flags for ImGui::IsWindowFocused()
 export { ImGuiFocusedFlags as FocusedFlags };
@@ -361,6 +389,7 @@ export enum ImGuiNavInput
 export { ImGuiConfigFlags as ConfigFlags };
 export enum ImGuiConfigFlags
 {
+    None                 = 0,
     NavEnableKeyboard    = 1 << 0,   // Master keyboard navigation enable flag. NewFrame() will automatically fill io.NavInputs[] based on io.KeyDown[].
     NavEnableGamepad     = 1 << 1,   // Master gamepad navigation enable flag. This is mostly to instruct your imgui back-end to fill io.NavInputs[].
     NavEnableSetMousePos = 1 << 2,   // Request navigation to allow moving the mouse cursor. May be useful on TV/console systems where moving a virtual mouse is awkward. Will update io.MousePos and set io.WantMoveMouse=true. If enabled you MUST honor io.WantMoveMouse requests in your binding, otherwise ImGui will react as if the mouse is jumping around back and forth.
@@ -408,6 +437,11 @@ export enum ImGuiCol {
     ResizeGrip,
     ResizeGripHovered,
     ResizeGripActive,
+    Tab,
+    TabHovered,
+    TabActive,
+    TabUnfocused,
+    TabUnfocusedActive,
     PlotLines,
     PlotLinesHovered,
     PlotHistogram,
@@ -447,6 +481,7 @@ export enum ImGuiStyleVar {
     ScrollbarRounding,   // float     ScrollbarRounding
     GrabMinSize,         // float     GrabMinSize
     GrabRounding,        // float     GrabRounding
+    TabRounding,         // float     TabRounding
     ButtonTextAlign,     // ImVec2    ButtonTextAlign
     Count_, COUNT = Count_,
 }
@@ -454,6 +489,7 @@ export enum ImGuiStyleVar {
 // Back-end capabilities flags stored in io.BackendFlags. Set by imgui_impl_xxx or custom back-end.
 export { ImGuiBackendFlags as BackendFlags };
 export enum ImGuiBackendFlags {
+    None                  = 0,
     HasGamepad            = 1 << 0,   // Back-end has a connected gamepad.
     HasMouseCursors       = 1 << 1,   // Back-end can honor GetMouseCursor() values and change the OS cursor shape.
     HasSetMousePos        = 1 << 2    // Back-end can honor io.WantSetMousePos and reposition the mouse (only used if ImGuiConfigFlags_NavEnableSetMousePos is set).
@@ -533,6 +569,7 @@ export enum ImDrawCornerFlags
 export { ImDrawListFlags as wListFlags };
 export enum ImDrawListFlags
 {
+    None             = 0,
     AntiAliasedLines = 1 << 0,
     AntiAliasedFill  = 1 << 1,
 }
@@ -1845,6 +1882,8 @@ class script_ImGuiStyle implements Bind.interface_ImGuiStyle {
     public ScrollbarRounding: number = 9.0;
     public GrabMinSize: number = 10.0;
     public GrabRounding: number = 0.0;
+    public TabRounding: number = 0.0;
+    public TabBorderSize: number = 0.0;
     public ButtonTextAlign: ImVec2 = new ImVec2(0.5, 0.5);
     public DisplayWindowPadding: ImVec2 = new ImVec2(22, 22);
     public DisplaySafeAreaPadding: ImVec2 = new ImVec2(4, 4);
@@ -1906,6 +1945,8 @@ export class ImGuiStyle
     get ScrollbarRounding(): number { return this.internal.ScrollbarRounding; } set ScrollbarRounding(value: number) { this.internal.ScrollbarRounding = value; }
     get GrabMinSize(): number { return this.internal.GrabMinSize; } set GrabMinSize(value: number) { this.internal.GrabMinSize = value; }
     get GrabRounding(): number { return this.internal.GrabRounding; } set GrabRounding(value: number) { this.internal.GrabRounding = value; }
+    get TabRounding(): number { return this.internal.TabRounding; } set TabRounding(value: number) { this.internal.TabRounding = value; }
+    get TabBorderSize(): number { return this.internal.TabBorderSize; } set TabBorderSize(value: number) { this.internal.TabBorderSize = value; }
     get ButtonTextAlign(): Bind.interface_ImVec2 { return this.internal.ButtonTextAlign; }
     get DisplayWindowPadding(): Bind.interface_ImVec2 { return this.internal.DisplayWindowPadding; }
     get DisplaySafeAreaPadding(): Bind.interface_ImVec2 { return this.internal.DisplaySafeAreaPadding; }
@@ -1946,6 +1987,8 @@ export class ImGuiStyle
         this.ScrollbarRounding = other.ScrollbarRounding;
         this.GrabMinSize = other.GrabMinSize;
         this.GrabRounding = other.GrabRounding;
+        this.TabRounding = other.TabRounding;
+        this.TabBorderSize = other.TabBorderSize;
         this.ButtonTextAlign.Copy(this.ButtonTextAlign);
         this.DisplayWindowPadding.Copy(this.DisplayWindowPadding);
         this.DisplaySafeAreaPadding.Copy(this.DisplaySafeAreaPadding);
@@ -2051,9 +2094,12 @@ export class ImGuiIO
     // bool          ConfigInputTextCursorBlink;   // = true               // Enable blinking cursor, for users who consider it annoying.
     get ConfigInputTextCursorBlink(): boolean { return this.native.ConfigInputTextCursorBlink; }
     set ConfigInputTextCursorBlink(value: boolean) { this.native.ConfigInputTextCursorBlink = value; }
-    // bool          ConfigResizeWindowsFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
-    get ConfigResizeWindowsFromEdges(): boolean { return this.native.ConfigResizeWindowsFromEdges; }
-    set ConfigResizeWindowsFromEdges(value: boolean) { this.native.ConfigResizeWindowsFromEdges = value; }
+    // bool          ConfigWindowsResizeFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
+    get ConfigWindowsResizeFromEdges(): boolean { return this.native.ConfigWindowsResizeFromEdges; }
+    set ConfigWindowsResizeFromEdges(value: boolean) { this.native.ConfigWindowsResizeFromEdges = value; }
+    // bool        ConfigWindowsMoveFromTitleBarOnly;// = false        // [BETA] Set to true to only allow moving windows when clicked+dragged from the title bar. Windows without a title bar are not affected.
+    get ConfigWindowsMoveFromTitleBarOnly(): boolean { return this.native.ConfigWindowsMoveFromTitleBarOnly; }
+    set ConfigWindowsMoveFromTitleBarOnly(value: boolean) { this.native.ConfigWindowsMoveFromTitleBarOnly = value; }
 
     //------------------------------------------------------------------
     // Settings (User Functions)
@@ -2123,8 +2169,6 @@ export class ImGuiIO
             return this.native._setAt_KeysDown(Number(key), value);
         },
     });
-    // ImWchar     InputCharacters[16+1];      // List of characters input (translated by user from keypress+keyboard state). Fill using AddInputCharacter() helper.
-    public get InputCharacters(): Readonly<Uint16Array> { return this.native.InputCharacters; }
     // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
     public NavInputs: number[] = new Proxy([], {
         get: (target: number[], key: PropertyKey): number => {
@@ -2310,6 +2354,18 @@ export function GetDrawData(): ImDrawData | null {
 // Demo, Debug, Informations
 // IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create demo/test window (previously called ShowTestWindow). demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
 export function ShowDemoWindow(p_open: Bind.ImScalar<boolean> | null = null): void { bind.ShowDemoWindow(p_open); }
+// IMGUI_API void          ShowAboutWindow(bool* p_open = NULL);       // create about window. display Dear ImGui version, credits and build/system information.
+export function ShowAboutWindow(p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null = null): void {
+    if (p_open === null) {
+        bind.ShowAboutWindow(null);
+    } else if (Array.isArray(p_open)) {
+        bind.ShowAboutWindow(p_open);
+    } else {
+        const ref_open: Bind.ImScalar<boolean> = [ p_open() ];
+        bind.ShowAboutWindow(ref_open);
+        p_open(ref_open[0]);
+    }
+}
 // IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // create metrics window. display ImGui internals: draw commands (with individual draw calls and vertices), window list, basic internal state, etc.
 export function ShowMetricsWindow(p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null = null): void {
     if (p_open === null) {
@@ -2318,9 +2374,8 @@ export function ShowMetricsWindow(p_open: Bind.ImScalar<boolean> | Bind.ImAccess
         bind.ShowMetricsWindow(p_open);
     } else {
         const ref_open: Bind.ImScalar<boolean> = [ p_open() ];
-        const ret = bind.ShowMetricsWindow(ref_open);
+        bind.ShowMetricsWindow(ref_open);
         p_open(ref_open[0]);
-        return ret;
     }
 }
 // IMGUI_API void          ShowStyleEditor(ImGuiStyle* ref = NULL);    // add style editor block (not a window). you can pass in a reference ImGuiStyle structure to compare to, revert to and save to (else it uses the default style)
@@ -3551,6 +3606,31 @@ export function EndPopup(): void { bind.EndPopup(); }
 export function IsPopupOpen(str_id: string): boolean { return bind.IsPopupOpen(str_id); }
 // IMGUI_API void          CloseCurrentPopup();                                                // close the popup we have begin-ed into. clicking on a MenuItem or Selectable automatically close the current popup.
 export function CloseCurrentPopup(): void { bind.CloseCurrentPopup(); }
+
+// Tab Bars, Tabs
+// [BETA API] API may evolve!
+// IMGUI_API bool          BeginTabBar(const char* str_id, ImGuiTabBarFlags flags = 0);        // create and append into a TabBar
+export function BeginTabBar(str_id: string, flags: ImGuiTabBarFlags = 0): boolean { return bind.BeginTabBar(str_id, flags); }
+// IMGUI_API void          EndTabBar();                                                        // only call EndTabBar() if BeginTabBar() returns true!
+export function EndTabBar(): void { bind.EndTabBar(); }
+// IMGUI_API bool          BeginTabItem(const char* label, bool* p_open = NULL, ImGuiTabItemFlags flags = 0);// create a Tab. Returns true if the Tab is selected.
+export function BeginTabItem(label: string, p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null = null, flags: ImGuiTabItemFlags = 0): boolean {
+    // return bind.BeginTabItem(label, p_open, flags);
+    if (p_open === null) {
+        return bind.BeginTabItem(label, null, flags);
+    } else if (Array.isArray(p_open)) {
+        return bind.BeginTabItem(label, p_open, flags);
+    } else {
+        const ref_open: Bind.ImScalar<boolean> = [ p_open() ];
+        const ret = bind.BeginTabItem(label, ref_open, flags);
+        p_open(ref_open[0]);
+        return ret;
+    }
+}
+// IMGUI_API void          EndTabItem();                                                       // only call EndTabItem() if BeginTabItem() returns true!
+export function EndTabItem(): void { bind.EndTabItem(); }
+// IMGUI_API void          SetTabItemClosed(const char* tab_or_docked_window_label);           // notify TabBar or Docking system of a closed tab/window ahead (useful to reduce visual flicker on reorderable tab bars). For tab-bar: call after BeginTabBar() and before Tab submissions. Otherwise call with a window name.
+export function SetTabItemClosed(tab_or_docked_window_label: string): void { bind.SetTabItemClosed(tab_or_docked_window_label); }
 
 // Logging/Capture: all text output from interface is captured to tty/file/clipboard. By default, tree nodes are automatically opened during logging.
 // IMGUI_API void          LogToTTY(int max_depth = -1);                                       // start logging to tty
