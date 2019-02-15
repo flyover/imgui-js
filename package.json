@@ -25,17 +25,17 @@
   "license": "MIT",
   "dependencies": {
     "@types/emscripten": "0.0.31",
-    "@types/node": "^10.9.4",
+    "@types/node": "^10.12.26",
     "@types/systemjs": "^0.20.6"
   },
   "devDependencies": {
     "http-server": "^0.11.1",
     "node-fetch": "^2.2.0",
-    "rollup": "^0.65.0",
+    "rollup": "^0.67.4",
     "rollup-plugin-commonjs": "^9.1.6",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-typescript2": "^0.17.0",
+    "rollup-plugin-typescript2": "^0.18.1",
     "systemjs": "^0.21.6",
-    "typescript": "^3.0.1"
+    "typescript": "^3.3.3"
   }
 }
