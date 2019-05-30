@@ -1362,7 +1362,7 @@ EndDragDropSource(): void;
 // IMGUI_API bool          BeginDragDropTarget();                                                                  // call after submitting an item that may receive an item. If this returns true, you can call AcceptDragDropPayload() + EndDragDropTarget()
 BeginDragDropTarget(): boolean;
 // IMGUI_API const ImGuiPayload* AcceptDragDropPayload(const char* type, ImGuiDragDropFlags flags = 0);            // accept contents of a given type. If ImGuiDragDropFlags_AcceptBeforeDelivery is set you can peek into the payload before the mouse button is released.
-AcceptDragDropPayload(type: string, flags: ImGuiDragDropFlags/* = 0 */): any;
+AcceptDragDropPayload(type: string, flags: ImGuiDragDropFlags/* = 0 */): boolean;
 // IMGUI_API void          EndDragDropTarget();
 EndDragDropTarget(): void;
 

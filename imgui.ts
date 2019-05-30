@@ -897,11 +897,11 @@ export class ImGuiStorage
 }
 
 // Data payload for Drag and Drop operations
-export class ImGuiPayload<T>
+export interface ImGuiPayload<T>
 {
     // Members
     // void*           Data;               // Data (copied and owned by dear imgui)
-    Data!: T;
+    Data: T;
     // int             DataSize;           // Data size
 
     // [Internal]
@@ -3654,14 +3654,16 @@ export function LogText(fmt: string): void {
     bind.LogText(fmt);
 }
 
+const _ImGui_DragDropPayload_data: {[key: string]: any} = {};
 // Drag and Drop
 // [BETA API] Missing Demo code. API may evolve.
-// IMGUI_API bool          BeginDragDropSource(ImGuiDragDropFlags flags = 0, int mouse_button = 0);                // call when the current item is active. If this return true, you can call SetDragDropPayload() + EndDragDropSource()
-export function BeginDragDropSource(flags: ImGuiDragDropFlags = 0, mouse_button: number = 0): boolean {
+// IMGUI_API bool          BeginDragDropSource(ImGuiDragDropFlags flags = 0);                // call when the current item is active. If this return true, you can call SetDragDropPayload() + EndDragDropSource()
+export function BeginDragDropSource(flags: ImGuiDragDropFlags = 0): boolean {
     return bind.BeginDragDropSource(flags);
 }
 // IMGUI_API bool          SetDragDropPayload(const char* type, const void* data, size_t size, ImGuiCond cond = 0);// type is a user defined string of maximum 8 characters. Strings starting with '_' are reserved for dear imgui internal types. Data is copied and held by imgui.
 export function SetDragDropPayload<T>(type: string, data: T, cond: ImGuiCond = 0): boolean {
+    _ImGui_DragDropPayload_data[type] = data;
     return bind.SetDragDropPayload(type, data, 0, cond);
 }
 // IMGUI_API void          EndDragDropSource();
@@ -3674,7 +3676,8 @@ export function BeginDragDropTarget(): boolean {
 }
 // IMGUI_API const ImGuiPayload* AcceptDragDropPayload(const char* type, ImGuiDragDropFlags flags = 0);            // accept contents of a given type. If ImGuiDragDropFlags_AcceptBeforeDelivery is set you can peek into the payload before the mouse button is released.
 export function AcceptDragDropPayload<T>(type: string, flags: ImGuiDragDropFlags = 0): ImGuiPayload<T> | null {
-    return bind.AcceptDragDropPayload(type, flags);
+    const data: T = _ImGui_DragDropPayload_data[type];
+    return bind.AcceptDragDropPayload(type, flags) ? { Data: data } : null;
 }
 // IMGUI_API void          EndDragDropTarget();
 export function EndDragDropTarget(): void {

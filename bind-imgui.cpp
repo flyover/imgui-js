@@ -143,8 +143,6 @@ public:
     int _ImGui_ListBox_B_items_count = 0;
     std::string _ImGui_ListBox_B_text = "";
 
-    emscripten::val _ImGui_DragDropPayload_data = emscripten::val::object();
-
     emscripten::val _ImGui_SetAllocatorFunctions_alloc_func = emscripten::val::undefined();
     emscripten::val _ImGui_SetAllocatorFunctions_free_func = emscripten::val::undefined();
     emscripten::val _ImGui_SetAllocatorFunctions_user_data = emscripten::val::undefined();
@@ -2606,7 +2604,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("BeginDragDropSource", &ImGui::BeginDragDropSource);
     // IMGUI_API bool          SetDragDropPayload(const char* type, const void* data, size_t size, ImGuiCond cond = 0);// type is a user defined string of maximum 8 characters. Strings starting with '_' are reserved for dear imgui internal types. Data is copied and held by imgui.
     emscripten::function("SetDragDropPayload", FUNCTION(bool, (std::string type, emscripten::val data, size_t size, ImGuiCond cond), {
-        WrapImGuiContext::GetCurrentContext()->_ImGui_DragDropPayload_data.set(type, data);
         return ImGui::SetDragDropPayload(type.c_str(), NULL, 0, cond);
     }));
     // IMGUI_API void          EndDragDropSource();
@@ -2614,15 +2611,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          BeginDragDropTarget();                                                                  // call after submitting an item that may receive an item. If this returns true, you can call AcceptDragDropPayload() + EndDragDropTarget()
     emscripten::function("BeginDragDropTarget", &ImGui::BeginDragDropTarget);
     // IMGUI_API const ImGuiPayload* AcceptDragDropPayload(const char* type, ImGuiDragDropFlags flags = 0);            // accept contents of a given type. If ImGuiDragDropFlags_AcceptBeforeDelivery is set you can peek into the payload before the mouse button is released.
-    emscripten::function("AcceptDragDropPayload", FUNCTION(emscripten::val, (std::string type, ImGuiDragDropFlags flags), {
-        const ImGuiPayload* _payload = ImGui::AcceptDragDropPayload(type.c_str(), flags);
-        if (_payload == NULL) { return emscripten::val::null(); }
-        WrapImGuiContext* ctx = WrapImGuiContext::GetCurrentContext();
-        emscripten::val data = ctx->_ImGui_DragDropPayload_data[type];
-        ctx->_ImGui_DragDropPayload_data.delete_(type);
-        emscripten::val payload = emscripten::val::object();
-        payload.set("Data", data);
-        return payload;
+    emscripten::function("AcceptDragDropPayload", FUNCTION(bool, (std::string type, ImGuiDragDropFlags flags), {
+        return ImGui::AcceptDragDropPayload(type.c_str(), flags) != NULL;
     }));
     // IMGUI_API void          EndDragDropTarget();
     emscripten::function("EndDragDropTarget", &ImGui::EndDragDropTarget);
