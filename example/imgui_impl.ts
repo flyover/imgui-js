@@ -20,19 +20,25 @@ let g_FontTexture: WebGLTexture | null = null;
 let prev_time: number = 0;
 
 function document_on_copy(event: ClipboardEvent): void {
-    event.clipboardData.setData("text/plain", clipboard_text);
+    if (event.clipboardData) {
+        event.clipboardData.setData("text/plain", clipboard_text);
+    }
     // console.log(`${event.type}: "${clipboard_text}"`);
     event.preventDefault();
 }
 
 function document_on_cut(event: ClipboardEvent): void {
-    event.clipboardData.setData("text/plain", clipboard_text);
+    if (event.clipboardData) {
+        event.clipboardData.setData("text/plain", clipboard_text);
+    }
     // console.log(`${event.type}: "${clipboard_text}"`);
     event.preventDefault();
 }
 
 function document_on_paste(event: ClipboardEvent): void {
-    clipboard_text = event.clipboardData.getData("text/plain");
+    if (event.clipboardData) {
+        clipboard_text = event.clipboardData.getData("text/plain");
+    }
     // console.log(`${event.type}: "${clipboard_text}"`);
     event.preventDefault();
 }
