@@ -145,7 +145,7 @@ function _loop(time: number): void {
 
         ImGui.Checkbox("Memory Editor", (value = memory_editor.Open) => memory_editor.Open = value);
         if (memory_editor.Open)
-            memory_editor.DrawWindow("Memory Editor", ImGui.bind.buffer);
+            memory_editor.DrawWindow("Memory Editor", ImGui.bind.HEAP8.buffer);
         const mi: ImGui.Bind.mallinfo = ImGui.bind.mallinfo();
         // ImGui.Text(`Total non-mmapped bytes (arena):       ${mi.arena}`);
         // ImGui.Text(`# of free chunks (ordblks):            ${mi.ordblks}`);
