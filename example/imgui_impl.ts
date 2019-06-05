@@ -17,6 +17,8 @@ let g_VboHandle: WebGLBuffer | null = null;
 let g_ElementsHandle: WebGLBuffer | null = null;
 let g_FontTexture: WebGLTexture | null = null;
 
+export let ctx: CanvasRenderingContext2D | null = null;
+
 let prev_time: number = 0;
 
 function document_on_copy(event: ClipboardEvent): void {
@@ -171,7 +173,7 @@ function canvas_on_wheel(event: WheelEvent): void  {
     }
 }
 
-export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): void {
+export function Init(value: HTMLCanvasElement | WebGLRenderingContext | CanvasRenderingContext2D | null): void {
     const io = ImGui.GetIO();
 
     if (typeof(window) !== "undefined") {
@@ -217,12 +219,16 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | null): v
         window.addEventListener("gamepaddisconnected", window_on_gamepaddisconnected);
     }
 
-    if (value && value instanceof(HTMLCanvasElement)) {
-        canvas = value;
-        gl = canvas.getContext("webgl", { alpha: false });
-    } else if (value && value instanceof(WebGLRenderingContext)) {
+    if (value instanceof(HTMLCanvasElement)) {
+        value = value.getContext("webgl", { alpha: false }) || value.getContext("2d");
+    }
+    if (value instanceof(WebGLRenderingContext)) {
         canvas = value.canvas;
         gl = value;
+    }
+    if (value instanceof(CanvasRenderingContext2D)) {
+        canvas = value.canvas;
+        ctx = value;
     }
 
     if (canvas !== null) {
@@ -284,6 +290,7 @@ export function Shutdown(): void {
     }
 
     gl = null;
+    ctx = null;
     canvas = null;
 
     if (typeof(window) !== "undefined") {
@@ -309,8 +316,8 @@ export function NewFrame(time: number): void {
         }
     }
 
-    const w: number = gl && gl.canvas.scrollWidth || 640;
-    const h: number = gl && gl.canvas.scrollHeight || 480;
+    const w: number = canvas && canvas.width || 640;
+    const h: number = canvas && canvas.height || 480;
     const display_w: number = gl && gl.drawingBufferWidth || w;
     const display_h: number = gl && gl.drawingBufferHeight || h;
     io.DisplaySize.x = w;
@@ -457,7 +464,7 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
     const io = ImGui.GetIO();
     if (draw_data === null) { throw new Error(); }
 
-    gl || console.log(draw_data);
+    gl || ctx || console.log(draw_data);
 
     // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
     const fb_width: number = io.DisplaySize.x * io.DisplayFramebufferScale.x;
@@ -469,7 +476,6 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
 
     // Backup GL state
     const last_active_texture: GLenum | null = gl && gl.getParameter(gl.ACTIVE_TEXTURE) || null;
-    gl && gl.activeTexture(gl.TEXTURE0);
     const last_program: WebGLProgram | null = gl && gl.getParameter(gl.CURRENT_PROGRAM) || null;
     const last_texture: WebGLTexture | null = gl && gl.getParameter(gl.TEXTURE_BINDING_2D) || null;
     const last_array_buffer: WebGLBuffer | null = gl && gl.getParameter(gl.ARRAY_BUFFER_BINDING) || null;
@@ -528,9 +534,9 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
     const pos = draw_data.DisplayPos;
     const idx_buffer_type: GLenum = gl && ((ImGui.ImDrawIdxSize === 4) ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT) || 0;
     draw_data.IterateDrawLists((draw_list: ImGui.ImDrawList): void => {
-        gl || console.log(draw_list);
-        gl || console.log("VtxBuffer.length", draw_list.VtxBuffer.length);
-        gl || console.log("IdxBuffer.length", draw_list.IdxBuffer.length);
+        gl || ctx || console.log(draw_list);
+        gl || ctx || console.log("VtxBuffer.length", draw_list.VtxBuffer.length);
+        gl || ctx || console.log("IdxBuffer.length", draw_list.IdxBuffer.length);
         
         let idx_buffer_offset: number = 0;
 
@@ -540,11 +546,11 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
         gl && gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, draw_list.IdxBuffer, gl.STREAM_DRAW);
 
         draw_list.IterateDrawCmds((draw_cmd: ImGui.ImDrawCmd): void => {
-            gl || console.log(draw_cmd);
-            gl || console.log("ElemCount", draw_cmd.ElemCount);
-            gl || console.log("ClipRect", draw_cmd.ClipRect.x, fb_height - draw_cmd.ClipRect.w, draw_cmd.ClipRect.z - draw_cmd.ClipRect.x, draw_cmd.ClipRect.w - draw_cmd.ClipRect.y);
-            gl || console.log("TextureId", draw_cmd.TextureId);
-            if (!gl) {
+            gl || ctx || console.log(draw_cmd);
+            gl || ctx || console.log("ElemCount", draw_cmd.ElemCount);
+            gl || ctx || console.log("ClipRect", draw_cmd.ClipRect.x, fb_height - draw_cmd.ClipRect.w, draw_cmd.ClipRect.z - draw_cmd.ClipRect.x, draw_cmd.ClipRect.w - draw_cmd.ClipRect.y);
+            gl || ctx || console.log("TextureId", draw_cmd.TextureId);
+            if (!gl && !ctx) {
                 console.log("i: pos.x pos.y uv.x uv.y col");
                 for (let i = 0; i < Math.min(3, draw_cmd.ElemCount); ++i) {
                     const view: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i * ImGui.ImDrawVertSize);
@@ -562,8 +568,82 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
                     gl && gl.scissor(clip_rect.x, fb_height - clip_rect.w, clip_rect.z - clip_rect.x, clip_rect.w - clip_rect.y);
 
                     // Bind texture, Draw
+                    gl && gl.activeTexture(gl.TEXTURE0);
                     gl && gl.bindTexture(gl.TEXTURE_2D, draw_cmd.TextureId);
                     gl && gl.drawElements(gl.TRIANGLES, draw_cmd.ElemCount, idx_buffer_type, idx_buffer_offset);
+
+                    if (ctx) {
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.rect(clip_rect.x, clip_rect.y, clip_rect.z - clip_rect.x, clip_rect.w - clip_rect.y);
+                        ctx.clip();
+                        const idx = ImGui.ImDrawIdxSize === 4 ? 
+                            new Uint32Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + idx_buffer_offset) : 
+                            new Uint16Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + idx_buffer_offset);
+                        for (let i = 0; i < draw_cmd.ElemCount; i += 3) {
+                            const i0: number = idx[i + 0];
+                            const i1: number = idx[i + 1];
+                            const i2: number = idx[i + 2];
+                            const v0: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i0 * ImGui.ImDrawVertSize);
+                            const v1: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i1 * ImGui.ImDrawVertSize);
+                            const v2: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i2 * ImGui.ImDrawVertSize);
+                            const i3: number = idx[i + 3];
+                            const i4: number = idx[i + 4];
+                            const i5: number = idx[i + 5];
+                            const v3: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i3 * ImGui.ImDrawVertSize);
+                            const v4: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i4 * ImGui.ImDrawVertSize);
+                            const v5: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i5 * ImGui.ImDrawVertSize);
+                            let quad = true;
+                            let minmin: ImGui.ImDrawVert = v0;
+                            let minmax: ImGui.ImDrawVert = v0;
+                            let maxmin: ImGui.ImDrawVert = v0;
+                            let maxmax: ImGui.ImDrawVert = v0;
+                            for (const v of [ v1, v2, v3, v4, v5 ]) {
+                                let found = false;
+                                if (v.pos[0] <= minmin.pos[0] && v.pos[1] <= minmin.pos[1]) { minmin = v; found = true; }
+                                if (v.pos[0] <= minmax.pos[0] && v.pos[1] >= minmax.pos[1]) { minmax = v; found = true; }
+                                if (v.pos[0] >= maxmin.pos[0] && v.pos[1] <= maxmin.pos[1]) { maxmin = v; found = true; }
+                                if (v.pos[0] >= maxmax.pos[0] && v.pos[1] >= maxmax.pos[1]) { maxmax = v; found = true; }
+                                if (!found) { quad = false; }
+                            }
+                            quad = quad && (minmin.pos[0] === minmax.pos[0]);
+                            quad = quad && (maxmin.pos[0] === maxmax.pos[0]);
+                            quad = quad && (minmin.pos[1] === maxmin.pos[1]);
+                            quad = quad && (minmax.pos[1] === maxmax.pos[1]);
+                            if (quad) {
+                                if (minmin.uv[0] < 0.01 && minmin.uv[1] < 0.01) {
+                                    // one vertex color
+                                    ctx.beginPath();
+                                    ctx.rect(minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
+                                    ctx.fillStyle = `rgba(${v0.col[0] >> 0 & 0xff}, ${v0.col[0] >> 8 & 0xff}, ${v0.col[0] >> 16 & 0xff}, ${(v0.col[0] >> 24 & 0xff) / 0xff})`;
+                                    ctx.fill();
+                                } else {
+                                    // no vertex color
+                                    const image = draw_cmd.TextureId as HTMLCanvasElement;
+                                    ctx.drawImage(image,
+                                        minmin.uv[0] * image.width, minmin.uv[1] * image.height,
+                                        (maxmax.uv[0] - minmin.uv[0]) * image.width, (maxmax.uv[1] - minmin.uv[1]) * image.height,
+                                        minmin.pos[0], minmin.pos[1], 
+                                        maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
+                                    // ctx.beginPath();
+                                    // ctx.rect(minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
+                                    // ctx.strokeStyle = "yellow";
+                                    // ctx.stroke();
+                                }
+                                i += 3;
+                            } else {
+                                // one vertex color, no texture
+                                ctx.beginPath();
+                                ctx.moveTo(v0.pos[0], v0.pos[1]);
+                                ctx.lineTo(v1.pos[0], v1.pos[1]);
+                                ctx.lineTo(v2.pos[0], v2.pos[1]);
+                                ctx.closePath();
+                                ctx.fillStyle = `rgba(${v0.col[0] >> 0 & 0xff}, ${v0.col[0] >> 8 & 0xff}, ${v0.col[0] >> 16 & 0xff}, ${(v0.col[0] >> 24 & 0xff) / 0xff})`;
+                                ctx.fill();
+                            }
+                        }
+                        ctx.restore();
+                    }
                 }
             }
 
@@ -615,6 +695,18 @@ export function CreateFontsTexture(): void {
     // Store our identifier
     io.Fonts.TexID = g_FontTexture || { foo: "bar" };
     // console.log("font texture id", g_FontTexture);
+
+    if (ctx) {
+        const image_canvas: HTMLCanvasElement = document.createElement("canvas");
+        image_canvas.width = width;
+        image_canvas.height = height;
+        const image_ctx = image_canvas.getContext("2d");
+        if (image_ctx === null) { throw new Error(); }
+        const image_data = image_ctx.getImageData(0, 0, width, height);
+        image_data.data.set(pixels);
+        image_ctx.putImageData(image_data, 0, 0);
+        io.Fonts.TexID = image_canvas;
+    }
 
     // Restore modified GL state
     gl && last_texture && gl.bindTexture(gl.TEXTURE_2D, last_texture);

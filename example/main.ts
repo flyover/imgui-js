@@ -214,6 +214,13 @@ function _loop(time: number): void {
         //gl.useProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
     }
 
+    const ctx: CanvasRenderingContext2D | null = ImGui_Impl.ctx;
+    if (ctx) {
+        // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.fillStyle = `rgba(${clear_color.x * 0xff}, ${clear_color.y * 0xff}, ${clear_color.z * 0xff}, ${clear_color.w})`;
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
+
     UpdateVideo();
 
     ImGui_Impl.RenderDrawData(ImGui.GetDrawData());
@@ -229,6 +236,11 @@ async function _done(): Promise<void> {
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl.clearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+
+    const ctx: CanvasRenderingContext2D | null = ImGui_Impl.ctx;
+    if (ctx) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
     CleanUpImage();
