@@ -47,6 +47,8 @@ export declare class EmscriptenClass extends EmscriptenClassReference {
 }
 
 export interface EmscriptenModule {
+    then<T extends EmscriptenModule>(callback: (value: T) => void): void;
+
     ENVIRONMENT?: "WEB" | "WORKER" | "NODE" | "SHELL";
 
     "arguments": any[];
