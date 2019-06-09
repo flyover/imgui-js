@@ -86,6 +86,9 @@ const flags: ImGuiWindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
 In order to minimize size of the output, the C++ library has been compiled with `IMGUI_DISABLE_OBSOLETE_FUNCTIONS` and `IMGUI_DISABLE_DEMO_WINDOWS`.
 
 ## Building
+* git clone git@github.com:flyover/imgui-js.git
+* cd imgui-js
+* git submodule update --init --recursive
 * download and install [Emscripten](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html)
 * npm install
 * make
