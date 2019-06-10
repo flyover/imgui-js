@@ -118,8 +118,9 @@ function canvas_on_keypress(event: KeyboardEvent): void  {
 
 function canvas_on_pointermove(event: PointerEvent): void  {
     const io = ImGui.GetIO();
-    io.MousePos.x = event.offsetX;
-    io.MousePos.y = event.offsetY;
+    const devicePixelRatio: number = window.devicePixelRatio || 1;
+    io.MousePos.x = event.offsetX * devicePixelRatio;
+    io.MousePos.y = event.offsetY * devicePixelRatio;
     if (io.WantCaptureMouse) {
         event.preventDefault();
     }
@@ -136,8 +137,9 @@ const mouse_button_map: number[] = [ 0, 2, 1, 3, 4 ];
 
 function canvas_on_pointerdown(event: PointerEvent): void  {
     const io = ImGui.GetIO();
-    io.MousePos.x = event.offsetX;
-    io.MousePos.y = event.offsetY;
+    const devicePixelRatio: number = window.devicePixelRatio || 1;
+    io.MousePos.x = event.offsetX * devicePixelRatio;
+    io.MousePos.y = event.offsetY * devicePixelRatio;
     io.MouseDown[mouse_button_map[event.button]] = true;
     // if (io.WantCaptureMouse) {
     //     event.preventDefault();
