@@ -219,16 +219,18 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | CanvasRe
         window.addEventListener("gamepaddisconnected", window_on_gamepaddisconnected);
     }
 
-    if (value instanceof(HTMLCanvasElement)) {
-        value = value.getContext("webgl", { alpha: false }) || value.getContext("2d");
-    }
-    if (value instanceof(WebGLRenderingContext)) {
-        canvas = value.canvas;
-        gl = value;
-    }
-    if (value instanceof(CanvasRenderingContext2D)) {
-        canvas = value.canvas;
-        ctx = value;
+    if (typeof(window) !== "undefined") {
+        if (value instanceof(HTMLCanvasElement)) {
+            value = value.getContext("webgl", { alpha: false }) || value.getContext("2d");
+        }
+        if (value instanceof(WebGLRenderingContext)) {
+            canvas = value.canvas;
+            gl = value;
+        }
+        if (value instanceof(CanvasRenderingContext2D)) {
+            canvas = value.canvas;
+            ctx = value;
+        }
     }
 
     if (canvas !== null) {
