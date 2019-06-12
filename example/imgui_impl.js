@@ -86,16 +86,18 @@ System.register(["../imgui"], function (exports_1, context_1) {
     }
     function canvas_on_pointermove(event) {
         const io = ImGui.GetIO();
-        io.MousePos.x = event.offsetX;
-        io.MousePos.y = event.offsetY;
+        const devicePixelRatio = window.devicePixelRatio || 1;
+        io.MousePos.x = event.offsetX * devicePixelRatio;
+        io.MousePos.y = event.offsetY * devicePixelRatio;
         if (io.WantCaptureMouse) {
             event.preventDefault();
         }
     }
     function canvas_on_pointerdown(event) {
         const io = ImGui.GetIO();
-        io.MousePos.x = event.offsetX;
-        io.MousePos.y = event.offsetY;
+        const devicePixelRatio = window.devicePixelRatio || 1;
+        io.MousePos.x = event.offsetX * devicePixelRatio;
+        io.MousePos.y = event.offsetY * devicePixelRatio;
         io.MouseDown[mouse_button_map[event.button]] = true;
         // if (io.WantCaptureMouse) {
         //     event.preventDefault();
