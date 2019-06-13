@@ -473,7 +473,7 @@ export enum ImGuiStyleVar {
     WindowBorderSize,    // float     WindowBorderSize
     WindowMinSize,       // ImVec2    WindowMinSize
     WindowTitleAlign,    // ImVec2    WindowTitleAlign
-    WindowMenuButtonPosition, // ImGuiDir WindowMenuButtonPosition
+    // WindowMenuButtonPosition, // ImGuiDir WindowMenuButtonPosition
     ChildRounding,       // float     ChildRounding
     ChildBorderSize,     // float     ChildBorderSize
     PopupRounding,       // float     PopupRounding
