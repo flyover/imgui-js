@@ -179,6 +179,7 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | CanvasRe
     const io = ImGui.GetIO();
 
     if (typeof(window) !== "undefined") {
+        io.BackendPlatformName = "imgui_impl_html5";
         ImGui.LoadIniSettingsFromMemory(window.localStorage.getItem("imgui.ini") || "");
     }
 
@@ -226,10 +227,12 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | CanvasRe
             value = value.getContext("webgl", { alpha: false }) || value.getContext("2d");
         }
         if (value instanceof(WebGLRenderingContext)) {
+            io.BackendRendererName = "imgui_impl_webgl";
             canvas = value.canvas;
             gl = value;
         }
         if (value instanceof(CanvasRenderingContext2D)) {
+            io.BackendRendererName = "imgui_impl_ctx2d";
             canvas = value.canvas;
             ctx = value;
         }
