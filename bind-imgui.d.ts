@@ -811,10 +811,15 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
 
     // Optional: Platform/Renderer back-end name (informational only! will be displayed in About Window) + User data for back-end/wrappers to store their own stuff.
     // const char* BackendPlatformName;            // = NULL
+    BackendPlatformName: string | null;
     // const char* BackendRendererName;            // = NULL
+    BackendRendererName: string | null;
     // void*       BackendPlatformUserData;        // = NULL
+    BackendPlatformUserData: string | null;
     // void*       BackendRendererUserData;        // = NULL
+    BackendRendererUserData: string | null;
     // void*       BackendLanguageUserData;        // = NULL
+    BackendLanguageUserData: string | null;
 
     // Optional: access OS clipboard
     // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)

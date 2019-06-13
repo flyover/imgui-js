@@ -2140,6 +2140,23 @@ export class ImGuiIO
     // Settings (User Functions)
     //------------------------------------------------------------------
 
+    // Optional: Platform/Renderer back-end name (informational only! will be displayed in About Window) + User data for back-end/wrappers to store their own stuff.
+    // const char* BackendPlatformName;            // = NULL
+    get BackendPlatformName(): string | null { return this.native.BackendPlatformName; }
+    set BackendPlatformName(value: string | null) { this.native.BackendPlatformName = value; }
+    // const char* BackendRendererName;            // = NULL
+    get BackendRendererName(): string | null { return this.native.BackendRendererName; }
+    set BackendRendererName(value: string | null) { this.native.BackendRendererName = value; }
+    // void*       BackendPlatformUserData;        // = NULL
+    get BackendPlatformUserData(): string | null { return this.native.BackendPlatformUserData; }
+    set BackendPlatformUserData(value: string | null) { this.native.BackendPlatformUserData = value; }
+    // void*       BackendRendererUserData;        // = NULL
+    get BackendRendererUserData(): string | null { return this.native.BackendRendererUserData; }
+    set BackendRendererUserData(value: string | null) { this.native.BackendRendererUserData = value; }
+    // void*       BackendLanguageUserData;        // = NULL
+    get BackendLanguageUserData(): string | null { return this.native.BackendLanguageUserData; }
+    set BackendLanguageUserData(value: string | null) { this.native.BackendLanguageUserData = value; }
+
     // Optional: access OS clipboard
     // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
     // const char* (*GetClipboardTextFn)(void* user_data);

@@ -112,6 +112,11 @@ public:
     std::string _ImGuiIO_IniFilename = "";
     std::string _ImGuiIO_LogFilename = "";
     emscripten::val _ImGuiIO_UserData = emscripten::val::null();
+    emscripten::val _ImGuiIO_BackendPlatformName = emscripten::val::null();
+    emscripten::val _ImGuiIO_BackendRendererName = emscripten::val::null();
+    emscripten::val _ImGuiIO_BackendPlatformUserData = emscripten::val::null();
+    emscripten::val _ImGuiIO_BackendRendererUserData = emscripten::val::null();
+    emscripten::val _ImGuiIO_BackendLanguageUserData = emscripten::val::null();
     std::string _ImGuiIO_ClipboardText = "";
     emscripten::val _ImGuiIO_GetClipboardTextFn = emscripten::val::null();
     emscripten::val _ImGuiIO_SetClipboardTextFn = emscripten::val::null();
@@ -1299,6 +1304,27 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         //------------------------------------------------------------------
         // Settings (User Functions)
         //------------------------------------------------------------------
+
+        CLASS_MEMBER_GET_SET(ImGuiIO, BackendPlatformName, 
+            { return WrapImGuiContext::GetCurrentContext()->_ImGuiIO_BackendPlatformName; },
+            { WrapImGuiContext::GetCurrentContext()->_ImGuiIO_BackendPlatformName = value; }
+        )
+        CLASS_MEMBER_GET_SET(ImGuiIO, BackendRendererName, 
+            { return WrapImGuiContext::GetCurrentContext()->_ImGuiIO_BackendRendererName; },
+            { WrapImGuiContext::GetCurrentContext()->_ImGuiIO_BackendRendererName = value; }
+        )
+        CLASS_MEMBER_GET_SET(ImGuiIO, BackendPlatformUserData, 
+            { return WrapImGuiContext::GetCurrentContext()->_ImGuiIO_BackendPlatformUserData; },
+            { WrapImGuiContext::GetCurrentContext()->_ImGuiIO_BackendPlatformUserData = value; }
+        )
+        CLASS_MEMBER_GET_SET(ImGuiIO, BackendRendererUserData, 
+            { return WrapImGuiContext::GetCurrentContext()->_ImGuiIO_BackendRendererUserData; },
+            { WrapImGuiContext::GetCurrentContext()->_ImGuiIO_BackendRendererUserData = value; }
+        )
+        CLASS_MEMBER_GET_SET(ImGuiIO, BackendLanguageUserData, 
+            { return WrapImGuiContext::GetCurrentContext()->_ImGuiIO_BackendLanguageUserData; },
+            { WrapImGuiContext::GetCurrentContext()->_ImGuiIO_BackendLanguageUserData = value; }
+        )
 
         // Optional: access OS clipboard
         // (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
