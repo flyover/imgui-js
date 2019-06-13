@@ -181,6 +181,8 @@ export interface interface_ImGuiStyle {
     readonly WindowMinSize: interface_ImVec2;
     // ImVec2      WindowTitleAlign;           // Alignment for title bar text. Defaults to (0.0f,0.5f) for left-aligned,vertically centered.
     readonly WindowTitleAlign: interface_ImVec2;
+    // ImGuiDir    WindowMenuButtonPosition;   // Side of the collapsing/docking button in the title bar (left/right). Defaults to ImGuiDir_Left.
+    WindowMenuButtonPosition: ImGuiDir;
     // float       ChildRounding;              // Radius of child window corners rounding. Set to 0.0f to have rectangular windows.
     ChildRounding: number;
     // float       ChildBorderSize;            // Thickness of border around child windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
@@ -219,6 +221,8 @@ export interface interface_ImGuiStyle {
     TabBorderSize: number;
     // ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f,0.5f) for horizontally+vertically centered.
     readonly ButtonTextAlign: interface_ImVec2;
+    // ImVec2      SelectableTextAlign;        // Alignment of selectable text when selectable is larger than text. Defaults to (0.0f, 0.0f) (top-left aligned).
+    readonly SelectableTextAlign: interface_ImVec2;
     // ImVec2      DisplayWindowPadding;       // Window positions are clamped to be visible within the display area by at least this amount. Only covers regular windows.
     readonly DisplayWindowPadding: interface_ImVec2;
     // ImVec2      DisplaySafeAreaPadding;     // If you cannot see the edge of your screen (e.g. on a TV) increase the safe area padding. Covers popups/tooltips as well regular windows.
@@ -247,6 +251,7 @@ export class ImGuiStyle extends Emscripten.EmscriptenClass implements interface_
     WindowBorderSize: number;
     readonly WindowMinSize: reference_ImVec2;
     readonly WindowTitleAlign: reference_ImVec2;
+    WindowMenuButtonPosition: ImGuiDir;
     ChildRounding: number;
     ChildBorderSize: number;
     PopupRounding: number;
@@ -266,6 +271,7 @@ export class ImGuiStyle extends Emscripten.EmscriptenClass implements interface_
     TabRounding: number;
     TabBorderSize: number;
     readonly ButtonTextAlign: reference_ImVec2;
+    readonly SelectableTextAlign: reference_ImVec2;
     readonly DisplayWindowPadding: reference_ImVec2;
     readonly DisplaySafeAreaPadding: reference_ImVec2;
     MouseCursorScale: number;
@@ -287,6 +293,10 @@ export interface reference_ImDrawCmd extends Emscripten.EmscriptenClassReference
     readonly ClipRect: Readonly<reference_ImVec4>;
     // ImTextureID     TextureId;              // User-provided texture ID. Set by user in ImfontAtlas::SetTexID() for fonts or passed to Image*() functions. Ignore if never using images or multiple fonts atlas.
     readonly TextureId: ImTextureID;
+    // unsigned int    VtxOffset;              // Start offset in vertex buffer. Pre-1.71 or without ImGuiBackendFlags_RendererHasVtxOffset: always 0. With ImGuiBackendFlags_RendererHasVtxOffset: may be >0 to support meshes larger than 64K vertices with 16-bits indices.
+    readonly VtxOffset: number;
+    // unsigned int    IdxOffset;              // Start offset in index buffer. Always equal to sum of ElemCount drawn so far.
+    readonly IdxOffset: number;
     // ImDrawCallback  UserCallback;           // If != NULL, call the function instead of rendering the vertices. clip_rect and texture_id will be set normally.
     // void*           UserCallbackData;       // The draw callback code can access this.
 
@@ -455,14 +465,16 @@ export interface reference_ImDrawData extends Emscripten.EmscriptenClassReferenc
     readonly DisplayPos: Readonly<reference_ImVec2>;
     // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
     readonly DisplaySize: Readonly<reference_ImVec2>;
+    // ImVec2          FramebufferScale;       // Amount of pixels for each unit of DisplaySize. Based on io.DisplayFramebufferScale. Generally (1,1) on normal display, (2,2) on OSX with Retina display.
+    readonly FramebufferScale: Readonly<reference_ImVec2>;
 
     // Functions
     // ImDrawData() { Clear(); }
     // void Clear() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; } // Draw lists are owned by the ImGuiContext and only pointed to here.
     // IMGUI_API void DeIndexAllBuffers();               // For backward compatibility or convenience: convert all buffers from indexed to de-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
     DeIndexAllBuffers(): void;
-    // IMGUI_API void ScaleClipRects(const ImVec2& sc);  // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
-    ScaleClipRects(sc: Readonly<interface_ImVec2>): void;
+    // IMGUI_API void ScaleClipRects(const ImVec2& fb_scale);  // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
+    ScaleClipRects(fb_scale: Readonly<interface_ImVec2>): void;
 }
 
 export interface reference_ImFont extends Emscripten.EmscriptenClassReference {
@@ -659,6 +671,8 @@ export interface reference_ImFontAtlas extends Emscripten.EmscriptenClassReferen
     GetGlyphRangesCyrillic(): number;
     // IMGUI_API const ImWchar*    GetGlyphRangesThai();       // Default + Thai characters
     GetGlyphRangesThai(): number;
+    // IMGUI_API const ImWchar*    GetGlyphRangesVietnamese();       // Default + Vietnamese characters
+    GetGlyphRangesVietnamese(): number;
 
     // Helpers to build glyph ranges from text data. Feed your application strings/characters to it then call BuildRanges().
     // struct GlyphRangesBuilder
@@ -778,10 +792,6 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     FontDefault: reference_ImFont | null;
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
     readonly DisplayFramebufferScale: reference_ImVec2;
-    // ImVec2        DisplayVisibleMin;        // <unset> (0.0f,0.0f)  // If you use DisplaySize as a virtual space larger than your screen, set DisplayVisibleMin/Max to the visible area.
-    readonly DisplayVisibleMin: reference_ImVec2;
-    // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
-    readonly DisplayVisibleMax: reference_ImVec2;
 
     // Advanced/subtle behaviors
     // bool        MouseDrawCursor;                // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
@@ -901,6 +911,7 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // bool        MouseDoubleClicked[5];      // Has mouse button been double-clicked?
     // bool        MouseReleased[5];           // Mouse button went from Down to !Down
     // bool        MouseDownOwned[5];          // Track if button was clicked inside a window. We don't request mouse capture from the application if click started outside ImGui bounds.
+    // bool        MouseDownWasDoubleClick[5];     // Track if button down was a double-click
     // float       MouseDownDuration[5];       // Duration the mouse button has been down (0.0f == just clicked)
     _getAt_MouseDownDuration(index: number): number;
     // float       MouseDownDurationPrev[5];   // Previous time the mouse button has been down
@@ -950,7 +961,7 @@ GetCurrentContext(): WrapImGuiContext | null;
 // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
 SetCurrentContext(ctx: WrapImGuiContext | null): void;
 // IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert);
-DebugCheckVersionAndDataLayout(version_str: string, sz_io: number, sz_style: number, sz_vec2: number, sz_vec4: number, sz_draw_vert: number): boolean;
+DebugCheckVersionAndDataLayout(version_str: string, sz_io: number, sz_style: number, sz_vec2: number, sz_vec4: number, sz_draw_vert: number, sz_draw_idx: number): boolean;
 
 // Main
 // IMGUI_API ImGuiIO&      GetIO();
@@ -999,7 +1010,6 @@ BeginChild(id: string | ImGuiID, size: Readonly<interface_ImVec2>, border: boole
 EndChild(): void;
 GetContentRegionMax(out: interface_ImVec2): typeof out;
 GetContentRegionAvail(out: interface_ImVec2): typeof out;
-GetContentRegionAvailWidth(): number;
 GetWindowContentRegionMin(out: interface_ImVec2): typeof out;
 GetWindowContentRegionMax(out: interface_ImVec2): typeof out;
 GetWindowContentRegionWidth(): number;
@@ -1057,6 +1067,7 @@ GetColorU32_C(col: ImU32): ImU32;
 // Parameters stacks (current window)
 PushItemWidth(item_width: number): void;
 PopItemWidth(): void;
+SetNextItemWidth(item_width: number): void;
 CalcItemWidth(): number;
 PushTextWrapPos(wrap_pos_x: number/* = 0.0f */): void;
 PopTextWrapPos(): void;
@@ -1191,10 +1202,12 @@ DragInt4(label: string, v: ImTuple4<number>, v_speed: number/* = 1.0f */, v_min:
 DragIntRange2(label: string, v_current_min: ImScalar<number>, v_current_max: ImScalar<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */, display_format_max: string | null/* = NULL */): boolean;
 // IMGUI_API bool          DragScalar(const char* label, ImGuiDataType data_type, void* v, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
 // IMGUI_API bool          DragScalarN(const char* label, ImGuiDataType data_type, void* v, int components, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
-DragScalar(label: string, data_type: ImGuiDataType, v: Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
+DragScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
 
 // Widgets: Input with Keyboard
 InputText(label: string, buf: [ string ], buf_size: number, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiInputTextCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
+// IMGUI_API bool          InputTextWithHint(const char* label, const char* hint, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+InputTextWithHint(label: string, hint: string, buf: [ string ], buf_size: number, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiInputTextCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
 // IMGUI_API bool          InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
 InputTextMultiline(label: string, buf: [ string ], buf_size: number, size: Readonly<interface_ImVec2>, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiInputTextCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
 InputFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number/* = 0.0f */, step_fast: number/* = 0.0f */, format: string/* = "%.3f"*/, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
@@ -1208,7 +1221,7 @@ InputInt4(label: string, v: ImTuple4<number>, extra_flags: ImGuiInputTextFlags/*
 InputDouble(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number/* = 0.0f */, step_fast: number/* = 0.0f */, display_format: string/* = "%0.6f" */, extra_flags: ImGuiInputTextFlags/* = 0 */): boolean;
 // IMGUI_API bool          InputScalar(const char* label, ImGuiDataType data_type, void* v, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
 // IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
-InputScalar(label: string, data_type: ImGuiDataType, v: Int32Array | Uint32Array | Float32Array | Float64Array, step: number | null, step_fast: number | null, format: string | null, extra_flags: ImGuiInputTextFlags): boolean;
+InputScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, step: number | null, step_fast: number | null, format: string | null, extra_flags: ImGuiInputTextFlags): boolean;
 
 // Widgets: Sliders (tip: ctrl+click on a slider to input with keyboard. manually input values aren't clamped, can go off-bounds)
 SliderFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
@@ -1222,11 +1235,11 @@ SliderInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_min: number,
 SliderInt4(label: string, v: ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
 // IMGUI_API bool          SliderScalar(const char* label, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
 // IMGUI_API bool          SliderScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
-SliderScalar(label: string, data_type: ImGuiDataType, v: Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
+SliderScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
 VSliderFloat(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
 VSliderInt(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
 // IMGUI_API bool          VSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
-VSliderScalar(label: string, size: Readonly<interface_ImVec2>, data_type: ImGuiDataType, v: Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
+VSliderScalar(label: string, size: Readonly<interface_ImVec2>, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
 
 // Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little colored preview square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
 // Note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can the pass the address of a first float element out of a contiguous structure, e.g. &myvector.x
@@ -1265,12 +1278,12 @@ TreePop(): void;
 TreeAdvanceToLabelPos(): void;
 // IMGUI_API float         GetTreeNodeToLabelSpacing();                                            // horizontal distance preceding label when using TreeNode*() or Bullet() == (g.FontSize + style.FramePadding.x*2) for a regular unframed TreeNode
 GetTreeNodeToLabelSpacing(): number;
-// IMGUI_API void          SetNextTreeNodeOpen(bool is_open, ImGuiCond cond = 0);                  // set next TreeNode/CollapsingHeader open state.
-SetNextTreeNodeOpen(is_open: boolean, cond: ImGuiCond/* = 0 */): void;
 // IMGUI_API bool          CollapsingHeader(const char* label, ImGuiTreeNodeFlags flags = 0);      // if returning 'true' the header is open. doesn't indent nor push on ID stack. user doesn't have to call TreePop().
 // IMGUI_API bool          CollapsingHeader(const char* label, bool* p_open, ImGuiTreeNodeFlags flags = 0); // when 'p_open' isn't NULL, display an additional small close button on upper right of the header
 CollapsingHeader_A(label: string, flags: ImGuiTreeNodeFlags/* = 0 */): boolean;
 CollapsingHeader_B(label: string, p_open: ImScalar<boolean> | null, flags: ImGuiTreeNodeFlags/* = 0 */): boolean;
+// IMGUI_API void          SetNextItemOpen(bool is_open, ImGuiCond cond = 0);                  // set next TreeNode/CollapsingHeader open state.
+SetNextItemOpen(is_open: boolean, cond: ImGuiCond/* = 0 */): void;
 
 // Widgets: Selectable / Lists
 // IMGUI_API bool          Selectable(const char* label, bool selected = false, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0,0));  // size.x==0.0: use remaining width, size.x>0.0: specify width. size.y==0.0: use label height, size.y>0.0: specify height
@@ -1394,6 +1407,8 @@ IsItemFocused(): boolean;
 IsItemClicked(mouse_button: number/* = 0 */): boolean;
 // IMGUI_API bool          IsItemVisible();                                                    // is the last item visible? (aka not out of sight due to clipping/scrolling.)
 IsItemVisible(): boolean;
+// IMGUI_API bool          IsItemActivated();                                                  // was the last item just made active (item was previously inactive).
+IsItemActivated(): boolean;
 // IMGUI_API bool          IsItemDeactivated();                                                // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that requires continuous editing.
 IsItemDeactivated(): boolean;
 // IMGUI_API bool          IsItemDeactivatedAfterEdit();                                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
@@ -1424,8 +1439,8 @@ IsRectVisible_B(rect_min: Readonly<interface_ImVec2>, rect_max: Readonly<interfa
 GetTime(): number;
 // IMGUI_API int           GetFrameCount();
 GetFrameCount(): number;
-// IMGUI_API ImDrawList*   GetOverlayDrawList();                                               // this draw list will be the last rendered one, useful to quickly draw overlays shapes/text
-GetOverlayDrawList(): reference_ImDrawList;
+GetBackgroundDrawList(): reference_ImDrawList;
+GetForegroundDrawList(): reference_ImDrawList;
 // IMGUI_API ImDrawListSharedData* GetDrawListSharedData();
 GetDrawListSharedData(): reference_ImDrawListSharedData;
 // IMGUI_API const char*   GetStyleColorName(ImGuiCol idx);

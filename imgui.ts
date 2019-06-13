@@ -87,11 +87,11 @@ function export_Color4(tuple: Bind.ImTuple4<number>, col: RGBA | Bind.ImTuple4<n
 
 import * as config from "./imconfig";
 
-export const IMGUI_VERSION: string = "1.67"; // bind.IMGUI_VERSION;
-export const IMGUI_VERSION_NUM: number = 16603; // bind.IMGUI_VERSION_NUM;
+export const IMGUI_VERSION: string = "1.71"; // bind.IMGUI_VERSION;
+export const IMGUI_VERSION_NUM: number = 17100; // bind.IMGUI_VERSION_NUM;
 
 // #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
-export function IMGUI_CHECKVERSION(): boolean { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, bind.ImGuiIOSize, bind.ImGuiStyleSize, bind.ImVec2Size, bind.ImVec4Size, bind.ImDrawVertSize); }
+export function IMGUI_CHECKVERSION(): boolean { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, bind.ImGuiIOSize, bind.ImGuiStyleSize, bind.ImVec2Size, bind.ImVec4Size, bind.ImDrawVertSize, bind.ImDrawIdxSize); }
 
 export function IM_ASSERT(_EXPR: boolean | number): void { if (!_EXPR) { throw new Error(); } }
 
@@ -177,6 +177,7 @@ export enum ImGuiInputTextFlags {
     CallbackResize      = 1 << 18,  // Allow buffer capacity resize + notify when the string wants to be resized (for string types which hold a cache of their Size) (see misc/stl/imgui_stl.h for an example of using this)
     // [Internal]
     Multiline           = 1 << 20,   // For internal use by InputTextMultiline()
+    NoMarkEdited        = 1 << 21,   // For internal use by functions using InputText() before reformatting data
 }
 
 // Flags for ImGui::TreeNodeEx(), ImGui::CollapsingHeader*()
@@ -230,8 +231,8 @@ export enum ImGuiTabBarFlags {
     None                           = 0,
     Reorderable                    = 1 << 0,   // Allow manually dragging tabs to re-order them + New tabs are appended at the end of list
     AutoSelectNewTabs              = 1 << 1,   // Automatically select new tabs when they appear
-    NoCloseWithMiddleMouseButton   = 1 << 2,   // Disable behavior of closing tabs (that are submitted with p_open != NULL) with middle mouse button. You can still repro this behavior on user's side with if (IsItemHovered() && IsMouseClicked(2)) *p_open = false.
-    NoTabListPopupButton           = 1 << 3,
+    TabListPopupButton             = 1 << 2,
+    NoCloseWithMiddleMouseButton   = 1 << 3,   // Disable behavior of closing tabs (that are submitted with p_open != NULL) with middle mouse button. You can still repro this behavior on user's side with if (IsItemHovered() && IsMouseClicked(2)) *p_open = false.
     NoTabListScrollingButtons      = 1 << 4,
     NoTooltip                      = 1 << 5,   // Disable tooltips when hovering a tab
     FittingPolicyResizeDown        = 1 << 6,   // Resize tabs when they don't fit
@@ -302,6 +303,10 @@ export const IMGUI_PAYLOAD_TYPE_COLOR_4F: string = "_COL4F";    // float[4]     
 // A primary data type
 export { ImGuiDataType as DataType };
 export enum ImGuiDataType {
+    S8,       // char
+    U8,       // unsigned char
+    S16,      // short
+    U16,      // unsigned short
     S32,      // int
     U32,      // unsigned int
     S64,      // long long, __int64
@@ -377,6 +382,7 @@ export enum ImGuiNavInput
     // [Internal] Don't use directly! This is used internally to differentiate keyboard from gamepad inputs for behaviors that require to differentiate them.
     // Keyboard behavior that have no corresponding gamepad mapping (e.g. CTRL+TAB) may be directly reading from io.KeyDown[] instead of io.NavInputs[].
     KeyMenu_,      // toggle menu                                  // = io.KeyAlt
+    KeyTab_,       // tab                                          // = Tab key
     KeyLeft_,      // move left                                    // = Arrow keys
     KeyRight_,     // move right
     KeyUp_,        // move up
@@ -467,6 +473,7 @@ export enum ImGuiStyleVar {
     WindowBorderSize,    // float     WindowBorderSize
     WindowMinSize,       // ImVec2    WindowMinSize
     WindowTitleAlign,    // ImVec2    WindowTitleAlign
+    WindowMenuButtonPosition, // ImGuiDir WindowMenuButtonPosition
     ChildRounding,       // float     ChildRounding
     ChildBorderSize,     // float     ChildBorderSize
     PopupRounding,       // float     PopupRounding
@@ -483,6 +490,7 @@ export enum ImGuiStyleVar {
     GrabRounding,        // float     GrabRounding
     TabRounding,         // float     TabRounding
     ButtonTextAlign,     // ImVec2    ButtonTextAlign
+    SelectableTextAlign, // ImVec2    SelectableTextAlign
     Count_, COUNT = Count_,
 }
 
@@ -492,7 +500,8 @@ export enum ImGuiBackendFlags {
     None                  = 0,
     HasGamepad            = 1 << 0,   // Back-end has a connected gamepad.
     HasMouseCursors       = 1 << 1,   // Back-end can honor GetMouseCursor() values and change the OS cursor shape.
-    HasSetMousePos        = 1 << 2    // Back-end can honor io.WantSetMousePos and reposition the mouse (only used if ImGuiConfigFlags_NavEnableSetMousePos is set).
+    HasSetMousePos        = 1 << 2,   // Back-end can honor io.WantSetMousePos and reposition the mouse (only used if ImGuiConfigFlags_NavEnableSetMousePos is set).
+    RendererHasVtxOffset  = 1 << 3,   // Back-end Renderer supports ImDrawCmd::VtxOffset. This enables output of large meshes (64K+ vertices) while still using 16-bits indices.
 }
 
 // Enumeration for ColorEdit3() / ColorEdit4() / ColorPicker3() / ColorPicker4() / ColorButton()
@@ -513,18 +522,25 @@ export enum ImGuiColorEditFlags {
     AlphaPreview    = 1 << 17,  //              // ColorEdit, ColorPicker, ColorButton: display preview as a transparent color over a checkerboard, instead of opaque.
     AlphaPreviewHalf= 1 << 18,  //              // ColorEdit, ColorPicker, ColorButton: display half opaque / half checkerboard, instead of opaque.
     HDR             = 1 << 19,  //              // (WIP) ColorEdit: Currently only disable 0.0f..1.0f limits in RGBA edition (note: you probably want to use Float flag as well).
-    RGB             = 1 << 20,  // [Inputs]     // ColorEdit: choose one among RGB/HSV/HEX. ColorPicker: choose any combination using RGB/HSV/HEX.
-    HSV             = 1 << 21,  // [Inputs]     // "
-    HEX             = 1 << 22,  // [Inputs]     // "
+    DisplayRGB      = 1 << 20,  // [Inputs]     // ColorEdit: choose one among RGB/HSV/HEX. ColorPicker: choose any combination using RGB/HSV/HEX.
+    DisplayHSV      = 1 << 21,  // [Inputs]     // "
+    DisplayHex      = 1 << 22,  // [Inputs]     // "
     Uint8           = 1 << 23,  // [DataType]   // ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0..255.
     Float           = 1 << 24,  // [DataType]   // ColorEdit, ColorPicker, ColorButton: _display_ values formatted as 0.0f..1.0f floats instead of 0..255 integers. No round-trip of value via integers.
     PickerHueBar    = 1 << 25,  // [PickerMode] // ColorPicker: bar for Hue, rectangle for Sat/Value.
     PickerHueWheel  = 1 << 26,  // [PickerMode] // ColorPicker: wheel for Hue, triangle for Sat/Value.
-    // Internals/Masks
-    _InputsMask     = RGB | HSV | HEX,
-    _DataTypeMask   = Uint8 | Float,
-    _PickerMask     = PickerHueWheel | PickerHueBar,
-    _OptionsDefault = Uint8 | RGB | PickerHueBar,    // Change application default using SetColorEditOptions()
+    InputRGB        = 1 << 27,  // [Input]      // ColorEdit, ColorPicker: input and output data in RGB format.
+    InputHSV        = 1 << 28,  // [Input]      // ColorEdit, ColorPicker: input and output data in HSV format.
+
+    // Defaults Options. You can set application defaults using SetColorEditOptions(). The intent is that you probably don't want to
+    // override them in most of your calls. Let the user choose via the option menu and/or call SetColorEditOptions() once during startup.
+    _OptionsDefault = Uint8|DisplayRGB|InputRGB|PickerHueBar,
+
+    // [Internal] Masks
+    _DisplayMask    = DisplayRGB|DisplayHSV|DisplayHex,
+    _DataTypeMask   = Uint8|Float,
+    _PickerMask     = PickerHueWheel|PickerHueBar,
+    _InputMask      = InputRGB|InputHSV,
 }
 
 // Enumeration for GetMouseCursor()
@@ -1129,7 +1145,15 @@ export class ImGuiListClipper
 // typedef void (*ImDrawCallback)(const ImDrawList* parent_list, const ImDrawCmd* cmd);
 export type ImDrawCallback = (parent_list: Readonly<ImDrawList>, cmd: Readonly<ImDrawCmd>) => void;
 
+// Special Draw callback value to request renderer back-end to reset the graphics/render state.
+// The renderer back-end needs to handle this special value, otherwise it will crash trying to call a function at this address.
+// This is useful for example if you submitted callbacks which you know have altered the render state and you want it to be restored.
+// It is not done by default because they are many perfectly useful way of altering render state for imgui contents (e.g. changing shader/blending settings before an Image call).
+export const ImDrawCallback_ResetRenderState = -1;
+
 // Typically, 1 command = 1 GPU draw call (unless command is a callback)
+// Pre 1.71 back-ends will typically ignore the VtxOffset/IdxOffset fields. When 'io.BackendFlags & ImGuiBackendFlags_RendererHasVtxOffset'
+// is enabled, those fields allow us to render meshes larger than 64K vertices while keeping 16-bits indices.
 export class ImDrawCmd
 {
     constructor(public readonly native: Bind.reference_ImDrawCmd) {}
@@ -1142,6 +1166,10 @@ export class ImDrawCmd
     get TextureId(): ImTextureID | null {
         return ImGuiContext.getTexture(this.native.TextureId);
     }
+    // unsigned int    VtxOffset;              // Start offset in vertex buffer. Pre-1.71 or without ImGuiBackendFlags_RendererHasVtxOffset: always 0. With ImGuiBackendFlags_RendererHasVtxOffset: may be >0 to support meshes larger than 64K vertices with 16-bits indices.
+    get VtxOffset(): number { return this.native.VtxOffset; }
+    // unsigned int    IdxOffset;              // Start offset in index buffer. Always equal to sum of ElemCount drawn so far.
+    get IdxOffset(): number { return this.native.IdxOffset; }
     // ImDrawCallback  UserCallback;           // If != NULL, call the function instead of rendering the vertices. clip_rect and texture_id will be set normally.
     public readonly UserCallback: ImDrawCallback | null = null; // TODO
     // void*           UserCallbackData;       // The draw callback code can access this.
@@ -1150,7 +1178,9 @@ export class ImDrawCmd
     // ImDrawCmd() { ElemCount = 0; ClipRect.x = ClipRect.y = ClipRect.z = ClipRect.w = 0.0f; TextureId = NULL; UserCallback = NULL; UserCallbackData = NULL; }
 }
 
-// Vertex index (override with '#define ImDrawIdx unsigned int' inside in imconfig.h)
+// Vertex index 
+// (to allow large meshes with 16-bits indices: set 'io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset' and handle ImDrawCmd::VtxOffset in the renderer back-end)
+// (to use 32-bits indices: override with '#define ImDrawIdx unsigned int' in imconfig.h)
 // #ifndef ImDrawIdx
 // typedef unsigned short ImDrawIdx;
 // #endif
@@ -1443,14 +1473,16 @@ export class ImDrawData
     get DisplayPos(): Readonly<Bind.reference_ImVec2> { return this.native.DisplayPos; }
     // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
     get DisplaySize(): Readonly<Bind.reference_ImVec2> { return this.native.DisplaySize; }
+    // ImVec2          FramebufferScale;       // Amount of pixels for each unit of DisplaySize. Based on io.DisplayFramebufferScale. Generally (1,1) on normal display, (2,2) on OSX with Retina display.
+    get FramebufferScale(): Readonly<Bind.reference_ImVec2> { return this.native.FramebufferScale; }
 
     // Functions
     // ImDrawData() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; }
     // IMGUI_API void DeIndexAllBuffers();               // For backward compatibility or convenience: convert all buffers from indexed to de-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
     public DeIndexAllBuffers(): void { this.native.DeIndexAllBuffers(); }
-    // IMGUI_API void ScaleClipRects(const ImVec2& sc);  // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
-    public ScaleClipRects(sc: Readonly<Bind.interface_ImVec2>): void {
-        this.native.ScaleClipRects(sc);
+    // IMGUI_API void ScaleClipRects(const ImVec2& fb_scale);  // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
+    public ScaleClipRects(fb_scale: Readonly<Bind.interface_ImVec2>): void {
+        this.native.ScaleClipRects(fb_scale);
     }
 }
 
@@ -1661,6 +1693,8 @@ export class ImFontAtlas
     GetGlyphRangesCyrillic(): number { return this.native.GetGlyphRangesCyrillic(); }
     // IMGUI_API const ImWchar*    GetGlyphRangesThai();       // Default + Thai characters
     GetGlyphRangesThai(): number { return this.native.GetGlyphRangesThai(); }
+    // IMGUI_API const ImWchar*    GetGlyphRangesVietnamese();       // Default + Vietnamese characters
+    GetGlyphRangesVietnamese(): number { return this.native.GetGlyphRangesVietnamese(); }
 
     // Helpers to build glyph ranges from text data. Feed your application strings/characters to it then call BuildRanges().
     // struct GlyphRangesBuilder
@@ -1866,6 +1900,7 @@ class script_ImGuiStyle implements Bind.interface_ImGuiStyle {
     public WindowBorderSize: number = 0.0;
     public WindowMinSize: ImVec2 = new ImVec2(32, 32);
     public WindowTitleAlign: ImVec2 = new ImVec2(0.0, 0.5);
+    public WindowMenuButtonPosition: ImGuiDir = ImGuiDir.Left;
     public ChildRounding: number = 0.0;
     public ChildBorderSize: number = 1.0;
     public PopupRounding: number = 0.0;
@@ -1885,6 +1920,7 @@ class script_ImGuiStyle implements Bind.interface_ImGuiStyle {
     public TabRounding: number = 0.0;
     public TabBorderSize: number = 0.0;
     public ButtonTextAlign: ImVec2 = new ImVec2(0.5, 0.5);
+    public SelectableTextAlign: ImVec2 = new ImVec2(0.0, 0.0);
     public DisplayWindowPadding: ImVec2 = new ImVec2(22, 22);
     public DisplaySafeAreaPadding: ImVec2 = new ImVec2(4, 4);
     public MouseCursorScale: number = 1;
@@ -1929,6 +1965,7 @@ export class ImGuiStyle
     get WindowBorderSize(): number { return this.internal.WindowBorderSize; } set WindowBorderSize(value: number) { this.internal.WindowBorderSize = value; }
     get WindowMinSize(): Bind.interface_ImVec2 { return this.internal.WindowMinSize; }
     get WindowTitleAlign(): Bind.interface_ImVec2 { return this.internal.WindowTitleAlign; }
+    get WindowMenuButtonPosition(): ImGuiDir { return this.internal.WindowMenuButtonPosition; } set WindowMenuButtonPosition(value: ImGuiDir) { this.internal.WindowMenuButtonPosition = value; }
     get ChildRounding(): number { return this.internal.ChildRounding; } set ChildRounding(value: number) { this.internal.ChildRounding = value; }
     get ChildBorderSize(): number { return this.internal.ChildBorderSize; } set ChildBorderSize(value: number) { this.internal.ChildBorderSize = value; }
     get PopupRounding(): number { return this.internal.PopupRounding; } set PopupRounding(value: number) { this.internal.PopupRounding = value; }
@@ -1948,6 +1985,7 @@ export class ImGuiStyle
     get TabRounding(): number { return this.internal.TabRounding; } set TabRounding(value: number) { this.internal.TabRounding = value; }
     get TabBorderSize(): number { return this.internal.TabBorderSize; } set TabBorderSize(value: number) { this.internal.TabBorderSize = value; }
     get ButtonTextAlign(): Bind.interface_ImVec2 { return this.internal.ButtonTextAlign; }
+    get SelectableTextAlign(): Bind.interface_ImVec2 { return this.internal.SelectableTextAlign; }
     get DisplayWindowPadding(): Bind.interface_ImVec2 { return this.internal.DisplayWindowPadding; }
     get DisplaySafeAreaPadding(): Bind.interface_ImVec2 { return this.internal.DisplaySafeAreaPadding; }
     get MouseCursorScale(): number { return this.internal.MouseCursorScale; } set MouseCursorScale(value: number) { this.internal.MouseCursorScale = value; }
@@ -1966,21 +2004,22 @@ export class ImGuiStyle
 
     public Copy(other: Readonly<ImGuiStyle>): this {
         this.Alpha = other.Alpha;
-        this.WindowPadding.Copy(this.WindowPadding);
+        this.WindowPadding.Copy(other.WindowPadding);
         this.WindowRounding = other.WindowRounding;
         this.WindowBorderSize = other.WindowBorderSize;
-        this.WindowMinSize.Copy(this.WindowMinSize);
-        this.WindowTitleAlign.Copy(this.WindowTitleAlign);
+        this.WindowMinSize.Copy(other.WindowMinSize);
+        this.WindowTitleAlign.Copy(other.WindowTitleAlign);
+        this.WindowMenuButtonPosition = other.WindowMenuButtonPosition;
         this.ChildRounding = other.ChildRounding;
         this.ChildBorderSize = other.ChildBorderSize;
         this.PopupRounding = other.PopupRounding;
         this.PopupBorderSize = other.PopupBorderSize;
-        this.FramePadding.Copy(this.FramePadding);
+        this.FramePadding.Copy(other.FramePadding);
         this.FrameRounding = other.FrameRounding;
         this.FrameBorderSize = other.FrameBorderSize;
-        this.ItemSpacing.Copy(this.ItemSpacing);
-        this.ItemInnerSpacing.Copy(this.ItemInnerSpacing);
-        this.TouchExtraPadding.Copy(this.TouchExtraPadding);
+        this.ItemSpacing.Copy(other.ItemSpacing);
+        this.ItemInnerSpacing.Copy(other.ItemInnerSpacing);
+        this.TouchExtraPadding.Copy(other.TouchExtraPadding);
         this.IndentSpacing = other.IndentSpacing;
         this.ColumnsMinSpacing = other.ColumnsMinSpacing;
         this.ScrollbarSize = other.ScrollbarSize;
@@ -1989,9 +2028,9 @@ export class ImGuiStyle
         this.GrabRounding = other.GrabRounding;
         this.TabRounding = other.TabRounding;
         this.TabBorderSize = other.TabBorderSize;
-        this.ButtonTextAlign.Copy(this.ButtonTextAlign);
-        this.DisplayWindowPadding.Copy(this.DisplayWindowPadding);
-        this.DisplaySafeAreaPadding.Copy(this.DisplaySafeAreaPadding);
+        this.ButtonTextAlign.Copy(other.ButtonTextAlign);
+        this.DisplayWindowPadding.Copy(other.DisplayWindowPadding);
+        this.DisplaySafeAreaPadding.Copy(other.DisplaySafeAreaPadding);
         this.MouseCursorScale = other.MouseCursorScale;
         this.AntiAliasedLines = other.AntiAliasedLines;
         this.AntiAliasedFill = other.AntiAliasedFill;
@@ -2082,10 +2121,6 @@ export class ImGuiIO
     }
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
     get DisplayFramebufferScale(): Bind.reference_ImVec2 { return this.native.DisplayFramebufferScale; }
-    // ImVec2        DisplayVisibleMin;        // <unset> (0.0f,0.0f)  // If you use DisplaySize as a virtual space larger than your screen, set DisplayVisibleMin/Max to the visible area.
-    get DisplayVisibleMin(): Bind.reference_ImVec2 { return this.native.DisplayVisibleMin; }
-    // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
-    get DisplayVisibleMax(): Bind.reference_ImVec2 { return this.native.DisplayVisibleMax; }
 
     // Miscellaneous configuration options
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
@@ -2330,8 +2365,8 @@ export function SetCurrentContext(ctx: ImGuiContext | null): void {
 }
 
 // IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert);
-export function DebugCheckVersionAndDataLayout(version_str: string, sz_io: number, sz_style: number, sz_vec2: number, sz_vec4: number, sz_draw_vert: number): boolean {
-    return bind.DebugCheckVersionAndDataLayout(version_str, sz_io, sz_style, sz_vec2, sz_vec4, sz_draw_vert);
+export function DebugCheckVersionAndDataLayout(version_str: string, sz_io: number, sz_style: number, sz_vec2: number, sz_vec4: number, sz_draw_vert: number, sz_draw_idx: number): boolean {
+    return bind.DebugCheckVersionAndDataLayout(version_str, sz_io, sz_style, sz_vec2, sz_vec4, sz_draw_vert, sz_draw_idx);
 }
 
 // Main
@@ -2480,8 +2515,6 @@ export function GetContentRegionMax(out: Bind.interface_ImVec2 = new ImVec2()): 
 export function GetContentRegionAvail(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
     return bind.GetContentRegionAvail(out);
 }
-// IMGUI_API float         GetContentRegionAvailWidth();                                       //
-export function GetContentRegionAvailWidth(): number { return bind.GetContentRegionAvailWidth(); }
 // IMGUI_API ImVec2        GetWindowContentRegionMin();                                        // content boundaries min (roughly (0,0)-Scroll), in window coordinates
 export function GetWindowContentRegionMin(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
     return bind.GetWindowContentRegionMin(out);
@@ -2676,6 +2709,7 @@ export function PushItemWidth(item_width: number): void { bind.PushItemWidth(ite
 // IMGUI_API void          PopItemWidth();
 export function PopItemWidth(): void { bind.PopItemWidth(); }
 // IMGUI_API float         CalcItemWidth();                                                    // width of item given pushed settings and current cursor position
+export function SetNextItemWidth(item_width: number): void { bind.SetNextItemWidth(item_width); } // set width of the _next_ common large "item+label" widget. >0.0f: width in pixels, <0.0f align xx pixels to the right of window (so -1.0f always align width to the right side)
 export function CalcItemWidth(): number { return bind.CalcItemWidth(); }
 // IMGUI_API void          PushTextWrapPos(float wrap_pos_x = 0.0f);                           // word-wrapping for Text*() commands. < 0.0f: no wrapping; 0.0f: wrap to end of window (or column); > 0.0f: wrap at 'wrap_pos_x' position in window local space
 export function PushTextWrapPos(wrap_pos_x: number = 0.0): void {
@@ -3053,7 +3087,11 @@ export function DragIntRange2(label: string, v_current_min: Bind.ImAccess<number
 }
 // IMGUI_API bool          DragScalar(const char* label, ImGuiDataType data_type, void* v, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
 // IMGUI_API bool          DragScalarN(const char* label, ImGuiDataType data_type, void* v, int components, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
-export function DragScalar(label: string, v: Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min: number | null = null, v_max: number | null = null, format: string | null = null, power: number = 1.0): boolean {
+export function DragScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min: number | null = null, v_max: number | null = null, format: string | null = null, power: number = 1.0): boolean {
+    if (v instanceof Int8Array) { return bind.DragScalar(label, ImGuiDataType.S8, v, v_speed, v_min, v_max, format, power); }
+    if (v instanceof Uint8Array) { return bind.DragScalar(label, ImGuiDataType.U8, v, v_speed, v_min, v_max, format, power); }
+    if (v instanceof Int16Array) { return bind.DragScalar(label, ImGuiDataType.S16, v, v_speed, v_min, v_max, format, power); }
+    if (v instanceof Uint16Array) { return bind.DragScalar(label, ImGuiDataType.U16, v, v_speed, v_min, v_max, format, power); }
     if (v instanceof Int32Array) { return bind.DragScalar(label, ImGuiDataType.S32, v, v_speed, v_min, v_max, format, power); }
     if (v instanceof Uint32Array) { return bind.DragScalar(label, ImGuiDataType.U32, v, v_speed, v_min, v_max, format, power); }
     // if (v instanceof Int64Array) { return bind.DragScalar(label, ImGuiDataType.S64, v, v_speed, v_min, v_max, format, power); }
@@ -3078,6 +3116,24 @@ export function InputText(label: string, buf: ImStringBuffer | Bind.ImAccess<str
     } else {
         const ref_buf: Bind.ImScalar<string> = [ buf() ];
         const ret: boolean = bind.InputText(label, ref_buf, buf_size, flags, _callback, null);
+        buf(ref_buf[0]);
+        return ret;
+    }
+}
+// IMGUI_API bool          InputTextWithHint(const char* label, const char* hint, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+export function InputTextWithHint(label: string, hint: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size: number = buf instanceof ImStringBuffer ? buf.size : ImGuiInputTextDefaultSize, flags: ImGuiInputTextFlags = 0, callback: ImGuiInputTextCallback | null = null, user_data: any = null): boolean {
+    const _callback = callback && ((data: Bind.reference_ImGuiInputTextCallbackData): number => callback(new ImGuiInputTextCallbackData(data, user_data))) || null;
+    if (Array.isArray(buf)) {
+        return bind.InputTextWithHint(label, hint, buf, buf_size, flags, _callback, null);
+    } else if (buf instanceof ImStringBuffer) {
+        const ref_buf: Bind.ImScalar<string> = [ buf.buffer ];
+        const _buf_size: number = Math.min(buf_size, buf.size);
+        const ret: boolean = bind.InputTextWithHint(label, hint, ref_buf, _buf_size, flags, _callback, null);
+        buf.buffer = ref_buf[0];
+        return ret;
+    } else {
+        const ref_buf: Bind.ImScalar<string> = [ buf() ];
+        const ret: boolean = bind.InputTextWithHint(label, hint, ref_buf, buf_size, flags, _callback, null);
         buf(ref_buf[0]);
         return ret;
     }
@@ -3165,7 +3221,11 @@ export function InputDouble(label: string, v: Bind.ImAccess<number> | Bind.ImSca
 }
 // IMGUI_API bool          InputScalar(const char* label, ImGuiDataType data_type, void* v, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
 // IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
-export function InputScalar(label: string, v: Int32Array | Uint32Array | Float32Array | Float64Array, step: number | null = null, step_fast: number | null = null, format: string | null = null, extra_flags: ImGuiInputTextFlags = 0): boolean {
+export function InputScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, step: number | null = null, step_fast: number | null = null, format: string | null = null, extra_flags: ImGuiInputTextFlags = 0): boolean {
+    if (v instanceof Int8Array) { return bind.InputScalar(label, ImGuiDataType.S8, v, step, step_fast, format, extra_flags); }
+    if (v instanceof Uint8Array) { return bind.InputScalar(label, ImGuiDataType.U8, v, step, step_fast, format, extra_flags); }
+    if (v instanceof Int16Array) { return bind.InputScalar(label, ImGuiDataType.S16, v, step, step_fast, format, extra_flags); }
+    if (v instanceof Uint16Array) { return bind.InputScalar(label, ImGuiDataType.U16, v, step, step_fast, format, extra_flags); }
     if (v instanceof Int32Array) { return bind.InputScalar(label, ImGuiDataType.S32, v, step, step_fast, format, extra_flags); }
     if (v instanceof Uint32Array) { return bind.InputScalar(label, ImGuiDataType.U32, v, step, step_fast, format, extra_flags); }
     // if (v instanceof Int64Array) { return bind.InputScalar(label, ImGuiDataType.S64, v, step, step_fast, format, extra_flags); }
@@ -3253,7 +3313,11 @@ export function SliderInt4(label: string, v: XYZW | Bind.ImTuple4<number>, v_min
 }
 // IMGUI_API bool          SliderScalar(const char* label, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
 // IMGUI_API bool          SliderScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
-export function SliderScalar(label: string, v: Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number, v_max: number, format: string | null = null, power: number = 1.0): boolean {
+export function SliderScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number, v_max: number, format: string | null = null, power: number = 1.0): boolean {
+    if (v instanceof Int8Array) { return bind.SliderScalar(label, ImGuiDataType.S8, v, v_min, v_max, format, power); }
+    if (v instanceof Uint8Array) { return bind.SliderScalar(label, ImGuiDataType.U8, v, v_min, v_max, format, power); }
+    if (v instanceof Int16Array) { return bind.SliderScalar(label, ImGuiDataType.S16, v, v_min, v_max, format, power); }
+    if (v instanceof Uint16Array) { return bind.SliderScalar(label, ImGuiDataType.U16, v, v_min, v_max, format, power); }
     if (v instanceof Int32Array) { return bind.SliderScalar(label, ImGuiDataType.S32, v, v_min, v_max, format, power); }
     if (v instanceof Uint32Array) { return bind.SliderScalar(label, ImGuiDataType.U32, v, v_min, v_max, format, power); }
     // if (v instanceof Int64Array) { return bind.SliderScalar(label, ImGuiDataType.S64, v, v_min, v_max, format, power); }
@@ -3278,6 +3342,10 @@ export function VSliderInt(label: string, size: Readonly<Bind.interface_ImVec2>,
 }
 // IMGUI_API bool          VSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
 export function VSliderScalar(label: string, size: Readonly<Bind.interface_ImVec2>, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, v_min: number, v_max: number, format: string | null = null, power: number = 1.0): boolean {
+    if (v instanceof Int8Array) { return bind.VSliderScalar(label, size, ImGuiDataType.S8, v, v_min, v_max, format, power); }
+    if (v instanceof Uint8Array) { return bind.VSliderScalar(label, size, ImGuiDataType.U8, v, v_min, v_max, format, power); }
+    if (v instanceof Int16Array) { return bind.VSliderScalar(label, size, ImGuiDataType.S16, v, v_min, v_max, format, power); }
+    if (v instanceof Uint16Array) { return bind.VSliderScalar(label, size, ImGuiDataType.U16, v, v_min, v_max, format, power); }
     if (v instanceof Int32Array) { return bind.VSliderScalar(label, size, ImGuiDataType.S32, v, v_min, v_max, format, power); }
     if (v instanceof Uint32Array) { return bind.VSliderScalar(label, size, ImGuiDataType.U32, v, v_min, v_max, format, power); }
     // if (v instanceof Int64Array) { return bind.VSliderScalar(label, size, ImGuiDataType.S64, v, v_min, v_max, format, power); }
@@ -3399,10 +3467,6 @@ export function TreePop(): void { bind.TreePop(); }
 export function TreeAdvanceToLabelPos(): void { bind.TreeAdvanceToLabelPos(); }
 // IMGUI_API float         GetTreeNodeToLabelSpacing();                                            // horizontal distance preceding label when using TreeNode*() or Bullet() == (g.FontSize + style.FramePadding.x*2) for a regular unframed TreeNode
 export function GetTreeNodeToLabelSpacing(): number { return bind.GetTreeNodeToLabelSpacing(); }
-// IMGUI_API void          SetNextTreeNodeOpen(bool is_open, ImGuiCond cond = 0);                  // set next TreeNode/CollapsingHeader open state.
-export function SetNextTreeNodeOpen(is_open: boolean, cond: ImGuiCond = 0): void {
-    bind.SetNextTreeNodeOpen(is_open, cond);
-}
 // IMGUI_API bool          CollapsingHeader(const char* label, ImGuiTreeNodeFlags flags = 0);      // if returning 'true' the header is open. doesn't indent nor push on ID stack. user doesn't have to call TreePop().
 // IMGUI_API bool          CollapsingHeader(const char* label, bool* p_open, ImGuiTreeNodeFlags flags = 0); // when 'p_open' isn't NULL, display an additional small close button on upper right of the header
 export function CollapsingHeader(label: string, flags?: ImGuiTreeNodeFlags): boolean;
@@ -3423,6 +3487,10 @@ export function CollapsingHeader(label: string, ...args: any[]): boolean {
             return ret;
         }
     }
+}
+// IMGUI_API void          SetNextItemOpen(bool is_open, ImGuiCond cond = 0);                  // set next TreeNode/CollapsingHeader open state.
+export function SetNextItemOpen(is_open: boolean, cond: ImGuiCond = 0): void {
+    bind.SetNextItemOpen(is_open, cond);
 }
 
 // Widgets: Selectable / Lists
@@ -3721,6 +3789,8 @@ export function IsItemClicked(mouse_button: number = 0): boolean {
 }
 // IMGUI_API bool          IsItemVisible();                                                    // is the last item visible? (aka not out of sight due to clipping/scrolling.)
 export function IsItemVisible(): boolean { return bind.IsItemVisible(); }
+// IMGUI_API bool          IsItemActivated();                                                  // was the last item just made active (item was previously inactive).
+export function IsItemActivated(): boolean { return bind.IsItemActivated(); }
 // IMGUI_API bool          IsItemDeactivated();                                                // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that requires continuous editing.
 export function IsItemDeactivated(): boolean { return bind.IsItemDeactivated(); }
 // IMGUI_API bool          IsItemDeactivatedAfterEdit();                                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
@@ -3771,9 +3841,11 @@ export function IsRectVisible(...args: any[]): boolean {
 export function GetTime(): number { return bind.GetTime(); }
 // IMGUI_API int           GetFrameCount();
 export function GetFrameCount(): number { return bind.GetFrameCount(); }
-// IMGUI_API ImDrawList*   GetOverlayDrawList();                                               // this draw list will be the last rendered one, useful to quickly draw overlays shapes/text
-export function GetOverlayDrawList(): ImDrawList {
-    return new ImDrawList(bind.GetOverlayDrawList());
+export function GetBackgroundDrawList(): ImDrawList {
+    return new ImDrawList(bind.GetBackgroundDrawList());
+}
+export function GetForegroundDrawList(): ImDrawList {
+    return new ImDrawList(bind.GetForegroundDrawList());
 }
 // IMGUI_API ImDrawListSharedData* GetDrawListSharedData();
 export function GetDrawListSharedData(): ImDrawListSharedData {

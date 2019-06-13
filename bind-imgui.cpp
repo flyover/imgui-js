@@ -513,6 +513,8 @@ EMSCRIPTEN_BINDINGS(ImDrawCmd) {
         CLASS_MEMBER(ImDrawCmd, ElemCount)
         CLASS_MEMBER_GET_RAW_REFERENCE(ImDrawCmd, ClipRect)
         CLASS_MEMBER_GET(ImDrawCmd, TextureId, { return emscripten::val((int) that.TextureId); })
+        CLASS_MEMBER(ImDrawCmd, VtxOffset)
+        CLASS_MEMBER(ImDrawCmd, IdxOffset)
     ;
 }
 
@@ -775,14 +777,16 @@ EMSCRIPTEN_BINDINGS(ImDrawData) {
         CLASS_MEMBER_GET_RAW_REFERENCE(ImDrawData, DisplayPos)
         // ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
         CLASS_MEMBER_GET_RAW_REFERENCE(ImDrawData, DisplaySize)
+        // ImVec2          FramebufferScale;       // Amount of pixels for each unit of DisplaySize. Based on io.DisplayFramebufferScale. Generally (1,1) on normal display, (2,2) on OSX with Retina display.
+        CLASS_MEMBER_GET_RAW_REFERENCE(ImDrawData, FramebufferScale)
 
         // Functions
         // ImDrawData() { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; }
         // IMGUI_API void DeIndexAllBuffers();               // For backward compatibility or convenience: convert all buffers from indexed to de-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
         CLASS_METHOD(ImDrawData, DeIndexAllBuffers)
-        // IMGUI_API void ScaleClipRects(const ImVec2& sc);  // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
-        .function("ScaleClipRects", FUNCTION(void, (ImDrawData& that, emscripten::val sc), {
-            that.ScaleClipRects(import_ImVec2(sc));
+        // IMGUI_API void ScaleClipRects(const ImVec2& fb_scale);  // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
+        .function("ScaleClipRects", FUNCTION(void, (ImDrawData& that, emscripten::val fb_scale), {
+            that.ScaleClipRects(import_ImVec2(fb_scale));
         }))
     ;
 }
@@ -1127,6 +1131,10 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
         .function("GetGlyphRangesThai", FUNCTION(emscripten::val, (ImFontAtlas& that), {
             return emscripten::val((intptr_t) that.GetGlyphRangesThai());
         }))
+        // IMGUI_API const ImWchar*    GetGlyphRangesVietnamese();       // Default + Vietnamese characters
+        .function("GetGlyphRangesVietnamese", FUNCTION(emscripten::val, (ImFontAtlas& that), {
+            return emscripten::val((intptr_t) that.GetGlyphRangesVietnamese());
+        }))
 
         // Helpers to build glyph ranges from text data. Feed your application strings/characters to it then call BuildRanges().
         // struct GlyphRangesBuilder
@@ -1275,10 +1283,6 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         CLASS_MEMBER_GET_SET_RAW_POINTER(ImGuiIO, FontDefault)
         // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiIO, DisplayFramebufferScale)
-        // ImVec2        DisplayVisibleMin;        // <unset> (0.0f,0.0f)  // If you use DisplaySize as a virtual space larger than your screen, set DisplayVisibleMin/Max to the visible area.
-        CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiIO, DisplayVisibleMin)
-        // ImVec2        DisplayVisibleMax;        // <unset> (0.0f,0.0f)  // If the values are the same, we defaults to Min=(0.0f) and Max=DisplaySize
-        CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiIO, DisplayVisibleMax)
 
         // Advanced/subtle behaviors
         // bool        MouseDrawCursor;            // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
@@ -1459,6 +1463,8 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiStyle, WindowMinSize)
         // ImVec2      WindowTitleAlign;           // Alignment for title bar text. Defaults to (0.0f,0.5f) for left-aligned,vertically centered.
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiStyle, WindowTitleAlign)
+        // ImGuiDir    WindowMenuButtonPosition;   // Side of the collapsing/docking button in the title bar (left/right). Defaults to ImGuiDir_Left.
+        CLASS_MEMBER(ImGuiStyle, WindowMenuButtonPosition)
         // float       ChildRounding;              // Radius of child window corners rounding. Set to 0.0f to have rectangular windows.
         CLASS_MEMBER(ImGuiStyle, ChildRounding)
         // float       ChildBorderSize;            // Thickness of border around child windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly)
@@ -1497,6 +1503,8 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         CLASS_MEMBER(ImGuiStyle, TabBorderSize)
         // ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f,0.5f) for horizontally+vertically centered.
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiStyle, ButtonTextAlign)
+        // ImVec2      SelectableTextAlign;        // Alignment of selectable text when selectable is larger than text. Defaults to (0.0f, 0.0f) (top-left aligned).
+        CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiStyle, SelectableTextAlign)
         // ImVec2      DisplayWindowPadding;       // Window positions are clamped to be visible within the display area by at least this amount. Only covers regular windows.
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiStyle, DisplayWindowPadding)
         // ImVec2      DisplaySafeAreaPadding;     // If you cannot see the edge of your screen (e.g. on a TV) increase the safe area padding. Covers popups/tooltips as well regular windows.
@@ -1581,9 +1589,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("SetCurrentContext", FUNCTION(void, (WrapImGuiContext* wrap), {
         WrapImGuiContext::SetCurrentContext(wrap);
     }), emscripten::allow_raw_pointers());
-    // IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert);
-    emscripten::function("DebugCheckVersionAndDataLayout", FUNCTION(bool, (std::string version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert), {
-        return ImGui::DebugCheckVersionAndDataLayout(version_str.c_str(), sz_io, sz_style, sz_vec2, sz_vec4, sz_drawvert);
+    // IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert, size_t sz_drawidx);
+    emscripten::function("DebugCheckVersionAndDataLayout", FUNCTION(bool, (std::string version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert, size_t sz_drawidx), {
+        return ImGui::DebugCheckVersionAndDataLayout(version_str.c_str(), sz_io, sz_style, sz_vec2, sz_vec4, sz_drawvert, sz_drawidx);
     }));
 
     // Main
@@ -1672,8 +1680,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("GetContentRegionAvail", FUNCTION(emscripten::val, (emscripten::val out), {
         return export_ImVec2(ImGui::GetContentRegionAvail(), out);
     }));
-    // IMGUI_API float         GetContentRegionAvailWidth();                                       //
-    emscripten::function("GetContentRegionAvailWidth", &ImGui::GetContentRegionAvailWidth);
     // IMGUI_API ImVec2        GetWindowContentRegionMin();                                        // content boundaries min (roughly (0,0)-Scroll), in window coordinates
     emscripten::function("GetWindowContentRegionMin", FUNCTION(emscripten::val, (emscripten::val out), {
         return export_ImVec2(ImGui::GetWindowContentRegionMin(), out);
@@ -1859,6 +1865,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("PushItemWidth", &ImGui::PushItemWidth);
     // IMGUI_API void          PopItemWidth();
     emscripten::function("PopItemWidth", &ImGui::PopItemWidth);
+    // IMGUI_API void          SetNextItemWidth(float item_width);                             // set width of the _next_ common large "item+label" widget. >0.0f: width in pixels, <0.0f align xx pixels to the right of window (so -1.0f always align width to the right side)
+    emscripten::function("SetNextItemWidth", &ImGui::SetNextItemWidth);
     // IMGUI_API float         CalcItemWidth();                                                    // width of item given pushed settings and current cursor position
     emscripten::function("CalcItemWidth", &ImGui::CalcItemWidth);
     // IMGUI_API void          PushTextWrapPos(float wrap_pos_x = 0.0f);                           // word-wrapping for Text*() commands. < 0.0f: no wrapping; 0.0f: wrap to end of window (or column); > 0.0f: wrap at 'wrap_pos_x' position in window local space
@@ -2153,6 +2161,14 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          DragScalarN(const char* label, ImGuiDataType data_type, void* v, int components, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
     emscripten::function("DragScalar", FUNCTION(bool, (std::string label, ImGuiDataType data_type, emscripten::val v, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
         switch (data_type) {
+            case ImGuiDataType_S8:
+                return ImGui::DragScalarV<ImS8>(label.c_str(), data_type, access_typed_array<ImS8>(v), import_value<float>(v_speed), import_maybe_null_value<ImS8>(v_min), import_maybe_null_value<ImS8>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            case ImGuiDataType_U8:
+                return ImGui::DragScalarV<ImU8>(label.c_str(), data_type, access_typed_array<ImU8>(v), import_value<float>(v_speed), import_maybe_null_value<ImU8>(v_min), import_maybe_null_value<ImU8>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            case ImGuiDataType_S16:
+                return ImGui::DragScalarV<ImS16>(label.c_str(), data_type, access_typed_array<ImS16>(v), import_value<float>(v_speed), import_maybe_null_value<ImS16>(v_min), import_maybe_null_value<ImS16>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            case ImGuiDataType_U16:
+                return ImGui::DragScalarV<ImU16>(label.c_str(), data_type, access_typed_array<ImU16>(v), import_value<float>(v_speed), import_maybe_null_value<ImU16>(v_min), import_maybe_null_value<ImU16>(v_max), import_maybe_null_string(format), import_value<float>(power));
             case ImGuiDataType_S32:
                 return ImGui::DragScalarV<ImS32>(label.c_str(), data_type, access_typed_array<ImS32>(v), import_value<float>(v_speed), import_maybe_null_value<ImS32>(v_min), import_maybe_null_value<ImS32>(v_max), import_maybe_null_string(format), import_value<float>(power));
             case ImGuiDataType_U32:
@@ -2182,6 +2198,23 @@ EMSCRIPTEN_BINDINGS(ImGui) {
             }), NULL);
         } else {
             ret = ImGui::InputText(label.c_str(), (char*) _buf.data(), buf_size, flags);
+        }
+        std::string out_buf (_buf.c_str());
+        buf.set(0, out_buf);
+        return ret;
+    }), emscripten::allow_raw_pointers());
+    // IMGUI_API bool          InputTextWithHint(const char* label, const char* hint, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+    emscripten::function("InputTextWithHint", FUNCTION(bool, (std::string label, std::string hint, emscripten::val buf, size_t buf_size, ImGuiInputTextFlags flags, emscripten::val callback, emscripten::val user_data), {
+        std::string _buf = buf[0].as<std::string>();
+        _buf.reserve(buf_size);
+        bool ret = false;
+        if (!callback.isNull()) {
+            WrapImGuiContext::GetCurrentContext()->_ImGui_InputText_callback = callback;
+            ret = ImGui::InputTextWithHint(label.c_str(), hint.c_str(), (char*) _buf.data(), buf_size, flags, FUNCTION(int, (ImGuiInputTextCallbackData* data), {
+                return WrapImGuiContext::GetCurrentContext()->_ImGui_InputText_callback(emscripten::val(data)).as<int>();
+            }), NULL);
+        } else {
+            ret = ImGui::InputTextWithHint(label.c_str(), hint.c_str(), (char*) _buf.data(), buf_size, flags);
         }
         std::string out_buf (_buf.c_str());
         buf.set(0, out_buf);
@@ -2244,6 +2277,14 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
     emscripten::function("InputScalar", FUNCTION(bool, (std::string label, ImGuiDataType data_type, emscripten::val v, emscripten::val step, emscripten::val step_fast, emscripten::val format, ImGuiInputTextFlags extra_flags), {
         switch (data_type) {
+            case ImGuiDataType_S8:
+                return ImGui::InputScalarV<ImS8>(label.c_str(), data_type, access_typed_array<ImS8>(v), import_maybe_null_value<ImS8>(step), import_maybe_null_value<ImS8>(step_fast), import_maybe_null_string(format), extra_flags);
+            case ImGuiDataType_U8:
+                return ImGui::InputScalarV<ImU8>(label.c_str(), data_type, access_typed_array<ImU8>(v), import_maybe_null_value<ImU8>(step), import_maybe_null_value<ImU8>(step_fast), import_maybe_null_string(format), extra_flags);
+            case ImGuiDataType_S16:
+                return ImGui::InputScalarV<ImS16>(label.c_str(), data_type, access_typed_array<ImS16>(v), import_maybe_null_value<ImS16>(step), import_maybe_null_value<ImS16>(step_fast), import_maybe_null_string(format), extra_flags);
+            case ImGuiDataType_U16:
+                return ImGui::InputScalarV<ImU16>(label.c_str(), data_type, access_typed_array<ImU16>(v), import_maybe_null_value<ImU16>(step), import_maybe_null_value<ImU16>(step_fast), import_maybe_null_string(format), extra_flags);
             case ImGuiDataType_S32:
                 return ImGui::InputScalarV<ImS32>(label.c_str(), data_type, access_typed_array<ImS32>(v), import_maybe_null_value<ImS32>(step), import_maybe_null_value<ImS32>(step_fast), import_maybe_null_string(format), extra_flags);
             case ImGuiDataType_U32:
@@ -2301,6 +2342,14 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          SliderScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
     emscripten::function("SliderScalar", FUNCTION(bool, (std::string label, ImGuiDataType data_type, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
         switch (data_type) {
+            case ImGuiDataType_S8:
+                return ImGui::SliderScalarV<ImS8>(label.c_str(), data_type, access_typed_array<ImS8>(v), import_maybe_null_value<ImS8>(v_min), import_maybe_null_value<ImS8>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            case ImGuiDataType_U8:
+                return ImGui::SliderScalarV<ImU8>(label.c_str(), data_type, access_typed_array<ImU8>(v), import_maybe_null_value<ImU8>(v_min), import_maybe_null_value<ImU8>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            case ImGuiDataType_S16:
+                return ImGui::SliderScalarV<ImS16>(label.c_str(), data_type, access_typed_array<ImS16>(v), import_maybe_null_value<ImS16>(v_min), import_maybe_null_value<ImS16>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            case ImGuiDataType_U16:
+                return ImGui::SliderScalarV<ImU16>(label.c_str(), data_type, access_typed_array<ImU16>(v), import_maybe_null_value<ImU16>(v_min), import_maybe_null_value<ImU16>(v_max), import_maybe_null_string(format), import_value<float>(power));
             case ImGuiDataType_S32:
                 return ImGui::SliderScalarV<ImS32>(label.c_str(), data_type, access_typed_array<ImS32>(v), import_maybe_null_value<ImS32>(v_min), import_maybe_null_value<ImS32>(v_max), import_maybe_null_string(format), import_value<float>(power));
             case ImGuiDataType_U32:
@@ -2327,6 +2376,14 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          VSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
     emscripten::function("VSliderScalar", FUNCTION(bool, (std::string label, emscripten::val size, ImGuiDataType data_type, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
         switch (data_type) {
+            case ImGuiDataType_S8:
+                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImS8>(v).data(), import_maybe_null_value<ImS8>(v_min), import_maybe_null_value<ImS8>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            case ImGuiDataType_U8:
+                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImU8>(v).data(), import_maybe_null_value<ImU8>(v_min), import_maybe_null_value<ImU8>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            case ImGuiDataType_S16:
+                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImS16>(v).data(), import_maybe_null_value<ImS16>(v_min), import_maybe_null_value<ImS16>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            case ImGuiDataType_U16:
+                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImU16>(v).data(), import_maybe_null_value<ImU16>(v_min), import_maybe_null_value<ImU16>(v_max), import_maybe_null_string(format), import_value<float>(power));
             case ImGuiDataType_S32:
                 return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImS32>(v).data(), import_maybe_null_value<ImS32>(v_min), import_maybe_null_value<ImS32>(v_max), import_maybe_null_string(format), import_value<float>(power));
             case ImGuiDataType_U32:
@@ -2411,8 +2468,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("TreeAdvanceToLabelPos", &ImGui::TreeAdvanceToLabelPos);
     // IMGUI_API float         GetTreeNodeToLabelSpacing();                                            // horizontal distance preceding label when using TreeNode*() or Bullet() == (g.FontSize + style.FramePadding.x*2) for a regular unframed TreeNode
     emscripten::function("GetTreeNodeToLabelSpacing", &ImGui::GetTreeNodeToLabelSpacing);
-    // IMGUI_API void          SetNextTreeNodeOpen(bool is_open, ImGuiCond cond = 0);                  // set next TreeNode/CollapsingHeader open state.
-    emscripten::function("SetNextTreeNodeOpen", &ImGui::SetNextTreeNodeOpen);
     // IMGUI_API bool          CollapsingHeader(const char* label, ImGuiTreeNodeFlags flags = 0);      // if returning 'true' the header is open. doesn't indent nor push on ID stack. user doesn't have to call TreePop().
     // IMGUI_API bool          CollapsingHeader(const char* label, bool* p_open, ImGuiTreeNodeFlags flags = 0); // when 'p_open' isn't NULL, display an additional small close button on upper right of the header
     emscripten::function("CollapsingHeader_A", FUNCTION(bool, (std::string label, ImGuiTreeNodeFlags flags), {
@@ -2421,6 +2476,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("CollapsingHeader_B", FUNCTION(bool, (std::string label, emscripten::val p_open, ImGuiTreeNodeFlags flags), {
         return ImGui::CollapsingHeader(label.c_str(), access_maybe_null_value<bool>(p_open), flags);
     }));
+    // IMGUI_API void          SetNextItemOpen(bool is_open, ImGuiCond cond = 0);                  // set next TreeNode/CollapsingHeader open state.
+    emscripten::function("SetNextItemOpen", &ImGui::SetNextItemOpen);
 
     // Widgets: Selectable / Lists
     // IMGUI_API bool          Selectable(const char* label, bool selected = false, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0,0));  // size.x==0.0: use remaining width, size.x>0.0: specify width. size.y==0.0: use label height, size.y>0.0: specify height
@@ -2650,6 +2707,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsItemClicked", &ImGui::IsItemClicked);
     // IMGUI_API bool          IsItemVisible();                                                    // is the last item visible? (aka not out of sight due to clipping/scrolling.)
     emscripten::function("IsItemVisible", &ImGui::IsItemVisible);
+    // IMGUI_API bool          IsItemActivated();                                                  // was the last item just made active (item was previously inactive).
+    emscripten::function("IsItemActivated", &ImGui::IsItemActivated);
     // IMGUI_API bool          IsItemDeactivated();                                                // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that requires continuous editing.
     emscripten::function("IsItemDeactivated", &ImGui::IsItemDeactivated);
     // IMGUI_API bool          IsItemDeactivatedAfterEdit();                                       // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
@@ -2690,9 +2749,11 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("GetTime", &ImGui::GetTime);
     // IMGUI_API int           GetFrameCount();
     emscripten::function("GetFrameCount", &ImGui::GetFrameCount);
-    // IMGUI_API ImDrawList*   GetOverlayDrawList();                                               // this draw list will be the last rendered one, useful to quickly draw overlays shapes/text
-    emscripten::function("GetOverlayDrawList", FUNCTION(emscripten::val, (), {
-        ImDrawList* p = ImGui::GetOverlayDrawList(); return emscripten::val(p);
+    emscripten::function("GetBackgroundDrawList", FUNCTION(emscripten::val, (), {
+        ImDrawList* p = ImGui::GetBackgroundDrawList(); return emscripten::val(p);
+    }), emscripten::allow_raw_pointers());
+    emscripten::function("GetForegroundDrawList", FUNCTION(emscripten::val, (), {
+        ImDrawList* p = ImGui::GetForegroundDrawList(); return emscripten::val(p);
     }), emscripten::allow_raw_pointers());
     // IMGUI_API ImDrawListSharedData* GetDrawListSharedData();
     emscripten::function("GetDrawListSharedData", FUNCTION(emscripten::val, (), {
