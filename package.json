@@ -24,18 +24,18 @@
   "author": "Isaac Burns <isaacburns@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@types/emscripten": "0.0.32",
-    "@types/node": "^12.0.4",
+    "@types/emscripten": "^1.38.0",
+    "@types/node": "^12.6.7",
     "@types/systemjs": "^0.20.6"
   },
   "devDependencies": {
     "http-server": "^0.11.1",
     "node-fetch": "^2.6.0",
-    "rollup": "^1.14.2",
-    "rollup-plugin-commonjs": "^10.0.0",
+    "rollup": "^1.17.0",
+    "rollup-plugin-commonjs": "^10.0.1",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-typescript2": "^0.21.1",
+    "rollup-plugin-typescript2": "^0.24.1",
     "systemjs": "^0.21.6",
-    "typescript": "^3.5.1"
+    "typescript": "^3.5.3"
   }
 }
