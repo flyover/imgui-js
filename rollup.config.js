@@ -32,6 +32,16 @@ export default [
     plugins: plugins
   },
   {
+    input: "imgui_demo.ts",
+    output: {
+      file: "dist/imgui_demo.umd.js",
+      name: "ImGui_Demo",
+      format: "umd",
+      exports: "named"
+    },
+    plugins: plugins
+  },
+  {
     input: "example/imgui_impl.ts",
     output: {
       file: "dist/imgui_impl.umd.js",
