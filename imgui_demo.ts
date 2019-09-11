@@ -266,6 +266,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     /* static */ const show_app_simple_overlay: Static<boolean> = STATIC("show_app_simple_overlay", false);
     /* static */ const show_app_window_titles: Static<boolean> = STATIC("show_app_window_titles", false);
     /* static */ const show_app_custom_rendering: Static<boolean> = STATIC("show_app_custom_rendering", false);
+    /* static */ const show_backend_checker_window: Static<boolean> = STATIC("show_backend_checker_window", false);
 
     if (show_app_documents.value)           ShowExampleAppDocuments((value = show_app_documents.value) => show_app_documents.value = value);
     if (show_app_main_menu_bar.value)       ShowExampleAppMainMenuBar();
@@ -279,6 +280,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     if (show_app_simple_overlay.value)      ShowExampleAppSimpleOverlay((value = show_app_simple_overlay.value) => show_app_simple_overlay.value = value);
     if (show_app_window_titles.value)       ShowExampleAppWindowTitles((value = show_app_window_titles.value) => show_app_window_titles.value = value);
     if (show_app_custom_rendering.value)    ShowExampleAppCustomRendering((value = show_app_custom_rendering.value) => show_app_custom_rendering.value = value);
+    if (show_backend_checker_window.value)  ShowBackendCheckerWindow((value = show_backend_checker_window.value) => show_backend_checker_window.value = value);
 
     // Dear ImGui Apps (accessible from the "Help" menu)
     /* static */ const show_app_style_editor: Static<boolean> = STATIC("show_app_style_editor", false);
@@ -351,6 +353,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             ImGui.MenuItem("Manipulating window titles", null, (value = show_app_window_titles.value) => show_app_window_titles.value = value);
             ImGui.MenuItem("Custom rendering", null, (value = show_app_custom_rendering.value) => show_app_custom_rendering.value = value);
             ImGui.MenuItem("Documents", null, (value = show_app_documents.value) => show_app_documents.value = value);
+            ImGui.MenuItem("Backend-checker window", null, (value = show_backend_checker_window.value) => show_backend_checker_window.value = value);
             ImGui.EndMenu();
         }
         if (ImGui.BeginMenu("Help"))
@@ -4785,6 +4788,73 @@ function ShowExampleAppDocuments(p_open: ImAccess<boolean>): void
     //         }
     //     }
     // }
+
+    ImGui.End();
+}
+
+//-----------------------------------------------------------------------------
+// [SECTION]
+//-----------------------------------------------------------------------------
+
+function ShowBackendCheckerWindow(p_open: ImAccess<boolean>): void
+{
+    if (!ImGui.Begin("Dear ImGui Backend Checker", p_open))
+    {
+        ImGui.End();
+        return;
+    }
+
+    const io: ImGuiIO = ImGui.GetIO();
+    ImGui.Text(`Dear ImGui ${ImGui.GetVersion()} Backend Checker`);
+    ImGui.Text(`io.BackendPlatformName: ${io.BackendPlatformName ? io.BackendPlatformName : "NULL"}`);
+    ImGui.Text(`io.BackendRendererName: ${io.BackendRendererName ? io.BackendRendererName : "NULL"}`);
+    ImGui.Separator();
+    
+    if (ImGui.TreeNode("0001: Renderer: Large Mesh Support"))
+    {
+        const draw_list: ImGui.ImDrawList = ImGui.GetWindowDrawList();
+        {
+            /* static */ const vtx_count: Static<number> = STATIC("vtx_count#4821", 60000);
+            // ImGui.SliderInt("VtxCount##1", &vtx_count, 0, 100000);
+            ImGui.SliderInt("VtxCount##1", (_ = vtx_count.value) => vtx_count.value = _, 0, 100000);
+            const p: Readonly<ImVec2> = ImGui.GetCursorScreenPos();
+            for (let n = 0; n < vtx_count.value / 4; n++)
+            {
+                // float off_x = (float)(n % 100) * 3.0f;
+                const off_x = (n % 100) * 3.0;
+                // float off_y = (float)(n % 100) * 1.0f;
+                const off_y = (n % 100) * 1.0;
+                // ImU32 col = IM_COL32(((n * 17) & 255), ((n * 59) & 255), ((n * 83) & 255), 255);
+                const col = IM_COL32(((n * 17) & 255), ((n * 59) & 255), ((n * 83) & 255), 255);
+                // draw_list->AddRectFilled(ImVec2(p.x + off_x, p.y + off_y), ImVec2(p.x + off_x + 50, p.y + off_y + 50), col);
+                draw_list.AddRectFilled(new ImVec2(p.x + off_x, p.y + off_y), new ImVec2(p.x + off_x + 50, p.y + off_y + 50), col);
+            }
+            ImGui.Dummy(new ImVec2(300 + 50, 100 + 50));
+            // ImGui.Text("VtxBuffer.Size = %d", draw_list->VtxBuffer.Size);
+            ImGui.Text(`VtxBuffer = ${draw_list.VtxBuffer.length}`);
+        }
+        {
+            /* static */ const vtx_count: Static<number> = STATIC("vtx_count#4841", 60000);
+            // ImGui.SliderInt("VtxCount##2", &vtx_count, 0, 100000);
+            ImGui.SliderInt("VtxCount##2", (_ = vtx_count.value) => vtx_count.value = _, 0, 100000);
+            const p: Readonly<ImVec2> = ImGui.GetCursorScreenPos();
+            for (let n = 0; n < vtx_count.value / (10*4); n++)
+            {
+                // float off_x = (float)(n % 100) * 3.0f;
+                const off_x = (n % 100) * 3.0;
+                // float off_y = (float)(n % 100) * 1.0f;
+                const off_y = (n % 100) * 1.0;
+                // ImU32 col = IM_COL32(((n * 17) & 255), ((n * 59) & 255), ((n * 83) & 255), 255);
+                const col = IM_COL32(((n * 17) & 255), ((n * 59) & 255), ((n * 83) & 255), 255);
+                // draw_list->AddText(ImVec2(p.x + off_x, p.y + off_y), col, "ABCDEFGHIJ");
+                draw_list.AddText(new ImVec2(p.x + off_x, p.y + off_y), col, "ABCDEFGHIJ");
+            }
+            ImGui.Dummy(new ImVec2(300 + 50, 100 + 20));
+            // ImGui.Text("VtxBuffer.Size = %d", draw_list->VtxBuffer.Size);
+            ImGui.Text(`VtxBuffer = ${draw_list.VtxBuffer.length}`);
+        }
+        ImGui.TreePop();
+    }
 
     ImGui.End();
 }
