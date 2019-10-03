@@ -958,7 +958,7 @@ ImGuiStyle: { new(): ImGuiStyle; };
 // All contexts share a same ImFontAtlas by default. If you want different font atlas, you can new() them and overwrite the GetIO().Fonts variable of an ImGui context.
 // All those functions are not reliant on the current context.
 // IMGUI_API ImGuiContext* CreateContext(ImFontAtlas* shared_font_atlas = NULL);
-CreateContext(): WrapImGuiContext;
+CreateContext(shared_font_atlas: reference_ImFontAtlas | null): WrapImGuiContext;
 // IMGUI_API void          DestroyContext(ImGuiContext* ctx = NULL);   // NULL = Destroy current context
 DestroyContext(ctx: WrapImGuiContext | null): void;
 // IMGUI_API ImGuiContext* GetCurrentContext();

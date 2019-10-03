@@ -2320,43 +2320,36 @@ export class ImGuiIO
     // IMGUI_API   ImGuiIO();
 }
 
+const _texturesById: Array<ImTextureID | null> = [];
+
 // Context creation and access, if you want to use multiple context, share context between modules (e.g. DLL).
 // All contexts share a same ImFontAtlas by default. If you want different font atlas, you can new() them and overwrite the GetIO().Fonts variable of an ImGui context.
 // All those functions are not reliant on the current context.
 export class ImGuiContext {
     public static current_ctx: ImGuiContext | null = null;
     public static getTexture(index: number): ImTextureID | null {
-        if (ImGuiContext.current_ctx === null) { throw new Error(); }
-        return ImGuiContext.current_ctx._getTexture(index);
+        return _texturesById[index] || null;
     }
     public static setTexture(texture: ImTextureID | null): number {
-        if (ImGuiContext.current_ctx === null) { throw new Error(); }
-        return ImGuiContext.current_ctx._setTexture(texture);
-    }
-
-    private textures: Array<ImTextureID | null> = [];
-    constructor(public readonly native: Bind.WrapImGuiContext) {}
-    private _getTexture(index: number): ImTextureID | null {
-        return this.textures[index] || null;
-    }
-    private _setTexture(texture: ImTextureID | null): number {
-        let index = this.textures.indexOf(texture);
+        let index = _texturesById.indexOf(texture);
         if (index === -1) {
-            for (let i = 0; i < this.textures.length; ++i) {
-                if (this.textures[i] === null) {
-                    this.textures[i] = texture;
+            for (let i = 0; i < _texturesById.length; ++i) {
+                if (_texturesById[i] === null) {
+                    _texturesById[i] = texture;
                     return i;
                 }
             }
-            index = this.textures.length;
-            this.textures.push(texture);
+            index = _texturesById.length;
+            _texturesById.push(texture);
         }
         return index;
     }
+
+    constructor(public readonly native: Bind.WrapImGuiContext) {}
 }
 // IMGUI_API ImGuiContext* CreateContext(ImFontAtlas* shared_font_atlas = NULL);
 export function CreateContext(shared_font_atlas: ImFontAtlas | null = null): ImGuiContext | null {
-    const ctx: ImGuiContext = new ImGuiContext(bind.CreateContext());
+    const ctx: ImGuiContext = new ImGuiContext(bind.CreateContext(shared_font_atlas ? shared_font_atlas.native : null));
     if (ImGuiContext.current_ctx === null) {
         ImGuiContext.current_ctx = ctx;
     }

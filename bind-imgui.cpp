@@ -153,7 +153,7 @@ public:
     emscripten::val _ImGui_SetAllocatorFunctions_user_data = emscripten::val::undefined();
 
 public:
-    WrapImGuiContext(ImFontAtlas* shared_font_atlas = NULL): ctx(ImGui::CreateContext()) {
+    WrapImGuiContext(ImFontAtlas* shared_font_atlas = NULL): ctx(ImGui::CreateContext(shared_font_atlas)) {
         ImGuiContext* prev_ctx = ImGui::GetCurrentContext();
         ImGui::SetCurrentContext(ctx);
         ImGuiIO& io = ImGui::GetIO();
@@ -1600,8 +1600,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // All contexts share a same ImFontAtlas by default. If you want different font atlas, you can new() them and overwrite the GetIO().Fonts variable of an ImGui context.
     // All those functions are not reliant on the current context.
     // IMGUI_API ImGuiContext* CreateContext(ImFontAtlas* shared_font_atlas = NULL);
-    emscripten::function("CreateContext", FUNCTION(WrapImGuiContext*, (), {
-        return WrapImGuiContext::CreateContext(); // TODO: shared font atlas
+    emscripten::function("CreateContext", FUNCTION(WrapImGuiContext*, (ImFontAtlas* atlas), {
+        return WrapImGuiContext::CreateContext(atlas); // TODO: shared font atlas
     }), emscripten::allow_raw_pointers());
     // IMGUI_API void          DestroyContext(ImGuiContext* ctx = NULL);   // NULL = Destroy current context
     emscripten::function("DestroyContext", FUNCTION(void, (WrapImGuiContext* wrap), {
