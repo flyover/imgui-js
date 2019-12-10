@@ -48,7 +48,7 @@ FLAGS += -s SINGLE_FILE=1
 # FLAGS += -s BINARYEN_ASYNC_COMPILATION=0
 # FLAGS += -s BINARYEN_METHOD=\"native-wasm,asmjs\"
 # FLAGS += -s BINARYEN_METHOD=\"interpret-asm2wasm,asmjs\"
-FLAGS += -s BINARYEN_TRAP_MODE=\"clamp\"
+# FLAGS += -s BINARYEN_TRAP_MODE=\"clamp\"
 # FLAGS += -s TOTAL_MEMORY=4194304
 # FLAGS += -s ALLOW_MEMORY_GROWTH=1
 FLAGS += -s EMBIND_STD_STRING_IS_UTF8=1
@@ -67,10 +67,10 @@ clean-bind-imgui:
 	rm -f bind-imgui.wasm bind-imgui.wasm.*
 
 %.bc: %.cpp $(IMGUI_SOURCE_HXX)
-	emcc $(FLAGS) -I $(IMGUI_PATH) $< -o $@
+	emcc $(FLAGS) -I $(IMGUI_PATH) -c $< -o $@
 
 bind-imgui.bc: bind-imgui.cpp $(IMGUI_SOURCE_HXX)
-	emcc $(FLAGS) -I $(IMGUI_PATH) --bind $< -o $@
+	emcc $(FLAGS) -I $(IMGUI_PATH) -c --bind $< -o $@
 
 bind-imgui.js: $(IMGUI_OUTPUT_BC) $(BIND_IMGUI_OUTPUT_BC)
 	emcc $(FLAGS) -I $(IMGUI_PATH) --bind $^ -o $@
