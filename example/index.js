@@ -2,7 +2,11 @@
 /// <reference types="node"/>
 
 const fs = require('fs');
+const path = require('path');
 const Response = require('node-fetch').Response;
+
+global["__filename"] = module.filename;
+global["__dirname"] = path.dirname(module.filename);
 
 global["fetch"] = (url) => {
   return new Promise((resolve, reject) => {
