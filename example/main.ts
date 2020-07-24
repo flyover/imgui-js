@@ -389,6 +389,7 @@ function StartUpVideo(): void {
     if (gl) {
         video_element = document.createElement("video");
         video_element.crossOrigin = "anonymous";
+        video_element.preload = "auto";
         video_element.src = video_url;
         video_element.load();
 
