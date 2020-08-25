@@ -1203,7 +1203,14 @@
 	    // If you don't specify an items_height, you NEED to call Step(). If you specify items_height you may call the old Begin()/End() api directly, but prefer calling Step().
 	    // ImGuiListClipper(int items_count = -1, float items_height = -1.0f)  { Begin(items_count, items_height); } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
 	    constructor(items_count = -1, items_height = -1.0) {
-	        this.native = new bind.ImGuiListClipper(items_count, items_height);
+	        this._native = null;
+	        this.items_count = -1;
+	        this.items_height = -1.0;
+	        this.items_count = items_count;
+	        this.items_height = items_height;
+	    }
+	    get native() {
+	        return this._native || (this._native = new bind.ImGuiListClipper(this.items_count, this.items_height));
 	    }
 	    get StartPosY() { return this.native.StartPosY; }
 	    get ItemsHeight() { return this.native.ItemsHeight; }
@@ -1213,16 +1220,13 @@
 	    get DisplayEnd() { return this.native.DisplayEnd; }
 	    // ~ImGuiListClipper()                                                 { IM_ASSERT(ItemsCount == -1); }      // Assert if user forgot to call End() or Step() until false.
 	    delete() {
-	        if (this.native) {
-	            this.native.delete();
-	            delete this.native;
+	        if (this._native !== null) {
+	            this._native.delete();
+	            this._native = null;
 	        }
 	    }
 	    // IMGUI_API bool Step();                                              // Call until it returns false. The DisplayStart/DisplayEnd fields will be set and you can process/draw those items.
 	    Step() {
-	        if (!this.native) {
-	            throw new Error();
-	        }
 	        const busy = this.native.Step();
 	        if (!busy) {
 	            this.delete();
@@ -1231,16 +1235,12 @@
 	    }
 	    // IMGUI_API void Begin(int items_count, float items_height = -1.0f);  // Automatically called by constructor if you passed 'items_count' or by Step() in Step 1.
 	    Begin(items_count, items_height = -1.0) {
-	        if (!this.native) {
-	            this.native = new undefined(items_count, items_height);
-	        }
+	        this.items_count = items_count;
+	        this.items_height = items_height;
 	        this.native.Begin(items_count, items_height);
 	    }
 	    // IMGUI_API void End();                                               // Automatically called on the last call of Step() that returns false.
 	    End() {
-	        if (!this.native) {
-	            throw new Error();
-	        }
 	        this.native.End();
 	        this.delete();
 	    }
