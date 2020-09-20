@@ -17,7 +17,7 @@
     "watch-example": "tsc -p example --watch",
     "clean-example": "echo TODO: clean-example",
     "start-example": "npm run start-example-html",
-    "start-example-html": "echo http://localhost:8080/example/index.html && http-server -c-1 -o",
+    "start-example-html": "http-server -c-1 -o example/index.html",
     "start-example-node": "node example/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
