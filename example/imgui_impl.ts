@@ -248,6 +248,9 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | CanvasRe
         canvas.addEventListener("contextmenu", canvas_on_contextmenu);
         canvas.addEventListener("pointerup", canvas_on_pointerup);
         canvas.addEventListener("wheel", canvas_on_wheel);
+        canvas.addEventListener("mousemove", canvas_on_pointermove);
+        canvas.addEventListener("mousedown", canvas_on_pointerdown);
+        canvas.addEventListener("mouseup", canvas_on_pointerup);
     }
 
     // Setup back-end capabilities flags
@@ -292,6 +295,9 @@ export function Shutdown(): void {
         canvas.removeEventListener("contextmenu", canvas_on_contextmenu);
         canvas.removeEventListener("pointerup", canvas_on_pointerup);
         canvas.removeEventListener("wheel", canvas_on_wheel);
+        canvas.removeEventListener("mousemove", canvas_on_pointermove);
+        canvas.removeEventListener("mousedown", canvas_on_pointerdown);
+        canvas.removeEventListener("mouseup", canvas_on_pointerup);
     }
 
     gl = null;
