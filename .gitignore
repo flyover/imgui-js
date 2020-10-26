@@ -5,3 +5,4 @@ imgui.ini
 **/*.bc
 example/main.js
 es
+src/bind-imgui.js
