@@ -3,3 +3,5 @@ package-lock.json
 .vscode
 imgui.ini
 **/*.bc
+example/main.js
+es

@@ -23,10 +23,10 @@ IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_draw.cpp
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_widgets.cpp
 IMGUI_OUTPUT_BC = $(IMGUI_SOURCE_CXX:%.cpp=%.bc)
 
-BIND_IMGUI_SOURCE_D_TS = bind-imgui.d.ts
-BIND_IMGUI_SOURCE_CXX = bind-imgui.cpp
-BIND_IMGUI_OUTPUT_BC = bind-imgui.bc
-BIND_IMGUI_OUTPUT_JS = bind-imgui.js
+BIND_IMGUI_SOURCE_D_TS = src/bind-imgui.d.ts
+BIND_IMGUI_SOURCE_CXX = src/bind-imgui.cpp
+BIND_IMGUI_OUTPUT_BC = src/bind-imgui.bc
+BIND_IMGUI_OUTPUT_JS = src/bind-imgui.js
 
 # debug flags
 # FLAGS += -g4
@@ -63,8 +63,8 @@ build-bind-imgui: bind-imgui.js
 clean-bind-imgui:
 	rm -f $(IMGUI_OUTPUT_BC)
 	rm -f $(BIND_IMGUI_OUTPUT_BC)
-	rm -f bind-imgui.js bind-imgui.js.*
-	rm -f bind-imgui.wasm bind-imgui.wasm.*
+	rm -f $(BIND_IMGUI_OUTPUT_JS)
+	rm -f src/bind-imgui.wasm src/bind-imgui.wasm.*
 
 %.bc: %.cpp $(IMGUI_SOURCE_HXX)
 	emcc $(FLAGS) -I $(IMGUI_PATH) -c $< -o $@
@@ -73,7 +73,7 @@ bind-imgui.bc: bind-imgui.cpp $(IMGUI_SOURCE_HXX)
 	emcc $(FLAGS) -I $(IMGUI_PATH) -c --bind $< -o $@
 
 bind-imgui.js: $(IMGUI_OUTPUT_BC) $(BIND_IMGUI_OUTPUT_BC)
-	emcc $(FLAGS) -I $(IMGUI_PATH) --bind $^ -o $@
+	emcc $(FLAGS) -I $(IMGUI_PATH) --bind $^ -o src/$@
 
 # imgui
 

@@ -1,4 +1,4 @@
-import commonjs from 'rollup-plugin-commonjs';
+import commonjs from "rollup-plugin-commonjs";
 import builtins from "rollup-plugin-node-builtins";
 import typescript from "rollup-plugin-typescript2";
 
@@ -14,15 +14,15 @@ const plugins = [
   }),
   commonjs({
     namedExports: {
-      "bind-imgui.js": [ "bind" ]
+      "./src/bind-imgui.js": ["bind"]
     }
   }),
-  builtins(),
+  builtins()
 ];
 
 export default [
   {
-    input: "imgui.ts",
+    input: "./src/imgui.ts",
     output: {
       file: "dist/imgui.umd.js",
       name: "ImGui",
@@ -32,7 +32,7 @@ export default [
     plugins: plugins
   },
   {
-    input: "imgui_demo.ts",
+    input: "./src/imgui_demo.ts",
     output: {
       file: "dist/imgui_demo.umd.js",
       name: "ImGui_Demo",
@@ -42,10 +42,10 @@ export default [
     plugins: plugins
   },
   {
-    input: "example/imgui_impl.ts",
+    input: "./src/imgui_impl_webgl.ts",
     output: {
-      file: "dist/imgui_impl.umd.js",
-      name: "ImGui_Impl",
+      file: "dist/imgui_impl_webgl.umd.js",
+      name: "ImGui_Impl_WebGL",
       format: "umd",
       exports: "named"
     },

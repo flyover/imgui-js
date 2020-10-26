@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
     "target": "ES2016",
-    "module": "system",
+    "module": "ESNext",
     "strict": true,
-    "inlineSourceMap": true
+    "inlineSourceMap": true,
+    "declaration": true,
+    "outDir": "es"
   },
   "files": [
-    "imgui.ts",
-    "imgui_demo.ts",
-    "imgui_memory_editor.ts"
+    "src/imgui.ts",
+    "src/imgui_demo.ts",
+    "src/imgui_impl_webgl.ts",
+    "src/imgui_memory_editor.ts"
   ]
 }
