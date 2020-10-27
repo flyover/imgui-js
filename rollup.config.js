@@ -1,4 +1,6 @@
 import alias from "@rollup/plugin-alias";
+import commonjs from '@rollup/plugin-commonjs';
+import builtins from "rollup-plugin-node-builtins";
 import typescript from "rollup-plugin-typescript2";
 
 export default [
@@ -26,6 +28,8 @@ export default [
           }
         }
       }),
+      commonjs(),
+      builtins(),
     ]
   },
   {
