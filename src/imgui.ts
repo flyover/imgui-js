@@ -5,7 +5,7 @@ export interface XYZW extends XYZ { w: number; }
 export interface RGB { r: number; g: number; b: number; }
 export interface RGBA extends RGB { a: number; }
 
-import * as Bind from "./bind-imgui";
+import * as Bind from "bind-imgui";
 export { Bind };
 
 let bind: Bind.Module;
@@ -1288,11 +1288,11 @@ export class ImDrawList
     // IMGUI_API void  PopTextureID();
     public PopTextureID(): void { this.native.PopTextureID(); }
     // inline ImVec2   GetClipRectMin() const { const ImVec4& cr = _ClipRectStack.back(); return ImVec2(cr.x, cr.y); }
-    public GetClipRectMin(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+    public GetClipRectMin(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
         return this.native.GetClipRectMin(out);
     }
     // inline ImVec2   GetClipRectMax() const { const ImVec4& cr = _ClipRectStack.back(); return ImVec2(cr.z, cr.w); }
-    public GetClipRectMax(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+    public GetClipRectMax(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
         return this.native.GetClipRectMax(out);
     }
 
@@ -2528,19 +2528,19 @@ export function BeginChild(id: string | Bind.ImGuiID, size: Readonly<Bind.interf
 // IMGUI_API void          EndChild();
 export function EndChild(): void { bind.EndChild(); }
 // IMGUI_API ImVec2        GetContentRegionMax();                                              // current content boundaries (typically window boundaries including scrolling, or current column boundaries), in windows coordinates
-export function GetContentRegionMax(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetContentRegionMax(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetContentRegionMax(out);
 }
 // IMGUI_API ImVec2        GetContentRegionAvail();                                            // == GetContentRegionMax() - GetCursorPos()
-export function GetContentRegionAvail(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetContentRegionAvail(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetContentRegionAvail(out);
 }
 // IMGUI_API ImVec2        GetWindowContentRegionMin();                                        // content boundaries min (roughly (0,0)-Scroll), in window coordinates
-export function GetWindowContentRegionMin(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetWindowContentRegionMin(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetWindowContentRegionMin(out);
 }
 // IMGUI_API ImVec2        GetWindowContentRegionMax();                                        // content boundaries max (roughly (0,0)+Size-Scroll) where Size can be override with SetNextWindowContentSize(), in window coordinates
-export function GetWindowContentRegionMax(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetWindowContentRegionMax(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetWindowContentRegionMax(out);
 }
 // IMGUI_API float         GetWindowContentRegionWidth();                                      //
@@ -2550,11 +2550,11 @@ export function GetWindowDrawList(): ImDrawList {
     return new ImDrawList(bind.GetWindowDrawList());
 }
 // IMGUI_API ImVec2        GetWindowPos();                                                     // get current window position in screen space (useful if you want to do your own drawing via the DrawList api)
-export function GetWindowPos(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetWindowPos(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetWindowPos(out);
 }
 // IMGUI_API ImVec2        GetWindowSize();                                                    // get current window size
-export function GetWindowSize(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetWindowSize(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetWindowSize(out);
 }
 // IMGUI_API float         GetWindowWidth();
@@ -2697,7 +2697,7 @@ export function GetFont(): ImFont {
 // IMGUI_API float         GetFontSize();                                                      // get current font size (= height in pixels) of current font with current scale applied
 export function GetFontSize(): number { return bind.GetFontSize(); }
 // IMGUI_API ImVec2        GetFontTexUvWhitePixel();                                           // get UV coordinate for a while pixel, useful to draw custom shapes via the ImDrawList API
-export function GetFontTexUvWhitePixel(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetFontTexUvWhitePixel(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetFontTexUvWhitePixel(out);
 }
 // IMGUI_API ImU32         GetColorU32(ImGuiCol idx, float alpha_mul = 1.0f);                  // retrieve given style color with style alpha applied and optional extra alpha multiplier
@@ -2768,7 +2768,7 @@ export function BeginGroup(): void { bind.BeginGroup(); }
 // IMGUI_API void          EndGroup();
 export function EndGroup(): void { bind.EndGroup(); }
 // IMGUI_API ImVec2        GetCursorPos();                                                     // cursor position is relative to window position
-export function GetCursorPos(out: Bind.interface_ImVec2 = new ImVec2()): typeof out { return bind.GetCursorPos(out); }
+export function GetCursorPos(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 { return bind.GetCursorPos(out); }
 // IMGUI_API float         GetCursorPosX();                                                    // "
 export function GetCursorPosX(): number { return bind.GetCursorPosX(); }
 // IMGUI_API float         GetCursorPosY();                                                    // "
@@ -2780,9 +2780,9 @@ export function SetCursorPosX(x: number): void { bind.SetCursorPosX(x); }
 // IMGUI_API void          SetCursorPosY(float y);                                             // "
 export function SetCursorPosY(y: number): void { bind.SetCursorPosY(y); }
 // IMGUI_API ImVec2        GetCursorStartPos();                                                // initial cursor position
-export function GetCursorStartPos(out: Bind.interface_ImVec2 = new ImVec2()): typeof out { return bind.GetCursorStartPos(out); }
+export function GetCursorStartPos(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 { return bind.GetCursorStartPos(out); }
 // IMGUI_API ImVec2        GetCursorScreenPos();                                               // cursor position in absolute screen coordinates [0..io.DisplaySize] (useful to work with ImDrawList API)
-export function GetCursorScreenPos(out: Bind.interface_ImVec2 = new ImVec2()): typeof out { return bind.GetCursorScreenPos(out); }
+export function GetCursorScreenPos(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 { return bind.GetCursorScreenPos(out); }
 // IMGUI_API void          SetCursorScreenPos(const ImVec2& pos);                              // cursor position in absolute screen coordinates [0..io.DisplaySize]
 export function SetCursorScreenPos(pos: Readonly<Bind.interface_ImVec2>): void { bind.SetCursorScreenPos(pos); }
 // IMGUI_API void          AlignTextToFramePadding();                                          // vertically align/lower upcoming text to FramePadding.y so that it will aligns to upcoming widgets (call if you have text on a line before regular widgets)
@@ -3822,15 +3822,15 @@ export function IsAnyItemActive(): boolean { return bind.IsAnyItemActive(); }
 // IMGUI_API bool          IsAnyItemFocused();
 export function IsAnyItemFocused(): boolean { return bind.IsAnyItemFocused(); }
 // IMGUI_API ImVec2        GetItemRectMin();                                                   // get bounding rectangle of last item, in screen space
-export function GetItemRectMin(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetItemRectMin(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetItemRectMin(out);
 }
 // IMGUI_API ImVec2        GetItemRectMax();                                                   // "
-export function GetItemRectMax(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetItemRectMax(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetItemRectMax(out);
 }
 // IMGUI_API ImVec2        GetItemRectSize();                                                  // get size of last item, in screen space
-export function GetItemRectSize(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetItemRectSize(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetItemRectSize(out);
 }
 // IMGUI_API void          SetItemAllowOverlap();                                              // allow last item to be overlapped by a subsequent item. sometimes useful with invisible buttons, selectables, etc. to catch unused area.
@@ -3874,7 +3874,7 @@ export function GetDrawListSharedData(): ImDrawListSharedData {
 // IMGUI_API const char*   GetStyleColorName(ImGuiCol idx);
 export function GetStyleColorName(idx: ImGuiCol): string { return bind.GetStyleColorName(idx); }
 // IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
-export function CalcTextSize(text: string, text_end: number | null = null, hide_text_after_double_hash: boolean = false, wrap_width: number = -1, out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function CalcTextSize(text: string, text_end: number | null = null, hide_text_after_double_hash: boolean = false, wrap_width: number = -1, out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.CalcTextSize(text_end !== null ? text.substring(0, text_end) : text, hide_text_after_double_hash, wrap_width, out);
 }
 // IMGUI_API void          CalcListClipping(int items_count, float items_height, int* out_items_display_start, int* out_items_display_end);    // calculate coarse clipping for large list of evenly sized items. Prefer using the ImGuiListClipper higher-level helper if you can.
@@ -3890,7 +3890,7 @@ export function BeginChildFrame(id: Bind.ImGuiID, size: Readonly<Bind.interface_
 export function EndChildFrame(): void { bind.EndChildFrame(); }
 
 // IMGUI_API ImVec4        ColorConvertU32ToFloat4(ImU32 in);
-export function ColorConvertU32ToFloat4(in_: Bind.ImU32, out: Bind.interface_ImVec4 = new ImVec4()): typeof out {
+export function ColorConvertU32ToFloat4(in_: Bind.ImU32, out: Bind.interface_ImVec4 = new ImVec4()): Bind.interface_ImVec4 {
     return bind.ColorConvertU32ToFloat4(in_, out);
 }
 // IMGUI_API ImU32         ColorConvertFloat4ToU32(const ImVec4& in);
@@ -3952,15 +3952,15 @@ export function IsMousePosValid(mouse_pos: Readonly<Bind.interface_ImVec2> | nul
     return bind.IsMousePosValid(mouse_pos);
 }
 // IMGUI_API ImVec2        GetMousePos();                                                      // shortcut to ImGui::GetIO().MousePos provided by user, to be consistent with other calls
-export function GetMousePos(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetMousePos(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetMousePos(out);
 }
 // IMGUI_API ImVec2        GetMousePosOnOpeningCurrentPopup();                                 // retrieve backup of mouse positioning at the time of opening popup we have BeginPopup() into
-export function GetMousePosOnOpeningCurrentPopup(out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetMousePosOnOpeningCurrentPopup(out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetMousePosOnOpeningCurrentPopup(out);
 }
 // IMGUI_API ImVec2        GetMouseDragDelta(int button = 0, float lock_threshold = -1.0f);    // dragging amount since clicking. if lock_threshold < -1.0f uses io.MouseDraggingThreshold
-export function GetMouseDragDelta(button: number = 0, lock_threshold: number = -1.0, out: Bind.interface_ImVec2 = new ImVec2()): typeof out {
+export function GetMouseDragDelta(button: number = 0, lock_threshold: number = -1.0, out: Bind.interface_ImVec2 = new ImVec2()): Bind.interface_ImVec2 {
     return bind.GetMouseDragDelta(button, lock_threshold, out);
 }
 // IMGUI_API void          ResetMouseDragDelta(int button = 0);                                //

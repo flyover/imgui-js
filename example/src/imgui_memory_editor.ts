@@ -37,17 +37,17 @@
 // #pragma once
 // #include <stdio.h>  // sprintf, scanf
 
-import * as ImGui from "./imgui";
-import { ImGuiCol } from "./imgui";
-import { ImGuiWindowFlags } from "./imgui";
-import { ImGuiHoveredFlags } from "./imgui";
-import { ImStringBuffer } from "./imgui";
-import { ImU32 } from "./imgui";
-import { ImVec2 } from "./imgui";
-import { ImGuiStyle } from "./imgui";
-import { ImGuiListClipper } from "./imgui";
-import { ImDrawList } from "./imgui";
-import { ImGuiInputTextCallbackData } from "./imgui";
+import * as ImGui from "imgui-js";
+import { ImGuiCol } from "imgui-js";
+import { ImGuiWindowFlags } from "imgui-js";
+import { ImGuiHoveredFlags } from "imgui-js";
+import { ImStringBuffer } from "imgui-js";
+import { ImU32 } from "imgui-js";
+import { ImVec2 } from "imgui-js";
+import { ImGuiStyle } from "imgui-js";
+import { ImGuiListClipper } from "imgui-js";
+import { ImDrawList } from "imgui-js";
+import { ImGuiInputTextCallbackData } from "imgui-js";
 
 export class MemoryEditor
 {

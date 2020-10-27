@@ -1,4 +1,4 @@
-import * as ImGui from "../imgui";
+import * as ImGui from "imgui-js";
 
 let clipboard_text: string = "";
 

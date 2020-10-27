@@ -3,11 +3,15 @@
     "target": "ES2016",
     "module": "system",
     "strict": true,
-    "inlineSourceMap": true
+    "outDir": "build",
+    "sourceMap": true,
+    "declaration": true,
+    "baseUrl": ".",
+    "paths": {
+      "bind-imgui": [ "build/bind-imgui" ],
+    }
   },
   "files": [
-    "imgui.ts",
-    "imgui_demo.ts",
-    "imgui_memory_editor.ts"
+    "src/imgui.ts",
   ]
 }

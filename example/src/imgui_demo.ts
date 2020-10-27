@@ -68,49 +68,49 @@ Index of this file:
 // #include <stdint.h>         // intptr_t
 // #endif
 
-import * as ImGui from "./imgui";
+import * as ImGui from "imgui-js";
 
-import { IMGUI_VERSION } from "./imgui";
+import { IMGUI_VERSION } from "imgui-js";
 
-import { IM_ASSERT } from "./imgui";
-import { IM_ARRAYSIZE } from "./imgui";
+import { IM_ASSERT } from "imgui-js";
+import { IM_ARRAYSIZE } from "imgui-js";
 
-import { ImStringBuffer } from "./imgui";
-import { ImAccess } from "./imgui";
-import { ImScalar } from "./imgui";
-import { ImTuple3 } from "./imgui";
-import { ImTuple4 } from "./imgui";
-import { ImGuiCol } from "./imgui";
-import { ImGuiColorEditFlags } from "./imgui";
-import { ImGuiCond } from "./imgui";
-import { ImGuiFocusedFlags } from "./imgui";
-import { ImGuiHoveredFlags } from "./imgui";
-import { ImGuiInputTextFlags } from "./imgui";
-import { ImGuiMouseCursor } from "./imgui";
-import { ImGuiSelectableFlags } from "./imgui";
-import { ImGuiStyleVar } from "./imgui";
-import { ImGuiTreeNodeFlags } from "./imgui";
-import { ImGuiWindowFlags } from "./imgui";
-import { ImGuiTabBarFlags } from "./imgui";
-import { ImGuiTabItemFlags } from "./imgui";
-import { ImGuiInputTextCallbackData } from "./imgui";
-import { ImGuiSizeCallbackData } from "./imgui";
-import { ImDrawCornerFlags } from "./imgui";
-import { ImU32 } from "./imgui";
-import { ImVector } from "./imgui";
-import { ImVec2, interface_ImVec2 } from "./imgui";
-import { ImVec4, interface_ImVec4 } from "./imgui";
-import { IM_COL32 } from "./imgui";
-import { ImColor } from "./imgui";
-import { ImGuiIO } from "./imgui";
-import { ImGuiStyle } from "./imgui";
-import { ImDrawList } from "./imgui";
-import { ImGuiTextFilter } from "./imgui";
-import { ImGuiTextBuffer } from "./imgui";
-import { ImGuiListClipper } from "./imgui";
-import { ImFont } from "./imgui";
-import { ImFontAtlas } from "./imgui";
-import { ImGuiDir } from "./imgui";
+import { ImStringBuffer } from "imgui-js";
+import { ImAccess } from "imgui-js";
+import { ImScalar } from "imgui-js";
+import { ImTuple3 } from "imgui-js";
+import { ImTuple4 } from "imgui-js";
+import { ImGuiCol } from "imgui-js";
+import { ImGuiColorEditFlags } from "imgui-js";
+import { ImGuiCond } from "imgui-js";
+import { ImGuiFocusedFlags } from "imgui-js";
+import { ImGuiHoveredFlags } from "imgui-js";
+import { ImGuiInputTextFlags } from "imgui-js";
+import { ImGuiMouseCursor } from "imgui-js";
+import { ImGuiSelectableFlags } from "imgui-js";
+import { ImGuiStyleVar } from "imgui-js";
+import { ImGuiTreeNodeFlags } from "imgui-js";
+import { ImGuiWindowFlags } from "imgui-js";
+import { ImGuiTabBarFlags } from "imgui-js";
+import { ImGuiTabItemFlags } from "imgui-js";
+import { ImGuiInputTextCallbackData } from "imgui-js";
+import { ImGuiSizeCallbackData } from "imgui-js";
+import { ImDrawCornerFlags } from "imgui-js";
+import { ImU32 } from "imgui-js";
+import { ImVector } from "imgui-js";
+import { ImVec2, interface_ImVec2 } from "imgui-js";
+import { ImVec4, interface_ImVec4 } from "imgui-js";
+import { IM_COL32 } from "imgui-js";
+import { ImColor } from "imgui-js";
+import { ImGuiIO } from "imgui-js";
+import { ImGuiStyle } from "imgui-js";
+import { ImDrawList } from "imgui-js";
+import { ImGuiTextFilter } from "imgui-js";
+import { ImGuiTextBuffer } from "imgui-js";
+import { ImGuiListClipper } from "imgui-js";
+import { ImFont } from "imgui-js";
+import { ImFontAtlas } from "imgui-js";
+import { ImGuiDir } from "imgui-js";
 
 // #ifdef _MSC_VER
 // #pragma warning (disable: 4996) // 'This function or variable may be unsafe': strcpy, strdup, sprintf, vsnprintf, sscanf, fopen

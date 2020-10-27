@@ -21,12 +21,16 @@ IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui.cpp
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_demo.cpp
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_draw.cpp
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_widgets.cpp
-IMGUI_OUTPUT_BC = $(IMGUI_SOURCE_CXX:%.cpp=%.bc)
+IMGUI_OUTPUT_BC = $(IMGUI_SOURCE_CXX:%.cpp=build/%.bc)
 
-BIND_IMGUI_SOURCE_D_TS = bind-imgui.d.ts
-BIND_IMGUI_SOURCE_CXX = bind-imgui.cpp
-BIND_IMGUI_OUTPUT_BC = bind-imgui.bc
-BIND_IMGUI_OUTPUT_JS = bind-imgui.js
+EMSCRIPTEN_SOURCE_D_TS = src/emscripten.d.ts
+EMSCRIPTEN_OUTPUT_D_TS = build/emscripten.d.ts
+
+BIND_IMGUI_SOURCE_D_TS = src/bind-imgui.d.ts
+BIND_IMGUI_OUTPUT_D_TS = build/bind-imgui.d.ts
+BIND_IMGUI_SOURCE_CXX = src/bind-imgui.cpp
+BIND_IMGUI_OUTPUT_BC = build/bind-imgui.bc
+BIND_IMGUI_OUTPUT_JS = build/bind-imgui.js
 
 # debug flags
 # FLAGS += -g4
@@ -58,21 +62,32 @@ FLAGS += -D "IM_ASSERT(EXPR)=((void)(EXPR))"
 FLAGS += -D IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 FLAGS += -D IMGUI_DISABLE_DEMO_WINDOWS
 
-build-bind-imgui: bind-imgui.js
+build-bind-imgui: build/emscripten.d.ts build/bind-imgui.d.ts build/bind-imgui.js
 
 clean-bind-imgui:
 	rm -f $(IMGUI_OUTPUT_BC)
 	rm -f $(BIND_IMGUI_OUTPUT_BC)
-	rm -f bind-imgui.js bind-imgui.js.*
-	rm -f bind-imgui.wasm bind-imgui.wasm.*
+	rm -f build/bind-imgui.js build/bind-imgui.js.*
+	rm -f build/bind-imgui.wasm build/bind-imgui.wasm.*
 
-%.bc: %.cpp $(IMGUI_SOURCE_HXX)
+build/%.bc: %.cpp $(IMGUI_SOURCE_HXX)
+	mkdir -p ${@D}
 	emcc $(FLAGS) -I $(IMGUI_PATH) -c $< -o $@
 
-bind-imgui.bc: bind-imgui.cpp $(IMGUI_SOURCE_HXX)
+build/emscripten.d.ts: src/emscripten.d.ts
+	mkdir -p ${@D}
+	cp -fv $< $@
+
+build/bind-imgui.d.ts: src/bind-imgui.d.ts
+	mkdir -p ${@D}
+	cp -fv $< $@
+
+build/bind-imgui.bc: src/bind-imgui.cpp $(IMGUI_SOURCE_HXX)
+	mkdir -p ${@D}
 	emcc $(FLAGS) -I $(IMGUI_PATH) -c --bind $< -o $@
 
-bind-imgui.js: $(IMGUI_OUTPUT_BC) $(BIND_IMGUI_OUTPUT_BC)
+build/bind-imgui.js: $(IMGUI_OUTPUT_BC) $(BIND_IMGUI_OUTPUT_BC)
+	mkdir -p ${@D}
 	emcc $(FLAGS) -I $(IMGUI_PATH) --bind $^ -o $@
 
 # imgui

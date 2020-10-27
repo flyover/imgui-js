@@ -29,6 +29,6 @@ global["SystemJS"] = require("systemjs");
 
 module.require("./system.config");
 
-SystemJS.import("./main")
+SystemJS.import("./build/main.js")
 .then(function (main) { main.default(); })
 .catch(console.error);
