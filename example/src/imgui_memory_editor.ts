@@ -443,7 +443,7 @@ export class MemoryEditor
         {
             ImGui.PushItemWidth(56);
             // if (ImGui.DragInt("##rows", &Rows, 0.2f, 4, 32, "%.0f rows")) ContentsWidthChanged = true;
-            if (ImGui.DragInt("##rows", (_ = this.Rows) => this.Rows = _, 0.2, 4, 32, "%.0f rows")) this.ContentsWidthChanged = true;
+            if (ImGui.DragInt("##rows", (_ = this.Rows) => this.Rows = _, 0.2, 4, 32, "%d rows")) this.ContentsWidthChanged = true;
             ImGui.PopItemWidth();
             // ImGui.Checkbox("Show HexII", &OptShowHexII);
             ImGui.Checkbox("Show HexII", (_ = this.OptShowHexII) => this.OptShowHexII = _);

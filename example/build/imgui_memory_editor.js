@@ -398,7 +398,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     if (ImGui.BeginPopup("context")) {
                         ImGui.PushItemWidth(56);
                         // if (ImGui.DragInt("##rows", &Rows, 0.2f, 4, 32, "%.0f rows")) ContentsWidthChanged = true;
-                        if (ImGui.DragInt("##rows", (_ = this.Rows) => this.Rows = _, 0.2, 4, 32, "%.0f rows"))
+                        if (ImGui.DragInt("##rows", (_ = this.Rows) => this.Rows = _, 0.2, 4, 32, "%d rows"))
                             this.ContentsWidthChanged = true;
                         ImGui.PopItemWidth();
                         // ImGui.Checkbox("Show HexII", &OptShowHexII);

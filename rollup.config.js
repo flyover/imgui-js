@@ -3,6 +3,14 @@ import commonjs from '@rollup/plugin-commonjs';
 import builtins from "rollup-plugin-node-builtins";
 import typescript from "rollup-plugin-typescript2";
 
+const tsconfigOverride = {
+  compilerOptions: {
+    target: "ES2015",
+    module: "ES2015",
+    declaration: false,
+  }
+};
+
 export default [
   {
     input: "src/imgui.ts",
@@ -20,40 +28,10 @@ export default [
       }),
       typescript({
         clean: true,
-        tsconfigOverride: {
-          compilerOptions: {
-            target: "ES2015",
-            module: "ES2015",
-            declaration: false,
-          }
-        }
+        tsconfigOverride,
       }),
       commonjs(),
       builtins(),
-    ]
-  },
-  {
-    input: "example/src/imgui_demo.ts",
-    output: {
-      file: "dist/imgui_demo.umd.js",
-      name: "ImGui_Demo",
-      format: "umd",
-      exports: "named",
-      globals: { "imgui-js": "ImGui" },
-    },
-    external: [ "imgui-js" ],
-    plugins: [
-      typescript({
-        clean: true,
-        tsconfig: "example/tsconfig.json",
-        tsconfigOverride: {
-          compilerOptions: {
-            target: "ES2015",
-            module: "ES2015",
-            declaration: false,
-          }
-        }
-      }),
     ]
   },
   {
@@ -70,14 +48,44 @@ export default [
       typescript({
         clean: true,
         tsconfig: "example/tsconfig.json",
-        tsconfigOverride: {
-          compilerOptions: {
-            target: "ES2015",
-            module: "ES2015",
-            declaration: false,
-          }
-        }
+        tsconfigOverride,
       }),
     ]
-  }
+  },
+  {
+    input: "example/src/imgui_demo.ts",
+    output: {
+      file: "dist/imgui_demo.umd.js",
+      name: "ImGui_Demo",
+      format: "umd",
+      exports: "named",
+      globals: { "imgui-js": "ImGui" },
+    },
+    external: [ "imgui-js" ],
+    plugins: [
+      typescript({
+        clean: true,
+        tsconfig: "example/tsconfig.json",
+        tsconfigOverride,
+      }),
+    ]
+  },
+  {
+    input: "example/src/imgui_memory_editor.ts",
+    output: {
+      file: "dist/imgui_memory_editor.umd.js",
+      name: "ImGui_Memory_Editor",
+      format: "umd",
+      exports: "named",
+      globals: { "imgui-js": "ImGui" },
+    },
+    external: [ "imgui-js" ],
+    plugins: [
+      typescript({
+        clean: true,
+        tsconfig: "example/tsconfig.json",
+        tsconfigOverride,
+      }),
+    ]
+  },
 ];
