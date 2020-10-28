@@ -31,11 +31,11 @@ export declare class ImStringBuffer {
     buffer: string;
     constructor(size: number, buffer?: string);
 }
-export { ImAccess } from "./bind-imgui";
-export { ImScalar } from "./bind-imgui";
-export { ImTuple2 } from "./bind-imgui";
-export { ImTuple3 } from "./bind-imgui";
-export { ImTuple4 } from "./bind-imgui";
+export { ImAccess } from "bind-imgui";
+export { ImScalar } from "bind-imgui";
+export { ImTuple2 } from "bind-imgui";
+export { ImTuple3 } from "bind-imgui";
+export { ImTuple4 } from "bind-imgui";
 export declare type ImTextureID = WebGLTexture;
 export { ImGuiWindowFlags as WindowFlags };
 export declare enum ImGuiWindowFlags {
@@ -436,9 +436,9 @@ export declare enum ImDrawListFlags {
     AntiAliasedLines = 1,
     AntiAliasedFill = 2
 }
-export { ImU32 } from "./bind-imgui";
-export { interface_ImVec2 } from "./bind-imgui";
-export { reference_ImVec2 } from "./bind-imgui";
+export { ImU32 } from "bind-imgui";
+export { interface_ImVec2 } from "bind-imgui";
+export { reference_ImVec2 } from "bind-imgui";
 export declare class ImVec2 implements Bind.interface_ImVec2 {
     x: number;
     y: number;
@@ -451,8 +451,8 @@ export declare class ImVec2 implements Bind.interface_ImVec2 {
     Copy(other: Readonly<Bind.interface_ImVec2>): this;
     Equals(other: Readonly<Bind.interface_ImVec2>): boolean;
 }
-export { interface_ImVec4 } from "./bind-imgui";
-export { reference_ImVec4 } from "./bind-imgui";
+export { interface_ImVec4 } from "bind-imgui";
+export { reference_ImVec4 } from "bind-imgui";
 export declare class ImVec4 implements Bind.interface_ImVec4 {
     x: number;
     y: number;

@@ -107,11 +107,11 @@ export class ImStringBuffer {
     constructor(public size: number, public buffer: string = "") {}
 }
 
-export { ImAccess } from "./bind-imgui";
-export { ImScalar } from "./bind-imgui";
-export { ImTuple2 } from "./bind-imgui";
-export { ImTuple3 } from "./bind-imgui";
-export { ImTuple4 } from "./bind-imgui";
+export { ImAccess } from "bind-imgui";
+export { ImScalar } from "bind-imgui";
+export { ImTuple2 } from "bind-imgui";
+export { ImTuple3 } from "bind-imgui";
+export { ImTuple4 } from "bind-imgui";
 
 export type ImTextureID = WebGLTexture;
 
@@ -590,10 +590,10 @@ export enum ImDrawListFlags
     AntiAliasedFill  = 1 << 1,
 }
 
-export { ImU32 } from "./bind-imgui";
+export { ImU32 } from "bind-imgui";
 
-export { interface_ImVec2 } from "./bind-imgui";
-export { reference_ImVec2 } from "./bind-imgui";
+export { interface_ImVec2 } from "bind-imgui";
+export { reference_ImVec2 } from "bind-imgui";
 
 export class ImVec2 implements Bind.interface_ImVec2 {
     public static readonly ZERO: Readonly<ImVec2> = new ImVec2(0.0, 0.0);
@@ -622,8 +622,8 @@ export class ImVec2 implements Bind.interface_ImVec2 {
     }
 }
 
-export { interface_ImVec4 } from "./bind-imgui";
-export { reference_ImVec4 } from "./bind-imgui";
+export { interface_ImVec4 } from "bind-imgui";
+export { reference_ImVec4 } from "bind-imgui";
 
 export class ImVec4 implements Bind.interface_ImVec4 {
     public static readonly ZERO: Readonly<ImVec4> = new ImVec4(0.0, 0.0, 0.0, 0.0);
