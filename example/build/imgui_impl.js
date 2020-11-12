@@ -177,9 +177,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         }
         if (typeof (window) !== "undefined") {
             if (value instanceof (HTMLCanvasElement)) {
-                value = value.getContext("webgl", { alpha: false }) || value.getContext("2d");
+                value = value.getContext("webgl", { alpha: false }) || value.getContext("webgl2", { alpha: false }) || value.getContext("2d");
             }
-            if (value instanceof (WebGLRenderingContext)) {
+            if (value instanceof (WebGL2RenderingContext) || value instanceof (WebGLRenderingContext)) {
                 io.BackendRendererName = "imgui_impl_webgl";
                 canvas = value.canvas;
                 exports_1("gl", gl = value);
