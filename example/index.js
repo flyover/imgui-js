@@ -26,10 +26,10 @@ global["fetch"] = fetch;
 
 process.chdir(__dirname);
 
-global["SystemJS"] = require("systemjs");
+module.require("@flyover/system");
 
 module.require("./system.config.js");
 
-SystemJS.import("main")
+System.import("main")
 .then(function (main) { main.default(); })
 .catch(console.error);

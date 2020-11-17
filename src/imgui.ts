@@ -85,7 +85,7 @@ function export_Color4(tuple: Bind.ImTuple4<number>, col: RGBA | Bind.ImTuple4<n
     col.x = tuple[0]; col.y = tuple[1]; col.z = tuple[2];
 }
 
-import * as config from "./imconfig";
+import * as config from "./imconfig.js";
 
 export const IMGUI_VERSION: string = "1.71"; // bind.IMGUI_VERSION;
 export const IMGUI_VERSION_NUM: number = 17100; // bind.IMGUI_VERSION_NUM;
@@ -1181,7 +1181,7 @@ export class ImDrawCmd
     // ImDrawCmd() { ElemCount = 0; ClipRect.x = ClipRect.y = ClipRect.z = ClipRect.w = 0.0f; TextureId = NULL; UserCallback = NULL; UserCallbackData = NULL; }
 }
 
-// Vertex index 
+// Vertex index
 // (to allow large meshes with 16-bits indices: set 'io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset' and handle ImDrawCmd::VtxOffset in the renderer back-end)
 // (to use 32-bits indices: override with '#define ImDrawIdx unsigned int' in imconfig.h)
 // #ifndef ImDrawIdx

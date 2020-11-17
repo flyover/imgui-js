@@ -1,4 +1,4 @@
-System.register(["bind-imgui", "./imconfig"], function (exports_1, context_1) {
+System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1) {
     "use strict";
     var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
         function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -3067,7 +3067,7 @@ System.register(["bind-imgui", "./imconfig"], function (exports_1, context_1) {
                 get IdxOffset() { return this.native.IdxOffset; }
             };
             exports_1("ImDrawCmd", ImDrawCmd);
-            // Vertex index 
+            // Vertex index
             // (to allow large meshes with 16-bits indices: set 'io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset' and handle ImDrawCmd::VtxOffset in the renderer back-end)
             // (to use 32-bits indices: override with '#define ImDrawIdx unsigned int' in imconfig.h)
             // #ifndef ImDrawIdx

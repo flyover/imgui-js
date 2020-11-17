@@ -1,10 +1,9 @@
-SystemJS.config({
+System.config({
     map: {
-        "bind-imgui": "../build/bind-imgui.js",
-        "imgui-js": "../build",
-        "main": "build/main.js",
+        imports: {
+            "bind-imgui": "../build/bind-imgui.js",
+            "imgui-js": "../build/imgui.js",
+            "main": "./build/main.js",
+        }
     },
-    packages: {
-        "imgui-js": { main: "imgui.js", }
-    }
 });

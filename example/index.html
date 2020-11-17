@@ -2,11 +2,11 @@
   <head>
     <title>Dear ImGui JavaScript+WebGL example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- <script type="text/javascript" src="../node_modules/systemjs/dist/system.js"></script> -->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.21.6/system.js"></script>
+    <!-- <script type="text/javascript" src="../node_modules/@flyover/system/build/system.js"></script> -->
+    <script type="text/javascript" src="http://cdn.jsdelivr.net/gh/flyover/system.ts/build/system.js"></script>
     <script type="text/javascript" src="system.config.js"></script>
     <script type="text/javascript">
-    SystemJS.import("main")
+    System.import("main")
     .then(function (main) { main.default(); })
     .catch(console.error);
     </script>
