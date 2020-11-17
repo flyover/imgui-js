@@ -1357,7 +1357,7 @@
         // unsigned int    IdxOffset;              // Start offset in index buffer. Always equal to sum of ElemCount drawn so far.
         get IdxOffset() { return this.native.IdxOffset; }
     }
-    // Vertex index 
+    // Vertex index
     // (to allow large meshes with 16-bits indices: set 'io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset' and handle ImDrawCmd::VtxOffset in the renderer back-end)
     // (to use 32-bits indices: override with '#define ImDrawIdx unsigned int' in imconfig.h)
     // #ifndef ImDrawIdx
