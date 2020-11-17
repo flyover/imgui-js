@@ -454,7 +454,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             image_urls = [
                 "https://threejs.org/examples/textures/crate.gif",
                 "https://threejs.org/examples/textures/sprite.png",
-                "https://threejs.org/examples/textures/UV_Grid_Sm.jpg",
+                "https://threejs.org/examples/textures/uv_grid_opengl.jpg",
             ];
             image_url = image_urls[0];
             image_element = null;

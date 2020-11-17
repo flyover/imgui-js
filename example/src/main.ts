@@ -320,7 +320,7 @@ function ShowGamepadWindow(title: string, p_open: ImGui.ImAccess<boolean> | null
 const image_urls: string[] = [
     "https://threejs.org/examples/textures/crate.gif",
     "https://threejs.org/examples/textures/sprite.png",
-    "https://threejs.org/examples/textures/UV_Grid_Sm.jpg",
+    "https://threejs.org/examples/textures/uv_grid_opengl.jpg",
 ];
 let image_url: string = image_urls[0];
 let image_element: HTMLImageElement | null = null;
