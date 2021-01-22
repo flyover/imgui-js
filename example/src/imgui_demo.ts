@@ -3790,6 +3790,72 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
         ImGui.TreePop();
     }
 
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Outer size"))
+    {
+        // Showcasing use of ImGuiTableFlags_NoHostExtendX and ImGuiTableFlags_NoHostExtendY
+        // Important to that note how the two flags have slightly different behaviors!
+        ImGui.Text("Using NoHostExtendX and NoHostExtendY:");
+        PushStyleCompact();
+        /* static */ const flags: Static<ImGui.ImGuiTableFlags> = STATIC("flags#tables-row-height", ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.ContextMenuInBody | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.NoHostExtendX);
+        ImGui.CheckboxFlags("ImGuiTableFlags_NoHostExtendX", (value = flags.value) => flags.value = value, ImGuiTableFlags.NoHostExtendX);
+        ImGui.SameLine(); HelpMarker("Make outer width auto-fit to columns, overriding outer_size.x value.\n\nOnly available when ScrollX/ScrollY are disabled and Stretch columns are not used.");
+        ImGui.CheckboxFlags("ImGuiTableFlags_NoHostExtendY", (value = flags.value) => flags.value = value, ImGuiTableFlags.NoHostExtendY);
+        ImGui.SameLine(); HelpMarker("Make outer height stop exactly at outer_size.y (prevent auto-extending table past the limit).\n\nOnly available when ScrollX/ScrollY are disabled. Data below the limit will be clipped and not visible.");
+        PopStyleCompact();
+
+        let outer_size = new ImVec2(0.0, TEXT_BASE_HEIGHT * 5.5);
+        if (ImGui.BeginTable("table1", 3, flags.value, outer_size))
+        {
+            for (let row = 0; row < 10; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 3; column++)
+                {
+                    ImGui.TableNextColumn();
+                    ImGui.Text(`Cell ${column},${row}`);
+                }
+            }
+            ImGui.EndTable();
+        }
+        ImGui.SameLine();
+        ImGui.Text("Hello!");
+
+        ImGui.Spacing();
+
+        ImGui.Text("Using explicit size:");
+        if (ImGui.BeginTable("table2", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg, new ImVec2(TEXT_BASE_WIDTH * 30, 0.0)))
+        {
+            for (let row = 0; row < 5; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 3; column++)
+                {
+                    ImGui.TableNextColumn();
+                    ImGui.Text(`Cell ${column},${row}`);
+                }
+            }
+            ImGui.EndTable();
+        }
+        ImGui.SameLine();
+        if (ImGui.BeginTable("table3", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg, new ImVec2(TEXT_BASE_WIDTH * 30, 0.0)))
+        {
+            for (let row = 0; row < 3; row++)
+            {
+                ImGui.TableNextRow(0, TEXT_BASE_HEIGHT * 1.5);
+                for (let column = 0; column < 3; column++)
+                {
+                    ImGui.TableNextColumn();
+                    ImGui.Text(`Cell ${column},${row}`);
+                }
+            }
+            ImGui.EndTable();
+        }
+
+        ImGui.TreePop();
+    }
+
     ImGui.PopID();
 
     if (disable_indent.value)
