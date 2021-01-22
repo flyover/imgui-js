@@ -3485,6 +3485,97 @@ In this demo we don't show horizontal borders to emphasis how they don't affect 
         ImGui.TreePop();
     }
 
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Horizontal scrolling"))
+    {
+        HelpMarker(`When ScrollX is enabled, the default sizing policy becomes ImGuiTableFlags_SizingFixedFit, 
+as automatically stretching columns doesn't make much sense with horizontal scrolling.
+
+Also note that as of the current version, you will almost always want to enable ScrollY along with ScrollX,
+"because the container window won't automatically extend vertically to fix contents (this may be improved in future versions)."`);
+        /* static */ const flags: Static<ImGui.ImGuiTableFlags> = STATIC("flags#tables-horizontal-scrolling", ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.RowBg | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.BordersV | ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable);
+        /* static */ const freeze_cols: Static<number> = STATIC("freeze_cols#tables-horizontal-scrolling", 1);
+        /* static */ const freeze_rows: Static<number> = STATIC("freeze_rows#tables-horizontal-scrolling", 1);
+
+        PushStyleCompact();
+        ImGui.CheckboxFlags("ImGuiTableFlags_Resizable", (value = flags.value) => flags.value = value, ImGuiTableFlags.Resizable);
+        ImGui.CheckboxFlags("ImGuiTableFlags_ScrollX", (value = flags.value) => flags.value = value, ImGuiTableFlags.ScrollX);
+        ImGui.CheckboxFlags("ImGuiTableFlags_ScrollY", (value = flags.value) => flags.value = value, ImGuiTableFlags.ScrollY);
+        ImGui.SetNextItemWidth(ImGui.GetFrameHeight());
+        // TODO: support slider flags argument?
+        // ImGui.DragInt("freeze_cols", (value = freeze_cols.value) => freeze_cols.value = value, 0.2, 0, 9, null, ImGuiSliderFlags.NoInput);
+        ImGui.DragInt("freeze_cols", (value = freeze_cols.value) => freeze_cols.value = value, 0.2, 0, 9);
+        ImGui.SetNextItemWidth(ImGui.GetFrameHeight());
+        // TODO: support slider flags argument?
+        // ImGui.DragInt("freeze_rows", (value = freeze_rows.value) => freeze_rows.value = value, 0.2, 0, 9, null, ImGuiSliderFlags.NoInput);
+        ImGui.DragInt("freeze_rows", (value = freeze_rows.value) => freeze_rows.value = value, 0.2, 0, 9);
+        PopStyleCompact();
+
+        // When using ScrollX or ScrollY we need to specify a size for our table container!
+        // Otherwise by default the table will fit all available space, like a BeginChild() call.
+        let outer_size = new ImVec2(0.0, TEXT_BASE_HEIGHT * 8);
+        if (ImGui.BeginTable("table_scrollx", 7, flags.value, outer_size))
+        {
+            ImGui.TableSetupScrollFreeze(freeze_cols.value, freeze_rows.value);
+            ImGui.TableSetupColumn("Line #", ImGuiTableColumnFlags.NoHide); // Make the first column not hideable to match our use of TableSetupScrollFreeze()
+            ImGui.TableSetupColumn("One");
+            ImGui.TableSetupColumn("Two");
+            ImGui.TableSetupColumn("Three");
+            ImGui.TableSetupColumn("Four");
+            ImGui.TableSetupColumn("Five");
+            ImGui.TableSetupColumn("Six");
+            ImGui.TableHeadersRow();
+            for (let row = 0; row < 20; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 7; column++)
+                {
+                    // Both TableNextColumn() and TableSetColumnIndex() return true when a column is visible or performing width measurement.
+                    // Because here we know that:
+                    // - A) all our columns are contributing the same to row height
+                    // - B) column 0 is always visible,
+                    // We only always submit this one column and can skip others.
+                    // More advanced per-column clipping behaviors may benefit from polling the status flags via TableGetColumnFlags().
+                    if (!ImGui.TableSetColumnIndex(column) && column > 0)
+                        continue;
+                    if (column == 0)
+                        ImGui.Text(`Line ${row}`);
+                    else
+                        ImGui.Text(`Hello world ${row},${column}`);
+                }
+            }
+            ImGui.EndTable();
+        }
+
+        ImGui.Spacing();
+        ImGui.TextUnformatted("Stretch + ScrollX");
+        ImGui.SameLine();
+        HelpMarker(`"Showcase using Stretch columns + ScrollX together: "
+this is rather unusual and only makes sense when specifying an 'inner_width' for the table!
+Without an explicit value, inner_width is == outer_size.x and therefore using Stretch columns + ScrollX together doesn't make sense.`);
+        /* static */ const flags2: Static<ImGui.ImGuiTableFlags> = STATIC("flags2#tables-horizontal-scrolling", ImGuiTableFlags.SizingStretchSame | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.RowBg | ImGuiTableFlags.ContextMenuInBody);
+        /* static */ const inner_width: Static<number> = STATIC("inner_width#tables-horizontal-scrolling", 1000.0);
+        PushStyleCompact();
+        ImGui.PushID("flags3");
+        ImGui.PushItemWidth(TEXT_BASE_WIDTH * 30);
+        ImGui.CheckboxFlags("ImGuiTableFlags_ScrollX", (value = flags2.value) => flags2.value = value, ImGuiTableFlags.ScrollX);
+        ImGui.DragFloat("inner_width", (value = inner_width.value) => inner_width.value = value, 1.0, 0.0, 1000000, "%.1f");
+        ImGui.PopItemWidth();
+        ImGui.PopID();
+        PopStyleCompact();
+        if (ImGui.BeginTable("table2", 7, flags2.value, outer_size, inner_width.value))
+        {
+            for (let cell = 0; cell < 20 * 7; cell++)
+            {
+                ImGui.TableNextColumn();
+                ImGui.Text(`Hello world ${ImGui.TableGetColumnIndex()},${ImGui.TableGetRowIndex()}`);
+            }
+            ImGui.EndTable();
+        }
+        ImGui.TreePop();
+    }
+
     ImGui.PopID();
 
     if (disable_indent.value)
