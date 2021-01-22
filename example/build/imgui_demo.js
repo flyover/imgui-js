@@ -3260,6 +3260,64 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
             }
             ImGui.TreePop();
         }
+        if (open_action != -1)
+            ImGui.SetNextItemOpen(open_action != 0);
+        if (ImGui.TreeNode("Columns widths")) {
+            function leftPad(str, len, ch = ' ') {
+                len = len - str.length + 1;
+                return len > 0 ? new Array(len).join(ch) + str : str;
+            }
+            HelpMarker("Using TableSetupColumn() to setup default width.");
+            /* static */ const flags1 = STATIC("flags1#tables-columns-widths", imgui_js_16.ImGuiTableFlags.Borders | imgui_js_16.ImGuiTableFlags.NoBordersInBodyUntilResize);
+            PushStyleCompact();
+            ImGui.CheckboxFlags("ImGuiTableFlags_Resizable", (value = flags1.value) => flags1.value = value, imgui_js_16.ImGuiTableFlags.Resizable);
+            ImGui.CheckboxFlags("ImGuiTableFlags_NoBordersInBodyUntilResize", (value = flags1.value) => flags1.value = value, imgui_js_16.ImGuiTableFlags.NoBordersInBodyUntilResize);
+            PopStyleCompact();
+            if (ImGui.BeginTable("table1", 3, flags1.value)) {
+                // We could also set ImGuiTableFlags_SizingFixedFit on the table and all columns will default to ImGuiTableColumnFlags_WidthFixed.
+                ImGui.TableSetupColumn("one", imgui_js_17.ImGuiTableColumnFlags.WidthFixed, 100.0); // Default to 100.0
+                ImGui.TableSetupColumn("two", imgui_js_17.ImGuiTableColumnFlags.WidthFixed, 200.0); // Default to 200.0
+                ImGui.TableSetupColumn("three", imgui_js_17.ImGuiTableColumnFlags.WidthFixed); // Default to auto
+                ImGui.TableHeadersRow();
+                for (let row = 0; row < 4; row++) {
+                    ImGui.TableNextRow();
+                    for (let column = 0; column < 3; column++) {
+                        ImGui.TableSetColumnIndex(column);
+                        if (row == 0)
+                            ImGui.Text(`(w: ${leftPad(ImGui.GetContentRegionAvail().x.toFixed(1), 5)})`);
+                        else
+                            ImGui.Text(`Hello ${column},${row}`);
+                    }
+                }
+                ImGui.EndTable();
+            }
+            HelpMarker("Using TableSetupColumn() to setup explicit width.\n\nUnless _NoKeepColumnsVisible is set, fixed columns with set width may still be shrunk down if there's not enough space in the host.");
+            /* static */ const flags2 = STATIC("flags2#tables-columns-widths", imgui_js_16.ImGuiTableFlags.None);
+            PushStyleCompact();
+            ImGui.CheckboxFlags("ImGuiTableFlags_NoKeepColumnsVisible", (value = flags2.value) => flags2.value = value, imgui_js_16.ImGuiTableFlags.NoKeepColumnsVisible);
+            ImGui.CheckboxFlags("ImGuiTableFlags_BordersInnerV", (value = flags2.value) => flags2.value = value, imgui_js_16.ImGuiTableFlags.BordersInnerV);
+            ImGui.CheckboxFlags("ImGuiTableFlags_BordersOuterV", (value = flags2.value) => flags2.value = value, imgui_js_16.ImGuiTableFlags.BordersOuterV);
+            PopStyleCompact();
+            if (ImGui.BeginTable("table2", 4, flags2.value)) {
+                // We could also set ImGuiTableFlags_SizingFixedFit on the table and all columns will default to ImGuiTableColumnFlags_WidthFixed.
+                ImGui.TableSetupColumn("", imgui_js_17.ImGuiTableColumnFlags.WidthFixed, 100.0);
+                ImGui.TableSetupColumn("", imgui_js_17.ImGuiTableColumnFlags.WidthFixed, TEXT_BASE_WIDTH * 15.0);
+                ImGui.TableSetupColumn("", imgui_js_17.ImGuiTableColumnFlags.WidthFixed, TEXT_BASE_WIDTH * 30.0);
+                ImGui.TableSetupColumn("", imgui_js_17.ImGuiTableColumnFlags.WidthFixed, TEXT_BASE_WIDTH * 15.0);
+                for (let row = 0; row < 5; row++) {
+                    ImGui.TableNextRow();
+                    for (let column = 0; column < 4; column++) {
+                        ImGui.TableSetColumnIndex(column);
+                        if (row == 0)
+                            ImGui.Text(`(w: ${leftPad(ImGui.GetContentRegionAvail().x.toFixed(1), 5)})`);
+                        else
+                            ImGui.Text(`Hello ${column},${row}`);
+                    }
+                }
+                ImGui.EndTable();
+            }
+            ImGui.TreePop();
+        }
         ImGui.PopID();
         if (disable_indent.value)
             ImGui.PopStyleVar();
