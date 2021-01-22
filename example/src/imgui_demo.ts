@@ -2908,6 +2908,38 @@ function EditTableSizingFlags(p_flags: Static<ImGui.ImGuiTableFlags>)
     }
 }
 
+function EditTableColumnsFlags(p_flags: Static<ImGui.ImGuiTableColumnFlags>)
+{
+    ImGui.CheckboxFlags("_DefaultHide", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.DefaultHide);
+    ImGui.CheckboxFlags("_DefaultSort", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.DefaultSort);
+    if (ImGui.CheckboxFlags("_WidthStretch", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.WidthStretch))
+        p_flags.value &= ~(ImGuiTableColumnFlags.WidthMask_ ^ ImGuiTableColumnFlags.WidthStretch);
+    if (ImGui.CheckboxFlags("_WidthFixed", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.WidthFixed))
+        p_flags.value &= ~(ImGuiTableColumnFlags.WidthMask_ ^ ImGuiTableColumnFlags.WidthFixed);
+    ImGui.CheckboxFlags("_NoResize", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.NoResize);
+    ImGui.CheckboxFlags("_NoReorder", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.NoReorder);
+    ImGui.CheckboxFlags("_NoHide", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.NoHide);
+    ImGui.CheckboxFlags("_NoClip", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.NoClip);
+    ImGui.CheckboxFlags("_NoSort", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.NoSort);
+    ImGui.CheckboxFlags("_NoSortAscending", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.NoSortAscending);
+    ImGui.CheckboxFlags("_NoSortDescending", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.NoSortDescending);
+    ImGui.CheckboxFlags("_NoHeaderWidth", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.NoHeaderWidth);
+    ImGui.CheckboxFlags("_PreferSortAscending", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.PreferSortAscending);
+    ImGui.CheckboxFlags("_PreferSortDescending", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.PreferSortDescending);
+    ImGui.CheckboxFlags("_IndentEnable", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.IndentEnable); ImGui.SameLine(); HelpMarker("Default for column 0");
+    ImGui.CheckboxFlags("_IndentDisable", (value = p_flags.value) => p_flags.value = value, ImGuiTableColumnFlags.IndentDisable); ImGui.SameLine(); HelpMarker("Default for column >0");
+}
+
+function ShowTableColumnsStatusFlags(flags: ImGuiTableColumnFlags)
+{
+    const flags_s: ImScalar<ImGuiTableColumnFlags> = [ flags ];
+    ImGui.CheckboxFlags("_IsEnabled", flags_s, ImGuiTableColumnFlags.IsEnabled);
+    ImGui.CheckboxFlags("_IsVisible", flags_s, ImGuiTableColumnFlags.IsVisible);
+    ImGui.CheckboxFlags("_IsSorted", flags_s, ImGuiTableColumnFlags.IsSorted);
+    ImGui.CheckboxFlags("_IsHovered", flags_s, ImGuiTableColumnFlags.IsHovered);
+}
+
+
 function ShowDemoWindowTables()
 {
     if (!ImGui.CollapsingHeader("Tables & Columns"))
@@ -3571,6 +3603,74 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
                 ImGui.TableNextColumn();
                 ImGui.Text(`Hello world ${ImGui.TableGetColumnIndex()},${ImGui.TableGetRowIndex()}`);
             }
+            ImGui.EndTable();
+        }
+        ImGui.TreePop();
+    }
+
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Columns flags"))
+    {
+        // Create a first table just to show all the options/flags we want to make visible in our example!
+        let column_count = 3;
+        let column_names = [ "One", "Two", "Three" ];
+        //static ImGuiTableColumnFlags column_flags[column_count] = {};
+        let column_flags: Static<ImGuiTableColumnFlags>[] = [
+            ImGuiTableColumnFlags.DefaultSort, ImGuiTableColumnFlags.None, ImGuiTableColumnFlags.DefaultHide
+        ].map((flag, i) => STATIC(`column_flags${i}#tables-column-flags`, flag));
+        let column_flags_out: Static<ImGuiTableColumnFlags>[] = [
+            0, 0, 0
+        ].map((flag, i) => STATIC(`column_flags_out${i}#tables-column-flags`, flag)); // Output from TableGetColumnFlags()
+
+        if (ImGui.BeginTable("table_columns_flags_checkboxes", column_count, ImGuiTableFlags.None))
+        {
+            PushStyleCompact();
+            for (let column = 0; column < column_count; column++)
+            {
+                ImGui.TableNextColumn();
+                ImGui.PushID(column);
+                ImGui.AlignTextToFramePadding(); // FIXME-TABLE: Workaround for wrong text baseline propagation
+                ImGui.Text(`'${column_names[column]}'`);
+                ImGui.Spacing();
+                ImGui.Text("Input flags:");
+                EditTableColumnsFlags(column_flags[column]);
+                ImGui.Spacing();
+                ImGui.Text("Output flags:");
+                ShowTableColumnsStatusFlags(column_flags_out[column].value);
+                ImGui.PopID();
+            }
+            PopStyleCompact();
+            ImGui.EndTable();
+        }
+
+        // Create the real table we care about for the example!
+        // We use a scrolling table to be able to showcase the difference between the _IsEnabled and _IsVisible flags above, otherwise in
+        // a non-scrolling table columns are always visible (unless using ImGuiTableFlags_NoKeepColumnsVisible + resizing the parent window down)
+        let flags = ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY
+            | ImGuiTableFlags.RowBg | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.BordersV
+            | ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable;
+        let outer_size = new ImVec2(0.0, TEXT_BASE_HEIGHT * 9);
+        if (ImGui.BeginTable("table_columns_flags", column_count, flags, outer_size))
+        {
+            for (let column = 0; column < column_count; column++)
+                ImGui.TableSetupColumn(column_names[column], column_flags[column].value);
+            ImGui.TableHeadersRow();
+            for (let column = 0; column < column_count; column++)
+                column_flags_out[column].value = ImGui.TableGetColumnFlags(column);
+            let indent_step = Math.floor(TEXT_BASE_WIDTH / 2);
+            for (let row = 0; row < 8; row++)
+            {
+                ImGui.Indent(indent_step); // Add some indentation to demonstrate usage of per-column IndentEnable/IndentDisable flags.
+                ImGui.TableNextRow();
+                for (let column = 0; column < column_count; column++)
+                {
+                    ImGui.TableSetColumnIndex(column);
+                    ImGui.Text(`${(column == 0) ? "Indented" : "Hello"} ${ImGui.TableGetColumnName(column)}`);
+                }
+            }
+            ImGui.Unindent(indent_step * 8.0);
+
             ImGui.EndTable();
         }
         ImGui.TreePop();

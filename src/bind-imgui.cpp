@@ -2701,7 +2701,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API int                   TableGetRowIndex();                         // return current row index.
     emscripten::function("TableGetRowIndex", &ImGui::TableGetRowIndex);
     // IMGUI_API const char*           TableGetColumnName(int column_n = -1);      // return "" if column didn't have a name declared by TableSetupColumn(). Pass -1 to use current column.
+    emscripten::function("TableGetColumnName", FUNCTION(std::string, (int column_n), { return std::string(ImGui::TableGetColumnName(column_n)); }));
     // IMGUI_API ImGuiTableColumnFlags TableGetColumnFlags(int column_n = -1);     // return column flags so you can query their Enabled/Visible/Sorted/Hovered status flags. Pass -1 to use current column.
+    emscripten::function("TableGetColumnFlags", &ImGui::TableGetColumnFlags);
     // IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);  // change the color of a cell, row, or column. See ImGuiTableBgTarget_ flags for details.
 
 
