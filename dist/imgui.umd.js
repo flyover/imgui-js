@@ -472,8 +472,8 @@
         col.y = tuple[1];
         col.z = tuple[2];
     }
-    const IMGUI_VERSION = "1.71"; // bind.IMGUI_VERSION;
-    const IMGUI_VERSION_NUM = 17100; // bind.IMGUI_VERSION_NUM;
+    const IMGUI_VERSION = "1.80"; // bind.IMGUI_VERSION;
+    const IMGUI_VERSION_NUM = 18000; // bind.IMGUI_VERSION_NUM;
     // #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
     function IMGUI_CHECKVERSION() { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, exports.bind.ImGuiIOSize, exports.bind.ImGuiStyleSize, exports.bind.ImVec2Size, exports.bind.ImVec4Size, exports.bind.ImDrawVertSize, exports.bind.ImDrawIdxSize); }
     function IM_ASSERT(_EXPR) { if (!_EXPR) {

@@ -112,6 +112,20 @@ export declare enum ImGuiTreeNodeFlags {
     NavLeftJumpsBackHere = 8192,
     CollapsingHeader = 26
 }
+export { ImGuiPopupFlags as PopupFlags };
+export declare enum ImGuiPopupFlags {
+    None = 0,
+    MouseButtonLeft = 0,
+    MouseButtonRight = 1,
+    MouseButtonMiddle = 2,
+    MouseButtonMask_ = 31,
+    MouseButtonDefault_ = 1,
+    NoOpenOverExistingPopup = 32,
+    NoOpenOverItems = 64,
+    AnyPopupId = 128,
+    AnyPopupLevel = 256,
+    AnyPopup = 384
+}
 export { ImGuiSelectableFlags as SelectableFlags };
 export declare enum ImGuiSelectableFlags {
     None = 0,
@@ -153,6 +167,85 @@ export declare enum ImGuiTabItemFlags {
     ImGuiTabItemFlags_SetSelected = 2,
     ImGuiTabItemFlags_NoCloseWithMiddleMouseButton = 4,
     ImGuiTabItemFlags_NoPushId = 8
+}
+export { ImGuiTableFlags as TableFlags };
+export declare enum ImGuiTableFlags {
+    None = 0,
+    Resizable = 1,
+    Reorderable = 2,
+    Hideable = 4,
+    Sortable = 8,
+    NoSavedSettings = 16,
+    ContextMenuInBody = 32,
+    RowBg = 64,
+    BordersInnerH = 128,
+    BordersOuterH = 256,
+    BordersInnerV = 512,
+    BordersOuterV = 1024,
+    BordersH = 384,
+    BordersV = 1536,
+    BordersInner = 640,
+    BordersOuter = 1280,
+    Borders = 1920,
+    NoBordersInBody = 2048,
+    NoBordersInBodyUntilResize = 4096,
+    SizingFixedFit = 8192,
+    SizingFixedSame = 16384,
+    SizingStretchProp = 24576,
+    SizingStretchSame = 32768,
+    NoHostExtendX = 65536,
+    NoHostExtendY = 131072,
+    NoKeepColumnsVisible = 262144,
+    PreciseWidths = 524288,
+    NoClip = 1048576,
+    PadOuterX = 2097152,
+    NoPadOuterX = 4194304,
+    NoPadInnerX = 8388608,
+    ScrollX = 16777216,
+    ScrollY = 33554432,
+    SortMulti = 67108864,
+    SortTristate = 134217728,
+    SizingMask_ = 57344
+}
+export { ImGuiTableColumnFlags as TableColumnFlags };
+export declare enum ImGuiTableColumnFlags {
+    None = 0,
+    DefaultHide = 1,
+    DefaultSort = 2,
+    WidthStretch = 4,
+    WidthFixed = 8,
+    NoResize = 16,
+    NoReorder = 32,
+    NoHide = 64,
+    NoClip = 128,
+    NoSort = 256,
+    NoSortAscending = 512,
+    NoSortDescending = 1024,
+    NoHeaderWidth = 2048,
+    PreferSortAscending = 4096,
+    PreferSortDescending = 8192,
+    IndentEnable = 16384,
+    IndentDisable = 32768,
+    IsEnabled = 1048576,
+    IsVisible = 2097152,
+    IsSorted = 4194304,
+    IsHovered = 8388608,
+    WidthMask_ = 12,
+    IndentMask_ = 49152,
+    StatusMask_ = 15728640,
+    NoDirectResize_ = 1073741824
+}
+export { ImGuiTableRowFlags as TableRowFlags };
+export declare enum ImGuiTableRowFlags {
+    None = 0,
+    Headers = 1
+}
+export { ImGuiTableBgTarget as TableBgTarget };
+export declare enum ImGuiTableBgTarget {
+    None = 0,
+    RowBg0 = 1,
+    RowBg1 = 2,
+    CellBg = 3
 }
 export { ImGuiFocusedFlags as FocusedFlags };
 export declare enum ImGuiFocusedFlags {
@@ -1247,6 +1340,20 @@ export declare function BeginPopupContextVoid(str_id?: string | null, mouse_butt
 export declare function EndPopup(): void;
 export declare function IsPopupOpen(str_id: string): boolean;
 export declare function CloseCurrentPopup(): void;
+export declare function BeginTable(str_id: string, column: number, flags?: ImGuiTableFlags, outer_size?: Readonly<Bind.interface_ImVec2>, inner_width?: number): boolean;
+export declare function EndTable(): void;
+export declare function TableNextRow(row_flags?: ImGuiTableRowFlags, min_row_height?: number): void;
+export declare function TableNextColumn(): boolean;
+export declare function TableSetColumnIndex(column_n: number): boolean;
+export declare function TableSetupColumn(label: string, flags?: ImGuiTableColumnFlags, init_width_or_weight?: number, user_id?: Bind.ImU32): void;
+export declare function TableSetupScrollFreeze(cols: number, rows: number): void;
+export declare function TableHeadersRow(): void;
+export declare function TableHeader(label: string): void;
+export declare function TableGetColumnCount(): number;
+export declare function TableGetColumnIndex(): number;
+export declare function TableGetRowIndex(): number;
+export declare function TableGetColumnName(column_n?: number): string;
+export declare function TableGetColumnFlags(column_n?: number): ImGuiTableColumnFlags;
 export declare function BeginTabBar(str_id: string, flags?: ImGuiTabBarFlags): boolean;
 export declare function EndTabBar(): void;
 export declare function BeginTabItem(label: string, p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, flags?: ImGuiTabItemFlags): boolean;

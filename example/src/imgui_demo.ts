@@ -91,6 +91,7 @@ import { ImGuiSelectableFlags } from "imgui-js";
 import { ImGuiStyleVar } from "imgui-js";
 import { ImGuiTreeNodeFlags } from "imgui-js";
 import { ImGuiWindowFlags } from "imgui-js";
+import { ImGuiTableFlags } from "imgui-js";
 import { ImGuiTabBarFlags } from "imgui-js";
 import { ImGuiTabItemFlags } from "imgui-js";
 import { ImGuiInputTextCallbackData } from "imgui-js";
@@ -472,6 +473,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     ShowDemoWindowLayout();
     ShowDemoWindowPopups();
     ShowDemoWindowColumns();
+    ShowDemoWindowTables();
     ShowDemoWindowMisc();
 
     // End of ShowDemoWindow()
@@ -2839,6 +2841,177 @@ function ShowDemoWindowColumns()
     if (disable_indent.value)
         ImGui.PopStyleVar();
     ImGui.PopID();
+}
+
+// Make the UI compact because there are so many fields
+function PushStyleCompact()
+{
+    const style: ImGuiStyle = ImGui.GetStyle();
+    ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new ImVec2(style.FramePadding.x, Math.floor(style.FramePadding.y * 0.60)));
+    ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new ImVec2(style.ItemSpacing.x, Math.floor(style.ItemSpacing.y * 0.60)));
+}
+
+function PopStyleCompact()
+{
+    ImGui.PopStyleVar(2);
+}
+
+function ShowDemoWindowTables()
+{
+    if (!ImGui.CollapsingHeader("Tables & Columns"))
+        return;
+
+    ImGui.PushID("Tables");
+
+    let open_action = -1;
+    if (ImGui.Button("Open all"))
+        open_action = 1;
+    ImGui.SameLine();
+    if (ImGui.Button("Close all"))
+        open_action = 0;
+    ImGui.SameLine();
+
+    /* static */ const disable_indent: Static<boolean> = STATIC("disable_indent", false);
+    ImGui.Checkbox("Disable tree indentation", (value = disable_indent.value) => disable_indent.value = value);
+    ImGui.SameLine();
+    HelpMarker("Disable the indenting of tree nodes so demo tables can use the full window width.");
+    ImGui.Separator();
+    if (disable_indent.value)
+        ImGui.PushStyleVar(ImGuiStyleVar.IndentSpacing, 0.0);
+
+    // Demos
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Basic"))
+    {
+        // Here we will showcase three different ways to output a table.
+        // They are very simple variations of a same thing!
+
+        // [Method 1] Using TableNextRow() to create a new row, and TableSetColumnIndex() to select the column.
+        // In many situations, this is the most flexible and easy to use pattern.
+        HelpMarker("Using TableNextRow() + calling TableSetColumnIndex() _before_ each cell, in a loop.");
+        if (ImGui.BeginTable("table1", 3))
+        {
+            for (let row = 0; row < 4; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 3; column++)
+                {
+                    ImGui.TableSetColumnIndex(column);
+                    ImGui.Text(`Row ${row} Column ${column}`);
+                }
+            }
+            ImGui.EndTable();
+        }
+
+        // [Method 2] Using TableNextColumn() called multiple times, instead of using a for loop + TableSetColumnIndex().
+        // This is generally more convenient when you have code manually submitting the contents of each columns.
+        HelpMarker("Using TableNextRow() + calling TableNextColumn() _before_ each cell, manually.");
+        if (ImGui.BeginTable("table2", 3))
+        {
+            for (let row = 0; row < 4; row++)
+            {
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                ImGui.Text(`Row ${row}`);
+                ImGui.TableNextColumn();
+                ImGui.Text("Some contents");
+                ImGui.TableNextColumn();
+                ImGui.Text("123.456");
+            }
+            ImGui.EndTable();
+        }
+
+        // [Method 3] We call TableNextColumn() _before_ each cell. We never call TableNextRow(),
+        // as TableNextColumn() will automatically wrap around and create new roes as needed.
+        // This is generally more convenient when your cells all contains the same type of data.
+        HelpMarker(
+            `Only using TableNextColumn(), which tends to be convenient for tables where every cells contains the same type of contents.
+This is also more similar to the old NextColumn() function of the Columns API, and provided to facilitate the Columns->Tables API transition.`);
+        if (ImGui.BeginTable("table3", 3))
+        {
+            for (let item = 0; item < 14; item++)
+            {
+                ImGui.TableNextColumn();
+                ImGui.Text(`Item ${item}`);
+            }
+            ImGui.EndTable();
+        }
+
+        ImGui.TreePop();
+    }
+
+    if (ImGui.TreeNode("Borders, background"))
+    {
+        // Expose a few Borders related flags interactively
+        enum ContentsType { CT_Text, CT_FillButton };
+
+        /* static */ const flags: Static<ImGui.ImGuiTableFlags> = STATIC("flags#669", ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg);
+        /* static */ const display_headers: Static<boolean> = STATIC("display_headers", false);
+        /* static */ const contents_type: Static<number> = STATIC("contents_type", ContentsType.CT_Text);
+
+        PushStyleCompact();
+        ImGui.CheckboxFlags("ImGuiTableFlags.RowBg", (value = flags.value) => flags.value = value, ImGuiTableFlags.RowBg);
+        ImGui.CheckboxFlags("ImGuiTableFlags.Borders", (value = flags.value) => flags.value = value, ImGuiTableFlags.Borders);
+        ImGui.SameLine(); HelpMarker("ImGuiTableFlags.Borders\n = ImGuiTableFlags.BordersInnerV\n | ImGuiTableFlags.BordersOuterV\n | ImGuiTableFlags.BordersInnerV\n | ImGuiTableFlags.BordersOuterH");
+        ImGui.Indent();
+
+        ImGui.CheckboxFlags("ImGuiTableFlags.BordersH", (value = flags.value) => flags.value = value, ImGuiTableFlags.BordersH);
+        ImGui.Indent();
+        ImGui.CheckboxFlags("ImGuiTableFlags.BordersOuterH", (value = flags.value) => flags.value = value, ImGuiTableFlags.BordersOuterH);
+        ImGui.CheckboxFlags("ImGuiTableFlags.BordersInnerH", (value = flags.value) => flags.value = value, ImGuiTableFlags.BordersInnerH);
+        ImGui.Unindent();
+
+        ImGui.CheckboxFlags("ImGuiTableFlags.BordersV", (value = flags.value) => flags.value = value, ImGuiTableFlags.BordersV);
+        ImGui.Indent();
+        ImGui.CheckboxFlags("ImGuiTableFlags.BordersOuterV", (value = flags.value) => flags.value = value, ImGuiTableFlags.BordersOuterV);
+        ImGui.CheckboxFlags("ImGuiTableFlags.BordersInnerV", (value = flags.value) => flags.value = value, ImGuiTableFlags.BordersInnerV);
+        ImGui.Unindent();
+
+        ImGui.CheckboxFlags("ImGuiTableFlags.BordersOuter", (value = flags.value) => flags.value = value, ImGuiTableFlags.BordersOuter);
+        ImGui.CheckboxFlags("ImGuiTableFlags.BordersInner", (value = flags.value) => flags.value = value, ImGuiTableFlags.BordersInner);
+        ImGui.Unindent();
+
+        ImGui.AlignTextToFramePadding(); ImGui.Text("Cell contents:");
+        ImGui.SameLine(); ImGui.RadioButton("Text", (value = contents_type.value) => contents_type.value = value, ContentsType.CT_Text);
+        ImGui.SameLine(); ImGui.RadioButton("FillButton", (value = contents_type.value) => contents_type.value = value, ContentsType.CT_FillButton);
+        ImGui.Checkbox("Display headers", (value = display_headers.value) => display_headers.value = value);
+        ImGui.CheckboxFlags("ImGuiTableFlags.NoBordersInBody", (value = flags.value) => flags.value = value, ImGuiTableFlags.NoBordersInBody); ImGui.SameLine(); HelpMarker("Disable vertical borders in columns Body (borders will always appears in Headers");
+        PopStyleCompact();
+
+        if (ImGui.BeginTable("table1", 3, flags.value))
+        {
+            // Display headers so we can inspect their interaction with borders.
+            // (Headers are not the main purpose of this section of the demo, so we are not elaborating on them too much. See other sections for details)
+            if (display_headers.value)
+            {
+                ImGui.TableSetupColumn("One");
+                ImGui.TableSetupColumn("Two");
+                ImGui.TableSetupColumn("Three");
+                ImGui.TableHeadersRow();
+            }
+
+            for (let row = 0; row < 5; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 3; column++)
+                {
+                    ImGui.TableSetColumnIndex(column);
+                    if (contents_type.value == ContentsType.CT_Text)
+                        ImGui.TextUnformatted(`Hello ${column}${row}`);
+                    else if (contents_type)
+                        ImGui.Button(`Hello ${column}${row}`, new ImVec2(-1.0, 0.0));
+                }
+            }
+            ImGui.EndTable();
+        }
+        ImGui.TreePop();
+    }
+
+    ImGui.PopID();
+
+    if (disable_indent.value)
+        ImGui.PopStyleVar();
 }
 
 function ShowDemoWindowMisc()

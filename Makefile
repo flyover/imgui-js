@@ -20,6 +20,7 @@ IMGUI_SOURCE_HXX += $(IMGUI_PATH)/imstb_truetype.h
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui.cpp
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_demo.cpp
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_draw.cpp
+IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_tables.cpp
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_widgets.cpp
 IMGUI_OUTPUT_BC = $(IMGUI_SOURCE_CXX:%.cpp=build/%.bc)
 

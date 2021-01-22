@@ -499,8 +499,6 @@ EMSCRIPTEN_BINDINGS(ImGuiSizeCallbackData) {
 EMSCRIPTEN_BINDINGS(ImGuiListClipper) {
     emscripten::class_<ImGuiListClipper>("ImGuiListClipper")
         .constructor()
-        .constructor<int>()
-        .constructor<int, float>()
         CLASS_MEMBER(ImGuiListClipper, StartPosY)
         CLASS_MEMBER(ImGuiListClipper, ItemsHeight)
         CLASS_MEMBER(ImGuiListClipper, ItemsCount)
@@ -508,6 +506,9 @@ EMSCRIPTEN_BINDINGS(ImGuiListClipper) {
         CLASS_MEMBER(ImGuiListClipper, DisplayStart)
         CLASS_MEMBER(ImGuiListClipper, DisplayEnd)
         CLASS_METHOD(ImGuiListClipper, Step)
+        .function("Begin", FUNCTION(void, (ImGuiListClipper & that, int items_count, float items_height), {
+            that.Begin(items_count, items_height);
+        }))
         CLASS_METHOD(ImGuiListClipper, Begin)
         CLASS_METHOD(ImGuiListClipper, End)
     ;
@@ -543,6 +544,12 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
             return emscripten::val(emscripten::typed_memory_view((size_t)(that.VtxBuffer.size() * sizeof(ImDrawVert)), (char *) &that.VtxBuffer.front()));
         })
         // ImDrawListFlags         Flags;              // Flags, you may poke into these to adjust anti-aliasing settings per-primitive.
+        // ImVector<ImDrawCmd>     CmdBuffer;          // Draw commands. Typically
+        // 1 command = 1 GPU draw call, unless the command is a callback.
+        // ImVector<ImDrawIdx>     IdxBuffer;          // Index buffer. Each
+        // command consume ImDrawCmd::ElemCount of those
+        // ImDrawListFlags         Flags;              // Flags, you may poke into
+        // these to adjust anti-aliasing settings per-primitive.
         CLASS_MEMBER(ImDrawList, Flags)
 
         // [Internal, used while building lists]
@@ -661,9 +668,9 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
             }
             that.AddConvexPolyFilled(_points, num_points, col);
         }))
-        // IMGUI_API void  AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
-        .function("AddBezierCurve", FUNCTION(void, (ImDrawList& that, emscripten::val pos0, emscripten::val cp0, emscripten::val cp1, emscripten::val pos1, ImU32 col, float thickness, int num_segments), {
-            that.AddBezierCurve(import_ImVec2(pos0), import_ImVec2(cp0), import_ImVec2(cp1), import_ImVec2(pos1), col, thickness, num_segments);
+        // IMGUI_API void  AddBezierCubic(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
+        .function("AddBezierCubic", FUNCTION(void, (ImDrawList& that, emscripten::val pos0, emscripten::val cp0, emscripten::val cp1, emscripten::val pos1, ImU32 col, float thickness, int num_segments), {
+            that.AddBezierCubic(import_ImVec2(pos0), import_ImVec2(cp0), import_ImVec2(cp1), import_ImVec2(pos1), col, thickness, num_segments);
         }))
 
         // Stateful path API, add points then finish with PathFill() or PathStroke()
@@ -693,9 +700,9 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
         .function("PathArcToFast", FUNCTION(void, (ImDrawList& that, emscripten::val centre, float radius, int a_min_of_12, int a_max_of_12), {
             that.PathArcToFast(import_ImVec2(centre), radius, a_min_of_12, a_max_of_12);
         }))
-        // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
-        .function("PathBezierCurveTo", FUNCTION(void, (ImDrawList& that, emscripten::val p1, emscripten::val p2, emscripten::val p3, int num_segments), {
-            that.PathBezierCurveTo(import_ImVec2(p1), import_ImVec2(p2), import_ImVec2(p3), num_segments);
+        // IMGUI_API void  PathBezierCubicCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
+        .function("PathBezierCubicCurveTo", FUNCTION(void, (ImDrawList& that, emscripten::val p1, emscripten::val p2, emscripten::val p3, int num_segments), {
+            that.PathBezierCubicCurveTo(import_ImVec2(p1), import_ImVec2(p2), import_ImVec2(p3), num_segments);
         }))
         // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
         .function("PathRect", FUNCTION(void, (ImDrawList& that, emscripten::val rect_min, emscripten::val rect_max, float rounding, int rounding_corners_flags), {
@@ -724,9 +731,9 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
         // Internal helpers
         // NB: all primitives needs to be reserved via PrimReserve() beforehand!
         // IMGUI_API void  Clear();
-        CLASS_METHOD(ImDrawList, Clear)
+        //CLASS_METHOD(ImDrawList, Clear)
         // IMGUI_API void  ClearFreeMemory();
-        CLASS_METHOD(ImDrawList, ClearFreeMemory)
+        //CLASS_METHOD(ImDrawList, ClearFreeMemory)
         // IMGUI_API void  PrimReserve(int idx_count, int vtx_count);
         CLASS_METHOD(ImDrawList, PrimReserve)
         // IMGUI_API void  PrimRect(const ImVec2& a, const ImVec2& b, ImU32 col);      // Axis aligned rectangle (composed of two triangles)
@@ -753,10 +760,9 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
         .function("PrimVtx", FUNCTION(void, (ImDrawList& that, emscripten::val pos, emscripten::val uv, ImU32 col), {
             that.PrimVtx(import_ImVec2(pos), import_ImVec2(uv), col);
         }))
-        // IMGUI_API void  UpdateClipRect();
-        CLASS_METHOD(ImDrawList, UpdateClipRect)
+        //CLASS_METHOD(ImDrawList, UpdateClipRect)
         // IMGUI_API void  UpdateTextureID();
-        CLASS_METHOD(ImDrawList, UpdateTextureID)
+        // CLASS_METHOD(ImDrawList, UpdateTextureID)
     ;
 }
 
@@ -798,8 +804,17 @@ EMSCRIPTEN_BINDINGS(ImDrawData) {
 
 EMSCRIPTEN_BINDINGS(ImFontGlyph) {
     emscripten::class_<ImFontGlyph>("ImFontGlyph")
-        // ImWchar         Codepoint;          // 0x0000..0xFFFF
-        CLASS_MEMBER(ImFontGlyph, Codepoint)
+        // unsigned int         Codepoint;          // 0x0000..0xFFFF
+        // TODO: check this works
+        CLASS_MEMBER_GET_SET(ImFontGlyph, Codepoint,
+            { return emscripten::val(that.Codepoint); },
+            { that.Codepoint = value.as<unsigned int>(); })
+        // CLASS_MEMBER(ImFontGlyph, Codepoint)
+        //  unsigned int         Visible;          // Flag to allow early out when rendering
+        // TODO: check this works
+        CLASS_MEMBER_GET_SET(ImFontGlyph, Visible,
+            { return emscripten::val(that.Visible); },
+            { that.Visible = value.as<unsigned int>(); })
         // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
         CLASS_MEMBER(ImFontGlyph, AdvanceX)
         // float           X0, Y0, X1, Y1;     // Glyph corners
@@ -874,8 +889,6 @@ EMSCRIPTEN_BINDINGS(ImFont) {
         CLASS_MEMBER(ImFont, FontSize)
         // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
         CLASS_MEMBER(ImFont, Scale)
-        // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
-        CLASS_MEMBER_GET_RAW_REFERENCE(ImFont, DisplayOffset)
         // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
         // CLASS_MEMBER(ImFont, Glyphs)
         .function("IterateGlyphs", FUNCTION(void, (ImFont* that, emscripten::val callback), {
@@ -2490,8 +2503,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API void          TreePop();                                                              // ~ Unindent()+PopId()
     emscripten::function("TreePop", &ImGui::TreePop);
-    // IMGUI_API void          TreeAdvanceToLabelPos();                                                // advance cursor x position by GetTreeNodeToLabelSpacing()
-    emscripten::function("TreeAdvanceToLabelPos", &ImGui::TreeAdvanceToLabelPos);
     // IMGUI_API float         GetTreeNodeToLabelSpacing();                                            // horizontal distance preceding label when using TreeNode*() or Bullet() == (g.FontSize + style.FramePadding.x*2) for a regular unframed TreeNode
     emscripten::function("GetTreeNodeToLabelSpacing", &ImGui::GetTreeNodeToLabelSpacing);
     // IMGUI_API bool          CollapsingHeader(const char* label, ImGuiTreeNodeFlags flags = 0);      // if returning 'true' the header is open. doesn't indent nor push on ID stack. user doesn't have to call TreePop().
@@ -2619,7 +2630,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          OpenPopup(const char* str_id);                                      // call to mark popup as open (don't call every frame!). popups are closed when user click outside, or if CloseCurrentPopup() is called within a BeginPopup()/EndPopup() block. By default, Selectable()/MenuItem() are calling CloseCurrentPopup(). Popup identifiers are relative to the current ID-stack (so OpenPopup and BeginPopup needs to be at the same level).
     emscripten::function("OpenPopup", FUNCTION(void, (std::string str_id), { ImGui::OpenPopup(str_id.c_str()); }));
     // IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
-    emscripten::function("OpenPopupOnItemClick", FUNCTION(bool, (emscripten::val str_id, int mouse_button), { return ImGui::OpenPopupOnItemClick(import_maybe_null_string(str_id), mouse_button); }));
+    emscripten::function("OpenPopupOnItemClick", FUNCTION(void, (emscripten::val str_id, int mouse_button), { return ImGui::OpenPopupOnItemClick(import_maybe_null_string(str_id), mouse_button); }));
     // IMGUI_API bool          BeginPopup(const char* str_id);                                     // return true if the popup is open, and you can start outputting to it. only call EndPopup() if BeginPopup() returned true!
     emscripten::function("BeginPopup", FUNCTION(bool, (std::string str_id), { return ImGui::BeginPopup(str_id.c_str()); }));
     // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags extra_flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
@@ -2628,8 +2639,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
     emscripten::function("BeginPopupContextItem", FUNCTION(bool, (emscripten::val str_id, int mouse_button), { return ImGui::BeginPopupContextItem(import_maybe_null_string(str_id), mouse_button); }));
-    // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, int mouse_button = 1, bool also_over_items = true);  // helper to open and begin popup when clicked on current window.
-    emscripten::function("BeginPopupContextWindow", FUNCTION(bool, (emscripten::val str_id, int mouse_button, bool also_over_items), { return ImGui::BeginPopupContextWindow(import_maybe_null_string(str_id), mouse_button, also_over_items); }));
+    // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);  // helper to open and begin popup when clicked on current window.
+    emscripten::function("BeginPopupContextWindow", FUNCTION(bool, (emscripten::val str_id, ImGuiPopupFlags popup_flags), { return ImGui::BeginPopupContextWindow(import_maybe_null_string(str_id), popup_flags); }));
     // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
     emscripten::function("BeginPopupContextVoid", FUNCTION(bool, (emscripten::val str_id, int mouse_button), { return ImGui::BeginPopupContextVoid(import_maybe_null_string(str_id), mouse_button); }));
     // IMGUI_API void          EndPopup();
@@ -2638,6 +2649,60 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsPopupOpen", FUNCTION(bool, (std::string str_id), { return ImGui::IsPopupOpen(str_id.c_str()); }));
     // IMGUI_API void          CloseCurrentPopup();                                                // close the popup we have begin-ed into. clicking on a MenuItem or Selectable automatically close the current popup.
     emscripten::function("CloseCurrentPopup", &ImGui::CloseCurrentPopup);
+
+
+    // IMGUI_API bool          BeginTable(const char* str_id, int column, ImGuiTableFlags flags = 0, const ImVec2& outer_size = ImVec2(0.0f, 0.0f), float inner_width = 0.0f);
+    emscripten::function("BeginTable", FUNCTION(bool, (std::string str_id, int column, int flags, emscripten::val outer_size, float inner_width), {
+          return ImGui::BeginTable(str_id.c_str(), column, flags, import_ImVec2(outer_size), inner_width);
+    }));
+    // IMGUI_API void          EndTable();                                 // only call EndTable() if BeginTable() returns true!
+    emscripten::function("EndTable", &ImGui::EndTable);
+    // IMGUI_API void          TableNextRow(ImGuiTableRowFlags row_flags = 0, float min_row_height = 0.0f); // append into the first cell of a new row.
+    emscripten::function("TableNextRow", FUNCTION(void, (int row_flags, float min_row_height), {
+                                 return ImGui::TableNextRow(row_flags, min_row_height);
+                               }));
+    // IMGUI_API bool          TableNextColumn();                          // append into the next column (or first column of next row if currently in last column). Return true when column is visible.
+    emscripten::function("TableNextColumn", &ImGui::TableNextColumn);
+    // IMGUI_API bool          TableSetColumnIndex(int column_n);          // append into the specified column. Return true when column is visible.
+    emscripten::function("TableSetColumnIndex", &ImGui::TableSetColumnIndex);
+    // Tables: Headers & Columns declaration
+    // - Use TableSetupColumn() to specify label, resizing policy, default width/weight, id, various other flags etc.
+    // - Use TableHeadersRow() to create a header row and automatically submit a TableHeader() for each column.
+    //   Headers are required to perform: reordering, sorting, and opening the context menu.
+    //   The context menu can also be made available in columns body using ImGuiTableFlags_ContextMenuInBody.
+    // - You may manually submit headers using TableNextRow() + TableHeader() calls, but this is only useful in
+    //   some advanced use cases (e.g. adding custom widgets in header row).
+    // - Use TableSetupScrollFreeze() to lock columns/rows so they stay visible when scrolled.
+    // IMGUI_API void          TableSetupColumn(const char* label, ImGuiTableColumnFlags flags = 0, float init_width_or_weight = 0.0f, ImU32 user_id = 0);
+    emscripten::function("TableSetupColumn", FUNCTION(void, (std::string label, int flags, float init_width_or_weight, ImU32 user_id), {
+          ImGui::TableSetupColumn(label.c_str(), flags, init_width_or_weight, user_id);
+        }));
+    // IMGUI_API void          TableSetupScrollFreeze(int cols, int rows); // lock columns/rows so they stay visible when scrolled.
+    // IMGUI_API void          TableHeadersRow();                          // submit all headers cells based on data provided to TableSetupColumn() + submit context menu
+    emscripten::function("TableHeadersRow", &ImGui::TableHeadersRow);
+    // IMGUI_API void          TableHeader(const char* label);             // submit one header cell manually (rarely used)
+    emscripten::function("TableHeader", FUNCTION(void, (std::string label), {
+                                    ImGui::TableHeader(label.c_str());
+                                  }));
+    // Tables: Sorting
+    // - Call TableGetSortSpecs() to retrieve latest sort specs for the table. NULL when not sorting.
+    // - When 'SpecsDirty == true' you should sort your data. It will be true when sorting specs have changed
+    //   since last call, or the first time. Make sure to set 'SpecsDirty = false' after sorting, else you may
+    //   wastefully sort your data every frame!
+    // - Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable().
+    // IMGUI_API ImGuiTableSortSpecs* TableGetSortSpecs();                        // get latest sort specs for the table (NULL if not sorting).
+    // Tables: Miscellaneous functions
+    // - Functions args 'int column_n' treat the default value of -1 as the same as passing the current column index.
+    // IMGUI_API int                   TableGetColumnCount();                      // return number of columns (value passed to BeginTable)
+    emscripten::function("TableGetColumnCount", &ImGui::TableGetColumnCount);
+    // IMGUI_API int                   TableGetColumnIndex();                      // return current column index.
+    emscripten::function("TableGetColumnIndex", &ImGui::TableGetColumnIndex);
+    // IMGUI_API int                   TableGetRowIndex();                         // return current row index.
+    emscripten::function("TableGetRowIndex", &ImGui::TableGetRowIndex);
+    // IMGUI_API const char*           TableGetColumnName(int column_n = -1);      // return "" if column didn't have a name declared by TableSetupColumn(). Pass -1 to use current column.
+    // IMGUI_API ImGuiTableColumnFlags TableGetColumnFlags(int column_n = -1);     // return column flags so you can query their Enabled/Visible/Sorted/Hovered status flags. Pass -1 to use current column.
+    // IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);  // change the color of a cell, row, or column. See ImGuiTableBgTarget_ flags for details.
+
 
     // Tab Bars, Tabs
     // [BETA API] API may evolve!

@@ -36,6 +36,10 @@ export type ImWchar = number;
 export type ImTextureID = number;
 
 type ImGuiWindowFlags = number;
+type ImGuiTableFlags = number;
+type ImGuiTableColumnFlags = number;
+type ImGuiTableRowFlags = number;
+type ImGuiTableBgTarget = number;
 type ImGuiInputTextFlags = number;
 type ImGuiTreeNodeFlags = number;
 type ImGuiSelectableFlags = number;
@@ -1341,6 +1345,22 @@ BeginPopupContextVoid(str_id: string | null/* = NULL */, mouse_button: number/* 
 EndPopup(): void;
 IsPopupOpen(str_id: string): boolean;
 CloseCurrentPopup(): void;
+
+// Tables
+BeginTable(str_id: string, column: number, flags: ImGuiTableFlags/* = 1 */, outer_size: Readonly<interface_ImVec2>, inner_width: number): boolean;
+EndTable(): void;
+TableNextRow(row_flags: ImGuiTableRowFlags/* = 0*/, min_row_height: number/* = 0.0*/): void;
+TableNextColumn(): boolean;
+TableSetColumnIndex(column_n: number): boolean;
+TableSetupColumn(label: string, flags: ImGuiTableColumnFlags/* = 0*/, init_width_or_weight: number/* = 0.0*/, user_id: ImU32/* = 0*/): void;
+TableSetupScrollFreeze(cols: number, rows: number): void;
+TableHeadersRow(): void;
+TableHeader(label: string): void;
+TableGetColumnCount(): number;
+TableGetColumnIndex(): number;
+TableGetRowIndex(): number;
+TableGetColumnName(column_n: number/* = -1*/): string;
+TableGetColumnFlags(column_n: number/* = -1*/): ImGuiTableColumnFlags;
 
 // Tab Bars, Tabs
 // [BETA API] API may evolve!

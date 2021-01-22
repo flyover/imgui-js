@@ -4,7 +4,7 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ImGui_Demo = {}, global.ImGui));
 }(this, (function (exports, ImGui) { 'use strict';
 
-    // dear imgui, v1.71
+    // dear imgui, v1.80
     // #ifdef _MSC_VER
     // #pragma warning (disable: 4996) // 'This function or variable may be unsafe': strcpy, strdup, sprintf, vsnprintf, sscanf, fopen
     // #define snprintf _snprintf

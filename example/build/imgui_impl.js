@@ -319,7 +319,11 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         }
         // Gamepad navigation mapping [BETA]
         for (let i = 0; i < io.NavInputs.length; ++i) {
-            io.NavInputs[i] = 0.0;
+            // TODO: This is currently causing an issue and I have no gamepad to test with.
+            //       The error is: ''set' on proxy: trap returned falsish for property '21'
+            //       I think that the NavInputs are zeroed out by ImGui at the start of each frame anyway
+            //       so I am not sure if the following is even necessary.
+            //io.NavInputs[i] = 0.0;
         }
         if (io.ConfigFlags & ImGui.ConfigFlags.NavEnableGamepad) {
             // Update gamepad inputs
