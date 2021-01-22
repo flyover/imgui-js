@@ -491,6 +491,15 @@ export declare enum ImGuiColorEditFlags {
     _PickerMask = 100663296,
     _InputMask = 402653184
 }
+export { ImGuiSliderFlags as SliderFlags };
+export declare enum ImGuiSliderFlags {
+    None = 0,
+    AlwaysClamp = 16,
+    Logarithmic = 32,
+    NoRoundToFormat = 64,
+    NoInput = 128,
+    InvalidMask_ = 1879048207
+}
 export { ImGuiMouseCursor as MouseCursor };
 export declare enum ImGuiMouseCursor {
     None = -1,

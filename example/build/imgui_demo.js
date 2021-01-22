@@ -2540,9 +2540,47 @@ System.register(["imgui-js"], function (exports_1, context_1) {
     function PopStyleCompact() {
         ImGui.PopStyleVar(2);
     }
+    function EditTableSizingFlags(p_flags) {
+        let policies = [
+            { value: imgui_js_16.ImGuiTableFlags.None, name: "Default", tooltip: "Use default sizing policy:\n- ImGuiTableFlags_SizingFixedFit if ScrollX is on or if host window has ImGuiWindowFlags_AlwaysAutoResize.\n- ImGuiTableFlags_SizingStretchSame otherwise." },
+            { value: imgui_js_16.ImGuiTableFlags.SizingFixedFit, name: "ImGuiTableFlags_SizingFixedFit", tooltip: "Columns default to _WidthFixed (if resizable) or _WidthAuto (if not resizable), matching contents width." },
+            { value: imgui_js_16.ImGuiTableFlags.SizingFixedSame, name: "ImGuiTableFlags_SizingFixedSame", tooltip: "Columns are all the same width, matching the maximum contents width.\nImplicitly disable ImGuiTableFlags_Resizable and enable ImGuiTableFlags_NoKeepColumnsVisible." },
+            { value: imgui_js_16.ImGuiTableFlags.SizingStretchProp, name: "ImGuiTableFlags_SizingStretchProp", tooltip: "Columns default to _WidthStretch with weights proportional to their widths." },
+            { value: imgui_js_16.ImGuiTableFlags.SizingStretchSame, name: "ImGuiTableFlags_SizingStretchSame", tooltip: "Columns default to _WidthStretch with same weights." }
+        ];
+        let idx = 0;
+        for (idx = 0; idx < imgui_js_3.IM_ARRAYSIZE(policies); idx++)
+            if (policies[idx].value == (p_flags.value & imgui_js_16.ImGuiTableFlags.SizingMask_))
+                break;
+        //const char* preview_text = (idx < IM_ARRAYSIZE(policies)) ? policies[idx].Name + (idx > 0 ? strlen("ImGuiTableFlags") : 0) : "";
+        let preview_text = (idx < imgui_js_3.IM_ARRAYSIZE(policies)) ? policies[idx].name.substr(idx > 0 ? "ImGuiTableFlags".length : 0) : "";
+        if (ImGui.BeginCombo("Sizing Policy", preview_text)) {
+            for (let n = 0; n < imgui_js_3.IM_ARRAYSIZE(policies); n++)
+                if (ImGui.Selectable(policies[n].name, idx == n))
+                    p_flags.value = (p_flags.value & ~imgui_js_16.ImGuiTableFlags.SizingMask_) | policies[n].value;
+            ImGui.EndCombo();
+        }
+        ImGui.SameLine();
+        ImGui.TextDisabled("(?)");
+        if (ImGui.IsItemHovered()) {
+            ImGui.BeginTooltip();
+            ImGui.PushTextWrapPos(ImGui.GetFontSize() * 50.0);
+            for (let m = 0; m < imgui_js_3.IM_ARRAYSIZE(policies); m++) {
+                ImGui.Separator();
+                ImGui.Text(`${policies[m].name}):`);
+                ImGui.Separator();
+                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetStyle().IndentSpacing * 0.5);
+                ImGui.TextUnformatted(policies[m].tooltip);
+            }
+            ImGui.PopTextWrapPos();
+            ImGui.EndTooltip();
+        }
+    }
     function ShowDemoWindowTables() {
         if (!ImGui.CollapsingHeader("Tables & Columns"))
             return;
+        const TEXT_BASE_WIDTH = ImGui.CalcTextSize("A").x;
+        const TEXT_BASE_HEIGHT = ImGui.GetTextLineHeightWithSpacing();
         ImGui.PushID("Tables");
         let open_action = -1;
         if (ImGui.Button("Open all"))
@@ -2901,6 +2939,121 @@ In this demo we don't show horizontal borders to emphasis how they don't affect 
                 ImGui.EndTable();
             }
             ImGui.PopStyleVar();
+            ImGui.TreePop();
+        }
+        if (open_action != -1)
+            ImGui.SetNextItemOpen(open_action != 0);
+        if (ImGui.TreeNode("Sizing policies")) {
+            /* static */ const flags1 = STATIC("flags1#tables-sizing-policies", imgui_js_16.ImGuiTableFlags.BordersV | imgui_js_16.ImGuiTableFlags.BordersOuterH | imgui_js_16.ImGuiTableFlags.RowBg | imgui_js_16.ImGuiTableFlags.ContextMenuInBody);
+            PushStyleCompact();
+            ImGui.CheckboxFlags("ImGuiTableFlags_Resizable", (value = flags1.value) => flags1.value = value, imgui_js_16.ImGuiTableFlags.Resizable);
+            ImGui.CheckboxFlags("ImGuiTableFlags_NoHostExtendX", (value = flags1.value) => flags1.value = value, imgui_js_16.ImGuiTableFlags.NoHostExtendX);
+            PopStyleCompact();
+            let sizing_policy_flags = [imgui_js_16.ImGuiTableFlags.SizingFixedFit, imgui_js_16.ImGuiTableFlags.SizingFixedSame, imgui_js_16.ImGuiTableFlags.SizingStretchProp, imgui_js_16.ImGuiTableFlags.SizingStretchSame];
+            for (let table_n = 0; table_n < 4; table_n++) {
+                /* static */ const sizing_policy_flag = STATIC(`sizing_policy_flag#tables-sizing-policies${table_n}`, sizing_policy_flags[table_n]);
+                ImGui.PushID(table_n);
+                ImGui.SetNextItemWidth(TEXT_BASE_WIDTH * 30);
+                EditTableSizingFlags(sizing_policy_flag);
+                // To make it easier to understand the different sizing policy,
+                // For each policy: we display one table where the columns have equal contents width, and one where the columns have different contents width.
+                if (ImGui.BeginTable("table1", 3, sizing_policy_flag.value | flags1.value)) {
+                    for (let row = 0; row < 3; row++) {
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        ImGui.Text("Oh dear");
+                        ImGui.TableNextColumn();
+                        ImGui.Text("Oh dear");
+                        ImGui.TableNextColumn();
+                        ImGui.Text("Oh dear");
+                    }
+                    ImGui.EndTable();
+                }
+                if (ImGui.BeginTable("table2", 3, sizing_policy_flags[table_n] | flags1.value)) {
+                    for (let row = 0; row < 3; row++) {
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        ImGui.Text("AAAA");
+                        ImGui.TableNextColumn();
+                        ImGui.Text("BBBBBBBB");
+                        ImGui.TableNextColumn();
+                        ImGui.Text("CCCCCCCCCCCC");
+                    }
+                    ImGui.EndTable();
+                }
+                ImGui.PopID();
+            }
+            ImGui.Spacing();
+            ImGui.TextUnformatted("Advanced");
+            ImGui.SameLine();
+            HelpMarker("This section allows you to interact and see the effect of various sizing policies depending on whether Scroll is enabled and the contents of your columns.");
+            let ContentsType;
+            (function (ContentsType) {
+                ContentsType[ContentsType["CT_ShowWidth"] = 0] = "CT_ShowWidth";
+                ContentsType[ContentsType["CT_ShortText"] = 1] = "CT_ShortText";
+                ContentsType[ContentsType["CT_LongText"] = 2] = "CT_LongText";
+                ContentsType[ContentsType["CT_Button"] = 3] = "CT_Button";
+                ContentsType[ContentsType["CT_FillButton"] = 4] = "CT_FillButton";
+                ContentsType[ContentsType["CT_InputText"] = 5] = "CT_InputText";
+            })(ContentsType || (ContentsType = {}));
+            ;
+            /* static */ const flags = STATIC("flags#tables-sizing-policies", imgui_js_16.ImGuiTableFlags.ScrollY | imgui_js_16.ImGuiTableFlags.Borders | imgui_js_16.ImGuiTableFlags.RowBg | imgui_js_16.ImGuiTableFlags.Resizable);
+            /* static */ const contents_type = STATIC("contents_type#tables-sizing-policies", ContentsType.CT_ShowWidth);
+            /* static */ const column_count = STATIC("column_count#tables-sizing-policies", 3);
+            PushStyleCompact();
+            ImGui.PushID("Advanced");
+            ImGui.PushItemWidth(TEXT_BASE_WIDTH * 30);
+            EditTableSizingFlags(flags);
+            ImGui.Combo("Contents", (value = contents_type.value) => contents_type.value = value, "Show width\0Short Text\0Long Text\0Button\0Fill Button\0InputText\0");
+            if (contents_type.value == ContentsType.CT_FillButton) {
+                ImGui.SameLine();
+                HelpMarker("Be mindful that using right-alignment (e.g. size.x = -FLT_MIN) creates a feedback loop where contents width can feed into auto-column width can feed into contents width.");
+            }
+            ImGui.DragInt("Columns", (value = column_count.value) => column_count.value = value, 0.1, 1, 64, "%d");
+            //ImGui.DragInt("Columns", (value = column_count.value) => column_count.value = value, 0.1, 1, 64, "%d", ImGuiSliderFlags.AlwaysClamp);
+            ImGui.CheckboxFlags("ImGuiTableFlags_Resizable", (value = flags.value) => flags.value = value, imgui_js_16.ImGuiTableFlags.Resizable);
+            ImGui.CheckboxFlags("ImGuiTableFlags_PreciseWidths", (value = flags.value) => flags.value = value, imgui_js_16.ImGuiTableFlags.PreciseWidths);
+            ImGui.SameLine();
+            HelpMarker("Disable distributing remainder width to stretched columns (width allocation on a 100-wide table with 3 columns: Without this flag: 33,33,34. With this flag: 33,33,33). With larger number of columns, resizing will appear to be less smooth.");
+            ImGui.CheckboxFlags("ImGuiTableFlags_ScrollX", (value = flags.value) => flags.value = value, imgui_js_16.ImGuiTableFlags.ScrollX);
+            ImGui.CheckboxFlags("ImGuiTableFlags_ScrollY", (value = flags.value) => flags.value = value, imgui_js_16.ImGuiTableFlags.ScrollY);
+            ImGui.CheckboxFlags("ImGuiTableFlags_NoClip", (value = flags.value) => flags.value = value, imgui_js_16.ImGuiTableFlags.NoClip);
+            ImGui.PopItemWidth();
+            ImGui.PopID();
+            PopStyleCompact();
+            if (ImGui.BeginTable("table2", column_count.value, flags.value, new imgui_js_21.ImVec2(0.0, TEXT_BASE_HEIGHT * 7))) {
+                for (let cell = 0; cell < 10 * column_count.value; cell++) {
+                    ImGui.TableNextColumn();
+                    let column = ImGui.TableGetColumnIndex();
+                    let row = ImGui.TableGetRowIndex();
+                    ImGui.PushID(cell);
+                    let label = `Hello ${column},${row}`;
+                    /* static */ const text_buf = STATIC(`text_buf#sizing_${cell}`, new imgui_js_4.ImStringBuffer(32, ""));
+                    switch (contents_type.value) {
+                        case ContentsType.CT_ShortText:
+                            ImGui.TextUnformatted(label);
+                            break;
+                        case ContentsType.CT_LongText:
+                            ImGui.Text(`Some ${column == 0 ? "long" : "longeeer"} ${column},${row}\nOver two lines...`);
+                            break;
+                        case ContentsType.CT_ShowWidth:
+                            ImGui.Text(`W: ${ImGui.GetContentRegionAvail().x.toFixed(1)}`);
+                            break;
+                        case ContentsType.CT_Button:
+                            ImGui.Button(label);
+                            break;
+                        case ContentsType.CT_FillButton:
+                            ImGui.Button(label, new imgui_js_21.ImVec2(-1.0, 0.0));
+                            break;
+                        case ContentsType.CT_InputText:
+                            ImGui.SetNextItemWidth(-1.0);
+                            ImGui.InputText("##", text_buf.value, imgui_js_3.IM_ARRAYSIZE(text_buf.value));
+                            break;
+                    }
+                    ImGui.PopID();
+                }
+                ImGui.EndTable();
+            }
             ImGui.TreePop();
         }
         ImGui.PopID();
