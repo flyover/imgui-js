@@ -441,15 +441,16 @@ export declare enum ImGuiStyleVar {
     ItemSpacing = 13,
     ItemInnerSpacing = 14,
     IndentSpacing = 15,
-    ScrollbarSize = 16,
-    ScrollbarRounding = 17,
-    GrabMinSize = 18,
-    GrabRounding = 19,
-    TabRounding = 20,
-    ButtonTextAlign = 21,
-    SelectableTextAlign = 22,
-    Count_ = 23,
-    COUNT = 23
+    CellPadding = 16,
+    ScrollbarSize = 17,
+    ScrollbarRounding = 18,
+    GrabMinSize = 19,
+    GrabRounding = 20,
+    TabRounding = 21,
+    ButtonTextAlign = 22,
+    SelectableTextAlign = 23,
+    Count_ = 24,
+    COUNT = 24
 }
 export { ImGuiBackendFlags as BackendFlags };
 export declare enum ImGuiBackendFlags {

@@ -606,6 +606,7 @@ export enum ImGuiStyleVar {
     ItemSpacing,         // ImVec2    ItemSpacing
     ItemInnerSpacing,    // ImVec2    ItemInnerSpacing
     IndentSpacing,       // float     IndentSpacing
+    CellPadding,         // ImVec2    CellPadding
     ScrollbarSize,       // float     ScrollbarSize
     ScrollbarRounding,   // float     ScrollbarRounding
     GrabMinSize,         // float     GrabMinSize

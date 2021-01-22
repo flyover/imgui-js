@@ -92,6 +92,8 @@ import { ImGuiStyleVar } from "imgui-js";
 import { ImGuiTreeNodeFlags } from "imgui-js";
 import { ImGuiWindowFlags } from "imgui-js";
 import { ImGuiTableFlags } from "imgui-js";
+import { ImGuiTableColumnFlags } from "imgui-js";
+import { ImGuiTableRowFlags } from "imgui-js";
 import { ImGuiTabBarFlags } from "imgui-js";
 import { ImGuiTabItemFlags } from "imgui-js";
 import { ImGuiInputTextCallbackData } from "imgui-js";
@@ -2941,12 +2943,14 @@ This is also more similar to the old NextColumn() function of the Columns API, a
         ImGui.TreePop();
     }
 
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
     if (ImGui.TreeNode("Borders, background"))
     {
         // Expose a few Borders related flags interactively
         enum ContentsType { CT_Text, CT_FillButton };
 
-        /* static */ const flags: Static<ImGui.ImGuiTableFlags> = STATIC("flags#669", ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg);
+        /* static */ const flags: Static<ImGui.ImGuiTableFlags> = STATIC("flags#tables2", ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg);
         /* static */ const display_headers: Static<boolean> = STATIC("display_headers", false);
         /* static */ const contents_type: Static<number> = STATIC("contents_type", ContentsType.CT_Text);
 
@@ -2998,13 +3002,287 @@ This is also more similar to the old NextColumn() function of the Columns API, a
                 {
                     ImGui.TableSetColumnIndex(column);
                     if (contents_type.value == ContentsType.CT_Text)
-                        ImGui.TextUnformatted(`Hello ${column}${row}`);
+                        ImGui.TextUnformatted(`Hello ${column},${row}`);
                     else if (contents_type)
-                        ImGui.Button(`Hello ${column}${row}`, new ImVec2(-1.0, 0.0));
+                        ImGui.Button(`Hello ${column},${row}`, new ImVec2(-1.0, 0.0));
                 }
             }
             ImGui.EndTable();
         }
+        ImGui.TreePop();
+    }
+
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Resizable, stretch"))
+    {
+        // By default, if we don't enable ScrollX the sizing policy for each columns is "Stretch"
+        // Each columns maintain a sizing weight, and they will occupy all available width.
+        /* static */ const flags: Static<ImGui.ImGuiTableFlags> = STATIC("flags#tables3", ImGuiTableFlags.SizingStretchSame | ImGuiTableFlags.Resizable | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.BordersV | ImGuiTableFlags.ContextMenuInBody);
+        PushStyleCompact();
+        ImGui.CheckboxFlags("ImGuiTableFlags_Resizable", (value = flags.value) => flags.value = value, ImGuiTableFlags.Resizable);
+        ImGui.CheckboxFlags("ImGuiTableFlags_BordersV", (value = flags.value) => flags.value = value, ImGuiTableFlags.BordersV);
+        ImGui.SameLine(); HelpMarker("Using the _Resizable flag automatically enables the _BordersInnerV flag as well, this is why the resize borders are still showing when unchecking this.");
+        PopStyleCompact();
+
+        if (ImGui.BeginTable("table1", 3, flags.value))
+        {
+            for (let row = 0; row < 5; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 3; column++)
+                {
+                    ImGui.TableSetColumnIndex(column);
+                    ImGui.Text(`Hello ${column},${row}`);
+                }
+            }
+            ImGui.EndTable();
+        }
+        ImGui.TreePop();
+    }
+
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Resizable, fixed"))
+    {
+        // Here we use ImGuiTableFlags_SizingFixedFit (even though _ScrollX is not set)
+        // So columns will adopt the "Fixed" policy and will maintain a fixed width regardless of the whole available width (unless table is small)
+        // If there is not enough available width to fit all columns, they will however be resized down.
+        // FIXME-TABLE: Providing a stretch-on-init would make sense especially for tables which don't have saved settings
+        HelpMarker(`Using _Resizable + _SizingFixedFit flags.
+Fixed-width columns generally makes more sense if you want to use horizontal scrolling.
+
+Double-click a column border to auto-fit the column to its contents.`);
+        PushStyleCompact();
+        /* static */ const flags: Static<ImGui.ImGuiTableFlags> = STATIC("flags#tables4", ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Resizable | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.BordersV | ImGuiTableFlags.ContextMenuInBody);
+        ImGui.CheckboxFlags("ImGuiTableFlags_NoHostExtendX", (value = flags.value) => flags.value = value, ImGuiTableFlags.NoHostExtendX);
+        PopStyleCompact();
+
+        if (ImGui.BeginTable("table1", 3, flags.value))
+        {
+            for (let row = 0; row < 5; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 3; column++)
+                {
+                    ImGui.TableSetColumnIndex(column);
+                    ImGui.Text(`Hello ${column},${row}`);
+                }
+            }
+            ImGui.EndTable();
+        }
+        ImGui.TreePop();
+    }
+
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Resizable, mixed"))
+    {
+        HelpMarker(`Using TableSetupColumn() to alter resizing policy on a per-column basis.
+
+When combining Fixed and Stretch columns, generally you only want one, maybe two trailing columns to use _WidthStretch.`);
+        const flags : ImGuiTableFlags = ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable;
+
+        if (ImGui.BeginTable("table1", 3, flags))
+        {
+            ImGui.TableSetupColumn("AAA", ImGuiTableColumnFlags.WidthFixed);
+            ImGui.TableSetupColumn("BBB", ImGuiTableColumnFlags.WidthFixed);
+            ImGui.TableSetupColumn("CCC", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableHeadersRow();
+            for (let row = 0; row < 5; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 3; column++)
+                {
+                    ImGui.TableSetColumnIndex(column);
+                    ImGui.Text(`${column >= 3 ? "Stretch" : "Fixed"} ${column},${row}`);
+                }
+            }
+            ImGui.EndTable();
+        }
+        if (ImGui.BeginTable("table2", 6, flags))
+        {
+            ImGui.TableSetupColumn("AAA", ImGuiTableColumnFlags.WidthFixed);
+            ImGui.TableSetupColumn("BBB", ImGuiTableColumnFlags.WidthFixed);
+            ImGui.TableSetupColumn("CCC", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultHide);
+            ImGui.TableSetupColumn("DDD", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn("EEE", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn("FFF", ImGuiTableColumnFlags.WidthStretch | ImGuiTableColumnFlags.DefaultHide);
+            ImGui.TableHeadersRow();
+            for (let row = 0; row < 5; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 6; column++)
+                {
+                    ImGui.TableSetColumnIndex(column);
+                    ImGui.Text(`${column >= 3 ? "Stretch" : "Fixed"} ${column},${row}`);
+                }
+            }
+            ImGui.EndTable();
+        }
+        ImGui.TreePop();
+    }
+
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Reorderable, hideable, with headers"))
+    {
+        HelpMarker(`Click and drag column headers to reorder columns.
+
+Right-click on a header to open a context menu.`);
+        /* static */ const flags: Static<ImGui.ImGuiTableFlags> = STATIC("flags#tables-reorderable", ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.BordersV);
+        PushStyleCompact();
+        ImGui.CheckboxFlags("ImGuiTableFlags_Resizable", (value = flags.value) => flags.value = value, ImGuiTableFlags.Resizable);
+        ImGui.CheckboxFlags("ImGuiTableFlags_Reorderable", (value = flags.value) => flags.value = value, ImGuiTableFlags.Reorderable);
+        ImGui.CheckboxFlags("ImGuiTableFlags_Hideable", (value = flags.value) => flags.value = value, ImGuiTableFlags.Hideable);
+        ImGui.CheckboxFlags("ImGuiTableFlags_NoBordersInBody", (value = flags.value) => flags.value = value, ImGuiTableFlags.NoBordersInBody);
+        ImGui.CheckboxFlags("ImGuiTableFlags_NoBordersInBodyUntilResize", (value = flags.value) => flags.value = value, ImGuiTableFlags.NoBordersInBodyUntilResize); ImGui.SameLine(); HelpMarker("Disable vertical borders in columns Body until hovered for resize (borders will always appears in Headers)");
+        PopStyleCompact();
+
+        if (ImGui.BeginTable("table1", 3, flags.value))
+        {
+            // Submit columns name with TableSetupColumn() and call TableHeadersRow() to create a row with a header in each column.
+            // (Later we will show how TableSetupColumn() has other uses, optional flags, sizing weight etc.)
+            ImGui.TableSetupColumn("One");
+            ImGui.TableSetupColumn("Two");
+            ImGui.TableSetupColumn("Three");
+            ImGui.TableHeadersRow();
+            for (let row = 0; row < 6; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 3; column++)
+                {
+                    ImGui.TableSetColumnIndex(column);
+                    ImGui.Text(`Hello ${column},${row}`);
+                }
+            }
+            ImGui.EndTable();
+        }
+
+        // Use outer_size.x == 0.0f instead of default to make the table as tight as possible (only valid when no scrolling and no stretch column)
+        if (ImGui.BeginTable("table2", 3, flags.value | ImGuiTableFlags.SizingFixedFit, new ImVec2(0.0, 0.0)))
+        {
+            ImGui.TableSetupColumn("One");
+            ImGui.TableSetupColumn("Two");
+            ImGui.TableSetupColumn("Three");
+            ImGui.TableHeadersRow();
+            for (let row = 0; row < 6; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 3; column++)
+                {
+                    ImGui.TableSetColumnIndex(column);
+                    ImGui.Text(`Fixed ${column},${row}`);
+                }
+            }
+            ImGui.EndTable();
+        }
+        ImGui.TreePop();
+    }
+
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Padding"))
+    {
+        // First example: showcase use of padding flags and effect of BorderOuterV/BorderInnerV on X padding.
+        // We don't expose BorderOuterH/BorderInnerH here because they have no effect on X padding.
+        HelpMarker(`We often want outer padding activated when any using features which makes the edges of a column visible:
+
+e.g.:
+- BorderOuterV
+- any form of row selection
+Because of this, activating BorderOuterV sets the default to PadOuterX. Using PadOuterX or NoPadOuterX you can override the default.
+Actual padding values are using style.CellPadding.
+
+In this demo we don't show horizontal borders to emphasis how they don't affect default horizontal padding.`);
+
+        /* static */ const flags1: Static<ImGui.ImGuiTableFlags> = STATIC("flags1#tables-padding", ImGuiTableFlags.BordersV);
+        PushStyleCompact();
+        ImGui.CheckboxFlags("ImGuiTableFlags_PadOuterX", (value = flags1.value) => flags1.value = value, ImGuiTableFlags.PadOuterX);
+        ImGui.SameLine(); HelpMarker("Enable outer-most padding (default if ImGuiTableFlags_BordersOuterV is set)");
+        ImGui.CheckboxFlags("ImGuiTableFlags_NoPadOuterX", (value = flags1.value) => flags1.value = value, ImGuiTableFlags.NoPadOuterX);
+        ImGui.SameLine(); HelpMarker("Disable outer-most padding (default if ImGuiTableFlags_BordersOuterV is not set)");
+        ImGui.CheckboxFlags("ImGuiTableFlags_NoPadInnerX", (value = flags1.value) => flags1.value = value, ImGuiTableFlags.NoPadInnerX);
+        ImGui.SameLine(); HelpMarker("Disable inner padding between columns (double inner padding if BordersOuterV is on, single inner padding if BordersOuterV is off)");
+        ImGui.CheckboxFlags("ImGuiTableFlags_BordersOuterV", (value = flags1.value) => flags1.value = value, ImGuiTableFlags.BordersOuterV);
+        ImGui.CheckboxFlags("ImGuiTableFlags_BordersInnerV", (value = flags1.value) => flags1.value = value, ImGuiTableFlags.BordersInnerV);
+        /* static */ const show_headers: Static<boolean> = STATIC("show_headers#tables-padding", false);
+        ImGui.Checkbox("show_headers", (value = show_headers.value) => show_headers.value = value);
+        PopStyleCompact();
+
+        if (ImGui.BeginTable("table_padding", 3, flags1.value))
+        {
+            if (show_headers.value)
+            {
+                ImGui.TableSetupColumn("One");
+                ImGui.TableSetupColumn("Two");
+                ImGui.TableSetupColumn("Three");
+                ImGui.TableHeadersRow();
+            }
+
+            for (let row = 0; row < 5; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 3; column++)
+                {
+                    ImGui.TableSetColumnIndex(column);
+                    if (row == 0)
+                    {
+                        ImGui.Text(`Avail ${ImGui.GetContentRegionAvail().x.toFixed(2)}`);
+                    }
+                    else
+                    {
+                        ImGui.Button(`Hello ${column},${row}`, new ImVec2(-1.0, 0.0));
+                    }
+                    //if (ImGui.TableGetColumnFlags() & ImGuiTableColumnFlags_IsHovered)
+                    //    ImGui.TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(0, 100, 0, 255));
+                }
+            }
+            ImGui.EndTable();
+        }
+
+        // Second example: set style.CellPadding to (0.0) or a custom value.
+        // FIXME-TABLE: Vertical border effectively not displayed the same way as horizontal one...
+        HelpMarker("Setting style.CellPadding to (0,0) or a custom value.");
+        /* static */ const flags2: Static<ImGui.ImGuiTableFlags> = STATIC("flags2#tables-padding", ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg);
+        /* static */ const cell_padding: Static<ImVec2> = STATIC("cell_padding#tables-padding", new ImVec2(0.0, 0.0));
+        /* static */ const show_widget_frame_bg: Static<boolean> = STATIC("const show_widget_frame_bg#tables-padding", true);
+
+        PushStyleCompact();
+        ImGui.CheckboxFlags("ImGuiTableFlags_Borders", (value = flags2.value) => flags2.value = value, ImGuiTableFlags.Borders);
+        ImGui.CheckboxFlags("ImGuiTableFlags_BordersH", (value = flags2.value) => flags2.value = value, ImGuiTableFlags.BordersH);
+        ImGui.CheckboxFlags("ImGuiTableFlags_BordersV", (value = flags2.value) => flags2.value = value, ImGuiTableFlags.BordersV);
+        ImGui.CheckboxFlags("ImGuiTableFlags_BordersInner", (value = flags2.value) => flags2.value = value, ImGuiTableFlags.BordersInner);
+        ImGui.CheckboxFlags("ImGuiTableFlags_BordersOuter", (value = flags2.value) => flags2.value = value, ImGuiTableFlags.BordersOuter);
+        ImGui.CheckboxFlags("ImGuiTableFlags_RowBg", (value = flags2.value) => flags2.value = value, ImGuiTableFlags.RowBg);
+        ImGui.CheckboxFlags("ImGuiTableFlags_Resizable", (value = flags2.value) => flags2.value = value, ImGuiTableFlags.Resizable);
+        ImGui.Checkbox("show_widget_frame_bg", (value = show_widget_frame_bg.value) => show_widget_frame_bg.value = value);
+        ImGui.SliderFloat2("CellPadding", cell_padding.value, 0.0, 10.0, "%.0f");
+        PopStyleCompact();
+
+        ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, cell_padding.value);
+        if (ImGui.BeginTable("table_padding_2", 3, flags2.value))
+        {
+            //static bool init = true;
+            if (!show_widget_frame_bg.value)
+                ImGui.PushStyleColor(ImGuiCol.FrameBg, 0);
+            for (let cell = 0; cell < 3 * 5; cell++)
+            {
+                ImGui.TableNextColumn();
+                ImGui.SetNextItemWidth(-1.0);
+                ImGui.PushID(cell);
+
+                /* static */ const str0: Static<ImStringBuffer> = STATIC(`str0#${cell}`, new ImStringBuffer(16, "edit me"));
+                ImGui.InputText("##cell", str0.value, IM_ARRAYSIZE(str0.value));
+                ImGui.PopID();
+            }
+            if (!show_widget_frame_bg.value)
+                ImGui.PopStyleColor();
+            //init = false;
+            ImGui.EndTable();
+        }
+        ImGui.PopStyleVar();
+
         ImGui.TreePop();
     }
 
