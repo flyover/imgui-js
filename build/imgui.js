@@ -3181,16 +3181,14 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 // items_count:  Use -1 to ignore (you can call Begin later). Use INT_MAX if you don't know how many items you have (in which case the cursor won't be advanced in the final step).
                 // items_height: Use -1.0f to be calculated automatically on first step. Otherwise pass in the distance between your items, typically GetTextLineHeightWithSpacing() or GetFrameHeightWithSpacing().
                 // If you don't specify an items_height, you NEED to call Step(). If you specify items_height you may call the old Begin()/End() api directly, but prefer calling Step().
-                // ImGuiListClipper(int items_count = -1, float items_height = -1.0f)  { Begin(items_count, items_height); } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
-                constructor(items_count = -1, items_height = -1.0) {
+                // ImGuiListClipper()  { } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
+                constructor() {
                     this._native = null;
                     this.items_count = -1;
                     this.items_height = -1.0;
-                    this.items_count = items_count;
-                    this.items_height = items_height;
                 }
                 get native() {
-                    return this._native || (this._native = new bind.ImGuiListClipper(this.items_count, this.items_height));
+                    return this._native || (this._native = new bind.ImGuiListClipper());
                 }
                 get StartPosY() { return this.native.StartPosY; }
                 get ItemsHeight() { return this.native.ItemsHeight; }

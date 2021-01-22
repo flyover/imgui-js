@@ -193,7 +193,8 @@ export class MemoryEditor
         ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new ImVec2(0, 0));
 
         const line_total_count: number = 0|((mem_size + this.Rows - 1) / this.Rows);
-        const clipper: ImGuiListClipper = new ImGuiListClipper(line_total_count, s.LineHeight);
+        const clipper: ImGuiListClipper = new ImGuiListClipper();
+        clipper.Begin(line_total_count, s.LineHeight);
         const visible_start_addr: number = clipper.DisplayStart * this.Rows;
         const visible_end_addr: number = clipper.DisplayEnd * this.Rows;
 

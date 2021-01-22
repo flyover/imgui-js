@@ -2485,7 +2485,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.BeginChild("##ScrollingRegion", new imgui_js_21.ImVec2(0, ImGui.GetFontSize() * 20), false, imgui_js_15.ImGuiWindowFlags.HorizontalScrollbar);
             ImGui.Columns(10);
             const ITEMS_COUNT = 2000;
-            const clipper = new imgui_js_28.ImGuiListClipper(ITEMS_COUNT); // Also demonstrate using the clipper for large list
+            const clipper = new imgui_js_28.ImGuiListClipper(); // Also demonstrate using the clipper for large list
+            clipper.Begin(ITEMS_COUNT);
             while (clipper.Step()) {
                 for (let i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
                     for (let j = 0; j < 10; j++) {
@@ -3051,6 +3052,39 @@ In this demo we don't show horizontal borders to emphasis how they don't affect 
                             break;
                     }
                     ImGui.PopID();
+                }
+                ImGui.EndTable();
+            }
+            ImGui.TreePop();
+        }
+        if (open_action != -1)
+            ImGui.SetNextItemOpen(open_action != 0);
+        if (ImGui.TreeNode("Vertical scrolling, with clipping")) {
+            HelpMarker("Here we activate ScrollY, which will create a child window container to allow hosting scrollable contents.\n\nWe also demonstrate using ImGuiListClipper to virtualize the submission of many items.");
+            /* static */ const flags = STATIC("flags#tables-vertical-scrolling", imgui_js_16.ImGuiTableFlags.ScrollY | imgui_js_16.ImGuiTableFlags.RowBg | imgui_js_16.ImGuiTableFlags.BordersOuter | imgui_js_16.ImGuiTableFlags.BordersV | imgui_js_16.ImGuiTableFlags.Resizable | imgui_js_16.ImGuiTableFlags.Reorderable | imgui_js_16.ImGuiTableFlags.Hideable);
+            PushStyleCompact();
+            ImGui.CheckboxFlags("ImGuiTableFlags_ScrollY", (value = flags.value) => flags.value = value, imgui_js_16.ImGuiTableFlags.ScrollY);
+            PopStyleCompact();
+            // When using ScrollX or ScrollY we need to specify a size for our table container!
+            // Otherwise by default the table will fit all available space, like a BeginChild() call.
+            let outer_size = new imgui_js_21.ImVec2(0.0, TEXT_BASE_HEIGHT * 8);
+            if (ImGui.BeginTable("table_scrolly", 3, flags.value, outer_size)) {
+                ImGui.TableSetupScrollFreeze(0, 1); // Make top row always visible
+                ImGui.TableSetupColumn("One", imgui_js_17.ImGuiTableColumnFlags.None);
+                ImGui.TableSetupColumn("Two", imgui_js_17.ImGuiTableColumnFlags.None);
+                ImGui.TableSetupColumn("Three", imgui_js_17.ImGuiTableColumnFlags.None);
+                ImGui.TableHeadersRow();
+                // Demonstrate using clipper for large vertical lists
+                let clipper = new imgui_js_28.ImGuiListClipper();
+                clipper.Begin(1000);
+                while (clipper.Step()) {
+                    for (let row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
+                        ImGui.TableNextRow();
+                        for (let column = 0; column < 3; column++) {
+                            ImGui.TableSetColumnIndex(column);
+                            ImGui.Text(`Hello ${row},${column}`);
+                        }
+                    }
                 }
                 ImGui.EndTable();
             }
@@ -3930,7 +3964,8 @@ In this demo we don't show horizontal borders to emphasis how they don't affect 
                 {
                     // Multiple calls to Text(), manually coarsely clipped - demonstrate how to use the ImGuiListClipper helper.
                     ImGui.PushStyleVar(imgui_js_13.ImGuiStyleVar.ItemSpacing, new imgui_js_21.ImVec2(0, 0));
-                    const clipper = new imgui_js_28.ImGuiListClipper(lines.value);
+                    const clipper = new imgui_js_28.ImGuiListClipper();
+                    clipper.Begin(lines.value);
                     while (clipper.Step())
                         for (let i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
                             ImGui.Text(`${i} The quick brown fox jumps over the lazy dog`);

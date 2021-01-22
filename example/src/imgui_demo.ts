@@ -2789,7 +2789,8 @@ function ShowDemoWindowColumns()
         ImGui.BeginChild("##ScrollingRegion", new ImVec2(0, ImGui.GetFontSize() * 20), false, ImGuiWindowFlags.HorizontalScrollbar);
         ImGui.Columns(10);
         const ITEMS_COUNT: number = 2000;
-        const clipper: ImGuiListClipper = new ImGuiListClipper(ITEMS_COUNT);  // Also demonstrate using the clipper for large list
+        const clipper: ImGuiListClipper = new ImGuiListClipper();  // Also demonstrate using the clipper for large list
+        clipper.Begin(ITEMS_COUNT);
         while (clipper.Step())
         {
             for (let i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
@@ -3436,6 +3437,48 @@ In this demo we don't show horizontal borders to emphasis how they don't affect 
                 case ContentsType.CT_InputText:  ImGui.SetNextItemWidth(-1.0); ImGui.InputText("##", text_buf.value, IM_ARRAYSIZE(text_buf.value)); break;
                 }
                 ImGui.PopID();
+            }
+            ImGui.EndTable();
+        }
+        ImGui.TreePop();
+    }
+
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Vertical scrolling, with clipping"))
+    {
+        HelpMarker("Here we activate ScrollY, which will create a child window container to allow hosting scrollable contents.\n\nWe also demonstrate using ImGuiListClipper to virtualize the submission of many items.");
+        /* static */ const flags: Static<ImGui.ImGuiTableFlags> = STATIC("flags#tables-vertical-scrolling", ImGuiTableFlags.ScrollY | ImGuiTableFlags.RowBg | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.BordersV | ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable);
+
+        PushStyleCompact();
+        ImGui.CheckboxFlags("ImGuiTableFlags_ScrollY", (value = flags.value) => flags.value = value, ImGuiTableFlags.ScrollY);
+        PopStyleCompact();
+
+        // When using ScrollX or ScrollY we need to specify a size for our table container!
+        // Otherwise by default the table will fit all available space, like a BeginChild() call.
+        let outer_size = new ImVec2(0.0, TEXT_BASE_HEIGHT * 8);
+        if (ImGui.BeginTable("table_scrolly", 3, flags.value, outer_size))
+        {
+            ImGui.TableSetupScrollFreeze(0, 1); // Make top row always visible
+            ImGui.TableSetupColumn("One", ImGuiTableColumnFlags.None);
+            ImGui.TableSetupColumn("Two", ImGuiTableColumnFlags.None);
+            ImGui.TableSetupColumn("Three", ImGuiTableColumnFlags.None);
+            ImGui.TableHeadersRow();
+
+            // Demonstrate using clipper for large vertical lists
+            let clipper = new ImGuiListClipper();
+            clipper.Begin(1000);
+            while (clipper.Step())
+            {
+                for (let row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
+                {
+                    ImGui.TableNextRow();
+                    for (let column = 0; column < 3; column++)
+                    {
+                        ImGui.TableSetColumnIndex(column);
+                        ImGui.Text(`Hello ${row},${column}`);
+                    }
+                }
             }
             ImGui.EndTable();
         }
@@ -4823,7 +4866,8 @@ function ShowExampleAppLongText(p_open: ImAccess<boolean>): void
         {
             // Multiple calls to Text(), manually coarsely clipped - demonstrate how to use the ImGuiListClipper helper.
             ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new ImVec2(0, 0));
-            const clipper: ImGuiListClipper = new ImGuiListClipper(lines.value);
+            const clipper: ImGuiListClipper = new ImGuiListClipper();
+            clipper.Begin(lines.value);
             while (clipper.Step())
                 for (let i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
                     ImGui.Text(`${i} The quick brown fox jumps over the lazy dog`);

@@ -509,7 +509,7 @@ EMSCRIPTEN_BINDINGS(ImGuiListClipper) {
         .function("Begin", FUNCTION(void, (ImGuiListClipper & that, int items_count, float items_height), {
             that.Begin(items_count, items_height);
         }))
-        CLASS_METHOD(ImGuiListClipper, Begin)
+        //CLASS_METHOD(ImGuiListClipper, Begin)
         CLASS_METHOD(ImGuiListClipper, End)
     ;
 }
@@ -2678,6 +2678,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
           ImGui::TableSetupColumn(label.c_str(), flags, init_width_or_weight, user_id);
         }));
     // IMGUI_API void          TableSetupScrollFreeze(int cols, int rows); // lock columns/rows so they stay visible when scrolled.
+    emscripten::function("TableSetupScrollFreeze", &ImGui::TableSetupScrollFreeze);
     // IMGUI_API void          TableHeadersRow();                          // submit all headers cells based on data provided to TableSetupColumn() + submit context menu
     emscripten::function("TableHeadersRow", &ImGui::TableHeadersRow);
     // IMGUI_API void          TableHeader(const char* label);             // submit one header cell manually (rarely used)

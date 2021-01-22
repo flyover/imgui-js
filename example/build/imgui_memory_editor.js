@@ -175,7 +175,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new imgui_js_5.ImVec2(0, 0));
                     ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new imgui_js_5.ImVec2(0, 0));
                     const line_total_count = 0 | ((mem_size + this.Rows - 1) / this.Rows);
-                    const clipper = new imgui_js_6.ImGuiListClipper(line_total_count, s.LineHeight);
+                    const clipper = new imgui_js_6.ImGuiListClipper();
+                    clipper.Begin(line_total_count, s.LineHeight);
                     const visible_start_addr = clipper.DisplayStart * this.Rows;
                     const visible_end_addr = clipper.DisplayEnd * this.Rows;
                     let data_next = false;

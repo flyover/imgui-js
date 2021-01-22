@@ -672,7 +672,7 @@ export declare class ImGuiListClipper {
     get StepNo(): number;
     get DisplayStart(): number;
     get DisplayEnd(): number;
-    constructor(items_count?: number, items_height?: number);
+    constructor();
     delete(): void;
     Step(): boolean;
     Begin(items_count: number, items_height?: number): void;

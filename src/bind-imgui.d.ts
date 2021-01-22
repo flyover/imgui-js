@@ -158,8 +158,8 @@ export class ImGuiListClipper extends Emscripten.EmscriptenClass {
     // items_count:  Use -1 to ignore (you can call Begin later). Use INT_MAX if you don't know how many items you have (in which case the cursor won't be advanced in the final step).
     // items_height: Use -1.0f to be calculated automatically on first step. Otherwise pass in the distance between your items, typically GetTextLineHeightWithSpacing() or GetFrameHeightWithSpacing().
     // If you don't specify an items_height, you NEED to call Step(). If you specify items_height you may call the old Begin()/End() api directly, but prefer calling Step().
-    // ImGuiListClipper(int items_count = -1, float items_height = -1.0f)  { Begin(items_count, items_height); } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
-    constructor(items_count?: number, items_height?: number);
+    // ImGuiListClipper()  { .. } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
+    constructor();
     // ~ImGuiListClipper()                                                 { IM_ASSERT(ItemsCount == -1); }      // Assert if user forgot to call End() or Step() until false.
 
     // IMGUI_API bool Step();                                              // Call until it returns false. The DisplayStart/DisplayEnd fields will be set and you can process/draw those items.
@@ -955,7 +955,7 @@ ImDrawVertPosOffset: number;
 ImDrawVertUVOffset: number;
 ImDrawVertColOffset: number;
 
-ImGuiListClipper: { new(items_count: number, items_height: number): ImGuiListClipper; };
+ImGuiListClipper: { new(): ImGuiListClipper; };
 ImGuiStyle: { new(): ImGuiStyle; };
 
 // Context creation and access, if you want to use multiple context, share context between modules (e.g. DLL). 
