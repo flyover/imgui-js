@@ -3914,6 +3914,85 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
         ImGui.TreePop();
     }
 
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Tree view"))
+    {
+        /* static */ const flags: Static<ImGui.ImGuiTableFlags> = STATIC("flags#tables-tree-view", ImGuiTableFlags.BordersV | ImGuiTableFlags.BordersOuterH | ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg | ImGuiTableFlags.NoBordersInBody);
+
+        if (ImGui.BeginTable("3ways", 3, flags.value))
+        {
+            // The first column will use the default _WidthStretch when ScrollX is Off and _WidthFixed when ScrollX is On
+            ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.NoHide);
+            ImGui.TableSetupColumn("Size", ImGuiTableColumnFlags.WidthFixed, TEXT_BASE_WIDTH * 12.0);
+            ImGui.TableSetupColumn("Type", ImGuiTableColumnFlags.WidthFixed, TEXT_BASE_WIDTH * 18.0);
+            ImGui.TableHeadersRow();
+
+            // Simple storage to output a dummy file-system.
+            class MyTreeNode
+            {
+                constructor(name: string, type: string, size: number, childIdx: number, childCount: number)
+                {
+                    this.Name = name;
+                    this.Type = type;
+                    this.Size = size;
+                    this.ChildIdx = childIdx;
+                    this.ChildCount = childCount;
+                }
+                Name: string;
+                Type: string;
+                Size: number;
+                ChildIdx: number;
+                ChildCount: number;
+                static DisplayNode(node: MyTreeNode, all_nodes: MyTreeNode[]): void
+                {
+                    ImGui.TableNextRow();
+                    ImGui.TableNextColumn();
+                    const is_folder = (node.ChildCount > 0);
+                    if (is_folder)
+                    {
+                        let open = ImGui.TreeNodeEx(node.Name, ImGuiTreeNodeFlags.SpanFullWidth);
+                        ImGui.TableNextColumn();
+                        ImGui.TextDisabled("--");
+                        ImGui.TableNextColumn();
+                        ImGui.TextUnformatted(node.Type);
+                        if (open)
+                        {
+                            for (let child_n = 0; child_n < node.ChildCount; child_n++)
+                                MyTreeNode.DisplayNode(all_nodes[node.ChildIdx + child_n], all_nodes);
+                            ImGui.TreePop();
+                        }
+                    }
+                    else
+                    {
+                        ImGui.TreeNodeEx(node.Name, ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
+                        ImGui.TableNextColumn();
+                        ImGui.Text(`${node.Size}`);
+                        ImGui.TableNextColumn();
+                        ImGui.TextUnformatted(node.Type);
+                    }
+                }
+            };
+            let nodes: MyTreeNode[] =
+            [
+                new MyTreeNode("Root",                         "Folder",       -1,       1, 3    ), // 0
+                new MyTreeNode("Music",                        "Folder",       -1,       4, 2    ), // 1
+                new MyTreeNode("Textures",                     "Folder",       -1,       6, 3    ), // 2
+                new MyTreeNode("desktop.ini",                  "System file",  1024,    -1,-1    ), // 3
+                new MyTreeNode("File1_a.wav",                  "Audio file",   123000,  -1,-1    ), // 4
+                new MyTreeNode("File1_b.wav",                  "Audio file",   456000,  -1,-1    ), // 5
+                new MyTreeNode("Image001.png",                 "Image file",   203128,  -1,-1    ), // 6
+                new MyTreeNode("Copy of Image001.png",         "Image file",   203256,  -1,-1    ), // 7
+                new MyTreeNode("Copy of Image001 (Final2).png","Image file",   203512,  -1,-1    ), // 8
+            ];
+
+            MyTreeNode.DisplayNode(nodes[0], nodes);
+
+            ImGui.EndTable();
+        }
+        ImGui.TreePop();
+    }
+
     ImGui.PopID();
 
     if (disable_indent.value)

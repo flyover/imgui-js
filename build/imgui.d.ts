@@ -109,6 +109,8 @@ export declare enum ImGuiTreeNodeFlags {
     Leaf = 256,
     Bullet = 512,
     FramePadding = 1024,
+    SpanAvailWidth = 2048,
+    SpanFullWidth = 4096,
     NavLeftJumpsBackHere = 8192,
     CollapsingHeader = 26
 }

@@ -3460,6 +3460,67 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
             }
             ImGui.TreePop();
         }
+        if (open_action != -1)
+            ImGui.SetNextItemOpen(open_action != 0);
+        if (ImGui.TreeNode("Tree view")) {
+            /* static */ const flags = STATIC("flags#tables-tree-view", imgui_js_16.ImGuiTableFlags.BordersV | imgui_js_16.ImGuiTableFlags.BordersOuterH | imgui_js_16.ImGuiTableFlags.Resizable | imgui_js_16.ImGuiTableFlags.RowBg | imgui_js_16.ImGuiTableFlags.NoBordersInBody);
+            if (ImGui.BeginTable("3ways", 3, flags.value)) {
+                // The first column will use the default _WidthStretch when ScrollX is Off and _WidthFixed when ScrollX is On
+                ImGui.TableSetupColumn("Name", imgui_js_17.ImGuiTableColumnFlags.NoHide);
+                ImGui.TableSetupColumn("Size", imgui_js_17.ImGuiTableColumnFlags.WidthFixed, TEXT_BASE_WIDTH * 12.0);
+                ImGui.TableSetupColumn("Type", imgui_js_17.ImGuiTableColumnFlags.WidthFixed, TEXT_BASE_WIDTH * 18.0);
+                ImGui.TableHeadersRow();
+                // Simple storage to output a dummy file-system.
+                class MyTreeNode {
+                    constructor(name, type, size, childIdx, childCount) {
+                        this.Name = name;
+                        this.Type = type;
+                        this.Size = size;
+                        this.ChildIdx = childIdx;
+                        this.ChildCount = childCount;
+                    }
+                    static DisplayNode(node, all_nodes) {
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        const is_folder = (node.ChildCount > 0);
+                        if (is_folder) {
+                            let open = ImGui.TreeNodeEx(node.Name, imgui_js_14.ImGuiTreeNodeFlags.SpanFullWidth);
+                            ImGui.TableNextColumn();
+                            ImGui.TextDisabled("--");
+                            ImGui.TableNextColumn();
+                            ImGui.TextUnformatted(node.Type);
+                            if (open) {
+                                for (let child_n = 0; child_n < node.ChildCount; child_n++)
+                                    MyTreeNode.DisplayNode(all_nodes[node.ChildIdx + child_n], all_nodes);
+                                ImGui.TreePop();
+                            }
+                        }
+                        else {
+                            ImGui.TreeNodeEx(node.Name, imgui_js_14.ImGuiTreeNodeFlags.Leaf | imgui_js_14.ImGuiTreeNodeFlags.Bullet | imgui_js_14.ImGuiTreeNodeFlags.NoTreePushOnOpen | imgui_js_14.ImGuiTreeNodeFlags.SpanFullWidth);
+                            ImGui.TableNextColumn();
+                            ImGui.Text(`${node.Size}`);
+                            ImGui.TableNextColumn();
+                            ImGui.TextUnformatted(node.Type);
+                        }
+                    }
+                }
+                ;
+                let nodes = [
+                    new MyTreeNode("Root", "Folder", -1, 1, 3),
+                    new MyTreeNode("Music", "Folder", -1, 4, 2),
+                    new MyTreeNode("Textures", "Folder", -1, 6, 3),
+                    new MyTreeNode("desktop.ini", "System file", 1024, -1, -1),
+                    new MyTreeNode("File1_a.wav", "Audio file", 123000, -1, -1),
+                    new MyTreeNode("File1_b.wav", "Audio file", 456000, -1, -1),
+                    new MyTreeNode("Image001.png", "Image file", 203128, -1, -1),
+                    new MyTreeNode("Copy of Image001.png", "Image file", 203256, -1, -1),
+                    new MyTreeNode("Copy of Image001 (Final2).png", "Image file", 203512, -1, -1),
+                ];
+                MyTreeNode.DisplayNode(nodes[0], nodes);
+                ImGui.EndTable();
+            }
+            ImGui.TreePop();
+        }
         ImGui.PopID();
         if (disable_indent.value)
             ImGui.PopStyleVar();
