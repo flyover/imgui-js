@@ -3681,6 +3681,27 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
             }
             ImGui.TreePop();
         }
+        if (open_action != -1)
+            ImGui.SetNextItemOpen(open_action != 0);
+        if (ImGui.TreeNode("Synced instances")) {
+            HelpMarker("Multiple tables with the same identifier will share their settings, width, visibility, order etc.");
+            for (let n = 0; n < 3; n++) {
+                let buf = `Synced Table ${n}`;
+                let open = ImGui.CollapsingHeader(buf, imgui_js_14.ImGuiTreeNodeFlags.DefaultOpen);
+                if (open && ImGui.BeginTable("Table", 3, imgui_js_16.ImGuiTableFlags.Resizable | imgui_js_16.ImGuiTableFlags.Reorderable | imgui_js_16.ImGuiTableFlags.Hideable | imgui_js_16.ImGuiTableFlags.Borders | imgui_js_16.ImGuiTableFlags.SizingFixedFit | imgui_js_16.ImGuiTableFlags.NoSavedSettings)) {
+                    ImGui.TableSetupColumn("One");
+                    ImGui.TableSetupColumn("Two");
+                    ImGui.TableSetupColumn("Three");
+                    ImGui.TableHeadersRow();
+                    for (let cell = 0; cell < 9; cell++) {
+                        ImGui.TableNextColumn();
+                        ImGui.Text(`this cell ${cell}`);
+                    }
+                    ImGui.EndTable();
+                }
+            }
+            ImGui.TreePop();
+        }
         ImGui.PopID();
         if (disable_indent.value)
             ImGui.PopStyleVar();
