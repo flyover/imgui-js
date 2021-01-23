@@ -3596,6 +3596,91 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
             }
             ImGui.TreePop();
         }
+        if (open_action != -1)
+            ImGui.SetNextItemOpen(open_action != 0);
+        if (ImGui.TreeNode("Context menus")) {
+            HelpMarker("By default, right-clicking over a TableHeadersRow()/TableHeader() line will open the default context-menu.\nUsing ImGuiTableFlags_ContextMenuInBody we also allow right-clicking over columns body.");
+            /* static */ const flags1 = STATIC("flags1#tables-context-menus", imgui_js_16.ImGuiTableFlags.Resizable | imgui_js_16.ImGuiTableFlags.Reorderable | imgui_js_16.ImGuiTableFlags.Hideable | imgui_js_16.ImGuiTableFlags.Borders | imgui_js_16.ImGuiTableFlags.ContextMenuInBody);
+            PushStyleCompact();
+            ImGui.CheckboxFlags("ImGuiTableFlags_ContextMenuInBody", (value = flags1.value) => flags1.value = value, imgui_js_16.ImGuiTableFlags.ContextMenuInBody);
+            PopStyleCompact();
+            // Context Menus: first example
+            // [1.1] Right-click on the TableHeadersRow() line to open the default table context menu.
+            // [1.2] Right-click in columns also open the default table context menu (if ImGuiTableFlags_ContextMenuInBody is set)
+            const COLUMNS_COUNT = 3;
+            if (ImGui.BeginTable("table_context_menu", COLUMNS_COUNT, flags1.value)) {
+                ImGui.TableSetupColumn("One");
+                ImGui.TableSetupColumn("Two");
+                ImGui.TableSetupColumn("Three");
+                // [1.1]] Right-click on the TableHeadersRow() line to open the default table context menu.
+                ImGui.TableHeadersRow();
+                // Submit dummy contents
+                for (let row = 0; row < 4; row++) {
+                    ImGui.TableNextRow();
+                    for (let column = 0; column < COLUMNS_COUNT; column++) {
+                        ImGui.TableSetColumnIndex(column);
+                        ImGui.Text(`Cell ${column},${row}`);
+                    }
+                }
+                ImGui.EndTable();
+            }
+            // Context Menus: second example
+            // [2.1] Right-click on the TableHeadersRow() line to open the default table context menu.
+            // [2.2] Right-click on the ".." to open a custom popup
+            // [2.3] Right-click in columns to open another custom popup
+            HelpMarker("Demonstrate mixing table context menu (over header), item context button (over button) and custom per-colum context menu (over column body).");
+            /* static */ const flags2 = STATIC("flags2#tables-context-menus", imgui_js_16.ImGuiTableFlags.Resizable | imgui_js_16.ImGuiTableFlags.SizingFixedFit | imgui_js_16.ImGuiTableFlags.Reorderable | imgui_js_16.ImGuiTableFlags.Hideable | imgui_js_16.ImGuiTableFlags.Borders);
+            if (ImGui.BeginTable("table_context_menu_2", COLUMNS_COUNT, flags2.value)) {
+                ImGui.TableSetupColumn("One");
+                ImGui.TableSetupColumn("Two");
+                ImGui.TableSetupColumn("Three");
+                // [2.1] Right-click on the TableHeadersRow() line to open the default table context menu.
+                ImGui.TableHeadersRow();
+                for (let row = 0; row < 4; row++) {
+                    ImGui.TableNextRow();
+                    for (let column = 0; column < COLUMNS_COUNT; column++) {
+                        // Submit dummy contents
+                        ImGui.TableSetColumnIndex(column);
+                        ImGui.Text(`Cell ${column},${row}`);
+                        ImGui.SameLine();
+                        // [2.2] Right-click on the ".." to open a custom popup
+                        ImGui.PushID(row * COLUMNS_COUNT + column);
+                        ImGui.SmallButton("..");
+                        if (ImGui.BeginPopupContextItem()) {
+                            ImGui.Text(`This is the popup for Button(\"..\") in Cell ${column},${row}`);
+                            if (ImGui.Button("Close"))
+                                ImGui.CloseCurrentPopup();
+                            ImGui.EndPopup();
+                        }
+                        ImGui.PopID();
+                    }
+                }
+                // [2.3] Right-click anywhere in columns to open another custom popup
+                // (instead of testing for !IsAnyItemHovered() we could also call OpenPopup() with ImGuiPopupFlags_NoOpenOverExistingPopup
+                // to manage popup priority as the popups triggers, here "are we hovering a column" are overlapping)
+                let hovered_column = -1;
+                for (let column = 0; column < COLUMNS_COUNT + 1; column++) {
+                    ImGui.PushID(column);
+                    if (ImGui.TableGetColumnFlags(column) & imgui_js_17.ImGuiTableColumnFlags.IsHovered)
+                        hovered_column = column;
+                    if (hovered_column == column && !ImGui.IsAnyItemHovered() && ImGui.IsMouseReleased(1))
+                        ImGui.OpenPopup("MyPopup");
+                    if (ImGui.BeginPopup("MyPopup")) {
+                        if (column == COLUMNS_COUNT)
+                            ImGui.Text("This is a custom popup for unused space after the last column.");
+                        else
+                            ImGui.Text(`This is a custom popup for Column ${column}`);
+                        if (ImGui.Button("Close"))
+                            ImGui.CloseCurrentPopup();
+                        ImGui.EndPopup();
+                    }
+                    ImGui.PopID();
+                }
+                ImGui.EndTable();
+                ImGui.Text(`Hovered column: ${hovered_column}`);
+            }
+            ImGui.TreePop();
+        }
         ImGui.PopID();
         if (disable_indent.value)
             ImGui.PopStyleVar();
