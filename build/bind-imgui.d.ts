@@ -36,6 +36,7 @@ export type ImWchar = number;
 export type ImTextureID = number;
 
 type ImGuiWindowFlags = number;
+type ImGuiPopupFlags = number;
 type ImGuiTableFlags = number;
 type ImGuiTableColumnFlags = number;
 type ImGuiTableRowFlags = number;
@@ -1358,15 +1359,15 @@ MenuItem_A(label: string, shortcut: string | null, selected: boolean, enabled: b
 MenuItem_B(label: string, shortcut: string | null, p_selected: ImScalar<boolean>, enabled: boolean/* = true */): boolean;
 
 // Popups
-OpenPopup(str_id: string): void;
-OpenPopupOnItemClick(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): boolean;
-BeginPopup(str_id: string): boolean;
+OpenPopup(str_id: string, popup_flags: ImGuiPopupFlags/* = 0 */): void;
+OpenPopupOnItemClick(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
+BeginPopup(str_id: string, flags: ImGuiWindowFlags/* = 0 */): boolean;
 BeginPopupModal(name: string, p_open: ImScalar<boolean> | null/* = NULL */, extra_flags: ImGuiWindowFlags/* = 0 */): boolean;
-BeginPopupContextItem(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): boolean;
-BeginPopupContextWindow(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */, also_over_items: boolean/* = true */): boolean;
-BeginPopupContextVoid(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): boolean;
+BeginPopupContextItem(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
+BeginPopupContextWindow(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
+BeginPopupContextVoid(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
 EndPopup(): void;
-IsPopupOpen(str_id: string): boolean;
+IsPopupOpen(str_id: string, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
 CloseCurrentPopup(): void;
 
 // Tables

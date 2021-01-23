@@ -2657,29 +2657,49 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         return ImGui::MenuItem(label.c_str(), import_maybe_null_string(shortcut), access_maybe_null_value<bool>(p_selected), enabled);
     }));
 
-    // Popups
-    // IMGUI_API void          OpenPopup(const char* str_id);                                      // call to mark popup as open (don't call every frame!). popups are closed when user click outside, or if CloseCurrentPopup() is called within a BeginPopup()/EndPopup() block. By default, Selectable()/MenuItem() are calling CloseCurrentPopup(). Popup identifiers are relative to the current ID-stack (so OpenPopup and BeginPopup needs to be at the same level).
-    emscripten::function("OpenPopup", FUNCTION(void, (std::string str_id), { ImGui::OpenPopup(str_id.c_str()); }));
-    // IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
-    emscripten::function("OpenPopupOnItemClick", FUNCTION(void, (emscripten::val str_id, int mouse_button), { return ImGui::OpenPopupOnItemClick(import_maybe_null_string(str_id), mouse_button); }));
-    // IMGUI_API bool          BeginPopup(const char* str_id);                                     // return true if the popup is open, and you can start outputting to it. only call EndPopup() if BeginPopup() returned true!
-    emscripten::function("BeginPopup", FUNCTION(bool, (std::string str_id), { return ImGui::BeginPopup(str_id.c_str()); }));
-    // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags extra_flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
+    // Popups, Modals
+    //  - They block normal mouse hovering detection (and therefore most mouse interactions) behind them.
+    //  - If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
+    //  - Their visibility state (~bool) is held internally instead of being held by the programmer as we are used to with regular Begin*() calls.
+    //  - The 3 properties above are related: we need to retain popup visibility state in the library because popups may be closed as any time.
+    //  - You can bypass the hovering restriction by using ImGuiHoveredFlags_AllowWhenBlockedByPopup when calling IsItemHovered() or IsWindowHovered().
+    //  - IMPORTANT: Popup identifiers are relative to the current ID stack, so OpenPopup and BeginPopup generally needs to be at the same level of the stack.
+    //    This is sometimes leading to confusing mistakes. May rework this in the future.
+    // Popups: begin/end functions
+    //  - BeginPopup(): query popup state, if open start appending into the window. Call EndPopup() afterwards. ImGuiWindowFlags are forwarded to the window.
+    //  - BeginPopupModal(): block every interactions behind the window, cannot be closed by user, add a dimming background, has a title bar.
+    // IMGUI_API bool          BeginPopup(const char* str_id, ImGuiWindowFlags flags = 0);                         // return true if the popup is open, and you can start outputting to it.
+    emscripten::function("BeginPopup", FUNCTION(bool, (std::string str_id, ImGuiWindowFlags flags), { return ImGui::BeginPopup(str_id.c_str(), flags); }));
+    // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0); // return true if the modal is open, and you can start outputting to it.
     emscripten::function("BeginPopupModal", FUNCTION(bool, (std::string name, emscripten::val p_open, ImGuiWindowFlags extra_flags), {
         return ImGui::BeginPopupModal(name.c_str(), access_maybe_null_value<bool>(p_open), extra_flags);
     }));
-    // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
-    emscripten::function("BeginPopupContextItem", FUNCTION(bool, (emscripten::val str_id, int mouse_button), { return ImGui::BeginPopupContextItem(import_maybe_null_string(str_id), mouse_button); }));
-    // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);  // helper to open and begin popup when clicked on current window.
-    emscripten::function("BeginPopupContextWindow", FUNCTION(bool, (emscripten::val str_id, ImGuiPopupFlags popup_flags), { return ImGui::BeginPopupContextWindow(import_maybe_null_string(str_id), popup_flags); }));
-    // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
-    emscripten::function("BeginPopupContextVoid", FUNCTION(bool, (emscripten::val str_id, int mouse_button), { return ImGui::BeginPopupContextVoid(import_maybe_null_string(str_id), mouse_button); }));
     // IMGUI_API void          EndPopup();
     emscripten::function("EndPopup", &ImGui::EndPopup);
-    // IMGUI_API bool          IsPopupOpen(const char* str_id);                                    // return true if the popup is open
-    emscripten::function("IsPopupOpen", FUNCTION(bool, (std::string str_id), { return ImGui::IsPopupOpen(str_id.c_str()); }));
+    // Popups: open+begin combined functions helpers
+    //  - Helpers to do OpenPopup+BeginPopup where the Open action is triggered by e.g. hovering an item and right-clicking.
+    //  - They are convenient to easily create context menus, hence the name.
+    //  - IMPORTANT: Notice that BeginPopupContextXXX takes ImGuiPopupFlags just like OpenPopup() and unlike BeginPopup(). For full consistency, we may add ImGuiWindowFlags to the BeginPopupContextXXX functions in the future.
+    //  - IMPORTANT: we exceptionally default their flags to 1 (== ImGuiPopupFlags_MouseButtonRight) for backward compatibility with older API taking 'int mouse_button = 1' parameter, so if you add other flags remember to re-add the ImGuiPopupFlags_MouseButtonRight.
+    // IMGUI_API void          OpenPopup(const char* str_id, ImGuiPopupFlags popup_flags = 0);                     // call to mark popup as open (don't call every frame!).
+    emscripten::function("OpenPopup", FUNCTION(void, (std::string str_id, ImGuiPopupFlags popup_flags), { ImGui::OpenPopup(str_id.c_str(), popup_flags); }));
+    // IMGUI_API void          OpenPopupOnItemClick(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);   // helper to open popup when clicked on last item. return true when just opened. (note: actually triggers on the mouse _released_ event to be consistent with popup behaviors)
+    emscripten::function("OpenPopupOnItemClick", FUNCTION(void, (emscripten::val str_id, ImGuiPopupFlags popup_flags), { return ImGui::OpenPopupOnItemClick(import_maybe_null_string(str_id), popup_flags); }));
     // IMGUI_API void          CloseCurrentPopup();                                                // close the popup we have begin-ed into. clicking on a MenuItem or Selectable automatically close the current popup.
     emscripten::function("CloseCurrentPopup", &ImGui::CloseCurrentPopup);
+    // Popups: open+begin combined functions helpers
+    //  - Helpers to do OpenPopup+BeginPopup where the Open action is triggered by e.g. hovering an item and right-clicking.
+    //  - They are convenient to easily create context menus, hence the name.
+    //  - IMPORTANT: Notice that BeginPopupContextXXX takes ImGuiPopupFlags just like OpenPopup() and unlike BeginPopup(). For full consistency, we may add ImGuiWindowFlags to the BeginPopupContextXXX functions in the future.
+    //  - IMPORTANT: we exceptionally default their flags to 1 (== ImGuiPopupFlags_MouseButtonRight) for backward compatibility with older API taking 'int mouse_button = 1' parameter, so if you add other flags remember to re-add the ImGuiPopupFlags_MouseButtonRight.
+    // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);  // open+begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
+    emscripten::function("BeginPopupContextItem", FUNCTION(bool, (emscripten::val str_id, ImGuiPopupFlags popup_flags), { return ImGui::BeginPopupContextItem(import_maybe_null_string(str_id), popup_flags); }));
+    // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);// open+begin popup when clicked on current window.
+    emscripten::function("BeginPopupContextWindow", FUNCTION(bool, (emscripten::val str_id, ImGuiPopupFlags popup_flags), { return ImGui::BeginPopupContextWindow(import_maybe_null_string(str_id), popup_flags); }));
+    // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);  // open+begin popup when clicked in void (where there are no windows).
+    emscripten::function("BeginPopupContextVoid", FUNCTION(bool, (emscripten::val str_id, ImGuiPopupFlags popup_flags), { return ImGui::BeginPopupContextVoid(import_maybe_null_string(str_id), popup_flags); }));
+    // IMGUI_API bool          IsPopupOpen(const char* str_id, ImGuiPopupFlags flags = 0);                         // return true if the popup is open.
+    emscripten::function("IsPopupOpen", FUNCTION(bool, (std::string str_id, ImGuiPopupFlags flags), { return ImGui::IsPopupOpen(str_id.c_str(), flags); }));
 
     // IMGUI_API bool          BeginTable(const char* str_id, int column, ImGuiTableFlags flags = 0, const ImVec2& outer_size = ImVec2(0.0f, 0.0f), float inner_width = 0.0f);
     emscripten::function("BeginTable", FUNCTION(bool, (std::string str_id, int column, int flags, emscripten::val outer_size, float inner_width), {

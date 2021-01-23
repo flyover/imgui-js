@@ -1691,54 +1691,70 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
         }
     }
     exports_1("MenuItem", MenuItem);
-    // Popups
-    // IMGUI_API void          OpenPopup(const char* str_id);                                      // call to mark popup as open (don't call every frame!). popups are closed when user click outside, or if CloseCurrentPopup() is called within a BeginPopup()/EndPopup() block. By default, Selectable()/MenuItem() are calling CloseCurrentPopup(). Popup identifiers are relative to the current ID-stack (so OpenPopup and BeginPopup needs to be at the same level).
-    function OpenPopup(str_id) { bind.OpenPopup(str_id); }
-    exports_1("OpenPopup", OpenPopup);
-    // IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
-    function OpenPopupOnItemClick(str_id = null, mouse_button = 1) {
-        return bind.OpenPopupOnItemClick(str_id, mouse_button);
-    }
-    exports_1("OpenPopupOnItemClick", OpenPopupOnItemClick);
-    // IMGUI_API bool          BeginPopup(const char* str_id);                                     // return true if the popup is open, and you can start outputting to it. only call EndPopup() if BeginPopup() returned true!
-    function BeginPopup(str_id) { return bind.BeginPopup(str_id); }
+    // Popups, Modals
+    //  - They block normal mouse hovering detection (and therefore most mouse interactions) behind them.
+    //  - If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
+    //  - Their visibility state (~bool) is held internally instead of being held by the programmer as we are used to with regular Begin*() calls.
+    //  - The 3 properties above are related: we need to retain popup visibility state in the library because popups may be closed as any time.
+    //  - You can bypass the hovering restriction by using ImGuiHoveredFlags_AllowWhenBlockedByPopup when calling IsItemHovered() or IsWindowHovered().
+    //  - IMPORTANT: Popup identifiers are relative to the current ID stack, so OpenPopup and BeginPopup generally needs to be at the same level of the stack.
+    //    This is sometimes leading to confusing mistakes. May rework this in the future.
+    // Popups: begin/end functions
+    //  - BeginPopup(): query popup state, if open start appending into the window. Call EndPopup() afterwards. ImGuiWindowFlags are forwarded to the window.
+    //  - BeginPopupModal(): block every interactions behind the window, cannot be closed by user, add a dimming background, has a title bar.
+    // IMGUI_API bool          BeginPopup(const char* str_id, ImGuiWindowFlags flags = 0);                         // return true if the popup is open, and you can start outputting to it.
+    function BeginPopup(str_id, flags = 0) { return bind.BeginPopup(str_id, flags); }
     exports_1("BeginPopup", BeginPopup);
-    // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags extra_flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
-    function BeginPopupModal(str_id = "", p_open = null, extra_flags = 0) {
+    // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0); // return true if the modal is open, and you can start outputting to it.
+    function BeginPopupModal(str_id = "", p_open = null, flags = 0) {
         if (Array.isArray(p_open)) {
-            return bind.BeginPopupModal(str_id, p_open, extra_flags);
+            return bind.BeginPopupModal(str_id, p_open, flags);
         }
         else if (typeof (p_open) === "function") {
             const _p_open = [p_open()];
-            const ret = bind.BeginPopupModal(str_id, _p_open, extra_flags);
+            const ret = bind.BeginPopupModal(str_id, _p_open, flags);
             p_open(_p_open[0]);
             return ret;
         }
         else {
-            return bind.BeginPopupModal(str_id, null, extra_flags);
+            return bind.BeginPopupModal(str_id, null, flags);
         }
     }
     exports_1("BeginPopupModal", BeginPopupModal);
-    // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
-    function BeginPopupContextItem(str_id = null, mouse_button = 1) {
-        return bind.BeginPopupContextItem(str_id, mouse_button);
-    }
-    exports_1("BeginPopupContextItem", BeginPopupContextItem);
-    // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, int mouse_button = 1, bool also_over_items = true);  // helper to open and begin popup when clicked on current window.
-    function BeginPopupContextWindow(str_id = null, mouse_button = 1, also_over_items = true) {
-        return bind.BeginPopupContextWindow(str_id, mouse_button, also_over_items);
-    }
-    exports_1("BeginPopupContextWindow", BeginPopupContextWindow);
-    // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
-    function BeginPopupContextVoid(str_id = null, mouse_button = 1) {
-        return bind.BeginPopupContextVoid(str_id, mouse_button);
-    }
-    exports_1("BeginPopupContextVoid", BeginPopupContextVoid);
     // IMGUI_API void          EndPopup();
     function EndPopup() { bind.EndPopup(); }
     exports_1("EndPopup", EndPopup);
+    // Popups: open/close functions
+    //  - OpenPopup(): set popup state to open. ImGuiPopupFlags are available for opening options.
+    //  - If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
+    //  - CloseCurrentPopup(): use inside the BeginPopup()/EndPopup() scope to close manually.
+    //  - CloseCurrentPopup() is called by default by Selectable()/MenuItem() when activated (FIXME: need some options).
+    //  - Use ImGuiPopupFlags_NoOpenOverExistingPopup to avoid opening a popup if there's already one at the same level. This is equivalent to e.g. testing for !IsAnyPopupOpen() prior to OpenPopup().
+    // IMGUI_API void          OpenPopup(const char* str_id, ImGuiPopupFlags popup_flags = 0);                     // call to mark popup as open (don't call every frame!).
+    function OpenPopup(str_id, popup_flags = 0) { bind.OpenPopup(str_id, popup_flags); }
+    exports_1("OpenPopup", OpenPopup);
+    // IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
+    function OpenPopupOnItemClick(str_id = null, popup_flags = 1) {
+        return bind.OpenPopupOnItemClick(str_id, popup_flags);
+    }
+    exports_1("OpenPopupOnItemClick", OpenPopupOnItemClick);
+    // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
+    function BeginPopupContextItem(str_id = null, popup_flags = 1) {
+        return bind.BeginPopupContextItem(str_id, popup_flags);
+    }
+    exports_1("BeginPopupContextItem", BeginPopupContextItem);
+    // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, int mouse_button = 1, bool also_over_items = true);  // helper to open and begin popup when clicked on current window.
+    function BeginPopupContextWindow(str_id = null, popup_flags = 1) {
+        return bind.BeginPopupContextWindow(str_id, popup_flags);
+    }
+    exports_1("BeginPopupContextWindow", BeginPopupContextWindow);
+    // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
+    function BeginPopupContextVoid(str_id = null, popup_flags = 1) {
+        return bind.BeginPopupContextVoid(str_id, popup_flags);
+    }
+    exports_1("BeginPopupContextVoid", BeginPopupContextVoid);
     // IMGUI_API bool          IsPopupOpen(const char* str_id);                                    // return true if the popup is open
-    function IsPopupOpen(str_id) { return bind.IsPopupOpen(str_id); }
+    function IsPopupOpen(str_id, popup_flags = 0) { return bind.IsPopupOpen(str_id, popup_flags); }
     exports_1("IsPopupOpen", IsPopupOpen);
     // IMGUI_API void          CloseCurrentPopup();                                                // close the popup we have begin-ed into. clicking on a MenuItem or Selectable automatically close the current popup.
     function CloseCurrentPopup() { bind.CloseCurrentPopup(); }
