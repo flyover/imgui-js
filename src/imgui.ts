@@ -2837,7 +2837,7 @@ export function GetFontTexUvWhitePixel(out: Bind.interface_ImVec2 = new ImVec2()
 // IMGUI_API ImU32         GetColorU32(const ImVec4& col);                                     // retrieve given color with style alpha applied
 // IMGUI_API ImU32         GetColorU32(ImU32 col);                                             // retrieve given color with style alpha applied
 export function GetColorU32(idx: ImGuiCol, alpha_mul?: number): Bind.ImU32;
-export function GetColorU32(col: Readonly<Bind.reference_ImVec4>): Bind.ImU32;
+export function GetColorU32(col: Readonly<Bind.interface_ImVec4>): Bind.ImU32;
 export function GetColorU32(col: Bind.ImU32): Bind.ImU32;
 export function GetColorU32(...args: any[]): Bind.ImU32 {
     if (args.length === 1) {
@@ -3878,6 +3878,7 @@ export function TableGetColumnName(column_n: number = -1): string { return bind.
 // IMGUI_API ImGuiTableColumnFlags TableGetColumnFlags(int column_n = -1);     // return column flags so you can query their Enabled/Visible/Sorted/Hovered status flags. Pass -1 to use current column.
 export function TableGetColumnFlags(column_n: number = -1): ImGuiTableColumnFlags { return bind.TableGetColumnFlags(column_n); }
 // IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);  // change the color of a cell, row, or column. See ImGuiTableBgTarget_ flags for details.
+export function TableSetBgColor(target: ImGuiTableBgTarget, color: Bind.ImU32, column_n: number = -1): void { bind.TableSetBgColor(target, color, column_n); }
 
 // Tab Bars, Tabs
 // [BETA API] API may evolve!

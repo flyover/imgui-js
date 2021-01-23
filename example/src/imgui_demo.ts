@@ -95,6 +95,7 @@ import { ImGuiWindowFlags } from "imgui-js";
 import { ImGuiTableFlags } from "imgui-js";
 import { ImGuiTableColumnFlags } from "imgui-js";
 import { ImGuiTableRowFlags } from "imgui-js";
+import { ImGuiTableBgTarget } from "imgui-js";
 import { ImGuiTabBarFlags } from "imgui-js";
 import { ImGuiTabItemFlags } from "imgui-js";
 import { ImGuiInputTextCallbackData } from "imgui-js";
@@ -3853,6 +3854,63 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
             ImGui.EndTable();
         }
 
+        ImGui.TreePop();
+    }
+
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Background color"))
+    {
+        /* static */ const flags: Static<ImGui.ImGuiTableFlags> = STATIC("flags#tables-bg", ImGuiTableFlags.RowBg);
+        /* static */ const row_bg_type: Static<number> = STATIC("row_bg_type#tables-bg", 1);
+        /* static */ const row_bg_target: Static<number> = STATIC("row_bg_target#tables-bg", 1);
+        /* static */ const cell_bg_type: Static<number> = STATIC("cell_bg_type#tables-bg", 1);
+
+        PushStyleCompact();
+        ImGui.CheckboxFlags("ImGuiTableFlags_Borders", (value = flags.value) => flags.value = value, ImGuiTableFlags.Borders);
+        ImGui.CheckboxFlags("ImGuiTableFlags_RowBg", (value = flags.value) => flags.value = value, ImGuiTableFlags.RowBg);
+        ImGui.SameLine(); HelpMarker("ImGuiTableFlags_RowBg automatically sets RowBg0 to alternative colors pulled from the Style.");
+        ImGui.Combo("row bg type", (value = row_bg_type.value) => row_bg_type.value = value, "None\0Red\0Gradient\0");
+        ImGui.Combo("row bg target", (value = row_bg_target.value) => row_bg_target.value = value, "RowBg0\0RowBg1\0"); ImGui.SameLine(); HelpMarker("Target RowBg0 to override the alternating odd/even colors,\nTarget RowBg1 to blend with them.");
+        ImGui.Combo("cell bg type", (value = cell_bg_type.value) => cell_bg_type.value = value, "None\0Blue\0"); ImGui.SameLine(); HelpMarker("We are colorizing cells to B1->C2 here.");
+        IM_ASSERT(row_bg_type.value >= 0 && row_bg_type.value <= 2);
+        IM_ASSERT(row_bg_target.value >= 0 && row_bg_target.value <= 1);
+        IM_ASSERT(cell_bg_type.value >= 0 && cell_bg_type.value <= 1);
+        PopStyleCompact();
+
+        if (ImGui.BeginTable("table1", 5, flags.value))
+        {
+            for (let row = 0; row < 6; row++)
+            {
+                ImGui.TableNextRow();
+
+                // Demonstrate setting a row background color with 'ImGui.TableSetBgColor(ImGuiTableBgTarget_RowBgX, ...)'
+                // We use a transparent color so we can see the one behind in case our target is RowBg1 and RowBg0 was already targeted by the ImGuiTableFlags_RowBg flag.
+                if (row_bg_type.value != 0)
+                {
+                    let row_bg_color = ImGui.GetColorU32(row_bg_type.value == 1 ? new ImVec4(0.7, 0.3, 0.3, 0.65) : new ImVec4(0.2 + row * 0.1, 0.2, 0.2, 0.65)); // Flat or Gradient?
+                    ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0 + row_bg_target.value, row_bg_color);
+                }
+
+                // Fill cells
+                for (let column = 0; column < 5; column++)
+                {
+                    ImGui.TableSetColumnIndex(column);
+                    ImGui.Text(`${String.fromCharCode('A'.charCodeAt(0) + row)}${column}`);
+
+                    // Change background of Cells B1->C2
+                    // Demonstrate setting a cell background color with 'ImGui.TableSetBgColor(ImGuiTableBgTarget_CellBg, ...)'
+                    // (the CellBg color will be blended over the RowBg and ColumnBg colors)
+                    // We can also pass a column number as a third parameter to TableSetBgColor() and do this outside the column loop.
+                    if (row >= 1 && row <= 2 && column >= 1 && column <= 2 && cell_bg_type.value == 1)
+                    {
+                        let cell_bg_color = ImGui.GetColorU32(new ImVec4(0.3, 0.3, 0.7, 0.65));
+                        ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, cell_bg_color);
+                    }
+                }
+            }
+            ImGui.EndTable();
+        }
         ImGui.TreePop();
     }
 

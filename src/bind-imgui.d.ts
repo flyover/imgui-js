@@ -1361,6 +1361,8 @@ TableGetColumnIndex(): number;
 TableGetRowIndex(): number;
 TableGetColumnName(column_n: number/* = -1*/): string;
 TableGetColumnFlags(column_n: number/* = -1*/): ImGuiTableColumnFlags;
+TableGetColumnFlags(column_n: number/* = -1*/): ImGuiTableColumnFlags;
+TableSetBgColor(target: ImGuiTableBgTarget, color: ImU32, column_n: number/* -1 */): void;
 
 // Tab Bars, Tabs
 // [BETA API] API may evolve!

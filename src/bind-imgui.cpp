@@ -2705,6 +2705,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API ImGuiTableColumnFlags TableGetColumnFlags(int column_n = -1);     // return column flags so you can query their Enabled/Visible/Sorted/Hovered status flags. Pass -1 to use current column.
     emscripten::function("TableGetColumnFlags", &ImGui::TableGetColumnFlags);
     // IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);  // change the color of a cell, row, or column. See ImGuiTableBgTarget_ flags for details.
+    emscripten::function("TableSetBgColor", &ImGui::TableSetBgColor);
 
 
     // Tab Bars, Tabs

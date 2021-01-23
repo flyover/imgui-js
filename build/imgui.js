@@ -1807,6 +1807,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     function TableGetColumnFlags(column_n = -1) { return bind.TableGetColumnFlags(column_n); }
     exports_1("TableGetColumnFlags", TableGetColumnFlags);
     // IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);  // change the color of a cell, row, or column. See ImGuiTableBgTarget_ flags for details.
+    function TableSetBgColor(target, color, column_n = -1) { bind.TableSetBgColor(target, color, column_n); }
+    exports_1("TableSetBgColor", TableSetBgColor);
     // Tab Bars, Tabs
     // [BETA API] API may evolve!
     // IMGUI_API bool          BeginTabBar(const char* str_id, ImGuiTabBarFlags flags = 0);        // create and append into a TabBar
