@@ -2320,7 +2320,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImGuiSelectableFlags[ImGuiSelectableFlags["DontClosePopups"] = 1] = "DontClosePopups";
                 ImGuiSelectableFlags[ImGuiSelectableFlags["SpanAllColumns"] = 2] = "SpanAllColumns";
                 ImGuiSelectableFlags[ImGuiSelectableFlags["AllowDoubleClick"] = 4] = "AllowDoubleClick";
-                ImGuiSelectableFlags[ImGuiSelectableFlags["Disabled"] = 8] = "Disabled"; // Cannot be selected, display greyed out text
+                ImGuiSelectableFlags[ImGuiSelectableFlags["Disabled"] = 8] = "Disabled";
+                ImGuiSelectableFlags[ImGuiSelectableFlags["AllowItemOverlap"] = 16] = "AllowItemOverlap";
             })(ImGuiSelectableFlags || (ImGuiSelectableFlags = {}));
             exports_1("ImGuiSelectableFlags", ImGuiSelectableFlags);
             exports_1("SelectableFlags", ImGuiSelectableFlags);

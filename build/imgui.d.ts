@@ -134,7 +134,8 @@ export declare enum ImGuiSelectableFlags {
     DontClosePopups = 1,
     SpanAllColumns = 2,
     AllowDoubleClick = 4,
-    Disabled = 8
+    Disabled = 8,
+    AllowItemOverlap = 16
 }
 export { ImGuiComboFlags as ComboFlags };
 export declare enum ImGuiComboFlags {

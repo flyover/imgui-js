@@ -3796,6 +3796,319 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
             }
             ImGui.TreePop();
         }
+        if (open_action != -1)
+            ImGui.SetNextItemOpen(open_action != 0);
+        if (ImGui.TreeNode("Advanced")) {
+            /* static */ const flags = STATIC("flags#tables-sorting-advanced", imgui_js_17.ImGuiTableFlags.Resizable | imgui_js_17.ImGuiTableFlags.Reorderable | imgui_js_17.ImGuiTableFlags.Hideable | imgui_js_17.ImGuiTableFlags.Sortable | imgui_js_17.ImGuiTableFlags.SortMulti | imgui_js_17.ImGuiTableFlags.RowBg | imgui_js_17.ImGuiTableFlags.Borders | imgui_js_17.ImGuiTableFlags.NoBordersInBody | imgui_js_17.ImGuiTableFlags.ScrollX | imgui_js_17.ImGuiTableFlags.ScrollY | imgui_js_17.ImGuiTableFlags.SizingFixedFit);
+            let ContentsType;
+            (function (ContentsType) {
+                ContentsType[ContentsType["Text"] = 0] = "Text";
+                ContentsType[ContentsType["Button"] = 1] = "Button";
+                ContentsType[ContentsType["SmallButton"] = 2] = "SmallButton";
+                ContentsType[ContentsType["FillButton"] = 3] = "FillButton";
+                ContentsType[ContentsType["Selectable"] = 4] = "Selectable";
+                ContentsType[ContentsType["SelectableSpanRow"] = 5] = "SelectableSpanRow";
+            })(ContentsType || (ContentsType = {}));
+            ;
+            const contents_type = STATIC("contents_type#tables-sorting-advanced", ContentsType.SelectableSpanRow);
+            let contents_type_names = ["Text", "Button", "SmallButton", "FillButton", "Selectable", "Selectable (span row)"];
+            const freeze_cols = STATIC("freeze_cols#tables-sorting-advanced", 1);
+            const freeze_rows = STATIC("freeze_rows#tables-sorting-advanced", 1);
+            const items_count = STATIC("items_count#tables-sorting-advanced", template_items_names.length * 2);
+            const outer_size_value = STATIC("outer_size_value#tables-sorting-advanced", new imgui_js_24.ImVec2(0.0, TEXT_BASE_HEIGHT * 12));
+            const row_min_height = STATIC("row_min_height#tables-sorting-advanced", 0.0);
+            const inner_width_with_scroll = STATIC("inner_width_with_scroll#tables-sorting-advanced", 0.0);
+            const outer_size_enabled = STATIC("outer_size_enabled#tables-sorting-advanced", true);
+            const show_headers = STATIC("show_headers#tables-sorting-advanced", true);
+            const show_wrapped_text = STATIC("show_wrapped_text#tables-sorting-advanced", false);
+            //static ImGuiTextFilter filter;
+            //ImGui.SetNextItemOpen(true, ImGuiCond_Once); // FIXME-TABLE: Enabling this results in initial clipped first pass on table which tend to affects column sizing
+            if (ImGui.TreeNode("Options")) {
+                // Make the UI compact because there are so many fields
+                PushStyleCompact();
+                ImGui.PushItemWidth(TEXT_BASE_WIDTH * 28.0);
+                if (ImGui.TreeNodeEx("Features:", imgui_js_14.ImGuiTreeNodeFlags.DefaultOpen)) {
+                    ImGui.CheckboxFlags("ImGuiTableFlags.Resizable", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.Resizable);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.Reorderable", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.Reorderable);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.Hideable", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.Hideable);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.Sortable", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.Sortable);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.NoSavedSettings", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.NoSavedSettings);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.ContextMenuInBody", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.ContextMenuInBody);
+                    ImGui.TreePop();
+                }
+                if (ImGui.TreeNodeEx("Decorations:", imgui_js_14.ImGuiTreeNodeFlags.DefaultOpen)) {
+                    ImGui.CheckboxFlags("ImGuiTableFlags.RowBg", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.RowBg);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.BordersV", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.BordersV);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.BordersOuterV", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.BordersOuterV);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.BordersInnerV", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.BordersInnerV);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.BordersH", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.BordersH);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.BordersOuterH", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.BordersOuterH);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.BordersInnerH", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.BordersInnerH);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.NoBordersInBody", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.NoBordersInBody);
+                    ImGui.SameLine();
+                    HelpMarker("Disable vertical borders in columns Body (borders will always appears in Headers");
+                    ImGui.CheckboxFlags("ImGuiTableFlags.NoBordersInBodyUntilResize", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.NoBordersInBodyUntilResize);
+                    ImGui.SameLine();
+                    HelpMarker("Disable vertical borders in columns Body until hovered for resize (borders will always appears in Headers)");
+                    ImGui.TreePop();
+                }
+                if (ImGui.TreeNodeEx("Sizing:", imgui_js_14.ImGuiTreeNodeFlags.DefaultOpen)) {
+                    EditTableSizingFlags(flags);
+                    ImGui.SameLine();
+                    HelpMarker("In the Advanced demo we override the policy of each column so those table-wide settings have less effect that typical.");
+                    ImGui.CheckboxFlags("ImGuiTableFlags.NoHostExtendX", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.NoHostExtendX);
+                    ImGui.SameLine();
+                    HelpMarker("Make outer width auto-fit to columns, overriding outer_size.x value.\n\nOnly available when ScrollX/ScrollY are disabled and Stretch columns are not used.");
+                    ImGui.CheckboxFlags("ImGuiTableFlags_NoHostExtendY", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.NoHostExtendY);
+                    ImGui.SameLine();
+                    HelpMarker("Make outer height stop exactly at outer_size.y (prevent auto-extending table past the limit).\n\nOnly available when ScrollX/ScrollY are disabled. Data below the limit will be clipped and not visible.");
+                    ImGui.CheckboxFlags("ImGuiTableFlags_NoKeepColumnsVisible", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.NoKeepColumnsVisible);
+                    ImGui.SameLine();
+                    HelpMarker("Only available if ScrollX is disabled.");
+                    ImGui.CheckboxFlags("ImGuiTableFlags_PreciseWidths", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.PreciseWidths);
+                    ImGui.SameLine();
+                    HelpMarker("Disable distributing remainder width to stretched columns (width allocation on a 100-wide table with 3 columns: Without this flag: 33,33,34. With this flag: 33,33,33). With larger number of columns, resizing will appear to be less smooth.");
+                    ImGui.CheckboxFlags("ImGuiTableFlags_NoClip", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.NoClip);
+                    ImGui.SameLine();
+                    HelpMarker("Disable clipping rectangle for every individual columns (reduce draw command count, items will be able to overflow into other columns). Generally incompatible with ScrollFreeze options.");
+                    ImGui.TreePop();
+                }
+                if (ImGui.TreeNodeEx("Padding:", imgui_js_14.ImGuiTreeNodeFlags.DefaultOpen)) {
+                    ImGui.CheckboxFlags("ImGuiTableFlags.PadOuterX", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.PadOuterX);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.NoPadOuterX", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.NoPadOuterX);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.NoPadInnerX", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.NoPadInnerX);
+                    ImGui.TreePop();
+                }
+                if (ImGui.TreeNodeEx("Scrolling:", imgui_js_14.ImGuiTreeNodeFlags.DefaultOpen)) {
+                    ImGui.CheckboxFlags("ImGuiTableFlags.ScrollX", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.ScrollX);
+                    ImGui.SameLine();
+                    ImGui.SetNextItemWidth(ImGui.GetFrameHeight());
+                    ImGui.DragInt("freeze_cols", (value = freeze_cols.value) => freeze_cols.value = value, 0.2, 0, 9);
+                    ImGui.CheckboxFlags("ImGuiTableFlags.ScrollY", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.ScrollY);
+                    ImGui.SameLine();
+                    ImGui.SetNextItemWidth(ImGui.GetFrameHeight());
+                    ImGui.DragInt("freeze_rows", (value = freeze_rows.value) => freeze_rows.value = value, 0.2, 0, 9);
+                    ImGui.TreePop();
+                }
+                if (ImGui.TreeNodeEx("Sorting:", imgui_js_14.ImGuiTreeNodeFlags.DefaultOpen)) {
+                    ImGui.CheckboxFlags("ImGuiTableFlags.SortMulti", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.SortMulti);
+                    ImGui.SameLine();
+                    HelpMarker("When sorting is enabled: hold shift when clicking headers to sort on multiple column. TableGetSortSpecs() may return specs where (SpecsCount > 1).");
+                    ImGui.CheckboxFlags("ImGuiTableFlags.SortTristate", (value = flags.value) => flags.value = value, imgui_js_17.ImGuiTableFlags.SortTristate);
+                    ImGui.SameLine();
+                    HelpMarker("When sorting is enabled: allow no sorting, disable default sorting. TableGetSortSpecs() may return specs where (SpecsCount == 0).");
+                    ImGui.TreePop();
+                }
+                if (ImGui.TreeNodeEx("Other:", imgui_js_14.ImGuiTreeNodeFlags.DefaultOpen)) {
+                    ImGui.Checkbox("show_headers", (value = show_headers.value) => show_headers.value = value);
+                    ImGui.Checkbox("show_wrapped_text", (value = show_wrapped_text.value) => show_wrapped_text.value = value);
+                    ImGui.DragFloat2("##OuterSize", outer_size_value.value);
+                    ImGui.SameLine(0.0, ImGui.GetStyle().ItemInnerSpacing.x);
+                    ImGui.Checkbox("outer_size", (value = outer_size_enabled.value) => outer_size_enabled.value = value);
+                    ImGui.SameLine();
+                    HelpMarker("If scrolling is disabled (ScrollX and ScrollY not set):\n"
+                        + "- The table is output directly in the parent window.\n"
+                        + "- OuterSize.x < 0.0f will right-align the table.\n"
+                        + "- OuterSize.x = 0.0f will narrow fit the table unless there are any Stretch column.\n"
+                        + "- OuterSize.y then becomes the minimum size for the table, which will extend vertically if there are more rows (unless NoHostExtendY is set).");
+                    // From a user point of view we will tend to use 'inner_width' differently depending on whether our table is embedding scrolling.
+                    // To facilitate toying with this demo we will actually pass 0.0f to the BeginTable() when ScrollX is disabled.
+                    ImGui.DragFloat("inner_width (when ScrollX active)", (value = inner_width_with_scroll.value) => inner_width_with_scroll.value = value, 1.0, 0.0, 1000000.0);
+                    ImGui.DragFloat("row_min_height", (value = row_min_height.value) => row_min_height.value = value, 1.0, 0.0, 1000000.0);
+                    ImGui.SameLine();
+                    HelpMarker("Specify height of the Selectable item.");
+                    ImGui.DragInt("items_count", (value = items_count.value) => items_count.value = value, 0.1, 0, 9999);
+                    ImGui.Combo("items_type (first column)", (value = contents_type.value) => contents_type.value = value, contents_type_names, imgui_js_3.IM_ARRAYSIZE(contents_type_names));
+                    //filter.Draw("filter");
+                    ImGui.TreePop();
+                }
+                ImGui.PopItemWidth();
+                PopStyleCompact();
+                ImGui.Spacing();
+                ImGui.TreePop();
+            }
+            const items = STATIC("adv_table_sort_items", []);
+            const selection = STATIC("adv_table_sort_selection", []);
+            const items_need_sort = STATIC("adv_table_sort_items_need_sort", false);
+            // Recreate/reset item list if we changed the number of items
+            if (items.value.length != items_count.value) {
+                let old = items.value;
+                items.value = Array
+                    .from({ length: items_count.value })
+                    .map((_, n) => {
+                    const template_n = n % imgui_js_3.IM_ARRAYSIZE(template_items_names);
+                    let quantity = (template_n == 3) ? 10 : (template_n == 4) ? 20 : 0;
+                    let name = template_items_names[template_n];
+                    let item = n < old.length ? old[n] : new MyItem(n, name, quantity);
+                    return item;
+                });
+            }
+            const parent_draw_list = ImGui.GetWindowDrawList();
+            let parent_draw_list_draw_cmd_count = 0;
+            parent_draw_list.IterateDrawCmds((c, s) => {
+                parent_draw_list_draw_cmd_count++;
+            });
+            // for debug display
+            let table_scroll_cur = new imgui_js_24.ImVec2(0.0, 0.0);
+            let table_scroll_max = new imgui_js_24.ImVec2(0.0, 0.0);
+            let table_draw_list = null; // "
+            const inner_width_to_use = (flags.value & imgui_js_17.ImGuiTableFlags.ScrollX) ? inner_width_with_scroll.value : 0.0;
+            if (ImGui.BeginTable("table_advanced", 6, flags.value, outer_size_enabled.value ? outer_size_value.value : new imgui_js_24.ImVec2(0, 0), inner_width_to_use)) {
+                // Declare columns
+                // We use the "user_id" parameter of TableSetupColumn() to specify a user id that will be stored in the sort specifications.
+                // This is so our sort function can identify a column given our own identifier. We could also identify them based on their index!
+                ImGui.TableSetupColumn("ID", imgui_js_18.ImGuiTableColumnFlags.DefaultSort | imgui_js_18.ImGuiTableColumnFlags.WidthFixed | imgui_js_18.ImGuiTableColumnFlags.NoHide, 0.0, MyItemColumnID.ID);
+                ImGui.TableSetupColumn("Name", imgui_js_18.ImGuiTableColumnFlags.WidthFixed, 0.0, MyItemColumnID.Name);
+                ImGui.TableSetupColumn("Action", imgui_js_18.ImGuiTableColumnFlags.NoSort | imgui_js_18.ImGuiTableColumnFlags.WidthFixed, 0.0, MyItemColumnID.Action);
+                ImGui.TableSetupColumn("Quantity", imgui_js_18.ImGuiTableColumnFlags.PreferSortDescending, 0.0, MyItemColumnID.Quantity);
+                ImGui.TableSetupColumn("Description", (flags.value & imgui_js_17.ImGuiTableFlags.NoHostExtendX) ? 0 : imgui_js_18.ImGuiTableColumnFlags.WidthStretch, 0.0, MyItemColumnID.Description);
+                ImGui.TableSetupColumn("Hidden", imgui_js_18.ImGuiTableColumnFlags.DefaultHide | imgui_js_18.ImGuiTableColumnFlags.NoSort);
+                ImGui.TableSetupScrollFreeze(freeze_cols.value, freeze_rows.value);
+                // Sort our data if sort specs have been changed!
+                let sorts_specs = ImGui.TableGetSortSpecs();
+                if (sorts_specs && sorts_specs.SpecsDirty)
+                    items_need_sort.value = true;
+                if (sorts_specs && items_need_sort.value && items.value.length > 1) {
+                    //MyItem.s_current_sort_specs = sorts_specs; // Store in variable accessible by the sort function.
+                    //qsort(&items[0], (size_t)items.Size, sizeof(items[0]), MyItem.CompareWithSortSpecs);
+                    items.value.sort((a, b) => {
+                        if (!sorts_specs) {
+                            imgui_js_2.IM_ASSERT(0);
+                            return 0;
+                        }
+                        for (let n = 0; n < sorts_specs.SpecsCount; n++) {
+                            let sort_spec = sorts_specs.Specs[n];
+                            let delta = 0;
+                            switch (sort_spec.ColumnUserID) {
+                                case MyItemColumnID.ID:
+                                    delta = (a.ID - b.ID);
+                                    break;
+                                case MyItemColumnID.Name:
+                                    delta = a.Name.localeCompare(b.Name);
+                                    break;
+                                case MyItemColumnID.Quantity:
+                                    delta = (a.Quantity - b.Quantity);
+                                    break;
+                                case MyItemColumnID.Description:
+                                    a.Name.localeCompare(b.Name);
+                                    break;
+                                default:
+                                    imgui_js_2.IM_ASSERT(0);
+                                    break;
+                            }
+                            if (delta > 0)
+                                return sort_spec.SortDirection == imgui_js_16.ImGuiSortDirection.Ascending ? 1 : -1;
+                            if (delta < 0)
+                                return sort_spec.SortDirection == imgui_js_16.ImGuiSortDirection.Ascending ? -1 : 1;
+                        }
+                        // Your own compare function may want to avoid fallback on implicit sort specs e.g. a Name compare if it wasn't already part of the sort specs.
+                        return a.ID - b.ID;
+                    });
+                    //MyItem.s_current_sort_specs = NULL;
+                    sorts_specs.SpecsDirty = false;
+                }
+                items_need_sort.value = false;
+                // Take note of whether we are currently sorting based on the Quantity field,
+                // we will use this to trigger sorting when we know the data of this column has been modified.
+                const sorts_specs_using_quantity = (ImGui.TableGetColumnFlags(3) & imgui_js_18.ImGuiTableColumnFlags.IsSorted) != 0;
+                // Show headers
+                if (show_headers.value)
+                    ImGui.TableHeadersRow();
+                // Show data
+                // FIXME-TABLE FIXME-NAV: How we can get decent up/down even though we have the buttons here?
+                ImGui.PushButtonRepeat(true);
+                // Demonstrate using clipper for large vertical lists
+                const clipper = new imgui_js_31.ImGuiListClipper();
+                clipper.Begin(items.value.length);
+                while (clipper.Step()) {
+                    for (let row_n = clipper.DisplayStart; row_n < clipper.DisplayEnd; row_n++) {
+                        let item = items.value[row_n];
+                        //if (!filter.PassFilter(item->Name))
+                        //    continue;
+                        const item_is_selected = selection.value.includes(item.ID);
+                        ImGui.PushID(item.ID);
+                        ImGui.TableNextRow(imgui_js_19.ImGuiTableRowFlags.None, row_min_height.value);
+                        ImGui.TableNextColumn();
+                        // For the demo purpose we can select among different type of items submitted in the first column
+                        let label = leftPad(`${item.ID}`, 4, "0");
+                        if (contents_type.value == ContentsType.Text)
+                            ImGui.TextUnformatted(label);
+                        else if (contents_type.value == ContentsType.Button)
+                            ImGui.Button(label);
+                        else if (contents_type.value == ContentsType.SmallButton)
+                            ImGui.SmallButton(label);
+                        else if (contents_type.value == ContentsType.FillButton)
+                            ImGui.Button(label, new imgui_js_24.ImVec2(-1.0, 0.0));
+                        else if (contents_type.value == ContentsType.Selectable || contents_type.value == ContentsType.SelectableSpanRow) {
+                            const selectable_flags = (contents_type.value == ContentsType.SelectableSpanRow) ? imgui_js_12.ImGuiSelectableFlags.SpanAllColumns | imgui_js_12.ImGuiSelectableFlags.AllowItemOverlap : imgui_js_12.ImGuiSelectableFlags.None;
+                            if (ImGui.Selectable(label, item_is_selected, selectable_flags, new imgui_js_24.ImVec2(0, row_min_height.value))) {
+                                if (ImGui.GetIO().KeyCtrl) {
+                                    if (item_is_selected)
+                                        selection.value = selection.value.filter(i => i !== item.ID);
+                                    else
+                                        selection.value.push(item.ID);
+                                }
+                                else {
+                                    selection.value = [];
+                                    selection.value.push(item.ID);
+                                }
+                            }
+                        }
+                        if (ImGui.TableNextColumn())
+                            ImGui.TextUnformatted(item.Name);
+                        // Here we demonstrate marking our data set as needing to be sorted again if we modified a quantity,
+                        // and we are currently sorting on the column showing the Quantity.
+                        // To avoid triggering a sort while holding the button, we only trigger it when the button has been released.
+                        // You will probably need a more advanced system in your code if you want to automatically sort when a specific entry changes.
+                        if (ImGui.TableNextColumn()) {
+                            if (ImGui.SmallButton("Chop")) {
+                                item.Quantity += 1;
+                            }
+                            if (sorts_specs_using_quantity && ImGui.IsItemDeactivated()) {
+                                items_need_sort.value = true;
+                            }
+                            ImGui.SameLine();
+                            if (ImGui.SmallButton("Eat")) {
+                                item.Quantity -= 1;
+                            }
+                            if (sorts_specs_using_quantity && ImGui.IsItemDeactivated()) {
+                                items_need_sort.value = true;
+                            }
+                        }
+                        if (ImGui.TableNextColumn())
+                            ImGui.Text(`${item.Quantity}`);
+                        ImGui.TableNextColumn();
+                        if (show_wrapped_text.value)
+                            ImGui.TextWrapped("Lorem ipsum dolor sit amet");
+                        else
+                            ImGui.Text("Lorem ipsum dolor sit amet");
+                        if (ImGui.TableNextColumn())
+                            ImGui.Text("1234");
+                        ImGui.PopID();
+                    }
+                }
+                ImGui.PopButtonRepeat();
+                // Store some info to display debug details below
+                table_scroll_cur = new imgui_js_24.ImVec2(ImGui.GetScrollX(), ImGui.GetScrollY());
+                table_scroll_max = new imgui_js_24.ImVec2(ImGui.GetScrollMaxX(), ImGui.GetScrollMaxY());
+                table_draw_list = ImGui.GetWindowDrawList();
+                ImGui.EndTable();
+            }
+            const show_debug_details = STATIC("show_debug_details#tables-sorting-advanced", false);
+            ImGui.Checkbox("Debug details", (value = show_debug_details.value) => show_debug_details.value = value);
+            if (show_debug_details.value && table_draw_list) {
+                ImGui.SameLine(0.0, 0.0);
+                let table_draw_list_draw_cmd_count = 0;
+                table_draw_list.IterateDrawCmds((c, s) => {
+                    table_draw_list_draw_cmd_count++;
+                });
+                if (table_draw_list == parent_draw_list)
+                    ImGui.Text(`: DrawCmd: +${table_draw_list_draw_cmd_count - parent_draw_list_draw_cmd_count} (in same window)`);
+                else
+                    ImGui.Text(`: DrawCmd: +${table_draw_list_draw_cmd_count - 1} (in child window), Scroll: (${table_scroll_cur.x}/${table_scroll_max.x}) (${table_scroll_cur.y}/${table_scroll_max.y})`);
+            }
+            ImGui.TreePop();
+        }
         ImGui.PopID();
         if (disable_indent.value)
             ImGui.PopStyleVar();
