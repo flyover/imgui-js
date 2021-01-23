@@ -92,6 +92,7 @@ import { ImGuiSelectableFlags } from "imgui-js";
 import { ImGuiStyleVar } from "imgui-js";
 import { ImGuiTreeNodeFlags } from "imgui-js";
 import { ImGuiWindowFlags } from "imgui-js";
+import { ImGuiSortDirection } from "imgui-js";
 import { ImGuiTableFlags } from "imgui-js";
 import { ImGuiTableColumnFlags } from "imgui-js";
 import { ImGuiTableRowFlags } from "imgui-js";
@@ -2940,6 +2941,42 @@ function ShowTableColumnsStatusFlags(flags: ImGuiTableColumnFlags)
     ImGui.CheckboxFlags("_IsHovered", flags_s, ImGuiTableColumnFlags.IsHovered);
 }
 
+enum MyItemColumnID {
+    ID,
+    Name,
+    Action,
+    Quantity,
+    Description,
+}
+
+class MyItem {
+    public ID: number;
+    public Name: string;
+    public Quantity: number;
+    constructor(id: number, name: string, quantity: number)
+    {
+        this.ID = id;
+        this.Name = name;
+        this.Quantity = quantity;
+    }
+}
+
+const template_items_names =
+    [
+        "Banana", "Apple", "Cherry", "Watermelon", "Grapefruit", "Strawberry", "Mango",
+        "Kiwi", "Orange", "Pineapple", "Blueberry", "Plum", "Coconut", "Pear", "Apricot"
+    ];
+// Create item list
+const table_sort_items = STATIC("table_sort_items", Array.from({length: 50}).map((_, n) =>
+{
+    return new MyItem(n, template_items_names[n % template_items_names.length], (n * n - n) % 20)
+}));
+
+function leftPad(str: string, len: number, ch=' '): string
+{
+    len = len - str.length + 1;
+    return len > 0 ? new Array(len).join(ch) + str : str;
+}
 
 function ShowDemoWindowTables()
 {
@@ -3681,11 +3718,6 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
         ImGui.SetNextItemOpen(open_action != 0);
     if (ImGui.TreeNode("Columns widths"))
     {
-        function leftPad(str: string, len: number, ch=' '): string {
-            len = len - str.length + 1;
-            return len > 0 ? new Array(len).join(ch) + str : str;
-        }
-
         HelpMarker("Using TableSetupColumn() to setup default width.");
 
         /* static */ const flags1: Static<ImGui.ImGuiTableFlags> = STATIC("flags1#tables-columns-widths", ImGuiTableFlags.Borders | ImGuiTableFlags.NoBordersInBodyUntilResize);
@@ -4212,6 +4244,100 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
                 }
                 ImGui.EndTable();
             }
+        }
+        ImGui.TreePop();
+    }
+
+    // Demonstrate using Sorting facilities
+    // This is a simplified version of the "Advanced" example, where we mostly focus on the code necessary to handle sorting.
+    // Note that the "Advanced" example also showcase manually triggering a sort (e.g. if item quantities have been modified)
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Sorting"))
+    {
+
+        // Options
+        /* static */ const flags: Static<ImGui.ImGuiTableFlags> = STATIC("flags#tables-sorting", ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable | ImGuiTableFlags.SortMulti | ImGuiTableFlags.RowBg | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.BordersV | ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.ScrollY);
+        PushStyleCompact();
+        ImGui.CheckboxFlags("ImGuiTableFlags_SortMulti", (value = flags.value) => flags.value = value, ImGuiTableFlags.SortMulti);
+        ImGui.SameLine(); HelpMarker("When sorting is enabled: hold shift when clicking headers to sort on multiple column. TableGetSortSpecs() may return specs where (SpecsCount > 1).");
+        ImGui.CheckboxFlags("ImGuiTableFlags_SortTristate", (value = flags.value) => flags.value = value, ImGuiTableFlags.SortTristate);
+        ImGui.SameLine(); HelpMarker("When sorting is enabled: allow no sorting, disable default sorting. TableGetSortSpecs() may return specs where (SpecsCount == 0).");
+        PopStyleCompact();
+
+        if (ImGui.BeginTable("table_sorting", 4, flags.value, new ImVec2(0.0, TEXT_BASE_HEIGHT * 15), 0.0))
+        {
+            // Declare columns
+            // We use the "user_id" parameter of TableSetupColumn() to specify a user id that will be stored in the sort specifications.
+            // This is so our sort function can identify a column given our own identifier. We could also identify them based on their index!
+            // Demonstrate using a mixture of flags among available sort-related flags:
+            // - ImGuiTableColumnFlags_DefaultSort
+            // - ImGuiTableColumnFlags_NoSort / ImGuiTableColumnFlags_NoSortAscending / ImGuiTableColumnFlags_NoSortDescending
+            // - ImGuiTableColumnFlags_PreferSortAscending / ImGuiTableColumnFlags_PreferSortDescending
+            ImGui.TableSetupColumn("ID",       ImGuiTableColumnFlags.DefaultSort          | ImGuiTableColumnFlags.WidthFixed,   0.0, MyItemColumnID.ID);
+            ImGui.TableSetupColumn("Name",                                                  ImGuiTableColumnFlags.WidthFixed,   0.0, MyItemColumnID.Name);
+            ImGui.TableSetupColumn("Action",   ImGuiTableColumnFlags.NoSort               | ImGuiTableColumnFlags.WidthFixed,   0.0, MyItemColumnID.Action);
+            ImGui.TableSetupColumn("Quantity", ImGuiTableColumnFlags.PreferSortDescending | ImGuiTableColumnFlags.WidthStretch, 0.0, MyItemColumnID.Quantity);
+            ImGui.TableSetupScrollFreeze(0, 1); // Make row always visible
+            ImGui.TableHeadersRow();
+
+            // Sort our data if sort specs have been changed!
+            let sort_specs = ImGui.TableGetSortSpecs();
+            if (sort_specs)
+                if (sort_specs.SpecsDirty)
+                {
+                    //MyItem.s_current_sort_specs = sorts_specs; // Store in variable accessible by the sort function.
+                    if (table_sort_items.value.length > 1)
+                        table_sort_items.value.sort((a, b) => {
+                            if (!sort_specs)
+                            {
+                                IM_ASSERT(0);
+                                return 0;
+                            }
+                            for (let n = 0; n < sort_specs.SpecsCount; n++)
+                            {
+                                let sort_spec = sort_specs.Specs[n];
+                                let delta = 0;
+                                switch (sort_spec.ColumnUserID)
+                                {
+                                    case MyItemColumnID.ID: delta = (a.ID - b.ID); break;
+                                    case MyItemColumnID.Name: delta = a.Name.localeCompare(b.Name); break;
+                                    case MyItemColumnID.Quantity: delta = (a.Quantity - b.Quantity); break;
+                                    case MyItemColumnID.Description: a.Name.localeCompare(b.Name); break;
+                                    default: IM_ASSERT(0); break;
+                                }
+                                if (delta > 0)
+                                    return sort_spec.SortDirection == ImGuiSortDirection.Ascending ? 1 : -1;
+                                if (delta < 0)
+                                    return sort_spec.SortDirection == ImGuiSortDirection.Ascending ? -1 : 1;
+                            }
+                            // Your own compare function may want to avoid fallback on implicit sort specs e.g. a Name compare if it wasn't already part of the sort specs.
+                            return a.ID - b.ID;
+                        })
+                    sort_specs.SpecsDirty = false;
+                }
+
+            // Demonstrate using clipper for large vertical lists
+            const clipper: ImGuiListClipper = new ImGuiListClipper();
+            clipper.Begin(table_sort_items.value.length);
+            while (clipper.Step())
+                for (let row_n = clipper.DisplayStart; row_n < clipper.DisplayEnd; row_n++)
+                {
+                    // Display a data item
+                    let item = table_sort_items.value[row_n];
+                    ImGui.PushID(item.ID);
+                    ImGui.TableNextRow();
+                    ImGui.TableNextColumn();
+                    ImGui.Text(leftPad(`${item.ID}`, 4, "0"));
+                    ImGui.TableNextColumn();
+                    ImGui.TextUnformatted(item.Name);
+                    ImGui.TableNextColumn();
+                    ImGui.SmallButton("None");
+                    ImGui.TableNextColumn();
+                    ImGui.Text(`${item.Quantity}`);
+                    ImGui.PopID();
+                }
+            ImGui.EndTable();
         }
         ImGui.TreePop();
     }

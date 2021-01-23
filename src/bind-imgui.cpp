@@ -514,6 +514,37 @@ EMSCRIPTEN_BINDINGS(ImGuiListClipper) {
     ;
 }
 
+EMSCRIPTEN_BINDINGS(ImGuiTableColumnSortSpecs) {
+    emscripten::class_<ImGuiTableColumnSortSpecs>("ImGuiTableSortColumnSpecs")
+        // ImGuiID                     ColumnUserID;       // User id of the column (if specified by a TableSetupColumn() call)
+        CLASS_MEMBER(ImGuiTableColumnSortSpecs, ColumnUserID)
+        // ImS16                       ColumnIndex;        // Index of the column
+        CLASS_MEMBER(ImGuiTableColumnSortSpecs, ColumnIndex)
+        // ImS16                       SortOrder;          // Index within parent ImGuiTableSortSpecs (always stored in order starting from 0, tables sorted on a single criteria will always have a 0 here)
+        CLASS_MEMBER(ImGuiTableColumnSortSpecs, SortOrder)
+        // ImGuiSortDirection          SortDirection : 8;  // ImGuiSortDirection_Ascending or ImGuiSortDirection_Descending (you can use this or SortSign, whichever is more convenient for your sort function)
+        CLASS_MEMBER_GET(ImGuiTableColumnSortSpecs, SortDirection,
+            { return emscripten::val(that.SortDirection); })
+    ;
+}
+
+EMSCRIPTEN_BINDINGS(ImGuiTableSortSpecs) {
+    emscripten::class_<ImGuiTableSortSpecs>("ImGuiTableSortSpecs")
+        // const ImGuiTableColumnSortSpecs* Specs;     // Pointer to sort spec array.
+        // CLASS_MEMBER_GET_RAW_POINTER(ImGuiTableSortSpecs, Specs)
+      .function("GetSpec", FUNCTION(emscripten::val, (ImGuiTableSortSpecs& that, const int idx), {
+            const ImGuiTableColumnSortSpecs* spec = &that.Specs[idx];
+            return emscripten::val(spec);
+        }), emscripten::allow_raw_pointers())
+        // int                         SpecsCount;     // Sort spec count. Most often 1. May be > 1 when ImGuiTableFlags_SortMulti is enabled. May be == 0 when ImGuiTableFlags_SortTristate is enabled.
+        CLASS_MEMBER(ImGuiTableSortSpecs, SpecsCount)
+        // bool                        SpecsDirty;     // Set to true when specs have changed since last time! Use this to sort again, then clear the flag.
+        CLASS_MEMBER(ImGuiTableSortSpecs, SpecsDirty)
+
+        // ImGuiTableSortSpecs()       { memset(this, 0, sizeof(*this)); }
+    ;
+}
+
 EMSCRIPTEN_BINDINGS(ImDrawCmd) {
     emscripten::class_<ImDrawCmd>("ImDrawCmd")
         CLASS_MEMBER(ImDrawCmd, ElemCount)
@@ -2650,17 +2681,16 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          CloseCurrentPopup();                                                // close the popup we have begin-ed into. clicking on a MenuItem or Selectable automatically close the current popup.
     emscripten::function("CloseCurrentPopup", &ImGui::CloseCurrentPopup);
 
-
     // IMGUI_API bool          BeginTable(const char* str_id, int column, ImGuiTableFlags flags = 0, const ImVec2& outer_size = ImVec2(0.0f, 0.0f), float inner_width = 0.0f);
     emscripten::function("BeginTable", FUNCTION(bool, (std::string str_id, int column, int flags, emscripten::val outer_size, float inner_width), {
-          return ImGui::BeginTable(str_id.c_str(), column, flags, import_ImVec2(outer_size), inner_width);
+        return ImGui::BeginTable(str_id.c_str(), column, flags, import_ImVec2(outer_size), inner_width);
     }));
     // IMGUI_API void          EndTable();                                 // only call EndTable() if BeginTable() returns true!
     emscripten::function("EndTable", &ImGui::EndTable);
     // IMGUI_API void          TableNextRow(ImGuiTableRowFlags row_flags = 0, float min_row_height = 0.0f); // append into the first cell of a new row.
     emscripten::function("TableNextRow", FUNCTION(void, (int row_flags, float min_row_height), {
-                                 return ImGui::TableNextRow(row_flags, min_row_height);
-                               }));
+        return ImGui::TableNextRow(row_flags, min_row_height);
+    }));
     // IMGUI_API bool          TableNextColumn();                          // append into the next column (or first column of next row if currently in last column). Return true when column is visible.
     emscripten::function("TableNextColumn", &ImGui::TableNextColumn);
     // IMGUI_API bool          TableSetColumnIndex(int column_n);          // append into the specified column. Return true when column is visible.
@@ -2675,16 +2705,16 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // - Use TableSetupScrollFreeze() to lock columns/rows so they stay visible when scrolled.
     // IMGUI_API void          TableSetupColumn(const char* label, ImGuiTableColumnFlags flags = 0, float init_width_or_weight = 0.0f, ImU32 user_id = 0);
     emscripten::function("TableSetupColumn", FUNCTION(void, (std::string label, int flags, float init_width_or_weight, ImU32 user_id), {
-          ImGui::TableSetupColumn(label.c_str(), flags, init_width_or_weight, user_id);
-        }));
+        ImGui::TableSetupColumn(label.c_str(), flags, init_width_or_weight, user_id);
+    }));
     // IMGUI_API void          TableSetupScrollFreeze(int cols, int rows); // lock columns/rows so they stay visible when scrolled.
     emscripten::function("TableSetupScrollFreeze", &ImGui::TableSetupScrollFreeze);
     // IMGUI_API void          TableHeadersRow();                          // submit all headers cells based on data provided to TableSetupColumn() + submit context menu
     emscripten::function("TableHeadersRow", &ImGui::TableHeadersRow);
     // IMGUI_API void          TableHeader(const char* label);             // submit one header cell manually (rarely used)
     emscripten::function("TableHeader", FUNCTION(void, (std::string label), {
-                                    ImGui::TableHeader(label.c_str());
-                                  }));
+        ImGui::TableHeader(label.c_str());
+    }));
     // Tables: Sorting
     // - Call TableGetSortSpecs() to retrieve latest sort specs for the table. NULL when not sorting.
     // - When 'SpecsDirty == true' you should sort your data. It will be true when sorting specs have changed
@@ -2692,6 +2722,10 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     //   wastefully sort your data every frame!
     // - Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable().
     // IMGUI_API ImGuiTableSortSpecs* TableGetSortSpecs();                        // get latest sort specs for the table (NULL if not sorting).
+    emscripten::function("TableGetSortSpecs", FUNCTION(emscripten::val, (), {
+        ImGuiTableSortSpecs* p = ImGui::TableGetSortSpecs();
+        return emscripten::val(p);
+    }), emscripten::allow_raw_pointers());
     // Tables: Miscellaneous functions
     // - Functions args 'int column_n' treat the default value of -1 as the same as passing the current column index.
     // IMGUI_API int                   TableGetColumnCount();                      // return number of columns (value passed to BeginTable)
@@ -2706,7 +2740,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("TableGetColumnFlags", &ImGui::TableGetColumnFlags);
     // IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);  // change the color of a cell, row, or column. See ImGuiTableBgTarget_ flags for details.
     emscripten::function("TableSetBgColor", &ImGui::TableSetBgColor);
-
 
     // Tab Bars, Tabs
     // [BETA API] API may evolve!

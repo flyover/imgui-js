@@ -268,6 +268,14 @@ export enum ImGuiTabItemFlags
     ImGuiTabItemFlags_NoPushId                      = 1 << 3    // Don't call PushID(tab->ID)/PopID() on BeginTabItem()/EndTabItem()
 };
 
+export { ImGuiSortDirection as SortDirection };
+export enum ImGuiSortDirection
+{
+    None         = 0,
+    Ascending    = 1,    // Ascending = 0->9, A->Z etc.
+    Descending   = 2     // Descending = 9->0, Z->A etc.
+};
+
 // Flags for ImGui::BeginTable()
 export { ImGuiTableFlags as TableFlags };
 export enum ImGuiTableFlags
@@ -1268,6 +1276,32 @@ export class ImGuiListClipper
         this.delete();
     }
 }
+
+export class ImGuiTableColumnSortSpecs
+{
+    constructor(public readonly native: Bind.reference_ImGuiTableColumnSortSpecs) {}
+    get ColumnUserID(): number { return this.native.ColumnUserID; }
+    get ColumnIndex(): number { return this.native.ColumnIndex; }
+    get SortOrder(): number { return this.native.SortOrder; }
+    get SortDirection(): number { return this.native.SortDirection; } // TODO
+}
+
+export class ImGuiTableSortSpecs
+{
+    constructor(public readonly native: Bind.reference_ImGuiTableSortSpecs) {}
+
+    get Specs(): Readonly<ImGuiTableColumnSortSpecs[]> {
+        return Array.from({length: this.SpecsCount}).map((_, i) => {
+            let spec = this.native.GetSpec(i);
+            return new ImGuiTableColumnSortSpecs(spec);
+        });
+    }
+    get SpecsCount(): number { return this.native.SpecsCount; }
+    get SpecsDirty(): boolean { return this.native.SpecsDirty; }
+    set SpecsDirty(value: boolean) { this.native.SpecsDirty = value; }
+}
+
+export { reference_ImGuiTableSortSpecs } from "bind-imgui";
 
 //-----------------------------------------------------------------------------
 // Draw List
@@ -3865,6 +3899,10 @@ export function TableHeader(label: string): void { bind.TableHeader(label); }
 // - Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable().
 // TODO: some stuff to implement first
 // IMGUI_API ImGuiTableSortSpecs* TableGetSortSpecs();                        // get latest sort specs for the table (NULL if not sorting).
+export function TableGetSortSpecs(): ImGuiTableSortSpecs | null {
+    const sort_specs: Bind.reference_ImGuiTableSortSpecs | null = bind.TableGetSortSpecs();
+    return (sort_specs === null) ? null : new ImGuiTableSortSpecs(sort_specs);
+}
 // Tables: Miscellaneous functions
 // - Functions args 'int column_n' treat the default value of -1 as the same as passing the current column index.
 // IMGUI_API int                   TableGetColumnCount();                      // return number of columns (value passed to BeginTable)

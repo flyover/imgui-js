@@ -9,7 +9,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             step((generator = generator.apply(thisArg, _arguments || [])).next());
         });
     };
-    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiKey, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiListClipper, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
+    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiSortDirection, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiKey, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiListClipper, ImGuiTableColumnSortSpecs, ImGuiTableSortSpecs, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
     var __moduleName = context_1 && context_1.id;
     function default_1(value) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -1789,6 +1789,11 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     // - Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable().
     // TODO: some stuff to implement first
     // IMGUI_API ImGuiTableSortSpecs* TableGetSortSpecs();                        // get latest sort specs for the table (NULL if not sorting).
+    function TableGetSortSpecs() {
+        const sort_specs = bind.TableGetSortSpecs();
+        return (sort_specs === null) ? null : new ImGuiTableSortSpecs(sort_specs);
+    }
+    exports_1("TableGetSortSpecs", TableGetSortSpecs);
     // Tables: Miscellaneous functions
     // - Functions args 'int column_n' treat the default value of -1 as the same as passing the current column index.
     // IMGUI_API int                   TableGetColumnCount();                      // return number of columns (value passed to BeginTable)
@@ -2357,6 +2362,14 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             })(ImGuiTabItemFlags || (ImGuiTabItemFlags = {}));
             exports_1("ImGuiTabItemFlags", ImGuiTabItemFlags);
             exports_1("TabItemFlags", ImGuiTabItemFlags);
+            ;
+            (function (ImGuiSortDirection) {
+                ImGuiSortDirection[ImGuiSortDirection["None"] = 0] = "None";
+                ImGuiSortDirection[ImGuiSortDirection["Ascending"] = 1] = "Ascending";
+                ImGuiSortDirection[ImGuiSortDirection["Descending"] = 2] = "Descending"; // Descending = 9->0, Z->A etc.
+            })(ImGuiSortDirection || (ImGuiSortDirection = {}));
+            exports_1("ImGuiSortDirection", ImGuiSortDirection);
+            exports_1("SortDirection", ImGuiSortDirection);
             ;
             (function (ImGuiTableFlags) {
                 // Features
@@ -3226,6 +3239,31 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImGuiListClipper", ImGuiListClipper);
+            ImGuiTableColumnSortSpecs = class ImGuiTableColumnSortSpecs {
+                constructor(native) {
+                    this.native = native;
+                }
+                get ColumnUserID() { return this.native.ColumnUserID; }
+                get ColumnIndex() { return this.native.ColumnIndex; }
+                get SortOrder() { return this.native.SortOrder; }
+                get SortDirection() { return this.native.SortDirection; } // TODO
+            };
+            exports_1("ImGuiTableColumnSortSpecs", ImGuiTableColumnSortSpecs);
+            ImGuiTableSortSpecs = class ImGuiTableSortSpecs {
+                constructor(native) {
+                    this.native = native;
+                }
+                get Specs() {
+                    return Array.from({ length: this.SpecsCount }).map((_, i) => {
+                        let spec = this.native.GetSpec(i);
+                        return new ImGuiTableColumnSortSpecs(spec);
+                    });
+                }
+                get SpecsCount() { return this.native.SpecsCount; }
+                get SpecsDirty() { return this.native.SpecsDirty; }
+                set SpecsDirty(value) { this.native.SpecsDirty = value; }
+            };
+            exports_1("ImGuiTableSortSpecs", ImGuiTableSortSpecs);
             // Special Draw callback value to request renderer back-end to reset the graphics/render state.
             // The renderer back-end needs to handle this special value, otherwise it will crash trying to call a function at this address.
             // This is useful for example if you submitted callbacks which you know have altered the render state and you want it to be restored.

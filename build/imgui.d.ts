@@ -170,6 +170,12 @@ export declare enum ImGuiTabItemFlags {
     ImGuiTabItemFlags_NoCloseWithMiddleMouseButton = 4,
     ImGuiTabItemFlags_NoPushId = 8
 }
+export { ImGuiSortDirection as SortDirection };
+export declare enum ImGuiSortDirection {
+    None = 0,
+    Ascending = 1,
+    Descending = 2
+}
 export { ImGuiTableFlags as TableFlags };
 export declare enum ImGuiTableFlags {
     None = 0,
@@ -680,6 +686,23 @@ export declare class ImGuiListClipper {
     Begin(items_count: number, items_height?: number): void;
     End(): void;
 }
+export declare class ImGuiTableColumnSortSpecs {
+    readonly native: Bind.reference_ImGuiTableColumnSortSpecs;
+    constructor(native: Bind.reference_ImGuiTableColumnSortSpecs);
+    get ColumnUserID(): number;
+    get ColumnIndex(): number;
+    get SortOrder(): number;
+    get SortDirection(): number;
+}
+export declare class ImGuiTableSortSpecs {
+    readonly native: Bind.reference_ImGuiTableSortSpecs;
+    constructor(native: Bind.reference_ImGuiTableSortSpecs);
+    get Specs(): Readonly<ImGuiTableColumnSortSpecs[]>;
+    get SpecsCount(): number;
+    get SpecsDirty(): boolean;
+    set SpecsDirty(value: boolean);
+}
+export { reference_ImGuiTableSortSpecs } from "bind-imgui";
 export declare type ImDrawCallback = (parent_list: Readonly<ImDrawList>, cmd: Readonly<ImDrawCmd>) => void;
 export declare const ImDrawCallback_ResetRenderState = -1;
 export declare class ImDrawCmd {
@@ -1361,6 +1384,7 @@ export declare function TableSetupColumn(label: string, flags?: ImGuiTableColumn
 export declare function TableSetupScrollFreeze(cols: number, rows: number): void;
 export declare function TableHeadersRow(): void;
 export declare function TableHeader(label: string): void;
+export declare function TableGetSortSpecs(): ImGuiTableSortSpecs | null;
 export declare function TableGetColumnCount(): number;
 export declare function TableGetColumnIndex(): number;
 export declare function TableGetRowIndex(): number;

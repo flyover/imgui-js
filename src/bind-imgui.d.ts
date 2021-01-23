@@ -170,6 +170,29 @@ export class ImGuiListClipper extends Emscripten.EmscriptenClass {
     public End(): void;
 }
 
+export interface reference_ImGuiTableColumnSortSpecs extends Emscripten.EmscriptenClassReference {
+    // ImGuiID                     ColumnUserID;       // User id of the column (if specified by a TableSetupColumn() call)
+    ColumnUserID: number;
+    // ImS16                       ColumnIndex;        // Index of the column
+    ColumnIndex: number;
+    // ImS16                       SortOrder;          // Index within parent ImGuiTableSortSpecs (always stored in order starting from 0, tables sorted on a single criteria will always have a 0 here)
+    SortOrder: number;
+    // ImGuiSortDirection          SortDirection : 8;  // ImGuiSortDirection_Ascending or ImGuiSortDirection_Descending (you can use this or SortSign, whichever is more convenient for your sort function)
+    SortDirection: number; // TODO: use an enum?
+}
+
+export interface reference_ImGuiTableSortSpecs extends Emscripten.EmscriptenClassReference {
+    //const ImGuiTableColumnSortSpecs* Specs;     // Pointer to sort spec array.
+    //Specs: readonly reference_ImGuiTableColumnSortSpecs[];
+    GetSpec(idx: number) : reference_ImGuiTableColumnSortSpecs;
+    //int                         SpecsCount;     // Sort spec count. Most often 1. May be > 1 when ImGuiTableFlags_SortMulti is enabled. May be == 0 when ImGuiTableFlags_SortTristate is enabled.
+    SpecsCount: number; // TODO: make readonly?
+    //bool                        SpecsDirty;     // Set to true when specs have changed since last time! Use this to sort again, then clear the flag.
+    SpecsDirty: boolean;
+
+    //ImGuiTableSortSpecs()       { memset(this, 0, sizeof(*this)); }
+}
+
 // You may modify the ImGui::GetStyle() main instance during initialization and before NewFrame().
 // During the frame, prefer using ImGui::PushStyleVar(ImGuiStyleVar_XXXX)/PopStyleVar() to alter the main style values, and ImGui::PushStyleColor(ImGuiCol_XXX)/PopStyleColor() for colors.
 export interface interface_ImGuiStyle {
@@ -1356,6 +1379,7 @@ TableSetupColumn(label: string, flags: ImGuiTableColumnFlags/* = 0*/, init_width
 TableSetupScrollFreeze(cols: number, rows: number): void;
 TableHeadersRow(): void;
 TableHeader(label: string): void;
+TableGetSortSpecs(): reference_ImGuiTableSortSpecs | null;
 TableGetColumnCount(): number;
 TableGetColumnIndex(): number;
 TableGetRowIndex(): number;
