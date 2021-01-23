@@ -4037,6 +4037,54 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
         ImGui.TreePop();
     }
 
+    if (open_action != -1)
+        ImGui.SetNextItemOpen(open_action != 0);
+    if (ImGui.TreeNode("Custom headers"))
+    {
+        const COLUMNS_COUNT = 3;
+        if (ImGui.BeginTable("table_custom_headers", COLUMNS_COUNT, ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable))
+        {
+            ImGui.TableSetupColumn("Apricot");
+            ImGui.TableSetupColumn("Banana");
+            ImGui.TableSetupColumn("Cherry");
+
+            // Dummy entire-column selection storage
+            // FIXME: It would be nice to actually demonstrate full-featured selection using those checkbox.
+            let column_selected: Static<boolean>[] = [
+                STATIC("column_selected1#tables-custom-headers", false),
+                STATIC("column_selected2#tables-custom-headers", false),
+                STATIC("column_selected3#tables-custom-headers", false),
+            ];
+
+            // Instead of calling TableHeadersRow() we'll submit custom headers ourselves
+            ImGui.TableNextRow(ImGuiTableRowFlags.Headers);
+            for (let column = 0; column < COLUMNS_COUNT; column++)
+            {
+                ImGui.TableSetColumnIndex(column);
+                const column_name = ImGui.TableGetColumnName(column); // Retrieve name passed to TableSetupColumn()
+                ImGui.PushID(column);
+                ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new ImVec2(0, 0));
+                ImGui.Checkbox("##checkall", (value = column_selected[column].value) => column_selected[column].value = value);
+                ImGui.PopStyleVar();
+                ImGui.SameLine(0.0, ImGui.GetStyle().ItemInnerSpacing.x);
+                ImGui.TableHeader(column_name);
+                ImGui.PopID();
+            }
+
+            for (let row = 0; row < 5; row++)
+            {
+                ImGui.TableNextRow();
+                for (let column = 0; column < 3; column++)
+                {
+                    ImGui.TableSetColumnIndex(column);
+                    ImGui.Selectable(`Cell ${column},${row}`, column_selected[column].value);
+                }
+            }
+            ImGui.EndTable();
+        }
+        ImGui.TreePop();
+    }
+
     ImGui.PopID();
 
     if (disable_indent.value)
