@@ -3491,9 +3491,9 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 AddConvexPolyFilled(points, num_points, col) {
                     this.native.AddConvexPolyFilled(points, num_points, col);
                 }
-                // IMGUI_API void  AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
-                AddBezierCurve(pos0, cp0, cp1, pos1, col, thickness = 1.0, num_segments = 0) {
-                    this.native.AddBezierCurve(pos0, cp0, cp1, pos1, col, thickness, num_segments);
+                // IMGUI_API void  AddBezierCubic(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
+                AddBezierCubic(pos0, cp0, cp1, pos1, col, thickness = 1.0, num_segments = 0) {
+                    this.native.AddBezierCubic(pos0, cp0, cp1, pos1, col, thickness, num_segments);
                 }
                 // Stateful path API, add points then finish with PathFill() or PathStroke()
                 // inline    void  PathClear()                                                 { _Path.resize(0); }
@@ -3510,8 +3510,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 PathArcTo(centre, radius, a_min, a_max, num_segments = 10) { this.native.PathArcTo(centre, radius, a_min, a_max, num_segments); }
                 // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
                 PathArcToFast(centre, radius, a_min_of_12, a_max_of_12) { this.native.PathArcToFast(centre, radius, a_min_of_12, a_max_of_12); }
-                // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
-                PathBezierCurveTo(p1, p2, p3, num_segments = 0) { this.native.PathBezierCurveTo(p1, p2, p3, num_segments); }
+                // IMGUI_API void  PathBezierCubicCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
+                PathBezierCubicCurveTo(p1, p2, p3, num_segments = 0) { this.native.PathBezierCubicCurveTo(p1, p2, p3, num_segments); }
                 // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
                 PathRect(rect_min, rect_max, rounding = 0.0, rounding_corners_flags = ImDrawCornerFlags.All) { this.native.PathRect(rect_min, rect_max, rounding, rounding_corners_flags); }
                 // Channels

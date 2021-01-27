@@ -1585,7 +1585,7 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         CLASS_MEMBER(ImGuiStyle, AntiAliasedLines)
         // bool        AntiAliasedFill;            // Enable anti-aliasing on filled shapes (rounded rectangles, circles, etc.)
         CLASS_MEMBER(ImGuiStyle, AntiAliasedFill)
-        // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
+        // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCubicCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
         CLASS_MEMBER(ImGuiStyle, CurveTessellationTol)
         // ImVec4      Colors[ImGuiCol_COUNT];
         .function("_getAt_Colors", FUNCTION(emscripten::val, (ImGuiStyle* that, ImGuiCol index), {

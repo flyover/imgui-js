@@ -130,7 +130,9 @@
             ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new ImGui.ImVec2(0, 0));
             ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new ImGui.ImVec2(0, 0));
             const line_total_count = 0 | ((mem_size + this.Rows - 1) / this.Rows);
-            const clipper = new ImGui.ImGuiListClipper(line_total_count, s.LineHeight);
+            const clipper = new ImGui.ImGuiListClipper();
+            clipper.Begin(line_total_count, s.LineHeight);
+            clipper.Step();
             const visible_start_addr = clipper.DisplayStart * this.Rows;
             const visible_end_addr = clipper.DisplayEnd * this.Rows;
             let data_next = false;
@@ -335,6 +337,7 @@
                     }
                 }
             }
+            ImGui.IM_ASSERT(clipper.Step() == false);
             clipper.End();
             clipper.delete();
             ImGui.PopStyleVar(2);
