@@ -48,6 +48,7 @@ import { ImGuiStyle } from "imgui-js";
 import { ImGuiListClipper } from "imgui-js";
 import { ImDrawList } from "imgui-js";
 import { ImGuiInputTextCallbackData } from "imgui-js";
+import { IM_ASSERT } from "imgui-js";
 
 export class MemoryEditor
 {
@@ -195,6 +196,7 @@ export class MemoryEditor
         const line_total_count: number = 0|((mem_size + this.Rows - 1) / this.Rows);
         const clipper: ImGuiListClipper = new ImGuiListClipper();
         clipper.Begin(line_total_count, s.LineHeight);
+        clipper.Step();
         const visible_start_addr: number = clipper.DisplayStart * this.Rows;
         const visible_end_addr: number = clipper.DisplayEnd * this.Rows;
 
@@ -420,6 +422,7 @@ export class MemoryEditor
                 }
             }
         }
+        IM_ASSERT(clipper.Step() == false);
         clipper.End();
         clipper.delete();
         ImGui.PopStyleVar(2);

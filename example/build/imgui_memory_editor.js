@@ -35,7 +35,7 @@
 // - Arrows are being sent to the InputText() about to disappear which for LeftArrow makes the text cursor appear at position 1 for one frame.
 System.register(["imgui-js"], function (exports_1, context_1) {
     "use strict";
-    var ImGui, imgui_js_1, imgui_js_2, imgui_js_3, imgui_js_4, imgui_js_5, imgui_js_6, MemoryEditor;
+    var ImGui, imgui_js_1, imgui_js_2, imgui_js_3, imgui_js_4, imgui_js_5, imgui_js_6, imgui_js_7, MemoryEditor;
     var __moduleName = context_1 && context_1.id;
     return {
         setters: [
@@ -47,6 +47,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 imgui_js_4 = ImGui_1;
                 imgui_js_5 = ImGui_1;
                 imgui_js_6 = ImGui_1;
+                imgui_js_7 = ImGui_1;
             }
         ],
         execute: function () {
@@ -177,6 +178,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     const line_total_count = 0 | ((mem_size + this.Rows - 1) / this.Rows);
                     const clipper = new imgui_js_6.ImGuiListClipper();
                     clipper.Begin(line_total_count, s.LineHeight);
+                    clipper.Step();
                     const visible_start_addr = clipper.DisplayStart * this.Rows;
                     const visible_end_addr = clipper.DisplayEnd * this.Rows;
                     let data_next = false;
@@ -381,6 +383,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                             }
                         }
                     }
+                    imgui_js_7.IM_ASSERT(clipper.Step() == false);
                     clipper.End();
                     clipper.delete();
                     ImGui.PopStyleVar(2);
