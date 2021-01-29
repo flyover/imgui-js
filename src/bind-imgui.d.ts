@@ -36,6 +36,11 @@ export type ImWchar = number;
 export type ImTextureID = number;
 
 type ImGuiWindowFlags = number;
+type ImGuiPopupFlags = number;
+type ImGuiTableFlags = number;
+type ImGuiTableColumnFlags = number;
+type ImGuiTableRowFlags = number;
+type ImGuiTableBgTarget = number;
 type ImGuiInputTextFlags = number;
 type ImGuiTreeNodeFlags = number;
 type ImGuiSelectableFlags = number;
@@ -154,8 +159,8 @@ export class ImGuiListClipper extends Emscripten.EmscriptenClass {
     // items_count:  Use -1 to ignore (you can call Begin later). Use INT_MAX if you don't know how many items you have (in which case the cursor won't be advanced in the final step).
     // items_height: Use -1.0f to be calculated automatically on first step. Otherwise pass in the distance between your items, typically GetTextLineHeightWithSpacing() or GetFrameHeightWithSpacing().
     // If you don't specify an items_height, you NEED to call Step(). If you specify items_height you may call the old Begin()/End() api directly, but prefer calling Step().
-    // ImGuiListClipper(int items_count = -1, float items_height = -1.0f)  { Begin(items_count, items_height); } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
-    constructor(items_count?: number, items_height?: number);
+    // ImGuiListClipper()  { .. } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
+    constructor();
     // ~ImGuiListClipper()                                                 { IM_ASSERT(ItemsCount == -1); }      // Assert if user forgot to call End() or Step() until false.
 
     // IMGUI_API bool Step();                                              // Call until it returns false. The DisplayStart/DisplayEnd fields will be set and you can process/draw those items.
@@ -164,6 +169,29 @@ export class ImGuiListClipper extends Emscripten.EmscriptenClass {
     public Begin(items_count: number, items_height: number): void;
     // IMGUI_API void End();                                               // Automatically called on the last call of Step() that returns false.
     public End(): void;
+}
+
+export interface reference_ImGuiTableColumnSortSpecs extends Emscripten.EmscriptenClassReference {
+    // ImGuiID                     ColumnUserID;       // User id of the column (if specified by a TableSetupColumn() call)
+    ColumnUserID: number;
+    // ImS16                       ColumnIndex;        // Index of the column
+    ColumnIndex: number;
+    // ImS16                       SortOrder;          // Index within parent ImGuiTableSortSpecs (always stored in order starting from 0, tables sorted on a single criteria will always have a 0 here)
+    SortOrder: number;
+    // ImGuiSortDirection          SortDirection : 8;  // ImGuiSortDirection_Ascending or ImGuiSortDirection_Descending (you can use this or SortSign, whichever is more convenient for your sort function)
+    SortDirection: number; // TODO: use an enum?
+}
+
+export interface reference_ImGuiTableSortSpecs extends Emscripten.EmscriptenClassReference {
+    //const ImGuiTableColumnSortSpecs* Specs;     // Pointer to sort spec array.
+    //Specs: readonly reference_ImGuiTableColumnSortSpecs[];
+    GetSpec(idx: number) : reference_ImGuiTableColumnSortSpecs;
+    //int                         SpecsCount;     // Sort spec count. Most often 1. May be > 1 when ImGuiTableFlags_SortMulti is enabled. May be == 0 when ImGuiTableFlags_SortTristate is enabled.
+    SpecsCount: number; // TODO: make readonly?
+    //bool                        SpecsDirty;     // Set to true when specs have changed since last time! Use this to sort again, then clear the flag.
+    SpecsDirty: boolean;
+
+    //ImGuiTableSortSpecs()       { memset(this, 0, sizeof(*this)); }
 }
 
 // You may modify the ImGui::GetStyle() main instance during initialization and before NewFrame().
@@ -233,7 +261,7 @@ export interface interface_ImGuiStyle {
     AntiAliasedLines: boolean;
     // bool        AntiAliasedFill;            // Enable anti-aliasing on filled shapes (rounded rectangles, circles, etc.)
     AntiAliasedFill: boolean;
-    // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
+    // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCubicCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
     CurveTessellationTol: number;
     // ImVec4      Colors[ImGuiCol_COUNT];
     _getAt_Colors(idx: number): interface_ImVec4;
@@ -384,8 +412,8 @@ export interface reference_ImDrawList extends Emscripten.EmscriptenClassReferenc
     AddPolyline(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32, closed: boolean, thickness: number): void;
     // IMGUI_API void  AddConvexPolyFilled(const ImVec2* points, const int num_points, ImU32 col);
     AddConvexPolyFilled(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32): void;
-    // IMGUI_API void  AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
-    AddBezierCurve(pos0: Readonly<interface_ImVec2>, cp0: Readonly<interface_ImVec2>, cp1: Readonly<interface_ImVec2>, pos1: Readonly<interface_ImVec2>, col: ImU32, thickness: number, num_segments: number): void;
+    // IMGUI_API void  AddBezierCubic(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
+    AddBezierCubic(pos0: Readonly<interface_ImVec2>, cp0: Readonly<interface_ImVec2>, cp1: Readonly<interface_ImVec2>, pos1: Readonly<interface_ImVec2>, col: ImU32, thickness: number, num_segments: number): void;
 
     // Stateful path API, add points then finish with PathFill() or PathStroke()
     // inline    void  PathClear()                                                 { _Path.resize(0); }
@@ -402,8 +430,8 @@ export interface reference_ImDrawList extends Emscripten.EmscriptenClassReferenc
     PathArcTo(centre: Readonly<interface_ImVec2>, radius: number, a_min: number, a_max: number, num_segments: number): void;
     // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
     PathArcToFast(centre: Readonly<interface_ImVec2>, radius: number, a_min_of_12: number, a_max_of_12: number): void;
-    // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
-    PathBezierCurveTo(p1: Readonly<interface_ImVec2>, p2: Readonly<interface_ImVec2>, p3: Readonly<interface_ImVec2>, num_segments: number): void;
+    // IMGUI_API void  PathBezierCubicCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
+    PathBezierCubicCurveTo(p1: Readonly<interface_ImVec2>, p2: Readonly<interface_ImVec2>, p3: Readonly<interface_ImVec2>, num_segments: number): void;
     // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
     PathRect(rect_min: Readonly<interface_ImVec2>, rect_max: Readonly<interface_ImVec2>, rounding: number, rounding_corners_flags: ImDrawCornerFlags): void;
 
@@ -951,7 +979,7 @@ ImDrawVertPosOffset: number;
 ImDrawVertUVOffset: number;
 ImDrawVertColOffset: number;
 
-ImGuiListClipper: { new(items_count: number, items_height: number): ImGuiListClipper; };
+ImGuiListClipper: { new(): ImGuiListClipper; };
 ImGuiStyle: { new(): ImGuiStyle; };
 
 // Context creation and access, if you want to use multiple context, share context between modules (e.g. DLL). 
@@ -1331,16 +1359,35 @@ MenuItem_A(label: string, shortcut: string | null, selected: boolean, enabled: b
 MenuItem_B(label: string, shortcut: string | null, p_selected: ImScalar<boolean>, enabled: boolean/* = true */): boolean;
 
 // Popups
-OpenPopup(str_id: string): void;
-OpenPopupOnItemClick(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): boolean;
-BeginPopup(str_id: string): boolean;
+OpenPopup(str_id: string, popup_flags: ImGuiPopupFlags/* = 0 */): void;
+OpenPopupOnItemClick(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
+BeginPopup(str_id: string, flags: ImGuiWindowFlags/* = 0 */): boolean;
 BeginPopupModal(name: string, p_open: ImScalar<boolean> | null/* = NULL */, extra_flags: ImGuiWindowFlags/* = 0 */): boolean;
-BeginPopupContextItem(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): boolean;
-BeginPopupContextWindow(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */, also_over_items: boolean/* = true */): boolean;
-BeginPopupContextVoid(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): boolean;
+BeginPopupContextItem(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
+BeginPopupContextWindow(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
+BeginPopupContextVoid(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
 EndPopup(): void;
-IsPopupOpen(str_id: string): boolean;
+IsPopupOpen(str_id: string, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
 CloseCurrentPopup(): void;
+
+// Tables
+BeginTable(str_id: string, column: number, flags: ImGuiTableFlags/* = 1 */, outer_size: Readonly<interface_ImVec2>, inner_width: number): boolean;
+EndTable(): void;
+TableNextRow(row_flags: ImGuiTableRowFlags/* = 0*/, min_row_height: number/* = 0.0*/): void;
+TableNextColumn(): boolean;
+TableSetColumnIndex(column_n: number): boolean;
+TableSetupColumn(label: string, flags: ImGuiTableColumnFlags/* = 0*/, init_width_or_weight: number/* = 0.0*/, user_id: ImU32/* = 0*/): void;
+TableSetupScrollFreeze(cols: number, rows: number): void;
+TableHeadersRow(): void;
+TableHeader(label: string): void;
+TableGetSortSpecs(): reference_ImGuiTableSortSpecs | null;
+TableGetColumnCount(): number;
+TableGetColumnIndex(): number;
+TableGetRowIndex(): number;
+TableGetColumnName(column_n: number/* = -1*/): string;
+TableGetColumnFlags(column_n: number/* = -1*/): ImGuiTableColumnFlags;
+TableGetColumnFlags(column_n: number/* = -1*/): ImGuiTableColumnFlags;
+TableSetBgColor(target: ImGuiTableBgTarget, color: ImU32, column_n: number/* -1 */): void;
 
 // Tab Bars, Tabs
 // [BETA API] API may evolve!

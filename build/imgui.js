@@ -9,7 +9,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             step((generator = generator.apply(thisArg, _arguments || [])).next());
         });
     };
-    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiKey, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiColorEditFlags, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiListClipper, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
+    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiSortDirection, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiKey, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiListClipper, ImGuiTableColumnSortSpecs, ImGuiTableSortSpecs, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
     var __moduleName = context_1 && context_1.id;
     function default_1(value) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -1691,58 +1691,145 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
         }
     }
     exports_1("MenuItem", MenuItem);
-    // Popups
-    // IMGUI_API void          OpenPopup(const char* str_id);                                      // call to mark popup as open (don't call every frame!). popups are closed when user click outside, or if CloseCurrentPopup() is called within a BeginPopup()/EndPopup() block. By default, Selectable()/MenuItem() are calling CloseCurrentPopup(). Popup identifiers are relative to the current ID-stack (so OpenPopup and BeginPopup needs to be at the same level).
-    function OpenPopup(str_id) { bind.OpenPopup(str_id); }
-    exports_1("OpenPopup", OpenPopup);
-    // IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
-    function OpenPopupOnItemClick(str_id = null, mouse_button = 1) {
-        return bind.OpenPopupOnItemClick(str_id, mouse_button);
-    }
-    exports_1("OpenPopupOnItemClick", OpenPopupOnItemClick);
-    // IMGUI_API bool          BeginPopup(const char* str_id);                                     // return true if the popup is open, and you can start outputting to it. only call EndPopup() if BeginPopup() returned true!
-    function BeginPopup(str_id) { return bind.BeginPopup(str_id); }
+    // Popups, Modals
+    //  - They block normal mouse hovering detection (and therefore most mouse interactions) behind them.
+    //  - If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
+    //  - Their visibility state (~bool) is held internally instead of being held by the programmer as we are used to with regular Begin*() calls.
+    //  - The 3 properties above are related: we need to retain popup visibility state in the library because popups may be closed as any time.
+    //  - You can bypass the hovering restriction by using ImGuiHoveredFlags_AllowWhenBlockedByPopup when calling IsItemHovered() or IsWindowHovered().
+    //  - IMPORTANT: Popup identifiers are relative to the current ID stack, so OpenPopup and BeginPopup generally needs to be at the same level of the stack.
+    //    This is sometimes leading to confusing mistakes. May rework this in the future.
+    // Popups: begin/end functions
+    //  - BeginPopup(): query popup state, if open start appending into the window. Call EndPopup() afterwards. ImGuiWindowFlags are forwarded to the window.
+    //  - BeginPopupModal(): block every interactions behind the window, cannot be closed by user, add a dimming background, has a title bar.
+    // IMGUI_API bool          BeginPopup(const char* str_id, ImGuiWindowFlags flags = 0);                         // return true if the popup is open, and you can start outputting to it.
+    function BeginPopup(str_id, flags = 0) { return bind.BeginPopup(str_id, flags); }
     exports_1("BeginPopup", BeginPopup);
-    // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags extra_flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
-    function BeginPopupModal(str_id = "", p_open = null, extra_flags = 0) {
+    // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0); // return true if the modal is open, and you can start outputting to it.
+    function BeginPopupModal(str_id = "", p_open = null, flags = 0) {
         if (Array.isArray(p_open)) {
-            return bind.BeginPopupModal(str_id, p_open, extra_flags);
+            return bind.BeginPopupModal(str_id, p_open, flags);
         }
         else if (typeof (p_open) === "function") {
             const _p_open = [p_open()];
-            const ret = bind.BeginPopupModal(str_id, _p_open, extra_flags);
+            const ret = bind.BeginPopupModal(str_id, _p_open, flags);
             p_open(_p_open[0]);
             return ret;
         }
         else {
-            return bind.BeginPopupModal(str_id, null, extra_flags);
+            return bind.BeginPopupModal(str_id, null, flags);
         }
     }
     exports_1("BeginPopupModal", BeginPopupModal);
-    // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
-    function BeginPopupContextItem(str_id = null, mouse_button = 1) {
-        return bind.BeginPopupContextItem(str_id, mouse_button);
-    }
-    exports_1("BeginPopupContextItem", BeginPopupContextItem);
-    // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, int mouse_button = 1, bool also_over_items = true);  // helper to open and begin popup when clicked on current window.
-    function BeginPopupContextWindow(str_id = null, mouse_button = 1, also_over_items = true) {
-        return bind.BeginPopupContextWindow(str_id, mouse_button, also_over_items);
-    }
-    exports_1("BeginPopupContextWindow", BeginPopupContextWindow);
-    // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
-    function BeginPopupContextVoid(str_id = null, mouse_button = 1) {
-        return bind.BeginPopupContextVoid(str_id, mouse_button);
-    }
-    exports_1("BeginPopupContextVoid", BeginPopupContextVoid);
     // IMGUI_API void          EndPopup();
     function EndPopup() { bind.EndPopup(); }
     exports_1("EndPopup", EndPopup);
+    // Popups: open/close functions
+    //  - OpenPopup(): set popup state to open. ImGuiPopupFlags are available for opening options.
+    //  - If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
+    //  - CloseCurrentPopup(): use inside the BeginPopup()/EndPopup() scope to close manually.
+    //  - CloseCurrentPopup() is called by default by Selectable()/MenuItem() when activated (FIXME: need some options).
+    //  - Use ImGuiPopupFlags_NoOpenOverExistingPopup to avoid opening a popup if there's already one at the same level. This is equivalent to e.g. testing for !IsAnyPopupOpen() prior to OpenPopup().
+    // IMGUI_API void          OpenPopup(const char* str_id, ImGuiPopupFlags popup_flags = 0);                     // call to mark popup as open (don't call every frame!).
+    function OpenPopup(str_id, popup_flags = 0) { bind.OpenPopup(str_id, popup_flags); }
+    exports_1("OpenPopup", OpenPopup);
+    // IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
+    function OpenPopupOnItemClick(str_id = null, popup_flags = 1) {
+        return bind.OpenPopupOnItemClick(str_id, popup_flags);
+    }
+    exports_1("OpenPopupOnItemClick", OpenPopupOnItemClick);
+    // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
+    function BeginPopupContextItem(str_id = null, popup_flags = 1) {
+        return bind.BeginPopupContextItem(str_id, popup_flags);
+    }
+    exports_1("BeginPopupContextItem", BeginPopupContextItem);
+    // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, int mouse_button = 1, bool also_over_items = true);  // helper to open and begin popup when clicked on current window.
+    function BeginPopupContextWindow(str_id = null, popup_flags = 1) {
+        return bind.BeginPopupContextWindow(str_id, popup_flags);
+    }
+    exports_1("BeginPopupContextWindow", BeginPopupContextWindow);
+    // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
+    function BeginPopupContextVoid(str_id = null, popup_flags = 1) {
+        return bind.BeginPopupContextVoid(str_id, popup_flags);
+    }
+    exports_1("BeginPopupContextVoid", BeginPopupContextVoid);
     // IMGUI_API bool          IsPopupOpen(const char* str_id);                                    // return true if the popup is open
-    function IsPopupOpen(str_id) { return bind.IsPopupOpen(str_id); }
+    function IsPopupOpen(str_id, popup_flags = 0) { return bind.IsPopupOpen(str_id, popup_flags); }
     exports_1("IsPopupOpen", IsPopupOpen);
     // IMGUI_API void          CloseCurrentPopup();                                                // close the popup we have begin-ed into. clicking on a MenuItem or Selectable automatically close the current popup.
     function CloseCurrentPopup() { bind.CloseCurrentPopup(); }
     exports_1("CloseCurrentPopup", CloseCurrentPopup);
+    // Tables
+    // IMGUI_API bool          BeginTable(const char* str_id, int column, ImGuiTableFlags flags = 0, const ImVec2& outer_size = ImVec2(0.0f, 0.0f), float inner_width = 0.0f);
+    function BeginTable(str_id, column, flags = 0, outer_size = new ImVec2(), inner_width = 0.0) {
+        return bind.BeginTable(str_id, column, flags, outer_size, inner_width);
+    }
+    exports_1("BeginTable", BeginTable);
+    // IMGUI_API void          EndTable();                                 // only call EndTable() if BeginTable() returns true!
+    function EndTable() { bind.EndTable(); }
+    exports_1("EndTable", EndTable);
+    // IMGUI_API void          TableNextRow(ImGuiTableRowFlags row_flags = 0, float min_row_height = 0.0f); // append into the first cell of a new row.
+    function TableNextRow(row_flags = 0, min_row_height = 0.0) { bind.TableNextRow(row_flags, min_row_height); }
+    exports_1("TableNextRow", TableNextRow);
+    // IMGUI_API bool          TableNextColumn();                          // append into the next column (or first column of next row if currently in last column). Return true when column is visible.
+    function TableNextColumn() { return bind.TableNextColumn(); }
+    exports_1("TableNextColumn", TableNextColumn);
+    // IMGUI_API bool          TableSetColumnIndex(int column_n);          // append into the specified column. Return true when column is visible.
+    function TableSetColumnIndex(column_n) { return bind.TableSetColumnIndex(column_n); }
+    exports_1("TableSetColumnIndex", TableSetColumnIndex);
+    // Tables: Headers & Columns declaration
+    // - Use TableSetupColumn() to specify label, resizing policy, default width/weight, id, various other flags etc.
+    // - Use TableHeadersRow() to create a header row and automatically submit a TableHeader() for each column.
+    //   Headers are required to perform: reordering, sorting, and opening the context menu.
+    //   The context menu can also be made available in columns body using ImGuiTableFlags_ContextMenuInBody.
+    // - You may manually submit headers using TableNextRow() + TableHeader() calls, but this is only useful in
+    //   some advanced use cases (e.g. adding custom widgets in header row).
+    // - Use TableSetupScrollFreeze() to lock columns/rows so they stay visible when scrolled.
+    // IMGUI_API void          TableSetupColumn(const char* label, ImGuiTableColumnFlags flags = 0, float init_width_or_weight = 0.0f, ImU32 user_id = 0);
+    function TableSetupColumn(label, flags = 0, init_width_or_weight = 0.0, user_id = 0) { bind.TableSetupColumn(label, flags, init_width_or_weight, user_id); }
+    exports_1("TableSetupColumn", TableSetupColumn);
+    // IMGUI_API void          TableSetupScrollFreeze(int cols, int rows); // lock columns/rows so they stay visible when scrolled.
+    function TableSetupScrollFreeze(cols, rows) { bind.TableSetupScrollFreeze(cols, rows); }
+    exports_1("TableSetupScrollFreeze", TableSetupScrollFreeze);
+    // IMGUI_API void          TableHeadersRow();                          // submit all headers cells based on data provided to TableSetupColumn() + submit context menu
+    function TableHeadersRow() { bind.TableHeadersRow(); }
+    exports_1("TableHeadersRow", TableHeadersRow);
+    // IMGUI_API void          TableHeader(const char* label);             // submit one header cell manually (rarely used)
+    function TableHeader(label) { bind.TableHeader(label); }
+    exports_1("TableHeader", TableHeader);
+    // Tables: Sorting
+    // - Call TableGetSortSpecs() to retrieve latest sort specs for the table. NULL when not sorting.
+    // - When 'SpecsDirty == true' you should sort your data. It will be true when sorting specs have changed
+    //   since last call, or the first time. Make sure to set 'SpecsDirty = false' after sorting, else you may
+    //   wastefully sort your data every frame!
+    // - Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable().
+    // TODO: some stuff to implement first
+    // IMGUI_API ImGuiTableSortSpecs* TableGetSortSpecs();                        // get latest sort specs for the table (NULL if not sorting).
+    function TableGetSortSpecs() {
+        const sort_specs = bind.TableGetSortSpecs();
+        return (sort_specs === null) ? null : new ImGuiTableSortSpecs(sort_specs);
+    }
+    exports_1("TableGetSortSpecs", TableGetSortSpecs);
+    // Tables: Miscellaneous functions
+    // - Functions args 'int column_n' treat the default value of -1 as the same as passing the current column index.
+    // IMGUI_API int                   TableGetColumnCount();                      // return number of columns (value passed to BeginTable)
+    function TableGetColumnCount() { return bind.TableGetColumnCount(); }
+    exports_1("TableGetColumnCount", TableGetColumnCount);
+    // IMGUI_API int                   TableGetColumnIndex();                      // return current column index.
+    function TableGetColumnIndex() { return bind.TableGetColumnIndex(); }
+    exports_1("TableGetColumnIndex", TableGetColumnIndex);
+    // IMGUI_API int                   TableGetRowIndex();                         // return current row index.
+    function TableGetRowIndex() { return bind.TableGetRowIndex(); }
+    exports_1("TableGetRowIndex", TableGetRowIndex);
+    // IMGUI_API const char*           TableGetColumnName(int column_n = -1);      // return "" if column didn't have a name declared by TableSetupColumn(). Pass -1 to use current column.
+    function TableGetColumnName(column_n = -1) { return bind.TableGetColumnName(column_n); }
+    exports_1("TableGetColumnName", TableGetColumnName);
+    // IMGUI_API ImGuiTableColumnFlags TableGetColumnFlags(int column_n = -1);     // return column flags so you can query their Enabled/Visible/Sorted/Hovered status flags. Pass -1 to use current column.
+    function TableGetColumnFlags(column_n = -1) { return bind.TableGetColumnFlags(column_n); }
+    exports_1("TableGetColumnFlags", TableGetColumnFlags);
+    // IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);  // change the color of a cell, row, or column. See ImGuiTableBgTarget_ flags for details.
+    function TableSetBgColor(target, color, column_n = -1) { bind.TableSetBgColor(target, color, column_n); }
+    exports_1("TableSetBgColor", TableSetBgColor);
     // Tab Bars, Tabs
     // [BETA API] API may evolve!
     // IMGUI_API bool          BeginTabBar(const char* str_id, ImGuiTabBarFlags flags = 0);        // create and append into a TabBar
@@ -2138,8 +2225,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
         ],
         execute: function () {
             exports_1("Bind", Bind);
-            exports_1("IMGUI_VERSION", IMGUI_VERSION = "1.71"); // bind.IMGUI_VERSION;
-            exports_1("IMGUI_VERSION_NUM", IMGUI_VERSION_NUM = 17100); // bind.IMGUI_VERSION_NUM;
+            exports_1("IMGUI_VERSION", IMGUI_VERSION = "1.80"); //r bind.IMGUI_VERSION;
+            exports_1("IMGUI_VERSION_NUM", IMGUI_VERSION_NUM = 18000); // bind.IMGUI_VERSION_NUM;
             ImStringBuffer = class ImStringBuffer {
                 constructor(size, buffer = "") {
                     this.size = size;
@@ -2222,19 +2309,35 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImGuiTreeNodeFlags[ImGuiTreeNodeFlags["Leaf"] = 256] = "Leaf";
                 ImGuiTreeNodeFlags[ImGuiTreeNodeFlags["Bullet"] = 512] = "Bullet";
                 ImGuiTreeNodeFlags[ImGuiTreeNodeFlags["FramePadding"] = 1024] = "FramePadding";
-                //SpanAllAvailWidth  = 1 << 11,  // FIXME: TODO: Extend hit box horizontally even if not framed
-                //NoScrollOnOpen     = 1 << 12,  // FIXME: TODO: Disable automatic scroll on TreePop() if node got just open and contents is not visible
+                ImGuiTreeNodeFlags[ImGuiTreeNodeFlags["SpanAvailWidth"] = 2048] = "SpanAvailWidth";
+                ImGuiTreeNodeFlags[ImGuiTreeNodeFlags["SpanFullWidth"] = 4096] = "SpanFullWidth";
                 ImGuiTreeNodeFlags[ImGuiTreeNodeFlags["NavLeftJumpsBackHere"] = 8192] = "NavLeftJumpsBackHere";
                 ImGuiTreeNodeFlags[ImGuiTreeNodeFlags["CollapsingHeader"] = 26] = "CollapsingHeader";
             })(ImGuiTreeNodeFlags || (ImGuiTreeNodeFlags = {}));
             exports_1("ImGuiTreeNodeFlags", ImGuiTreeNodeFlags);
             exports_1("TreeNodeFlags", ImGuiTreeNodeFlags);
+            (function (ImGuiPopupFlags) {
+                ImGuiPopupFlags[ImGuiPopupFlags["None"] = 0] = "None";
+                ImGuiPopupFlags[ImGuiPopupFlags["MouseButtonLeft"] = 0] = "MouseButtonLeft";
+                ImGuiPopupFlags[ImGuiPopupFlags["MouseButtonRight"] = 1] = "MouseButtonRight";
+                ImGuiPopupFlags[ImGuiPopupFlags["MouseButtonMiddle"] = 2] = "MouseButtonMiddle";
+                ImGuiPopupFlags[ImGuiPopupFlags["MouseButtonMask_"] = 31] = "MouseButtonMask_";
+                ImGuiPopupFlags[ImGuiPopupFlags["MouseButtonDefault_"] = 1] = "MouseButtonDefault_";
+                ImGuiPopupFlags[ImGuiPopupFlags["NoOpenOverExistingPopup"] = 32] = "NoOpenOverExistingPopup";
+                ImGuiPopupFlags[ImGuiPopupFlags["NoOpenOverItems"] = 64] = "NoOpenOverItems";
+                ImGuiPopupFlags[ImGuiPopupFlags["AnyPopupId"] = 128] = "AnyPopupId";
+                ImGuiPopupFlags[ImGuiPopupFlags["AnyPopupLevel"] = 256] = "AnyPopupLevel";
+                ImGuiPopupFlags[ImGuiPopupFlags["AnyPopup"] = 384] = "AnyPopup";
+            })(ImGuiPopupFlags || (ImGuiPopupFlags = {}));
+            exports_1("ImGuiPopupFlags", ImGuiPopupFlags);
+            exports_1("PopupFlags", ImGuiPopupFlags);
             (function (ImGuiSelectableFlags) {
                 ImGuiSelectableFlags[ImGuiSelectableFlags["None"] = 0] = "None";
                 ImGuiSelectableFlags[ImGuiSelectableFlags["DontClosePopups"] = 1] = "DontClosePopups";
                 ImGuiSelectableFlags[ImGuiSelectableFlags["SpanAllColumns"] = 2] = "SpanAllColumns";
                 ImGuiSelectableFlags[ImGuiSelectableFlags["AllowDoubleClick"] = 4] = "AllowDoubleClick";
-                ImGuiSelectableFlags[ImGuiSelectableFlags["Disabled"] = 8] = "Disabled"; // Cannot be selected, display greyed out text
+                ImGuiSelectableFlags[ImGuiSelectableFlags["Disabled"] = 8] = "Disabled";
+                ImGuiSelectableFlags[ImGuiSelectableFlags["AllowItemOverlap"] = 16] = "AllowItemOverlap";
             })(ImGuiSelectableFlags || (ImGuiSelectableFlags = {}));
             exports_1("ImGuiSelectableFlags", ImGuiSelectableFlags);
             exports_1("SelectableFlags", ImGuiSelectableFlags);
@@ -2276,6 +2379,113 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             })(ImGuiTabItemFlags || (ImGuiTabItemFlags = {}));
             exports_1("ImGuiTabItemFlags", ImGuiTabItemFlags);
             exports_1("TabItemFlags", ImGuiTabItemFlags);
+            ;
+            (function (ImGuiSortDirection) {
+                ImGuiSortDirection[ImGuiSortDirection["None"] = 0] = "None";
+                ImGuiSortDirection[ImGuiSortDirection["Ascending"] = 1] = "Ascending";
+                ImGuiSortDirection[ImGuiSortDirection["Descending"] = 2] = "Descending"; // Descending = 9->0, Z->A etc.
+            })(ImGuiSortDirection || (ImGuiSortDirection = {}));
+            exports_1("ImGuiSortDirection", ImGuiSortDirection);
+            exports_1("SortDirection", ImGuiSortDirection);
+            ;
+            (function (ImGuiTableFlags) {
+                // Features
+                ImGuiTableFlags[ImGuiTableFlags["None"] = 0] = "None";
+                ImGuiTableFlags[ImGuiTableFlags["Resizable"] = 1] = "Resizable";
+                ImGuiTableFlags[ImGuiTableFlags["Reorderable"] = 2] = "Reorderable";
+                ImGuiTableFlags[ImGuiTableFlags["Hideable"] = 4] = "Hideable";
+                ImGuiTableFlags[ImGuiTableFlags["Sortable"] = 8] = "Sortable";
+                ImGuiTableFlags[ImGuiTableFlags["NoSavedSettings"] = 16] = "NoSavedSettings";
+                ImGuiTableFlags[ImGuiTableFlags["ContextMenuInBody"] = 32] = "ContextMenuInBody";
+                // Decorations
+                ImGuiTableFlags[ImGuiTableFlags["RowBg"] = 64] = "RowBg";
+                ImGuiTableFlags[ImGuiTableFlags["BordersInnerH"] = 128] = "BordersInnerH";
+                ImGuiTableFlags[ImGuiTableFlags["BordersOuterH"] = 256] = "BordersOuterH";
+                ImGuiTableFlags[ImGuiTableFlags["BordersInnerV"] = 512] = "BordersInnerV";
+                ImGuiTableFlags[ImGuiTableFlags["BordersOuterV"] = 1024] = "BordersOuterV";
+                ImGuiTableFlags[ImGuiTableFlags["BordersH"] = 384] = "BordersH";
+                ImGuiTableFlags[ImGuiTableFlags["BordersV"] = 1536] = "BordersV";
+                ImGuiTableFlags[ImGuiTableFlags["BordersInner"] = 640] = "BordersInner";
+                ImGuiTableFlags[ImGuiTableFlags["BordersOuter"] = 1280] = "BordersOuter";
+                ImGuiTableFlags[ImGuiTableFlags["Borders"] = 1920] = "Borders";
+                ImGuiTableFlags[ImGuiTableFlags["NoBordersInBody"] = 2048] = "NoBordersInBody";
+                ImGuiTableFlags[ImGuiTableFlags["NoBordersInBodyUntilResize"] = 4096] = "NoBordersInBodyUntilResize";
+                // Sizing Policy (read above for defaults)
+                ImGuiTableFlags[ImGuiTableFlags["SizingFixedFit"] = 8192] = "SizingFixedFit";
+                ImGuiTableFlags[ImGuiTableFlags["SizingFixedSame"] = 16384] = "SizingFixedSame";
+                ImGuiTableFlags[ImGuiTableFlags["SizingStretchProp"] = 24576] = "SizingStretchProp";
+                ImGuiTableFlags[ImGuiTableFlags["SizingStretchSame"] = 32768] = "SizingStretchSame";
+                // Sizing Extra Options
+                ImGuiTableFlags[ImGuiTableFlags["NoHostExtendX"] = 65536] = "NoHostExtendX";
+                ImGuiTableFlags[ImGuiTableFlags["NoHostExtendY"] = 131072] = "NoHostExtendY";
+                ImGuiTableFlags[ImGuiTableFlags["NoKeepColumnsVisible"] = 262144] = "NoKeepColumnsVisible";
+                ImGuiTableFlags[ImGuiTableFlags["PreciseWidths"] = 524288] = "PreciseWidths";
+                // Clipping
+                ImGuiTableFlags[ImGuiTableFlags["NoClip"] = 1048576] = "NoClip";
+                // Padding
+                ImGuiTableFlags[ImGuiTableFlags["PadOuterX"] = 2097152] = "PadOuterX";
+                ImGuiTableFlags[ImGuiTableFlags["NoPadOuterX"] = 4194304] = "NoPadOuterX";
+                ImGuiTableFlags[ImGuiTableFlags["NoPadInnerX"] = 8388608] = "NoPadInnerX";
+                // Scrolling
+                ImGuiTableFlags[ImGuiTableFlags["ScrollX"] = 16777216] = "ScrollX";
+                ImGuiTableFlags[ImGuiTableFlags["ScrollY"] = 33554432] = "ScrollY";
+                // Sorting
+                ImGuiTableFlags[ImGuiTableFlags["SortMulti"] = 67108864] = "SortMulti";
+                ImGuiTableFlags[ImGuiTableFlags["SortTristate"] = 134217728] = "SortTristate";
+                // [Internal] Combinations and masks
+                ImGuiTableFlags[ImGuiTableFlags["SizingMask_"] = 57344] = "SizingMask_";
+            })(ImGuiTableFlags || (ImGuiTableFlags = {}));
+            exports_1("ImGuiTableFlags", ImGuiTableFlags);
+            exports_1("TableFlags", ImGuiTableFlags);
+            ;
+            (function (ImGuiTableColumnFlags) {
+                // Input configuration flags
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["None"] = 0] = "None";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["DefaultHide"] = 1] = "DefaultHide";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["DefaultSort"] = 2] = "DefaultSort";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["WidthStretch"] = 4] = "WidthStretch";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["WidthFixed"] = 8] = "WidthFixed";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoResize"] = 16] = "NoResize";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoReorder"] = 32] = "NoReorder";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoHide"] = 64] = "NoHide";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoClip"] = 128] = "NoClip";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoSort"] = 256] = "NoSort";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoSortAscending"] = 512] = "NoSortAscending";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoSortDescending"] = 1024] = "NoSortDescending";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoHeaderWidth"] = 2048] = "NoHeaderWidth";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["PreferSortAscending"] = 4096] = "PreferSortAscending";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["PreferSortDescending"] = 8192] = "PreferSortDescending";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IndentEnable"] = 16384] = "IndentEnable";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IndentDisable"] = 32768] = "IndentDisable";
+                // Output status flags, read-only via TableGetColumnFlags()
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IsEnabled"] = 1048576] = "IsEnabled";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IsVisible"] = 2097152] = "IsVisible";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IsSorted"] = 4194304] = "IsSorted";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IsHovered"] = 8388608] = "IsHovered";
+                // [Internal] Combinations and masks
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["WidthMask_"] = 12] = "WidthMask_";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IndentMask_"] = 49152] = "IndentMask_";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["StatusMask_"] = 15728640] = "StatusMask_";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoDirectResize_"] = 1073741824] = "NoDirectResize_"; // [Internal] Disable user resizing this column directly (it may however we resized indirectly from its left edge)
+            })(ImGuiTableColumnFlags || (ImGuiTableColumnFlags = {}));
+            exports_1("ImGuiTableColumnFlags", ImGuiTableColumnFlags);
+            exports_1("TableColumnFlags", ImGuiTableColumnFlags);
+            ;
+            (function (ImGuiTableRowFlags) {
+                ImGuiTableRowFlags[ImGuiTableRowFlags["None"] = 0] = "None";
+                ImGuiTableRowFlags[ImGuiTableRowFlags["Headers"] = 1] = "Headers"; // Identify header row (set default background color + width of its contents accounted different for auto column width)
+            })(ImGuiTableRowFlags || (ImGuiTableRowFlags = {}));
+            exports_1("ImGuiTableRowFlags", ImGuiTableRowFlags);
+            exports_1("TableRowFlags", ImGuiTableRowFlags);
+            ;
+            (function (ImGuiTableBgTarget) {
+                ImGuiTableBgTarget[ImGuiTableBgTarget["None"] = 0] = "None";
+                ImGuiTableBgTarget[ImGuiTableBgTarget["RowBg0"] = 1] = "RowBg0";
+                ImGuiTableBgTarget[ImGuiTableBgTarget["RowBg1"] = 2] = "RowBg1";
+                ImGuiTableBgTarget[ImGuiTableBgTarget["CellBg"] = 3] = "CellBg"; // Set cell background color (top-most color)
+            })(ImGuiTableBgTarget || (ImGuiTableBgTarget = {}));
+            exports_1("ImGuiTableBgTarget", ImGuiTableBgTarget);
+            exports_1("TableBgTarget", ImGuiTableBgTarget);
             ;
             (function (ImGuiFocusedFlags) {
                 ImGuiFocusedFlags[ImGuiFocusedFlags["None"] = 0] = "None";
@@ -2488,15 +2698,16 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImGuiStyleVar[ImGuiStyleVar["ItemSpacing"] = 13] = "ItemSpacing";
                 ImGuiStyleVar[ImGuiStyleVar["ItemInnerSpacing"] = 14] = "ItemInnerSpacing";
                 ImGuiStyleVar[ImGuiStyleVar["IndentSpacing"] = 15] = "IndentSpacing";
-                ImGuiStyleVar[ImGuiStyleVar["ScrollbarSize"] = 16] = "ScrollbarSize";
-                ImGuiStyleVar[ImGuiStyleVar["ScrollbarRounding"] = 17] = "ScrollbarRounding";
-                ImGuiStyleVar[ImGuiStyleVar["GrabMinSize"] = 18] = "GrabMinSize";
-                ImGuiStyleVar[ImGuiStyleVar["GrabRounding"] = 19] = "GrabRounding";
-                ImGuiStyleVar[ImGuiStyleVar["TabRounding"] = 20] = "TabRounding";
-                ImGuiStyleVar[ImGuiStyleVar["ButtonTextAlign"] = 21] = "ButtonTextAlign";
-                ImGuiStyleVar[ImGuiStyleVar["SelectableTextAlign"] = 22] = "SelectableTextAlign";
-                ImGuiStyleVar[ImGuiStyleVar["Count_"] = 23] = "Count_";
-                ImGuiStyleVar[ImGuiStyleVar["COUNT"] = 23] = "COUNT";
+                ImGuiStyleVar[ImGuiStyleVar["CellPadding"] = 16] = "CellPadding";
+                ImGuiStyleVar[ImGuiStyleVar["ScrollbarSize"] = 17] = "ScrollbarSize";
+                ImGuiStyleVar[ImGuiStyleVar["ScrollbarRounding"] = 18] = "ScrollbarRounding";
+                ImGuiStyleVar[ImGuiStyleVar["GrabMinSize"] = 19] = "GrabMinSize";
+                ImGuiStyleVar[ImGuiStyleVar["GrabRounding"] = 20] = "GrabRounding";
+                ImGuiStyleVar[ImGuiStyleVar["TabRounding"] = 21] = "TabRounding";
+                ImGuiStyleVar[ImGuiStyleVar["ButtonTextAlign"] = 22] = "ButtonTextAlign";
+                ImGuiStyleVar[ImGuiStyleVar["SelectableTextAlign"] = 23] = "SelectableTextAlign";
+                ImGuiStyleVar[ImGuiStyleVar["Count_"] = 24] = "Count_";
+                ImGuiStyleVar[ImGuiStyleVar["COUNT"] = 24] = "COUNT";
             })(ImGuiStyleVar || (ImGuiStyleVar = {}));
             exports_1("ImGuiStyleVar", ImGuiStyleVar);
             exports_1("StyleVar", ImGuiStyleVar);
@@ -2545,6 +2756,16 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             })(ImGuiColorEditFlags || (ImGuiColorEditFlags = {}));
             exports_1("ImGuiColorEditFlags", ImGuiColorEditFlags);
             exports_1("ColorEditFlags", ImGuiColorEditFlags);
+            (function (ImGuiSliderFlags) {
+                ImGuiSliderFlags[ImGuiSliderFlags["None"] = 0] = "None";
+                ImGuiSliderFlags[ImGuiSliderFlags["AlwaysClamp"] = 16] = "AlwaysClamp";
+                ImGuiSliderFlags[ImGuiSliderFlags["Logarithmic"] = 32] = "Logarithmic";
+                ImGuiSliderFlags[ImGuiSliderFlags["NoRoundToFormat"] = 64] = "NoRoundToFormat";
+                ImGuiSliderFlags[ImGuiSliderFlags["NoInput"] = 128] = "NoInput";
+                ImGuiSliderFlags[ImGuiSliderFlags["InvalidMask_"] = 1879048207] = "InvalidMask_"; // [Internal] We treat using those bits as being potentially a 'float power' argument from the previous API that has got miscast to this enum, and will trigger an assert if needed.
+            })(ImGuiSliderFlags || (ImGuiSliderFlags = {}));
+            exports_1("ImGuiSliderFlags", ImGuiSliderFlags);
+            exports_1("SliderFlags", ImGuiSliderFlags);
             (function (ImGuiMouseCursor) {
                 ImGuiMouseCursor[ImGuiMouseCursor["None"] = -1] = "None";
                 ImGuiMouseCursor[ImGuiMouseCursor["Arrow"] = 0] = "Arrow";
@@ -2992,16 +3213,14 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 // items_count:  Use -1 to ignore (you can call Begin later). Use INT_MAX if you don't know how many items you have (in which case the cursor won't be advanced in the final step).
                 // items_height: Use -1.0f to be calculated automatically on first step. Otherwise pass in the distance between your items, typically GetTextLineHeightWithSpacing() or GetFrameHeightWithSpacing().
                 // If you don't specify an items_height, you NEED to call Step(). If you specify items_height you may call the old Begin()/End() api directly, but prefer calling Step().
-                // ImGuiListClipper(int items_count = -1, float items_height = -1.0f)  { Begin(items_count, items_height); } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
-                constructor(items_count = -1, items_height = -1.0) {
+                // ImGuiListClipper()  { } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
+                constructor() {
                     this._native = null;
                     this.items_count = -1;
                     this.items_height = -1.0;
-                    this.items_count = items_count;
-                    this.items_height = items_height;
                 }
                 get native() {
-                    return this._native || (this._native = new bind.ImGuiListClipper(this.items_count, this.items_height));
+                    return this._native || (this._native = new bind.ImGuiListClipper());
                 }
                 get StartPosY() { return this.native.StartPosY; }
                 get ItemsHeight() { return this.native.ItemsHeight; }
@@ -3037,6 +3256,31 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImGuiListClipper", ImGuiListClipper);
+            ImGuiTableColumnSortSpecs = class ImGuiTableColumnSortSpecs {
+                constructor(native) {
+                    this.native = native;
+                }
+                get ColumnUserID() { return this.native.ColumnUserID; }
+                get ColumnIndex() { return this.native.ColumnIndex; }
+                get SortOrder() { return this.native.SortOrder; }
+                get SortDirection() { return this.native.SortDirection; } // TODO
+            };
+            exports_1("ImGuiTableColumnSortSpecs", ImGuiTableColumnSortSpecs);
+            ImGuiTableSortSpecs = class ImGuiTableSortSpecs {
+                constructor(native) {
+                    this.native = native;
+                }
+                get Specs() {
+                    return Array.from({ length: this.SpecsCount }).map((_, i) => {
+                        let spec = this.native.GetSpec(i);
+                        return new ImGuiTableColumnSortSpecs(spec);
+                    });
+                }
+                get SpecsCount() { return this.native.SpecsCount; }
+                get SpecsDirty() { return this.native.SpecsDirty; }
+                set SpecsDirty(value) { this.native.SpecsDirty = value; }
+            };
+            exports_1("ImGuiTableSortSpecs", ImGuiTableSortSpecs);
             // Special Draw callback value to request renderer back-end to reset the graphics/render state.
             // The renderer back-end needs to handle this special value, otherwise it will crash trying to call a function at this address.
             // This is useful for example if you submitted callbacks which you know have altered the render state and you want it to be restored.
@@ -3247,9 +3491,9 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 AddConvexPolyFilled(points, num_points, col) {
                     this.native.AddConvexPolyFilled(points, num_points, col);
                 }
-                // IMGUI_API void  AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
-                AddBezierCurve(pos0, cp0, cp1, pos1, col, thickness = 1.0, num_segments = 0) {
-                    this.native.AddBezierCurve(pos0, cp0, cp1, pos1, col, thickness, num_segments);
+                // IMGUI_API void  AddBezierCubic(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
+                AddBezierCubic(pos0, cp0, cp1, pos1, col, thickness = 1.0, num_segments = 0) {
+                    this.native.AddBezierCubic(pos0, cp0, cp1, pos1, col, thickness, num_segments);
                 }
                 // Stateful path API, add points then finish with PathFill() or PathStroke()
                 // inline    void  PathClear()                                                 { _Path.resize(0); }
@@ -3266,8 +3510,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 PathArcTo(centre, radius, a_min, a_max, num_segments = 10) { this.native.PathArcTo(centre, radius, a_min, a_max, num_segments); }
                 // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
                 PathArcToFast(centre, radius, a_min_of_12, a_max_of_12) { this.native.PathArcToFast(centre, radius, a_min_of_12, a_max_of_12); }
-                // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
-                PathBezierCurveTo(p1, p2, p3, num_segments = 0) { this.native.PathBezierCurveTo(p1, p2, p3, num_segments); }
+                // IMGUI_API void  PathBezierCubicCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
+                PathBezierCubicCurveTo(p1, p2, p3, num_segments = 0) { this.native.PathBezierCubicCurveTo(p1, p2, p3, num_segments); }
                 // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
                 PathRect(rect_min, rect_max, rounding = 0.0, rounding_corners_flags = ImDrawCornerFlags.All) { this.native.PathRect(rect_min, rect_max, rounding, rounding_corners_flags); }
                 // Channels

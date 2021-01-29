@@ -109,8 +109,24 @@ export declare enum ImGuiTreeNodeFlags {
     Leaf = 256,
     Bullet = 512,
     FramePadding = 1024,
+    SpanAvailWidth = 2048,
+    SpanFullWidth = 4096,
     NavLeftJumpsBackHere = 8192,
     CollapsingHeader = 26
+}
+export { ImGuiPopupFlags as PopupFlags };
+export declare enum ImGuiPopupFlags {
+    None = 0,
+    MouseButtonLeft = 0,
+    MouseButtonRight = 1,
+    MouseButtonMiddle = 2,
+    MouseButtonMask_ = 31,
+    MouseButtonDefault_ = 1,
+    NoOpenOverExistingPopup = 32,
+    NoOpenOverItems = 64,
+    AnyPopupId = 128,
+    AnyPopupLevel = 256,
+    AnyPopup = 384
 }
 export { ImGuiSelectableFlags as SelectableFlags };
 export declare enum ImGuiSelectableFlags {
@@ -118,7 +134,8 @@ export declare enum ImGuiSelectableFlags {
     DontClosePopups = 1,
     SpanAllColumns = 2,
     AllowDoubleClick = 4,
-    Disabled = 8
+    Disabled = 8,
+    AllowItemOverlap = 16
 }
 export { ImGuiComboFlags as ComboFlags };
 export declare enum ImGuiComboFlags {
@@ -153,6 +170,91 @@ export declare enum ImGuiTabItemFlags {
     ImGuiTabItemFlags_SetSelected = 2,
     ImGuiTabItemFlags_NoCloseWithMiddleMouseButton = 4,
     ImGuiTabItemFlags_NoPushId = 8
+}
+export { ImGuiSortDirection as SortDirection };
+export declare enum ImGuiSortDirection {
+    None = 0,
+    Ascending = 1,
+    Descending = 2
+}
+export { ImGuiTableFlags as TableFlags };
+export declare enum ImGuiTableFlags {
+    None = 0,
+    Resizable = 1,
+    Reorderable = 2,
+    Hideable = 4,
+    Sortable = 8,
+    NoSavedSettings = 16,
+    ContextMenuInBody = 32,
+    RowBg = 64,
+    BordersInnerH = 128,
+    BordersOuterH = 256,
+    BordersInnerV = 512,
+    BordersOuterV = 1024,
+    BordersH = 384,
+    BordersV = 1536,
+    BordersInner = 640,
+    BordersOuter = 1280,
+    Borders = 1920,
+    NoBordersInBody = 2048,
+    NoBordersInBodyUntilResize = 4096,
+    SizingFixedFit = 8192,
+    SizingFixedSame = 16384,
+    SizingStretchProp = 24576,
+    SizingStretchSame = 32768,
+    NoHostExtendX = 65536,
+    NoHostExtendY = 131072,
+    NoKeepColumnsVisible = 262144,
+    PreciseWidths = 524288,
+    NoClip = 1048576,
+    PadOuterX = 2097152,
+    NoPadOuterX = 4194304,
+    NoPadInnerX = 8388608,
+    ScrollX = 16777216,
+    ScrollY = 33554432,
+    SortMulti = 67108864,
+    SortTristate = 134217728,
+    SizingMask_ = 57344
+}
+export { ImGuiTableColumnFlags as TableColumnFlags };
+export declare enum ImGuiTableColumnFlags {
+    None = 0,
+    DefaultHide = 1,
+    DefaultSort = 2,
+    WidthStretch = 4,
+    WidthFixed = 8,
+    NoResize = 16,
+    NoReorder = 32,
+    NoHide = 64,
+    NoClip = 128,
+    NoSort = 256,
+    NoSortAscending = 512,
+    NoSortDescending = 1024,
+    NoHeaderWidth = 2048,
+    PreferSortAscending = 4096,
+    PreferSortDescending = 8192,
+    IndentEnable = 16384,
+    IndentDisable = 32768,
+    IsEnabled = 1048576,
+    IsVisible = 2097152,
+    IsSorted = 4194304,
+    IsHovered = 8388608,
+    WidthMask_ = 12,
+    IndentMask_ = 49152,
+    StatusMask_ = 15728640,
+    NoDirectResize_ = 1073741824
+}
+export { ImGuiTableRowFlags as TableRowFlags };
+export declare enum ImGuiTableRowFlags {
+    None = 0,
+    Headers = 1
+}
+export { ImGuiTableBgTarget as TableBgTarget };
+export declare enum ImGuiTableBgTarget {
+    None = 0,
+    RowBg0 = 1,
+    RowBg1 = 2,
+    CellBg = 3
 }
 export { ImGuiFocusedFlags as FocusedFlags };
 export declare enum ImGuiFocusedFlags {
@@ -348,15 +450,16 @@ export declare enum ImGuiStyleVar {
     ItemSpacing = 13,
     ItemInnerSpacing = 14,
     IndentSpacing = 15,
-    ScrollbarSize = 16,
-    ScrollbarRounding = 17,
-    GrabMinSize = 18,
-    GrabRounding = 19,
-    TabRounding = 20,
-    ButtonTextAlign = 21,
-    SelectableTextAlign = 22,
-    Count_ = 23,
-    COUNT = 23
+    CellPadding = 16,
+    ScrollbarSize = 17,
+    ScrollbarRounding = 18,
+    GrabMinSize = 19,
+    GrabRounding = 20,
+    TabRounding = 21,
+    ButtonTextAlign = 22,
+    SelectableTextAlign = 23,
+    Count_ = 24,
+    COUNT = 24
 }
 export { ImGuiBackendFlags as BackendFlags };
 export declare enum ImGuiBackendFlags {
@@ -396,6 +499,15 @@ export declare enum ImGuiColorEditFlags {
     _DataTypeMask = 25165824,
     _PickerMask = 100663296,
     _InputMask = 402653184
+}
+export { ImGuiSliderFlags as SliderFlags };
+export declare enum ImGuiSliderFlags {
+    None = 0,
+    AlwaysClamp = 16,
+    Logarithmic = 32,
+    NoRoundToFormat = 64,
+    NoInput = 128,
+    InvalidMask_ = 1879048207
 }
 export { ImGuiMouseCursor as MouseCursor };
 export declare enum ImGuiMouseCursor {
@@ -569,12 +681,29 @@ export declare class ImGuiListClipper {
     get StepNo(): number;
     get DisplayStart(): number;
     get DisplayEnd(): number;
-    constructor(items_count?: number, items_height?: number);
+    constructor();
     delete(): void;
     Step(): boolean;
     Begin(items_count: number, items_height?: number): void;
     End(): void;
 }
+export declare class ImGuiTableColumnSortSpecs {
+    readonly native: Bind.reference_ImGuiTableColumnSortSpecs;
+    constructor(native: Bind.reference_ImGuiTableColumnSortSpecs);
+    get ColumnUserID(): number;
+    get ColumnIndex(): number;
+    get SortOrder(): number;
+    get SortDirection(): number;
+}
+export declare class ImGuiTableSortSpecs {
+    readonly native: Bind.reference_ImGuiTableSortSpecs;
+    constructor(native: Bind.reference_ImGuiTableSortSpecs);
+    get Specs(): Readonly<ImGuiTableColumnSortSpecs[]>;
+    get SpecsCount(): number;
+    get SpecsDirty(): boolean;
+    set SpecsDirty(value: boolean);
+}
+export { reference_ImGuiTableSortSpecs } from "bind-imgui";
 export declare type ImDrawCallback = (parent_list: Readonly<ImDrawList>, cmd: Readonly<ImDrawCmd>) => void;
 export declare const ImDrawCallback_ResetRenderState = -1;
 export declare class ImDrawCmd {
@@ -638,7 +767,7 @@ export declare class ImDrawList {
     AddImageRounded(user_texture_id: ImTextureID | null, a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, uv_a: Readonly<Bind.interface_ImVec2>, uv_b: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, rounding: number, rounding_corners?: ImDrawCornerFlags): void;
     AddPolyline(points: Array<Readonly<Bind.interface_ImVec2>>, num_points: number, col: Bind.ImU32, closed: boolean, thickness: number): void;
     AddConvexPolyFilled(points: Array<Readonly<Bind.interface_ImVec2>>, num_points: number, col: Bind.ImU32): void;
-    AddBezierCurve(pos0: Readonly<Bind.interface_ImVec2>, cp0: Readonly<Bind.interface_ImVec2>, cp1: Readonly<Bind.interface_ImVec2>, pos1: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, thickness?: number, num_segments?: number): void;
+    AddBezierCubic(pos0: Readonly<Bind.interface_ImVec2>, cp0: Readonly<Bind.interface_ImVec2>, cp1: Readonly<Bind.interface_ImVec2>, pos1: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, thickness?: number, num_segments?: number): void;
     PathClear(): void;
     PathLineTo(pos: Readonly<Bind.interface_ImVec2>): void;
     PathLineToMergeDuplicate(pos: Readonly<Bind.interface_ImVec2>): void;
@@ -646,7 +775,7 @@ export declare class ImDrawList {
     PathStroke(col: Bind.ImU32, closed: boolean, thickness?: number): void;
     PathArcTo(centre: Readonly<Bind.interface_ImVec2>, radius: number, a_min: number, a_max: number, num_segments?: number): void;
     PathArcToFast(centre: Readonly<Bind.interface_ImVec2>, radius: number, a_min_of_12: number, a_max_of_12: number): void;
-    PathBezierCurveTo(p1: Readonly<Bind.interface_ImVec2>, p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, num_segments?: number): void;
+    PathBezierCubicCurveTo(p1: Readonly<Bind.interface_ImVec2>, p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, num_segments?: number): void;
     PathRect(rect_min: Readonly<Bind.interface_ImVec2>, rect_max: Readonly<Bind.interface_ImVec2>, rounding?: number, rounding_corners_flags?: ImDrawCornerFlags): void;
     ChannelsSplit(channels_count: number): void;
     ChannelsMerge(): void;
@@ -1079,7 +1208,7 @@ export declare function GetFont(): ImFont;
 export declare function GetFontSize(): number;
 export declare function GetFontTexUvWhitePixel(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function GetColorU32(idx: ImGuiCol, alpha_mul?: number): Bind.ImU32;
-export declare function GetColorU32(col: Readonly<Bind.reference_ImVec4>): Bind.ImU32;
+export declare function GetColorU32(col: Readonly<Bind.interface_ImVec4>): Bind.ImU32;
 export declare function GetColorU32(col: Bind.ImU32): Bind.ImU32;
 export declare function PushItemWidth(item_width: number): void;
 export declare function PopItemWidth(): void;
@@ -1237,16 +1366,32 @@ export declare function BeginMenu(label: string, enabled?: boolean): boolean;
 export declare function EndMenu(): void;
 export declare function MenuItem(label: string, shortcut?: string | null, selected?: boolean, enabled?: boolean): boolean;
 export declare function MenuItem(label: string, shortcut: string | null, p_selected: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, enabled?: boolean): boolean;
-export declare function OpenPopup(str_id: string): void;
-export declare function OpenPopupOnItemClick(str_id?: string | null, mouse_button?: number): boolean;
-export declare function BeginPopup(str_id: string): boolean;
-export declare function BeginPopupModal(str_id?: string, p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, extra_flags?: ImGuiWindowFlags): boolean;
-export declare function BeginPopupContextItem(str_id?: string | null, mouse_button?: number): boolean;
-export declare function BeginPopupContextWindow(str_id?: string | null, mouse_button?: number, also_over_items?: boolean): boolean;
-export declare function BeginPopupContextVoid(str_id?: string | null, mouse_button?: number): boolean;
+export declare function BeginPopup(str_id: string, flags?: ImGuiWindowFlags): boolean;
+export declare function BeginPopupModal(str_id?: string, p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, flags?: ImGuiWindowFlags): boolean;
 export declare function EndPopup(): void;
-export declare function IsPopupOpen(str_id: string): boolean;
+export declare function OpenPopup(str_id: string, popup_flags?: ImGuiPopupFlags): void;
+export declare function OpenPopupOnItemClick(str_id?: string | null, popup_flags?: ImGuiPopupFlags): boolean;
+export declare function BeginPopupContextItem(str_id?: string | null, popup_flags?: ImGuiPopupFlags): boolean;
+export declare function BeginPopupContextWindow(str_id?: string | null, popup_flags?: ImGuiPopupFlags): boolean;
+export declare function BeginPopupContextVoid(str_id?: string | null, popup_flags?: ImGuiPopupFlags): boolean;
+export declare function IsPopupOpen(str_id: string, popup_flags?: ImGuiPopupFlags): boolean;
 export declare function CloseCurrentPopup(): void;
+export declare function BeginTable(str_id: string, column: number, flags?: ImGuiTableFlags, outer_size?: Readonly<Bind.interface_ImVec2>, inner_width?: number): boolean;
+export declare function EndTable(): void;
+export declare function TableNextRow(row_flags?: ImGuiTableRowFlags, min_row_height?: number): void;
+export declare function TableNextColumn(): boolean;
+export declare function TableSetColumnIndex(column_n: number): boolean;
+export declare function TableSetupColumn(label: string, flags?: ImGuiTableColumnFlags, init_width_or_weight?: number, user_id?: Bind.ImU32): void;
+export declare function TableSetupScrollFreeze(cols: number, rows: number): void;
+export declare function TableHeadersRow(): void;
+export declare function TableHeader(label: string): void;
+export declare function TableGetSortSpecs(): ImGuiTableSortSpecs | null;
+export declare function TableGetColumnCount(): number;
+export declare function TableGetColumnIndex(): number;
+export declare function TableGetRowIndex(): number;
+export declare function TableGetColumnName(column_n?: number): string;
+export declare function TableGetColumnFlags(column_n?: number): ImGuiTableColumnFlags;
+export declare function TableSetBgColor(target: ImGuiTableBgTarget, color: Bind.ImU32, column_n?: number): void;
 export declare function BeginTabBar(str_id: string, flags?: ImGuiTabBarFlags): boolean;
 export declare function EndTabBar(): void;
 export declare function BeginTabItem(label: string, p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, flags?: ImGuiTabItemFlags): boolean;

@@ -87,8 +87,8 @@ function export_Color4(tuple: Bind.ImTuple4<number>, col: RGBA | Bind.ImTuple4<n
 
 import * as config from "./imconfig.js";
 
-export const IMGUI_VERSION: string = "1.71"; // bind.IMGUI_VERSION;
-export const IMGUI_VERSION_NUM: number = 17100; // bind.IMGUI_VERSION_NUM;
+export const IMGUI_VERSION: string = "1.80"; //r bind.IMGUI_VERSION;
+export const IMGUI_VERSION_NUM: number = 18000; // bind.IMGUI_VERSION_NUM;
 
 // #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
 export function IMGUI_CHECKVERSION(): boolean { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, bind.ImGuiIOSize, bind.ImGuiStyleSize, bind.ImVec2Size, bind.ImVec4Size, bind.ImDrawVertSize, bind.ImDrawIdxSize); }
@@ -195,10 +195,26 @@ export enum ImGuiTreeNodeFlags {
     Leaf                 = 1 << 8,   // No collapsing, no arrow (use as a convenience for leaf nodes).
     Bullet               = 1 << 9,   // Display a bullet instead of arrow
     FramePadding         = 1 << 10,  // Use FramePadding (even for an unframed text node) to vertically align text baseline to regular widget height. Equivalent to calling AlignTextToFramePadding().
-    //SpanAllAvailWidth  = 1 << 11,  // FIXME: TODO: Extend hit box horizontally even if not framed
-    //NoScrollOnOpen     = 1 << 12,  // FIXME: TODO: Disable automatic scroll on TreePop() if node got just open and contents is not visible
+    SpanAvailWidth       = 1 << 11,  // Extend hit box to the right-most edge, even if not framed. This is not the default in order to allow adding other items on the same line. In the future we may refactor the hit system to be front-to-back, allowing natural overlaps and then this can become the default.
+    SpanFullWidth        = 1 << 12,  // Extend hit box to the left-most and right-most edges (bypass the indented area).
     NavLeftJumpsBackHere = 1 << 13,  // (WIP) Nav: left direction may move to this TreeNode() from any of its child (items submitted between TreeNode and TreePop)
     CollapsingHeader     = Framed | NoTreePushOnOpen | NoAutoOpenOnLog,
+}
+
+export { ImGuiPopupFlags as PopupFlags };
+export enum ImGuiPopupFlags {
+    None                 = 0,
+    MouseButtonLeft      = 0,        // For BeginPopupContext*(): open on Left Mouse release. Guaranteed to always be == 0 (same as ImGuiMouseButton_Left)
+
+    MouseButtonRight        = 1,        // For BeginPopupContext*(): open on Right Mouse release. Guaranteed to always be == 1 (same as ImGuiMouseButton_Right)
+    MouseButtonMiddle       = 2,        // For BeginPopupContext*(): open on Middle Mouse release. Guaranteed to always be == 2 (same as ImGuiMouseButton_Middle)
+    MouseButtonMask_        = 0x1F,
+    MouseButtonDefault_     = 1,
+    NoOpenOverExistingPopup = 1 << 5,   // For OpenPopup*(), BeginPopupContext*(): don't open if there's already a popup at the same level of the popup stack
+    NoOpenOverItems         = 1 << 6,   // For BeginPopupContextWindow(): don't return true when hovering items, only when hovering empty space
+    AnyPopupId              = 1 << 7,   // For IsPopupOpen(): ignore the ImGuiID parameter and test for any popup.
+    AnyPopupLevel           = 1 << 8,   // For IsPopupOpen(): search/test at any level of the popup stack (default test in the current level)
+    AnyPopup                = AnyPopupId | AnyPopupLevel,
 }
 
 // Flags for ImGui::Selectable()
@@ -208,7 +224,8 @@ export enum ImGuiSelectableFlags {
     DontClosePopups    = 1 << 0,   // Clicking this don't close parent popup window
     SpanAllColumns     = 1 << 1,   // Selectable frame can span all columns (text will still fit in current column)
     AllowDoubleClick   = 1 << 2,   // Generate press events on double clicks too
-    Disabled           = 1 << 3    // Cannot be selected, display greyed out text
+    Disabled           = 1 << 3,   // Cannot be selected, display greyed out text
+    AllowItemOverlap   = 1 << 4,   // (WIP) Hit testing to allow subsequent widgets to overlap this one
 }
 
 // Flags for ImGui::BeginCombo()
@@ -250,6 +267,120 @@ export enum ImGuiTabItemFlags
     ImGuiTabItemFlags_SetSelected                   = 1 << 1,   // Trigger flag to programatically make the tab selected when calling BeginTabItem()
     ImGuiTabItemFlags_NoCloseWithMiddleMouseButton  = 1 << 2,   // Disable behavior of closing tabs (that are submitted with p_open != NULL) with middle mouse button. You can still repro this behavior on user's side with if (IsItemHovered() && IsMouseClicked(2)) *p_open = false.
     ImGuiTabItemFlags_NoPushId                      = 1 << 3    // Don't call PushID(tab->ID)/PopID() on BeginTabItem()/EndTabItem()
+};
+
+export { ImGuiSortDirection as SortDirection };
+export enum ImGuiSortDirection
+{
+    None         = 0,
+    Ascending    = 1,    // Ascending = 0->9, A->Z etc.
+    Descending   = 2     // Descending = 9->0, Z->A etc.
+};
+
+// Flags for ImGui::BeginTable()
+export { ImGuiTableFlags as TableFlags };
+export enum ImGuiTableFlags
+{
+    // Features
+    None                       = 0,
+    Resizable                  = 1 << 0,   // Enable resizing columns.
+    Reorderable                = 1 << 1,   // Enable reordering columns in header row (need calling TableSetupColumn() + TableHeadersRow() to display headers)
+    Hideable                   = 1 << 2,   // Enable hiding/disabling columns in context menu.
+    Sortable                   = 1 << 3,   // Enable sorting. Call TableGetSortSpecs() to obtain sort specs. Also see ImGuiTableFlags_SortMulti and ImGuiTableFlags_SortTristate.
+    NoSavedSettings            = 1 << 4,   // Disable persisting columns order, width and sort settings in the .ini file.
+    ContextMenuInBody          = 1 << 5,   // Right-click on columns body/contents will display table context menu. By default it is available in TableHeadersRow().
+    // Decorations
+    RowBg                      = 1 << 6,   // Set each RowBg color with ImGuiCol_TableRowBg or ImGuiCol_TableRowBgAlt (equivalent of calling TableSetBgColor with ImGuiTableBgFlags_RowBg0 on each row manually)
+    BordersInnerH              = 1 << 7,   // Draw horizontal borders between rows.
+    BordersOuterH              = 1 << 8,   // Draw horizontal borders at the top and bottom.
+    BordersInnerV              = 1 << 9,   // Draw vertical borders between columns.
+    BordersOuterV              = 1 << 10,  // Draw vertical borders on the left and right sides.
+    BordersH                   = BordersInnerH | BordersOuterH, // Draw horizontal borders.
+    BordersV                   = BordersInnerV | BordersOuterV, // Draw vertical borders.
+    BordersInner               = BordersInnerV | BordersInnerH, // Draw inner borders.
+    BordersOuter               = BordersOuterV | BordersOuterH, // Draw outer borders.
+    Borders                    = BordersInner | BordersOuter,   // Draw all borders.
+    NoBordersInBody            = 1 << 11,  // [ALPHA] Disable vertical borders in columns Body (borders will always appears in Headers). -> May move to style
+    NoBordersInBodyUntilResize = 1 << 12,  // [ALPHA] Disable vertical borders in columns Body until hovered for resize (borders will always appears in Headers). -> May move to style
+    // Sizing Policy (read above for defaults)
+    SizingFixedFit             = 1 << 13,  // Columns default to _WidthFixed or _WidthAuto (if resizable or not resizable), matching contents width.
+    SizingFixedSame            = 2 << 13,  // Columns default to _WidthFixed or _WidthAuto (if resizable or not resizable), matching the maximum contents width of all columns. Implicitly enable ImGuiTableFlags_NoKeepColumnsVisible.
+    SizingStretchProp          = 3 << 13,  // Columns default to _WidthStretch with default weights proportional to each columns contents widths.
+    SizingStretchSame          = 4 << 13,  // Columns default to _WidthStretch with default weights all equal, unless overriden by TableSetupColumn().
+    // Sizing Extra Options
+    NoHostExtendX              = 1 << 16,  // Make outer width auto-fit to columns, overriding outer_size.x value. Only available when ScrollX/ScrollY are disabled and Stretch columns are not used.
+    NoHostExtendY              = 1 << 17,  // Make outer height stop exactly at outer_size.y (prevent auto-extending table past the limit). Only available when ScrollX/ScrollY are disabled. Data below the limit will be clipped and not visible.
+    NoKeepColumnsVisible       = 1 << 18,  // Disable keeping column always minimally visible when ScrollX is off and table gets too small. Not recommended if columns are resizable.
+    PreciseWidths              = 1 << 19,  // Disable distributing remainder width to stretched columns (width allocation on a 100-wide table with 3 columns: Without this flag: 33,33,34. With this flag: 33,33,33). With larger number of columns, resizing will appear to be less smooth.
+    // Clipping
+    NoClip                     = 1 << 20,  // Disable clipping rectangle for every individual columns (reduce draw command count, items will be able to overflow into other columns). Generally incompatible with TableSetupScrollFreeze().
+    // Padding
+    PadOuterX                  = 1 << 21,  // Default if BordersOuterV is on. Enable outer-most padding. Generally desirable if you have headers.
+    NoPadOuterX                = 1 << 22,  // Default if BordersOuterV is off. Disable outer-most padding.
+    NoPadInnerX                = 1 << 23,  // Disable inner padding between columns (double inner padding if BordersOuterV is on, single inner padding if BordersOuterV is off).
+    // Scrolling
+    ScrollX                    = 1 << 24,  // Enable horizontal scrolling. Require 'outer_size' parameter of BeginTable() to specify the container size. Changes default sizing policy. Because this create a child window, ScrollY is currently generally recommended when using ScrollX.
+    ScrollY                    = 1 << 25,  // Enable vertical scrolling. Require 'outer_size' parameter of BeginTable() to specify the container size.
+    // Sorting
+    SortMulti                  = 1 << 26,  // Hold shift when clicking headers to sort on multiple column. TableGetSortSpecs() may return specs where (SpecsCount > 1).
+    SortTristate               = 1 << 27,  // Allow no sorting, disable default sorting. TableGetSortSpecs() may return specs where (SpecsCount == 0).
+
+    // [Internal] Combinations and masks
+    SizingMask_                = SizingFixedFit | SizingFixedSame | SizingStretchProp | SizingStretchSame,
+};
+
+// Flags for ImGui::BeginTable()
+export { ImGuiTableColumnFlags as TableColumnFlags };
+export enum ImGuiTableColumnFlags
+{
+    // Input configuration flags
+    None                  = 0,
+    DefaultHide           = 1 << 0,   // Default as a hidden/disabled column.
+    DefaultSort           = 1 << 1,   // Default as a sorting column.
+    WidthStretch          = 1 << 2,   // Column will stretch. Preferable with horizontal scrolling disabled (default if table sizing policy is _SizingStretchSame or _SizingStretchProp).
+    WidthFixed            = 1 << 3,   // Column will not stretch. Preferable with horizontal scrolling enabled (default if table sizing policy is _SizingFixedFit and table is resizable).
+    NoResize              = 1 << 4,   // Disable manual resizing.
+    NoReorder             = 1 << 5,   // Disable manual reordering this column, this will also prevent other columns from crossing over this column.
+    NoHide                = 1 << 6,   // Disable ability to hide/disable this column.
+    NoClip                = 1 << 7,   // Disable clipping for this column (all NoClip columns will render in a same draw command).
+    NoSort                = 1 << 8,   // Disable ability to sort on this field (even if Sortable is set on the table).
+    NoSortAscending       = 1 << 9,   // Disable ability to sort in the ascending direction.
+    NoSortDescending      = 1 << 10,  // Disable ability to sort in the descending direction.
+    NoHeaderWidth         = 1 << 11,  // Disable header text width contribution to automatic column width.
+    PreferSortAscending   = 1 << 12,  // Make the initial sort direction Ascending when first sorting on this column (default).
+    PreferSortDescending  = 1 << 13,  // Make the initial sort direction Descending when first sorting on this column.
+    IndentEnable          = 1 << 14,  // Use current Indent value when entering cell (default for column 0).
+    IndentDisable         = 1 << 15,  // Ignore current Indent value when entering cell (default for columns > 0). Indentation changes _within_ the cell will still be honored.
+
+    // Output status flags, read-only via TableGetColumnFlags()
+    IsEnabled             = 1 << 20,  // Status: is enabled == not hidden by user/api (referred to as "Hide" in _DefaultHide and _NoHide) flags.
+    IsVisible             = 1 << 21,  // Status: is visible == is enabled AND not clipped by scrolling.
+    IsSorted              = 1 << 22,  // Status: is currently part of the sort specs
+    IsHovered             = 1 << 23,  // Status: is hovered by mouse
+
+    // [Internal] Combinations and masks
+    WidthMask_            = WidthStretch | WidthFixed,
+    IndentMask_           = IndentEnable | IndentDisable,
+    StatusMask_           = IsEnabled | IsVisible | IsSorted | IsHovered,
+    NoDirectResize_       = 1 << 30   // [Internal] Disable user resizing this column directly (it may however we resized indirectly from its left edge)
+};
+
+// Flags for ImGui::BeginTable()
+export { ImGuiTableRowFlags as TableRowFlags };
+export enum ImGuiTableRowFlags
+{
+    None                         = 0,
+    Headers                      = 1 << 0    // Identify header row (set default background color + width of its contents accounted different for auto column width)
+};
+
+// Flags for ImGui::BeginTable()
+export { ImGuiTableBgTarget as TableBgTarget };
+export enum ImGuiTableBgTarget
+{
+    None                         = 0,
+    RowBg0                       = 1,        // Set row background color 0 (generally used for background, automatically set when RowBg is used)
+    RowBg1                       = 2,        // Set row background color 1 (generally used for selection marking)
+    CellBg                       = 3         // Set cell background color (top-most color)
 };
 
 // Flags for ImGui::IsWindowFocused()
@@ -484,6 +615,7 @@ export enum ImGuiStyleVar {
     ItemSpacing,         // ImVec2    ItemSpacing
     ItemInnerSpacing,    // ImVec2    ItemInnerSpacing
     IndentSpacing,       // float     IndentSpacing
+    CellPadding,         // ImVec2    CellPadding
     ScrollbarSize,       // float     ScrollbarSize
     ScrollbarRounding,   // float     ScrollbarRounding
     GrabMinSize,         // float     GrabMinSize
@@ -541,6 +673,18 @@ export enum ImGuiColorEditFlags {
     _DataTypeMask   = Uint8|Float,
     _PickerMask     = PickerHueWheel|PickerHueBar,
     _InputMask      = InputRGB|InputHSV,
+}
+
+// Flags for DragFloat(), DragInt(), SliderFloat(), SliderInt() etc.
+// We use the same sets of flags for DragXXX() and SliderXXX() functions as the features are the same and it makes it easier to swap them.
+export { ImGuiSliderFlags as SliderFlags };
+export enum ImGuiSliderFlags {
+    None                   = 0,
+    AlwaysClamp            = 1 << 4,       // Clamp value to min/max bounds when input manually with CTRL+Click. By default CTRL+Click allows going out of bounds.
+    Logarithmic            = 1 << 5,       // Make the widget logarithmic (linear otherwise). Consider using ImGuiSliderFlags_NoRoundToFormat with this if using a format-string with small amount of digits.
+    NoRoundToFormat        = 1 << 6,       // Disable rounding underlying value to match precision of the display format string (e.g. %.3f values are rounded to those 3 digits)
+    NoInput                = 1 << 7,       // Disable CTRL+Click or Enter key allowing to input text directly into the widget
+    InvalidMask_           = 0x7000000F    // [Internal] We treat using those bits as being potentially a 'float power' argument from the previous API that has got miscast to this enum, and will trigger an assert if needed.
 }
 
 // Enumeration for GetMouseCursor()
@@ -1087,7 +1231,7 @@ export class ImGuiListClipper
 {
     private _native: Bind.ImGuiListClipper | null = null;
     private get native(): Bind.ImGuiListClipper {
-        return this._native || (this._native = new bind.ImGuiListClipper(this.items_count, this.items_height));
+        return this._native || (this._native = new bind.ImGuiListClipper());
     }
     private items_count: number = -1;
     private items_height: number = -1.0;
@@ -1102,10 +1246,8 @@ export class ImGuiListClipper
     // items_count:  Use -1 to ignore (you can call Begin later). Use INT_MAX if you don't know how many items you have (in which case the cursor won't be advanced in the final step).
     // items_height: Use -1.0f to be calculated automatically on first step. Otherwise pass in the distance between your items, typically GetTextLineHeightWithSpacing() or GetFrameHeightWithSpacing().
     // If you don't specify an items_height, you NEED to call Step(). If you specify items_height you may call the old Begin()/End() api directly, but prefer calling Step().
-    // ImGuiListClipper(int items_count = -1, float items_height = -1.0f)  { Begin(items_count, items_height); } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
-    constructor(items_count: number = -1, items_height: number = -1.0) {
-        this.items_count = items_count;
-        this.items_height = items_height;
+    // ImGuiListClipper()  { } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
+    constructor() {
     }
     // ~ImGuiListClipper()                                                 { IM_ASSERT(ItemsCount == -1); }      // Assert if user forgot to call End() or Step() until false.
     public delete(): void {
@@ -1135,6 +1277,32 @@ export class ImGuiListClipper
         this.delete();
     }
 }
+
+export class ImGuiTableColumnSortSpecs
+{
+    constructor(public readonly native: Bind.reference_ImGuiTableColumnSortSpecs) {}
+    get ColumnUserID(): number { return this.native.ColumnUserID; }
+    get ColumnIndex(): number { return this.native.ColumnIndex; }
+    get SortOrder(): number { return this.native.SortOrder; }
+    get SortDirection(): number { return this.native.SortDirection; } // TODO
+}
+
+export class ImGuiTableSortSpecs
+{
+    constructor(public readonly native: Bind.reference_ImGuiTableSortSpecs) {}
+
+    get Specs(): Readonly<ImGuiTableColumnSortSpecs[]> {
+        return Array.from({length: this.SpecsCount}).map((_, i) => {
+            let spec = this.native.GetSpec(i);
+            return new ImGuiTableColumnSortSpecs(spec);
+        });
+    }
+    get SpecsCount(): number { return this.native.SpecsCount; }
+    get SpecsDirty(): boolean { return this.native.SpecsDirty; }
+    set SpecsDirty(value: boolean) { this.native.SpecsDirty = value; }
+}
+
+export { reference_ImGuiTableSortSpecs } from "bind-imgui";
 
 //-----------------------------------------------------------------------------
 // Draw List
@@ -1380,9 +1548,9 @@ export class ImDrawList
     public AddConvexPolyFilled(points: Array<Readonly<Bind.interface_ImVec2>>, num_points: number, col: Bind.ImU32): void {
         this.native.AddConvexPolyFilled(points, num_points, col);
     }
-    // IMGUI_API void  AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
-    public AddBezierCurve(pos0: Readonly<Bind.interface_ImVec2>, cp0: Readonly<Bind.interface_ImVec2>, cp1: Readonly<Bind.interface_ImVec2>, pos1: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, thickness: number = 1.0, num_segments: number = 0): void {
-        this.native.AddBezierCurve(pos0, cp0, cp1, pos1, col, thickness, num_segments);
+    // IMGUI_API void  AddBezierCubic(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
+    public AddBezierCubic(pos0: Readonly<Bind.interface_ImVec2>, cp0: Readonly<Bind.interface_ImVec2>, cp1: Readonly<Bind.interface_ImVec2>, pos1: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, thickness: number = 1.0, num_segments: number = 0): void {
+        this.native.AddBezierCubic(pos0, cp0, cp1, pos1, col, thickness, num_segments);
     }
 
     // Stateful path API, add points then finish with PathFill() or PathStroke()
@@ -1400,8 +1568,8 @@ export class ImDrawList
     public PathArcTo(centre: Readonly<Bind.interface_ImVec2>, radius: number, a_min: number, a_max: number, num_segments: number = 10): void { this.native.PathArcTo(centre, radius, a_min, a_max, num_segments); }
     // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
     public PathArcToFast(centre: Readonly<Bind.interface_ImVec2>, radius: number, a_min_of_12: number, a_max_of_12: number): void { this.native.PathArcToFast(centre, radius, a_min_of_12, a_max_of_12); }
-    // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
-    public PathBezierCurveTo(p1: Readonly<Bind.interface_ImVec2>, p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, num_segments: number = 0): void { this.native.PathBezierCurveTo(p1, p2, p3, num_segments); }
+    // IMGUI_API void  PathBezierCubicCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
+    public PathBezierCubicCurveTo(p1: Readonly<Bind.interface_ImVec2>, p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, num_segments: number = 0): void { this.native.PathBezierCubicCurveTo(p1, p2, p3, num_segments); }
     // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
     public PathRect(rect_min: Readonly<Bind.interface_ImVec2>, rect_max: Readonly<Bind.interface_ImVec2>, rounding: number = 0.0, rounding_corners_flags: ImDrawCornerFlags = ImDrawCornerFlags.All): void { this.native.PathRect(rect_min, rect_max, rounding, rounding_corners_flags); }
 
@@ -2704,7 +2872,7 @@ export function GetFontTexUvWhitePixel(out: Bind.interface_ImVec2 = new ImVec2()
 // IMGUI_API ImU32         GetColorU32(const ImVec4& col);                                     // retrieve given color with style alpha applied
 // IMGUI_API ImU32         GetColorU32(ImU32 col);                                             // retrieve given color with style alpha applied
 export function GetColorU32(idx: ImGuiCol, alpha_mul?: number): Bind.ImU32;
-export function GetColorU32(col: Readonly<Bind.reference_ImVec4>): Bind.ImU32;
+export function GetColorU32(col: Readonly<Bind.interface_ImVec4>): Bind.ImU32;
 export function GetColorU32(col: Bind.ImU32): Bind.ImU32;
 export function GetColorU32(...args: any[]): Bind.ImU32 {
     if (args.length === 1) {
@@ -3654,46 +3822,118 @@ export function MenuItem(label: string, ...args: any[]): boolean {
     }
 }
 
-// Popups
-// IMGUI_API void          OpenPopup(const char* str_id);                                      // call to mark popup as open (don't call every frame!). popups are closed when user click outside, or if CloseCurrentPopup() is called within a BeginPopup()/EndPopup() block. By default, Selectable()/MenuItem() are calling CloseCurrentPopup(). Popup identifiers are relative to the current ID-stack (so OpenPopup and BeginPopup needs to be at the same level).
-export function OpenPopup(str_id: string): void { bind.OpenPopup(str_id); }
-// IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
-export function OpenPopupOnItemClick(str_id: string | null = null, mouse_button: number = 1): boolean {
-    return bind.OpenPopupOnItemClick(str_id, mouse_button);
-}
-// IMGUI_API bool          BeginPopup(const char* str_id);                                     // return true if the popup is open, and you can start outputting to it. only call EndPopup() if BeginPopup() returned true!
-export function BeginPopup(str_id: string): boolean { return bind.BeginPopup(str_id); }
-// IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags extra_flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
-export function BeginPopupModal(str_id: string = "", p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null = null, extra_flags: ImGuiWindowFlags = 0): boolean {
+// Popups, Modals
+//  - They block normal mouse hovering detection (and therefore most mouse interactions) behind them.
+//  - If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
+//  - Their visibility state (~bool) is held internally instead of being held by the programmer as we are used to with regular Begin*() calls.
+//  - The 3 properties above are related: we need to retain popup visibility state in the library because popups may be closed as any time.
+//  - You can bypass the hovering restriction by using ImGuiHoveredFlags_AllowWhenBlockedByPopup when calling IsItemHovered() or IsWindowHovered().
+//  - IMPORTANT: Popup identifiers are relative to the current ID stack, so OpenPopup and BeginPopup generally needs to be at the same level of the stack.
+//    This is sometimes leading to confusing mistakes. May rework this in the future.
+// Popups: begin/end functions
+//  - BeginPopup(): query popup state, if open start appending into the window. Call EndPopup() afterwards. ImGuiWindowFlags are forwarded to the window.
+//  - BeginPopupModal(): block every interactions behind the window, cannot be closed by user, add a dimming background, has a title bar.
+// IMGUI_API bool          BeginPopup(const char* str_id, ImGuiWindowFlags flags = 0);                         // return true if the popup is open, and you can start outputting to it.
+export function BeginPopup(str_id: string, flags: ImGuiWindowFlags = 0): boolean { return bind.BeginPopup(str_id, flags); }
+// IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0); // return true if the modal is open, and you can start outputting to it.
+export function BeginPopupModal(str_id: string = "", p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null = null, flags: ImGuiWindowFlags = 0): boolean {
     if (Array.isArray(p_open)) {
-        return bind.BeginPopupModal(str_id, p_open, extra_flags);
+        return bind.BeginPopupModal(str_id, p_open, flags);
     } else if (typeof(p_open) === "function") {
         const _p_open: Bind.ImScalar<boolean> = [ p_open() ];
-        const ret = bind.BeginPopupModal(str_id, _p_open, extra_flags);
+        const ret = bind.BeginPopupModal(str_id, _p_open, flags);
         p_open(_p_open[0]);
         return ret;
     } else {
-        return bind.BeginPopupModal(str_id, null, extra_flags);
+        return bind.BeginPopupModal(str_id, null, flags);
     }
-}
-// IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
-export function BeginPopupContextItem(str_id: string | null = null, mouse_button: number = 1): boolean {
-    return bind.BeginPopupContextItem(str_id, mouse_button);
-}
-// IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, int mouse_button = 1, bool also_over_items = true);  // helper to open and begin popup when clicked on current window.
-export function BeginPopupContextWindow(str_id: string | null = null, mouse_button: number = 1, also_over_items: boolean = true): boolean {
-    return bind.BeginPopupContextWindow(str_id, mouse_button, also_over_items);
-}
-// IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
-export function BeginPopupContextVoid(str_id: string | null = null, mouse_button: number = 1): boolean {
-    return bind.BeginPopupContextVoid(str_id, mouse_button);
 }
 // IMGUI_API void          EndPopup();
 export function EndPopup(): void { bind.EndPopup(); }
+// Popups: open/close functions
+//  - OpenPopup(): set popup state to open. ImGuiPopupFlags are available for opening options.
+//  - If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
+//  - CloseCurrentPopup(): use inside the BeginPopup()/EndPopup() scope to close manually.
+//  - CloseCurrentPopup() is called by default by Selectable()/MenuItem() when activated (FIXME: need some options).
+//  - Use ImGuiPopupFlags_NoOpenOverExistingPopup to avoid opening a popup if there's already one at the same level. This is equivalent to e.g. testing for !IsAnyPopupOpen() prior to OpenPopup().
+// IMGUI_API void          OpenPopup(const char* str_id, ImGuiPopupFlags popup_flags = 0);                     // call to mark popup as open (don't call every frame!).
+export function OpenPopup(str_id: string, popup_flags: ImGuiPopupFlags = 0): void { bind.OpenPopup(str_id, popup_flags); }
+// IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
+export function OpenPopupOnItemClick(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean {
+    return bind.OpenPopupOnItemClick(str_id, popup_flags);
+}
+// IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
+export function BeginPopupContextItem(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean {
+    return bind.BeginPopupContextItem(str_id, popup_flags);
+}
+// IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, int mouse_button = 1, bool also_over_items = true);  // helper to open and begin popup when clicked on current window.
+export function BeginPopupContextWindow(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean {
+    return bind.BeginPopupContextWindow(str_id, popup_flags);
+}
+// IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
+export function BeginPopupContextVoid(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean {
+    return bind.BeginPopupContextVoid(str_id, popup_flags);
+}
 // IMGUI_API bool          IsPopupOpen(const char* str_id);                                    // return true if the popup is open
-export function IsPopupOpen(str_id: string): boolean { return bind.IsPopupOpen(str_id); }
+export function IsPopupOpen(str_id: string, popup_flags: ImGuiPopupFlags = 0): boolean { return bind.IsPopupOpen(str_id, popup_flags); }
 // IMGUI_API void          CloseCurrentPopup();                                                // close the popup we have begin-ed into. clicking on a MenuItem or Selectable automatically close the current popup.
 export function CloseCurrentPopup(): void { bind.CloseCurrentPopup(); }
+
+// Tables
+// IMGUI_API bool          BeginTable(const char* str_id, int column, ImGuiTableFlags flags = 0, const ImVec2& outer_size = ImVec2(0.0f, 0.0f), float inner_width = 0.0f);
+export function BeginTable(str_id: string, column: number, flags: ImGuiTableFlags = 0, outer_size: Readonly<Bind.interface_ImVec2> = new ImVec2(), inner_width: number = 0.0): boolean {
+    return bind.BeginTable(str_id, column, flags, outer_size, inner_width);
+}
+// IMGUI_API void          EndTable();                                 // only call EndTable() if BeginTable() returns true!
+export function EndTable(): void { bind.EndTable(); }
+// IMGUI_API void          TableNextRow(ImGuiTableRowFlags row_flags = 0, float min_row_height = 0.0f); // append into the first cell of a new row.
+export function TableNextRow(row_flags: ImGuiTableRowFlags = 0, min_row_height: number = 0.0): void { bind.TableNextRow(row_flags, min_row_height); }
+// IMGUI_API bool          TableNextColumn();                          // append into the next column (or first column of next row if currently in last column). Return true when column is visible.
+export function TableNextColumn(): boolean { return bind.TableNextColumn(); }
+// IMGUI_API bool          TableSetColumnIndex(int column_n);          // append into the specified column. Return true when column is visible.
+export function TableSetColumnIndex(column_n: number): boolean { return bind.TableSetColumnIndex(column_n); }
+// Tables: Headers & Columns declaration
+// - Use TableSetupColumn() to specify label, resizing policy, default width/weight, id, various other flags etc.
+// - Use TableHeadersRow() to create a header row and automatically submit a TableHeader() for each column.
+//   Headers are required to perform: reordering, sorting, and opening the context menu.
+//   The context menu can also be made available in columns body using ImGuiTableFlags_ContextMenuInBody.
+// - You may manually submit headers using TableNextRow() + TableHeader() calls, but this is only useful in
+//   some advanced use cases (e.g. adding custom widgets in header row).
+// - Use TableSetupScrollFreeze() to lock columns/rows so they stay visible when scrolled.
+// IMGUI_API void          TableSetupColumn(const char* label, ImGuiTableColumnFlags flags = 0, float init_width_or_weight = 0.0f, ImU32 user_id = 0);
+export function TableSetupColumn(label: string, flags: ImGuiTableColumnFlags = 0, init_width_or_weight: number = 0.0, user_id: Bind.ImU32 = 0): void { bind.TableSetupColumn(label, flags, init_width_or_weight, user_id); }
+// IMGUI_API void          TableSetupScrollFreeze(int cols, int rows); // lock columns/rows so they stay visible when scrolled.
+export function TableSetupScrollFreeze(cols: number, rows: number): void { bind.TableSetupScrollFreeze(cols, rows); }
+// IMGUI_API void          TableHeadersRow();                          // submit all headers cells based on data provided to TableSetupColumn() + submit context menu
+export function TableHeadersRow(): void { bind.TableHeadersRow(); }
+// IMGUI_API void          TableHeader(const char* label);             // submit one header cell manually (rarely used)
+export function TableHeader(label: string): void { bind.TableHeader(label); }
+// Tables: Sorting
+// - Call TableGetSortSpecs() to retrieve latest sort specs for the table. NULL when not sorting.
+// - When 'SpecsDirty == true' you should sort your data. It will be true when sorting specs have changed
+//   since last call, or the first time. Make sure to set 'SpecsDirty = false' after sorting, else you may
+//   wastefully sort your data every frame!
+// - Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable().
+// TODO: some stuff to implement first
+// IMGUI_API ImGuiTableSortSpecs* TableGetSortSpecs();                        // get latest sort specs for the table (NULL if not sorting).
+export function TableGetSortSpecs(): ImGuiTableSortSpecs | null {
+    const sort_specs: Bind.reference_ImGuiTableSortSpecs | null = bind.TableGetSortSpecs();
+    return (sort_specs === null) ? null : new ImGuiTableSortSpecs(sort_specs);
+}
+// Tables: Miscellaneous functions
+// - Functions args 'int column_n' treat the default value of -1 as the same as passing the current column index.
+// IMGUI_API int                   TableGetColumnCount();                      // return number of columns (value passed to BeginTable)
+export function TableGetColumnCount(): number { return bind.TableGetColumnCount(); }
+// IMGUI_API int                   TableGetColumnIndex();                      // return current column index.
+export function TableGetColumnIndex(): number { return bind.TableGetColumnIndex(); }
+// IMGUI_API int                   TableGetRowIndex();                         // return current row index.
+export function TableGetRowIndex(): number { return bind.TableGetRowIndex(); }
+// IMGUI_API const char*           TableGetColumnName(int column_n = -1);      // return "" if column didn't have a name declared by TableSetupColumn(). Pass -1 to use current column.
+export function TableGetColumnName(column_n: number = -1): string { return bind.TableGetColumnName(column_n); }
+// IMGUI_API ImGuiTableColumnFlags TableGetColumnFlags(int column_n = -1);     // return column flags so you can query their Enabled/Visible/Sorted/Hovered status flags. Pass -1 to use current column.
+export function TableGetColumnFlags(column_n: number = -1): ImGuiTableColumnFlags { return bind.TableGetColumnFlags(column_n); }
+// IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);  // change the color of a cell, row, or column. See ImGuiTableBgTarget_ flags for details.
+export function TableSetBgColor(target: ImGuiTableBgTarget, color: Bind.ImU32, column_n: number = -1): void { bind.TableSetBgColor(target, color, column_n); }
 
 // Tab Bars, Tabs
 // [BETA API] API may evolve!
