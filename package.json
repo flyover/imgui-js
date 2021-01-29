@@ -30,12 +30,12 @@
   "devDependencies": {
     "@flyover/system": "git+https://github.com/flyover/system.ts.git",
     "@rollup/plugin-alias": "^3.1.1",
-    "@rollup/plugin-commonjs": "^16.0.0",
+    "@rollup/plugin-commonjs": "^17.1.0",
     "http-server": "^0.12.3",
     "node-fetch": "^2.6.0",
     "rollup": "^2.33.2",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-typescript2": "^0.27.1",
+    "rollup-plugin-typescript2": "^0.29.0",
     "typescript": "^4.0.2"
   }
 }

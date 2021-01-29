@@ -4491,7 +4491,7 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
     // Demo helper function to select among loaded fonts.
     // Here we use the regular BeginCombo()/EndCombo() api which is more the more flexible one.
     function ShowFontSelector(label) {
-        const io = ImGui.GetIO();
+        ImGui.GetIO();
         const font_current = ImGui.GetFont();
         if (ImGui.BeginCombo(label, font_current.GetDebugName())) {
             ImGui.Selectable(font_current.GetDebugName());
