@@ -236,6 +236,7 @@
                         // FIXME: We should have a way to retrieve the text edit cursor position more easily in the API, this is rather tedious. This is such a ugly mess we may be better off not using InputText() at all here.
                         function UserData_Callback(data) {
                             const user_data = data.UserData;
+                            ImGui.IM_ASSERT(user_data !== null);
                             if (!data.HasSelection())
                                 user_data.CursorPos = data.CursorPos;
                             if (data.SelectionStart === 0 && data.SelectionEnd === data.BufTextLen) {
@@ -337,7 +338,6 @@
                     }
                 }
             }
-            ImGui.IM_ASSERT(clipper.Step() == false);
             clipper.End();
             clipper.delete();
             ImGui.PopStyleVar(2);

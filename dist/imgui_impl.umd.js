@@ -67,35 +67,40 @@
             io.MouseDown[i] = false;
         }
     }
+    const key_code_to_index = {
+        "NumpadEnter": 176,
+    };
     function canvas_on_keydown(event) {
-        // console.log(event.type, event.key, event.keyCode);
+        // console.log(event.type, event.key, event.code, event.keyCode);
         const io = ImGui.GetIO();
         io.KeyCtrl = event.ctrlKey;
         io.KeyShift = event.shiftKey;
         io.KeyAlt = event.altKey;
         io.KeySuper = event.metaKey;
-        ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
-        io.KeysDown[event.keyCode] = true;
+        const key_index = key_code_to_index[event.code] || event.keyCode;
+        ImGui.IM_ASSERT(key_index >= 0 && key_index < ImGui.IM_ARRAYSIZE(io.KeysDown));
+        io.KeysDown[key_index] = true;
         // forward to the keypress event
         if ( /*io.WantCaptureKeyboard ||*/event.key === "Tab") {
             event.preventDefault();
         }
     }
     function canvas_on_keyup(event) {
-        // console.log(event.type, event.key, event.keyCode);
+        // console.log(event.type, event.key, event.code, event.keyCode);
         const io = ImGui.GetIO();
         io.KeyCtrl = event.ctrlKey;
         io.KeyShift = event.shiftKey;
         io.KeyAlt = event.altKey;
         io.KeySuper = event.metaKey;
-        ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
-        io.KeysDown[event.keyCode] = false;
+        const key_index = key_code_to_index[event.code] || event.keyCode;
+        ImGui.IM_ASSERT(key_index >= 0 && key_index < ImGui.IM_ARRAYSIZE(io.KeysDown));
+        io.KeysDown[key_index] = false;
         if (io.WantCaptureKeyboard) {
             event.preventDefault();
         }
     }
     function canvas_on_keypress(event) {
-        // console.log(event.type, event.key, event.keyCode);
+        // console.log(event.type, event.key, event.code, event.keyCode);
         const io = ImGui.GetIO();
         io.AddInputCharacter(event.charCode);
         if (io.WantCaptureKeyboard) {
@@ -247,6 +252,7 @@
         io.KeyMap[ImGui.Key.Space] = 32;
         io.KeyMap[ImGui.Key.Enter] = 13;
         io.KeyMap[ImGui.Key.Escape] = 27;
+        io.KeyMap[ImGui.Key.KeyPadEnter] = key_code_to_index["NumpadEnter"];
         io.KeyMap[ImGui.Key.A] = 65;
         io.KeyMap[ImGui.Key.C] = 67;
         io.KeyMap[ImGui.Key.V] = 86;
@@ -321,7 +327,7 @@
                         document.body.style.cursor = "text";
                         break; // When hovering over InputText, etc.
                     case ImGui.MouseCursor.ResizeAll:
-                        document.body.style.cursor = "move";
+                        document.body.style.cursor = "all-scroll";
                         break; // Unused
                     case ImGui.MouseCursor.ResizeNS:
                         document.body.style.cursor = "ns-resize";
@@ -337,6 +343,9 @@
                         break; // When hovering over the bottom-right corner of a window
                     case ImGui.MouseCursor.Hand:
                         document.body.style.cursor = "move";
+                        break;
+                    case ImGui.MouseCursor.NotAllowed:
+                        document.body.style.cursor = "not-allowed";
                         break;
                 }
             }

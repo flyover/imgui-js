@@ -1,6 +1,6 @@
 System.register(["imgui-js"], function (exports_1, context_1) {
     "use strict";
-    var ImGui, clipboard_text, canvas, gl, g_ShaderHandle, g_VertHandle, g_FragHandle, g_AttribLocationTex, g_AttribLocationProjMtx, g_AttribLocationPosition, g_AttribLocationUV, g_AttribLocationColor, g_VboHandle, g_ElementsHandle, g_FontTexture, ctx, prev_time, mouse_button_map;
+    var ImGui, clipboard_text, canvas, gl, g_ShaderHandle, g_VertHandle, g_FragHandle, g_AttribLocationTex, g_AttribLocationProjMtx, g_AttribLocationPosition, g_AttribLocationUV, g_AttribLocationColor, g_VboHandle, g_ElementsHandle, g_FontTexture, ctx, prev_time, key_code_to_index, mouse_button_map;
     var __moduleName = context_1 && context_1.id;
     function document_on_copy(event) {
         if (event.clipboardData) {
@@ -50,34 +50,36 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         }
     }
     function canvas_on_keydown(event) {
-        // console.log(event.type, event.key, event.keyCode);
+        // console.log(event.type, event.key, event.code, event.keyCode);
         const io = ImGui.GetIO();
         io.KeyCtrl = event.ctrlKey;
         io.KeyShift = event.shiftKey;
         io.KeyAlt = event.altKey;
         io.KeySuper = event.metaKey;
-        ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
-        io.KeysDown[event.keyCode] = true;
+        const key_index = key_code_to_index[event.code] || event.keyCode;
+        ImGui.IM_ASSERT(key_index >= 0 && key_index < ImGui.IM_ARRAYSIZE(io.KeysDown));
+        io.KeysDown[key_index] = true;
         // forward to the keypress event
         if ( /*io.WantCaptureKeyboard ||*/event.key === "Tab") {
             event.preventDefault();
         }
     }
     function canvas_on_keyup(event) {
-        // console.log(event.type, event.key, event.keyCode);
+        // console.log(event.type, event.key, event.code, event.keyCode);
         const io = ImGui.GetIO();
         io.KeyCtrl = event.ctrlKey;
         io.KeyShift = event.shiftKey;
         io.KeyAlt = event.altKey;
         io.KeySuper = event.metaKey;
-        ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
-        io.KeysDown[event.keyCode] = false;
+        const key_index = key_code_to_index[event.code] || event.keyCode;
+        ImGui.IM_ASSERT(key_index >= 0 && key_index < ImGui.IM_ARRAYSIZE(io.KeysDown));
+        io.KeysDown[key_index] = false;
         if (io.WantCaptureKeyboard) {
             event.preventDefault();
         }
     }
     function canvas_on_keypress(event) {
-        // console.log(event.type, event.key, event.keyCode);
+        // console.log(event.type, event.key, event.code, event.keyCode);
         const io = ImGui.GetIO();
         io.AddInputCharacter(event.charCode);
         if (io.WantCaptureKeyboard) {
@@ -221,6 +223,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         io.KeyMap[ImGui.Key.Space] = 32;
         io.KeyMap[ImGui.Key.Enter] = 13;
         io.KeyMap[ImGui.Key.Escape] = 27;
+        io.KeyMap[ImGui.Key.KeyPadEnter] = key_code_to_index["NumpadEnter"];
         io.KeyMap[ImGui.Key.A] = 65;
         io.KeyMap[ImGui.Key.C] = 67;
         io.KeyMap[ImGui.Key.V] = 86;
@@ -297,7 +300,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         document.body.style.cursor = "text";
                         break; // When hovering over InputText, etc.
                     case ImGui.MouseCursor.ResizeAll:
-                        document.body.style.cursor = "move";
+                        document.body.style.cursor = "all-scroll";
                         break; // Unused
                     case ImGui.MouseCursor.ResizeNS:
                         document.body.style.cursor = "ns-resize";
@@ -313,6 +316,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         break; // When hovering over the bottom-right corner of a window
                     case ImGui.MouseCursor.Hand:
                         document.body.style.cursor = "move";
+                        break;
+                    case ImGui.MouseCursor.NotAllowed:
+                        document.body.style.cursor = "not-allowed";
                         break;
                 }
             }
@@ -777,6 +783,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             g_FontTexture = null;
             exports_1("ctx", ctx = null);
             prev_time = 0;
+            key_code_to_index = {
+                "NumpadEnter": 176,
+            };
             // MouseEvent.button
             // A number representing a given button:
             // 0: Main button pressed, usually the left button or the un-initialized state

@@ -499,18 +499,16 @@ EMSCRIPTEN_BINDINGS(ImGuiSizeCallbackData) {
 EMSCRIPTEN_BINDINGS(ImGuiListClipper) {
     emscripten::class_<ImGuiListClipper>("ImGuiListClipper")
         .constructor()
-        CLASS_MEMBER(ImGuiListClipper, StartPosY)
-        CLASS_MEMBER(ImGuiListClipper, ItemsHeight)
-        CLASS_MEMBER(ImGuiListClipper, ItemsCount)
-        CLASS_MEMBER(ImGuiListClipper, StepNo)
         CLASS_MEMBER(ImGuiListClipper, DisplayStart)
         CLASS_MEMBER(ImGuiListClipper, DisplayEnd)
-        CLASS_METHOD(ImGuiListClipper, Step)
-        .function("Begin", FUNCTION(void, (ImGuiListClipper & that, int items_count, float items_height), {
-            that.Begin(items_count, items_height);
-        }))
-        //CLASS_METHOD(ImGuiListClipper, Begin)
+        CLASS_MEMBER(ImGuiListClipper, ItemsCount)
+        CLASS_MEMBER(ImGuiListClipper, StepNo)
+        CLASS_MEMBER(ImGuiListClipper, ItemsFrozen)
+        CLASS_MEMBER(ImGuiListClipper, ItemsHeight)
+        CLASS_MEMBER(ImGuiListClipper, StartPosY)
+        CLASS_METHOD(ImGuiListClipper, Begin)
         CLASS_METHOD(ImGuiListClipper, End)
+        CLASS_METHOD(ImGuiListClipper, Step)
     ;
 }
 
@@ -575,12 +573,6 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
             return emscripten::val(emscripten::typed_memory_view((size_t)(that.VtxBuffer.size() * sizeof(ImDrawVert)), (char *) &that.VtxBuffer.front()));
         })
         // ImDrawListFlags         Flags;              // Flags, you may poke into these to adjust anti-aliasing settings per-primitive.
-        // ImVector<ImDrawCmd>     CmdBuffer;          // Draw commands. Typically
-        // 1 command = 1 GPU draw call, unless the command is a callback.
-        // ImVector<ImDrawIdx>     IdxBuffer;          // Index buffer. Each
-        // command consume ImDrawCmd::ElemCount of those
-        // ImDrawListFlags         Flags;              // Flags, you may poke into
-        // these to adjust anti-aliasing settings per-primitive.
         CLASS_MEMBER(ImDrawList, Flags)
 
         // [Internal, used while building lists]
@@ -662,6 +654,14 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
         .function("AddCircleFilled", FUNCTION(void, (ImDrawList& that, emscripten::val centre, float radius, ImU32 col, int num_segments), {
             that.AddCircleFilled(import_ImVec2(centre), radius, col, num_segments);
         }))
+        // IMGUI_API void  AddNgon(const ImVec2& center, float radius, ImU32 col, int num_segments, float thickness = 1.0f);
+        .function("AddNgon", FUNCTION(void, (ImDrawList& that, emscripten::val centre, float radius, ImU32 col, int num_segments, float thickness), {
+            that.AddNgon(import_ImVec2(centre), radius, col, num_segments, thickness);
+        }))
+        // IMGUI_API void  AddNgonFilled(const ImVec2& center, float radius, ImU32 col, int num_segments);
+        .function("AddNgonFilled", FUNCTION(void, (ImDrawList& that, emscripten::val centre, float radius, ImU32 col, int num_segments), {
+            that.AddNgonFilled(import_ImVec2(centre), radius, col, num_segments);
+        }))
         // IMGUI_API void  AddText(const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL);
         .function("AddText_A", FUNCTION(void, (ImDrawList& that, emscripten::val pos, ImU32 col, std::string text_begin), {
             that.AddText(import_ImVec2(pos), col, text_begin.c_str(), NULL);
@@ -699,9 +699,12 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
             }
             that.AddConvexPolyFilled(_points, num_points, col);
         }))
-        // IMGUI_API void  AddBezierCubic(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
-        .function("AddBezierCubic", FUNCTION(void, (ImDrawList& that, emscripten::val pos0, emscripten::val cp0, emscripten::val cp1, emscripten::val pos1, ImU32 col, float thickness, int num_segments), {
-            that.AddBezierCubic(import_ImVec2(pos0), import_ImVec2(cp0), import_ImVec2(cp1), import_ImVec2(pos1), col, thickness, num_segments);
+        // IMGUI_API void  AddBezierCubic(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, ImU32 col, float thickness, int num_segments = 0); // Cubic Bezier (4 control points)
+        .function("AddBezierCubic", FUNCTION(void, (ImDrawList& that, emscripten::val p1, emscripten::val p2, emscripten::val p3, emscripten::val p4, ImU32 col, float thickness, int num_segments), {
+            that.AddBezierCubic(import_ImVec2(p1), import_ImVec2(p2), import_ImVec2(p3), import_ImVec2(p4), col, thickness, num_segments);
+        }))
+        .function("AddBezierQuadratic", FUNCTION(void, (ImDrawList& that, emscripten::val p1, emscripten::val p2, emscripten::val p3, ImU32 col, float thickness, int num_segments), {
+            that.AddBezierQuadratic(import_ImVec2(p1), import_ImVec2(p2), import_ImVec2(p3), col, thickness, num_segments);
         }))
 
         // Stateful path API, add points then finish with PathFill() or PathStroke()
@@ -731,9 +734,13 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
         .function("PathArcToFast", FUNCTION(void, (ImDrawList& that, emscripten::val centre, float radius, int a_min_of_12, int a_max_of_12), {
             that.PathArcToFast(import_ImVec2(centre), radius, a_min_of_12, a_max_of_12);
         }))
-        // IMGUI_API void  PathBezierCubicCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
-        .function("PathBezierCubicCurveTo", FUNCTION(void, (ImDrawList& that, emscripten::val p1, emscripten::val p2, emscripten::val p3, int num_segments), {
-            that.PathBezierCubicCurveTo(import_ImVec2(p1), import_ImVec2(p2), import_ImVec2(p3), num_segments);
+        // IMGUI_API void  PathBezierCubicCurveTo(const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, int num_segments = 0);  // Cubic Bezier (4 control points)
+        .function("PathBezierCubicCurveTo", FUNCTION(void, (ImDrawList& that, emscripten::val p2, emscripten::val p3, emscripten::val p4, int num_segments), {
+            that.PathBezierCubicCurveTo(import_ImVec2(p2), import_ImVec2(p3), import_ImVec2(p4), num_segments);
+        }))
+        // IMGUI_API void  PathBezierQuadraticCurveTo(const ImVec2& p2, const ImVec2& p3, int num_segments = 0);                // Quadratic Bezier (3 control points)
+        .function("PathBezierQuadraticCurveTo", FUNCTION(void, (ImDrawList& that, emscripten::val p2, emscripten::val p3, int num_segments), {
+            that.PathBezierQuadraticCurveTo(import_ImVec2(p2), import_ImVec2(p3), num_segments);
         }))
         // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
         .function("PathRect", FUNCTION(void, (ImDrawList& that, emscripten::val rect_min, emscripten::val rect_max, float rounding, int rounding_corners_flags), {
@@ -761,12 +768,10 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
 
         // Internal helpers
         // NB: all primitives needs to be reserved via PrimReserve() beforehand!
-        // IMGUI_API void  Clear();
-        //CLASS_METHOD(ImDrawList, Clear)
-        // IMGUI_API void  ClearFreeMemory();
-        //CLASS_METHOD(ImDrawList, ClearFreeMemory)
         // IMGUI_API void  PrimReserve(int idx_count, int vtx_count);
         CLASS_METHOD(ImDrawList, PrimReserve)
+        // IMGUI_API void  PrimUnreserve(int idx_count, int vtx_count);
+        CLASS_METHOD(ImDrawList, PrimUnreserve)
         // IMGUI_API void  PrimRect(const ImVec2& a, const ImVec2& b, ImU32 col);      // Axis aligned rectangle (composed of two triangles)
         .function("PrimRect", FUNCTION(void, (ImDrawList& that, emscripten::val a, emscripten::val b, ImU32 col), {
             that.PrimRect(import_ImVec2(a), import_ImVec2(b), col);
@@ -791,9 +796,6 @@ EMSCRIPTEN_BINDINGS(ImDrawList) {
         .function("PrimVtx", FUNCTION(void, (ImDrawList& that, emscripten::val pos, emscripten::val uv, ImU32 col), {
             that.PrimVtx(import_ImVec2(pos), import_ImVec2(uv), col);
         }))
-        //CLASS_METHOD(ImDrawList, UpdateClipRect)
-        // IMGUI_API void  UpdateTextureID();
-        // CLASS_METHOD(ImDrawList, UpdateTextureID)
     ;
 }
 
@@ -835,17 +837,12 @@ EMSCRIPTEN_BINDINGS(ImDrawData) {
 
 EMSCRIPTEN_BINDINGS(ImFontGlyph) {
     emscripten::class_<ImFontGlyph>("ImFontGlyph")
-        // unsigned int         Codepoint;          // 0x0000..0xFFFF
-        // TODO: check this works
-        CLASS_MEMBER_GET_SET(ImFontGlyph, Codepoint,
-            { return emscripten::val(that.Codepoint); },
-            { that.Codepoint = value.as<unsigned int>(); })
+        // unsigned int    Codepoint : 31;     // 0x0000..0xFFFF
         // CLASS_MEMBER(ImFontGlyph, Codepoint)
-        //  unsigned int         Visible;          // Flag to allow early out when rendering
-        // TODO: check this works
-        CLASS_MEMBER_GET_SET(ImFontGlyph, Visible,
-            { return emscripten::val(that.Visible); },
-            { that.Visible = value.as<unsigned int>(); })
+        CLASS_MEMBER_GET(ImFontGlyph, Codepoint, { return emscripten::val(that.Codepoint); })
+        // unsigned int    Visible : 1;        // Flag to allow early out when rendering
+        // CLASS_MEMBER(ImFontGlyph, Visible)
+        CLASS_MEMBER_GET(ImFontGlyph, Visible, { return emscripten::val(that.Visible != 0); })
         // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
         CLASS_MEMBER(ImFontGlyph, AdvanceX)
         // float           X0, Y0, X1, Y1;     // Glyph corners
@@ -939,6 +936,8 @@ EMSCRIPTEN_BINDINGS(ImFont) {
         CLASS_MEMBER(ImFont, FallbackAdvanceX)
         // ImWchar                     FallbackChar;       // = '?'        // Replacement glyph if one isn't found. Only set via SetFallbackChar()
         CLASS_MEMBER(ImFont, FallbackChar)
+        // ImWchar                     EllipsisChar;       // 2     // out // = -1       // Character used for ellipsis rendering.
+        CLASS_MEMBER(ImFont, EllipsisChar)
 
         // Members: Cold ~18/26 bytes
         // short                       ConfigDataCount;    // ~ 1          // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
@@ -1340,10 +1339,14 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         CLASS_MEMBER(ImGuiIO, ConfigMacOSXBehaviors)
         // bool          ConfigInputTextCursorBlink;  // = true               // Enable blinking cursor, for users who consider it annoying.
         CLASS_MEMBER(ImGuiIO, ConfigInputTextCursorBlink)
+        // bool        ConfigDragClickToInputText;     // = false          // [BETA] Enable turning DragXXX widgets into text input with a simple mouse click-release (without moving). Not desirable on devices without a keyboard.
+        CLASS_MEMBER(ImGuiIO, ConfigDragClickToInputText)
         // bool          ConfigWindowsResizeFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
         CLASS_MEMBER(ImGuiIO, ConfigWindowsResizeFromEdges)
         // bool        ConfigWindowsMoveFromTitleBarOnly;// = false        // [BETA] Set to true to only allow moving windows when clicked+dragged from the title bar. Windows without a title bar are not affected.
         CLASS_MEMBER(ImGuiIO, ConfigWindowsMoveFromTitleBarOnly)
+        // float       ConfigMemoryCompactTimer;       // = 60.0f          // Timer (in seconds) to free transient windows/tables memory buffers when unused. Set to -1.0f to disable.
+        CLASS_MEMBER(ImGuiIO, ConfigMemoryCompactTimer)
 
         //------------------------------------------------------------------
         // Settings (User Functions)
@@ -1439,6 +1442,11 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // Functions
         // IMGUI_API void AddInputCharacter(ImWchar c);                        // Add new character into InputCharacters[]
         CLASS_METHOD(ImGuiIO, AddInputCharacter)
+        // IMGUI_API void  AddInputCharacterUTF16(ImWchar16 c);        // Queue new character input from an UTF-16 character, it can be a surrogate
+        // AddInputCharacterUTF16(c: ImWchar16): void;
+        .function("AddInputCharactersUTF8", FUNCTION(void, (ImGuiIO& that, int c), {
+            that.AddInputCharacterUTF16(c);
+        }), emscripten::allow_raw_pointers())
         // IMGUI_API void AddInputCharactersUTF8(const char* utf8_chars);      // Add new characters into InputCharacters[] from an UTF-8 string
         .function("AddInputCharactersUTF8", FUNCTION(void, (ImGuiIO& that, std::string utf8_chars), {
             that.AddInputCharactersUTF8(utf8_chars.c_str());
@@ -1555,6 +1563,7 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiStyle, ItemInnerSpacing)
         // ImVec2      TouchExtraPadding;          // Expand reactive bounding box for touch-based system where touch position is not accurate enough. Unfortunately we don't sort widgets so priority on overlap will always be given to the first widget. So don't grow this too much!
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiStyle, TouchExtraPadding)
+        CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiStyle, CellPadding)
         // float       IndentSpacing;              // Horizontal indentation when e.g. entering a tree node. Generally == (FontSize + FramePadding.x*2).
         CLASS_MEMBER(ImGuiStyle, IndentSpacing)
         // float       ColumnsMinSpacing;          // Minimum horizontal spacing between two columns
@@ -1567,10 +1576,13 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         CLASS_MEMBER(ImGuiStyle, GrabMinSize)
         // float       GrabRounding;               // Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs.
         CLASS_MEMBER(ImGuiStyle, GrabRounding)
+        CLASS_MEMBER(ImGuiStyle, LogSliderDeadzone)
         // float       TabRounding;                // Radius of upper corners of a tab. Set to 0.0f to have rectangular tabs.
         CLASS_MEMBER(ImGuiStyle, TabRounding)
         // float       TabBorderSize;              // Thickness of border around tabs. 
         CLASS_MEMBER(ImGuiStyle, TabBorderSize)
+        CLASS_MEMBER(ImGuiStyle, TabMinWidthForCloseButton)
+        CLASS_MEMBER(ImGuiStyle, ColorButtonPosition)
         // ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f,0.5f) for horizontally+vertically centered.
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiStyle, ButtonTextAlign)
         // ImVec2      SelectableTextAlign;        // Alignment of selectable text when selectable is larger than text. Defaults to (0.0f, 0.0f) (top-left aligned).
@@ -1583,10 +1595,12 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         CLASS_MEMBER(ImGuiStyle, MouseCursorScale)
         // bool        AntiAliasedLines;           // Enable anti-aliasing on lines/borders. Disable if you are really tight on CPU/GPU.
         CLASS_MEMBER(ImGuiStyle, AntiAliasedLines)
+        CLASS_MEMBER(ImGuiStyle, AntiAliasedLinesUseTex)
         // bool        AntiAliasedFill;            // Enable anti-aliasing on filled shapes (rounded rectangles, circles, etc.)
         CLASS_MEMBER(ImGuiStyle, AntiAliasedFill)
-        // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCubicCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
+        // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
         CLASS_MEMBER(ImGuiStyle, CurveTessellationTol)
+        CLASS_MEMBER(ImGuiStyle, CircleSegmentMaxError)
         // ImVec4      Colors[ImGuiCol_COUNT];
         .function("_getAt_Colors", FUNCTION(emscripten::val, (ImGuiStyle* that, ImGuiCol index), {
             if (0 <= index && index < ImGuiCol_COUNT) {
@@ -1857,8 +1871,12 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("SetScrollX", &ImGui::SetScrollX);
     // IMGUI_API void          SetScrollY(float scroll_y);                                         // set scrolling amount [0..GetScrollMaxY()]
     emscripten::function("SetScrollY", &ImGui::SetScrollY);
+    // IMGUI_API void          SetScrollHereX(float center_x_ratio = 0.5f);                         // adjust scrolling amount to make current cursor position visible. center_x_ratio=0.0: top, 0.5: center, 1.0: bottom. When using to make a "default/current item" visible, consider using SetItemDefaultFocus() instead.
+    emscripten::function("SetScrollHereX", &ImGui::SetScrollHereX);
     // IMGUI_API void          SetScrollHereY(float center_y_ratio = 0.5f);                         // adjust scrolling amount to make current cursor position visible. center_y_ratio=0.0: top, 0.5: center, 1.0: bottom. When using to make a "default/current item" visible, consider using SetItemDefaultFocus() instead.
     emscripten::function("SetScrollHereY", &ImGui::SetScrollHereY);
+    // IMGUI_API void          SetScrollFromPosX(float pos_x, float center_x_ratio = 0.5f);        // adjust scrolling amount to make given position valid. use GetCursorPos() or GetCursorStartPos()+offset to get valid positions.
+    emscripten::function("SetScrollFromPosX", &ImGui::SetScrollFromPosX);
     // IMGUI_API void          SetScrollFromPosY(float pos_y, float center_y_ratio = 0.5f);        // adjust scrolling amount to make given position valid. use GetCursorPos() or GetCursorStartPos()+offset to get valid positions.
     emscripten::function("SetScrollFromPosY", &ImGui::SetScrollFromPosY);
     // IMGUI_API void          SetStateStorage(ImGuiStorage* tree);                                // replace tree state storage with our own (if you want to manipulate it yourself, typically clear subsection of it)
@@ -1907,6 +1925,30 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("GetStyleColorVec4", FUNCTION(emscripten::val, (ImGuiCol idx), {
         const ImVec4* p = &ImGui::GetStyleColorVec4(idx); return emscripten::val(p);
     }));
+    // IMGUI_API void          PushAllowKeyboardFocus(bool allow_keyboard_focus);                  // allow focusing using TAB/Shift-TAB, enabled by default but you can disable it for certain widgets
+    emscripten::function("PushAllowKeyboardFocus", &ImGui::PushAllowKeyboardFocus);
+    // IMGUI_API void          PopAllowKeyboardFocus();
+    emscripten::function("PopAllowKeyboardFocus", &ImGui::PopAllowKeyboardFocus);
+    // IMGUI_API void          PushButtonRepeat(bool repeat);                                      // in 'repeat' mode, Button*() functions return repeated true in a typematic manner (using io.KeyRepeatDelay/io.KeyRepeatRate setting). Note that you can call IsItemActive() after any Button() to tell if the button is held in the current frame.
+    emscripten::function("PushButtonRepeat", &ImGui::PushButtonRepeat);
+    // IMGUI_API void          PopButtonRepeat();
+    emscripten::function("PopButtonRepeat", &ImGui::PopButtonRepeat);
+
+    // Parameters stacks (current window)
+    // IMGUI_API void          PushItemWidth(float item_width);                                    // width of items for the common item+label case, pixels. 0.0f = default to ~2/3 of windows width, >0.0f: width in pixels, <0.0f align xx pixels to the right of window (so -1.0f always align width to the right side)
+    emscripten::function("PushItemWidth", &ImGui::PushItemWidth);
+    // IMGUI_API void          PopItemWidth();
+    emscripten::function("PopItemWidth", &ImGui::PopItemWidth);
+    // IMGUI_API void          SetNextItemWidth(float item_width);                             // set width of the _next_ common large "item+label" widget. >0.0f: width in pixels, <0.0f align xx pixels to the right of window (so -1.0f always align width to the right side)
+    emscripten::function("SetNextItemWidth", &ImGui::SetNextItemWidth);
+    // IMGUI_API float         CalcItemWidth();                                                    // width of item given pushed settings and current cursor position
+    emscripten::function("CalcItemWidth", &ImGui::CalcItemWidth);
+    // IMGUI_API void          PushTextWrapPos(float wrap_pos_x = 0.0f);                           // word-wrapping for Text*() commands. < 0.0f: no wrapping; 0.0f: wrap to end of window (or column); > 0.0f: wrap at 'wrap_pos_x' position in window local space
+    emscripten::function("PushTextWrapPos", &ImGui::PushTextWrapPos);
+    // IMGUI_API void          PopTextWrapPos();
+    emscripten::function("PopTextWrapPos", &ImGui::PopTextWrapPos);
+
+    // Style read access
     // IMGUI_API ImFont*       GetFont();                                                          // get current font
     emscripten::function("GetFont", FUNCTION(emscripten::val, (), {
         ImFont* p = ImGui::GetFont(); return emscripten::val(p);
@@ -1929,28 +1971,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("GetColorU32_C", FUNCTION(ImU32, (ImU32 col), {
         return ImGui::GetColorU32(col);
     }));
-
-    // Parameters stacks (current window)
-    // IMGUI_API void          PushItemWidth(float item_width);                                    // width of items for the common item+label case, pixels. 0.0f = default to ~2/3 of windows width, >0.0f: width in pixels, <0.0f align xx pixels to the right of window (so -1.0f always align width to the right side)
-    emscripten::function("PushItemWidth", &ImGui::PushItemWidth);
-    // IMGUI_API void          PopItemWidth();
-    emscripten::function("PopItemWidth", &ImGui::PopItemWidth);
-    // IMGUI_API void          SetNextItemWidth(float item_width);                             // set width of the _next_ common large "item+label" widget. >0.0f: width in pixels, <0.0f align xx pixels to the right of window (so -1.0f always align width to the right side)
-    emscripten::function("SetNextItemWidth", &ImGui::SetNextItemWidth);
-    // IMGUI_API float         CalcItemWidth();                                                    // width of item given pushed settings and current cursor position
-    emscripten::function("CalcItemWidth", &ImGui::CalcItemWidth);
-    // IMGUI_API void          PushTextWrapPos(float wrap_pos_x = 0.0f);                           // word-wrapping for Text*() commands. < 0.0f: no wrapping; 0.0f: wrap to end of window (or column); > 0.0f: wrap at 'wrap_pos_x' position in window local space
-    emscripten::function("PushTextWrapPos", &ImGui::PushTextWrapPos);
-    // IMGUI_API void          PopTextWrapPos();
-    emscripten::function("PopTextWrapPos", &ImGui::PopTextWrapPos);
-    // IMGUI_API void          PushAllowKeyboardFocus(bool allow_keyboard_focus);                  // allow focusing using TAB/Shift-TAB, enabled by default but you can disable it for certain widgets
-    emscripten::function("PushAllowKeyboardFocus", &ImGui::PushAllowKeyboardFocus);
-    // IMGUI_API void          PopAllowKeyboardFocus();
-    emscripten::function("PopAllowKeyboardFocus", &ImGui::PopAllowKeyboardFocus);
-    // IMGUI_API void          PushButtonRepeat(bool repeat);                                      // in 'repeat' mode, Button*() functions return repeated true in a typematic manner (using io.KeyRepeatDelay/io.KeyRepeatRate setting). Note that you can call IsItemActive() after any Button() to tell if the button is held in the current frame.
-    emscripten::function("PushButtonRepeat", &ImGui::PushButtonRepeat);
-    // IMGUI_API void          PopButtonRepeat();
-    emscripten::function("PopButtonRepeat", &ImGui::PopButtonRepeat);
 
     // Cursor / Layout
     // IMGUI_API void          Separator();                                                        // separator, generally horizontal. inside a menu bar or in horizontal layout mode, this becomes a vertical separator.
@@ -2100,7 +2120,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API bool          ArrowButton(const char* str_id, ImGuiDir dir);                  // square button with an arrow shape
     emscripten::function("ArrowButton", FUNCTION(bool, (std::string label, int dir), { return ImGui::ArrowButton(label.c_str(), dir); }));
     // IMGUI_API bool          InvisibleButton(const char* str_id, const ImVec2& size);                // button behavior without the visuals, useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.)
-    emscripten::function("InvisibleButton", FUNCTION(bool, (std::string str_id, emscripten::val size), { return ImGui::InvisibleButton(str_id.c_str(), import_ImVec2(size)); }));
+    emscripten::function("InvisibleButton", FUNCTION(bool, (std::string str_id, emscripten::val size, ImGuiButtonFlags flags), { return ImGui::InvisibleButton(str_id.c_str(), import_ImVec2(size), flags); }));
     // IMGUI_API void          Image(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0), const ImVec2& uv1 = ImVec2(1,1), const ImVec4& tint_col = ImVec4(1,1,1,1), const ImVec4& border_col = ImVec4(0,0,0,0));
     emscripten::function("Image", FUNCTION(void, (emscripten::val user_texture_id, emscripten::val size, emscripten::val uv0, emscripten::val uv1, emscripten::val tint_col, emscripten::val border_col), {
         ImGui::Image((ImTextureID) user_texture_id.as<int>(), import_ImVec2(size), import_ImVec2(uv0), import_ImVec2(uv1), import_ImVec4(tint_col), import_ImVec4(border_col));
@@ -2188,69 +2208,69 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // Widgets: Drags (tip: ctrl+click on a drag box to input with keyboard. manually input values aren't clamped, can go off-bounds)
     // For all the Float2/Float3/Float4/Int2/Int3/Int4 versions of every functions, note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can pass address of your first element out of a contiguous set, e.g. &myvector.x
     // IMGUI_API bool          DragFloat(const char* label, float* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);     // If v_min >= v_max we have no bound
-    emscripten::function("DragFloat", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
-        return ImGui::DragFloat(label.c_str(), access_value<float>(v), import_value<float>(v_speed), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_value<float>(power));
+    emscripten::function("DragFloat", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, int flags), {
+        return ImGui::DragFloat(label.c_str(), access_value<float>(v), import_value<float>(v_speed), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          DragFloat2(const char* label, float v[2], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);
-    emscripten::function("DragFloat2", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
-        return ImGui::DragFloat2(label.c_str(), access_value<float, 2>(v), import_value<float>(v_speed), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_value<float>(power));
+    emscripten::function("DragFloat2", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, int flags), {
+        return ImGui::DragFloat2(label.c_str(), access_value<float, 2>(v), import_value<float>(v_speed), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          DragFloat3(const char* label, float v[3], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);
-    emscripten::function("DragFloat3", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
-        return ImGui::DragFloat3(label.c_str(), access_value<float, 3>(v), import_value<float>(v_speed), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_value<float>(power));
+    emscripten::function("DragFloat3", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, int flags), {
+        return ImGui::DragFloat3(label.c_str(), access_value<float, 3>(v), import_value<float>(v_speed), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          DragFloat4(const char* label, float v[4], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", float power = 1.0f);
-    emscripten::function("DragFloat4", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
-        return ImGui::DragFloat4(label.c_str(), access_value<float, 4>(v), import_value<float>(v_speed), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_value<float>(power));
+    emscripten::function("DragFloat4", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, int flags), {
+        return ImGui::DragFloat4(label.c_str(), access_value<float, 4>(v), import_value<float>(v_speed), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          DragFloatRange2(const char* label, float* v_current_min, float* v_current_max, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", const char* display_format_max = NULL, float power = 1.0f);
-    emscripten::function("DragFloatRange2", FUNCTION(bool, (std::string label, emscripten::val v_current_min, emscripten::val v_current_max, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val display_format_max, emscripten::val power), {
-        return ImGui::DragFloatRange2(label.c_str(), access_value<float>(v_current_min), access_value<float>(v_current_max), import_value<float>(v_speed), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_maybe_null_string(display_format_max), import_value<float>(power));
+    emscripten::function("DragFloatRange2", FUNCTION(bool, (std::string label, emscripten::val v_current_min, emscripten::val v_current_max, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val display_format_max, int flags), {
+        return ImGui::DragFloatRange2(label.c_str(), access_value<float>(v_current_min), access_value<float>(v_current_max), import_value<float>(v_speed), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_maybe_null_string(display_format_max), flags);
     }));
     // IMGUI_API bool          DragInt(const char* label, int* v, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%.0f");                                       // If v_min >= v_max we have no bound
-    emscripten::function("DragInt", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, int v_min, int v_max, emscripten::val format), {
-        return ImGui::DragInt(label.c_str(), access_value<int>(v), import_value<float>(v_speed), v_min, v_max, import_maybe_null_string(format));
+    emscripten::function("DragInt", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, int v_min, int v_max, emscripten::val format, int flags), {
+        return ImGui::DragInt(label.c_str(), access_value<int>(v), import_value<float>(v_speed), v_min, v_max, import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          DragInt2(const char* label, int v[2], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%.0f");
-    emscripten::function("DragInt2", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, int v_min, int v_max, emscripten::val format), {
-        return ImGui::DragInt2(label.c_str(), access_value<int, 2>(v), import_value<float>(v_speed), v_min, v_max, import_maybe_null_string(format));
+    emscripten::function("DragInt2", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, int v_min, int v_max, emscripten::val format, int flags), {
+        return ImGui::DragInt2(label.c_str(), access_value<int, 2>(v), import_value<float>(v_speed), v_min, v_max, import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          DragInt3(const char* label, int v[3], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%.0f");
-    emscripten::function("DragInt3", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, int v_min, int v_max, emscripten::val format), {
-        return ImGui::DragInt3(label.c_str(), access_value<int, 3>(v), import_value<float>(v_speed), v_min, v_max, import_maybe_null_string(format));
+    emscripten::function("DragInt3", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, int v_min, int v_max, emscripten::val format, int flags), {
+        return ImGui::DragInt3(label.c_str(), access_value<int, 3>(v), import_value<float>(v_speed), v_min, v_max, import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          DragInt4(const char* label, int v[4], float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%.0f");
-    emscripten::function("DragInt4", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, int v_min, int v_max, emscripten::val format), {
-        return ImGui::DragInt4(label.c_str(), access_value<int, 4>(v), import_value<float>(v_speed), v_min, v_max, import_maybe_null_string(format));
+    emscripten::function("DragInt4", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_speed, int v_min, int v_max, emscripten::val format, int flags), {
+        return ImGui::DragInt4(label.c_str(), access_value<int, 4>(v), import_value<float>(v_speed), v_min, v_max, import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          DragIntRange2(const char* label, int* v_current_min, int* v_current_max, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%.0f", const char* display_format_max = NULL);
-    emscripten::function("DragIntRange2", FUNCTION(bool, (std::string label, emscripten::val v_current_min, emscripten::val v_current_max, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val display_format_max), {
-        return ImGui::DragIntRange2(label.c_str(), access_value<int>(v_current_min), access_value<int>(v_current_max), import_value<float>(v_speed), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_maybe_null_string(display_format_max));
+    emscripten::function("DragIntRange2", FUNCTION(bool, (std::string label, emscripten::val v_current_min, emscripten::val v_current_max, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val display_format_max, int flags), {
+        return ImGui::DragIntRange2(label.c_str(), access_value<int>(v_current_min), access_value<int>(v_current_max), import_value<float>(v_speed), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_maybe_null_string(display_format_max), flags);
     }));
     // IMGUI_API bool          DragScalar(const char* label, ImGuiDataType data_type, void* v, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
     // IMGUI_API bool          DragScalarN(const char* label, ImGuiDataType data_type, void* v, int components, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
-    emscripten::function("DragScalar", FUNCTION(bool, (std::string label, ImGuiDataType data_type, emscripten::val v, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
+    emscripten::function("DragScalar", FUNCTION(bool, (std::string label, ImGuiDataType data_type, emscripten::val v, emscripten::val v_speed, emscripten::val v_min, emscripten::val v_max, emscripten::val format, int flags), {
         switch (data_type) {
             case ImGuiDataType_S8:
-                return ImGui::DragScalarV<ImS8>(label.c_str(), data_type, access_typed_array<ImS8>(v), import_value<float>(v_speed), import_maybe_null_value<ImS8>(v_min), import_maybe_null_value<ImS8>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::DragScalarV<ImS8>(label.c_str(), data_type, access_typed_array<ImS8>(v), import_value<float>(v_speed), import_maybe_null_value<ImS8>(v_min), import_maybe_null_value<ImS8>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_U8:
-                return ImGui::DragScalarV<ImU8>(label.c_str(), data_type, access_typed_array<ImU8>(v), import_value<float>(v_speed), import_maybe_null_value<ImU8>(v_min), import_maybe_null_value<ImU8>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::DragScalarV<ImU8>(label.c_str(), data_type, access_typed_array<ImU8>(v), import_value<float>(v_speed), import_maybe_null_value<ImU8>(v_min), import_maybe_null_value<ImU8>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_S16:
-                return ImGui::DragScalarV<ImS16>(label.c_str(), data_type, access_typed_array<ImS16>(v), import_value<float>(v_speed), import_maybe_null_value<ImS16>(v_min), import_maybe_null_value<ImS16>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::DragScalarV<ImS16>(label.c_str(), data_type, access_typed_array<ImS16>(v), import_value<float>(v_speed), import_maybe_null_value<ImS16>(v_min), import_maybe_null_value<ImS16>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_U16:
-                return ImGui::DragScalarV<ImU16>(label.c_str(), data_type, access_typed_array<ImU16>(v), import_value<float>(v_speed), import_maybe_null_value<ImU16>(v_min), import_maybe_null_value<ImU16>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::DragScalarV<ImU16>(label.c_str(), data_type, access_typed_array<ImU16>(v), import_value<float>(v_speed), import_maybe_null_value<ImU16>(v_min), import_maybe_null_value<ImU16>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_S32:
-                return ImGui::DragScalarV<ImS32>(label.c_str(), data_type, access_typed_array<ImS32>(v), import_value<float>(v_speed), import_maybe_null_value<ImS32>(v_min), import_maybe_null_value<ImS32>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::DragScalarV<ImS32>(label.c_str(), data_type, access_typed_array<ImS32>(v), import_value<float>(v_speed), import_maybe_null_value<ImS32>(v_min), import_maybe_null_value<ImS32>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_U32:
-                return ImGui::DragScalarV<ImU32>(label.c_str(), data_type, access_typed_array<ImU32>(v), import_value<float>(v_speed), import_maybe_null_value<ImU32>(v_min), import_maybe_null_value<ImU32>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::DragScalarV<ImU32>(label.c_str(), data_type, access_typed_array<ImU32>(v), import_value<float>(v_speed), import_maybe_null_value<ImU32>(v_min), import_maybe_null_value<ImU32>(v_max), import_maybe_null_string(format), flags);
             // case ImGuiDataType_S64:
-            //     return ImGui::DragScalarV<ImS64>(label.c_str(), data_type, access_typed_array<ImS64>(v), import_value<float>(v_speed), import_maybe_null_value<ImS64>(v_min), import_maybe_null_value<ImS64>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            //     return ImGui::DragScalarV<ImS64>(label.c_str(), data_type, access_typed_array<ImS64>(v), import_value<float>(v_speed), import_maybe_null_value<ImS64>(v_min), import_maybe_null_value<ImS64>(v_max), import_maybe_null_string(format), flags);
             // case ImGuiDataType_U64:
-            //     return ImGui::DragScalarV<ImU64>(label.c_str(), data_type, access_typed_array<ImU64>(v), import_value<float>(v_speed), import_maybe_null_value<ImU64>(v_min), import_maybe_null_value<ImU64>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            //     return ImGui::DragScalarV<ImU64>(label.c_str(), data_type, access_typed_array<ImU64>(v), import_value<float>(v_speed), import_maybe_null_value<ImU64>(v_min), import_maybe_null_value<ImU64>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_Float:
-                return ImGui::DragScalarV<float>(label.c_str(), data_type, access_typed_array<float>(v), import_value<float>(v_speed), import_maybe_null_value<float>(v_min), import_maybe_null_value<float>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::DragScalarV<float>(label.c_str(), data_type, access_typed_array<float>(v), import_value<float>(v_speed), import_maybe_null_value<float>(v_min), import_maybe_null_value<float>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_Double:
-                return ImGui::DragScalarV<double>(label.c_str(), data_type, access_typed_array<double>(v), import_value<float>(v_speed), import_maybe_null_value<double>(v_min), import_maybe_null_value<double>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::DragScalarV<double>(label.c_str(), data_type, access_typed_array<double>(v), import_value<float>(v_speed), import_maybe_null_value<double>(v_min), import_maybe_null_value<double>(v_max), import_maybe_null_string(format), flags);
         }
         return false;
     }));
@@ -2373,99 +2393,99 @@ EMSCRIPTEN_BINDINGS(ImGui) {
 
     // Widgets: Sliders (tip: ctrl+click on a slider to input with keyboard. manually input values aren't clamped, can go off-bounds)
     // IMGUI_API bool          SliderFloat(const char* label, float* v, float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);     // adjust format to decorate the value with a prefix or a suffix for in-slider labels or unit display. Use power!=1.0 for logarithmic sliders
-    emscripten::function("SliderFloat", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
-        return ImGui::SliderFloat(label.c_str(), access_value<float>(v), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_value<float>(power));
+    emscripten::function("SliderFloat", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, int flags), {
+        return ImGui::SliderFloat(label.c_str(), access_value<float>(v), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          SliderFloat2(const char* label, float v[2], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
-    emscripten::function("SliderFloat2", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
-        return ImGui::SliderFloat2(label.c_str(), access_value<float, 2>(v), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_value<float>(power));
+    emscripten::function("SliderFloat2", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, int flags), {
+        return ImGui::SliderFloat2(label.c_str(), access_value<float, 2>(v), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          SliderFloat3(const char* label, float v[3], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
-    emscripten::function("SliderFloat3", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
-        return ImGui::SliderFloat3(label.c_str(), access_value<float, 3>(v), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_value<float>(power));
+    emscripten::function("SliderFloat3", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, int flags), {
+        return ImGui::SliderFloat3(label.c_str(), access_value<float, 3>(v), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          SliderFloat4(const char* label, float v[4], float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
-    emscripten::function("SliderFloat4", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
-        return ImGui::SliderFloat4(label.c_str(), access_value<float, 4>(v), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_value<float>(power));
+    emscripten::function("SliderFloat4", FUNCTION(bool, (std::string label, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, int flags), {
+        return ImGui::SliderFloat4(label.c_str(), access_value<float, 4>(v), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          SliderAngle(const char* label, float* v_rad, float v_degrees_min = -360.0f, float v_degrees_max = +360.0f);
-    emscripten::function("SliderAngle", FUNCTION(bool, (std::string label, emscripten::val v_rad, emscripten::val v_degrees_min, emscripten::val v_degrees_max), {
-        return ImGui::SliderAngle(label.c_str(), access_value<float>(v_rad), import_value<float>(v_degrees_min), import_value<float>(v_degrees_max));
+    emscripten::function("SliderAngle", FUNCTION(bool, (std::string label, emscripten::val v_rad, emscripten::val v_degrees_min, emscripten::val v_degrees_max, emscripten::val format, int flags), {
+        return ImGui::SliderAngle(label.c_str(), access_value<float>(v_rad), import_value<float>(v_degrees_min), import_value<float>(v_degrees_max), import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          SliderInt(const char* label, int* v, int v_min, int v_max, const char* format = "%.0f");
-    emscripten::function("SliderInt", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, emscripten::val format), {
-        return ImGui::SliderInt(label.c_str(), access_value<int>(v), v_min, v_max, import_maybe_null_string(format));
+    emscripten::function("SliderInt", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, emscripten::val format, int flags), {
+        return ImGui::SliderInt(label.c_str(), access_value<int>(v), v_min, v_max, import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          SliderInt2(const char* label, int v[2], int v_min, int v_max, const char* format = "%.0f");
-    emscripten::function("SliderInt2", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, emscripten::val format), {
-        return ImGui::SliderInt2(label.c_str(), access_value<int, 2>(v), v_min, v_max, import_maybe_null_string(format));
+    emscripten::function("SliderInt2", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, emscripten::val format, int flags), {
+        return ImGui::SliderInt2(label.c_str(), access_value<int, 2>(v), v_min, v_max, import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          SliderInt3(const char* label, int v[3], int v_min, int v_max, const char* format = "%.0f");
-    emscripten::function("SliderInt3", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, emscripten::val format), {
-        return ImGui::SliderInt3(label.c_str(), access_value<int, 3>(v), v_min, v_max, import_maybe_null_string(format));
+    emscripten::function("SliderInt3", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, emscripten::val format, int flags), {
+        return ImGui::SliderInt3(label.c_str(), access_value<int, 3>(v), v_min, v_max, import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          SliderInt4(const char* label, int v[4], int v_min, int v_max, const char* format = "%.0f");
-    emscripten::function("SliderInt4", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, emscripten::val format), {
-        return ImGui::SliderInt4(label.c_str(), access_value<int, 4>(v), v_min, v_max, import_maybe_null_string(format));
+    emscripten::function("SliderInt4", FUNCTION(bool, (std::string label, emscripten::val v, int v_min, int v_max, emscripten::val format, int flags), {
+        return ImGui::SliderInt4(label.c_str(), access_value<int, 4>(v), v_min, v_max, import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          SliderScalar(const char* label, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
     // IMGUI_API bool          SliderScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
-    emscripten::function("SliderScalar", FUNCTION(bool, (std::string label, ImGuiDataType data_type, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
+    emscripten::function("SliderScalar", FUNCTION(bool, (std::string label, ImGuiDataType data_type, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, int flags), {
         switch (data_type) {
             case ImGuiDataType_S8:
-                return ImGui::SliderScalarV<ImS8>(label.c_str(), data_type, access_typed_array<ImS8>(v), import_maybe_null_value<ImS8>(v_min), import_maybe_null_value<ImS8>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::SliderScalarV<ImS8>(label.c_str(), data_type, access_typed_array<ImS8>(v), import_maybe_null_value<ImS8>(v_min), import_maybe_null_value<ImS8>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_U8:
-                return ImGui::SliderScalarV<ImU8>(label.c_str(), data_type, access_typed_array<ImU8>(v), import_maybe_null_value<ImU8>(v_min), import_maybe_null_value<ImU8>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::SliderScalarV<ImU8>(label.c_str(), data_type, access_typed_array<ImU8>(v), import_maybe_null_value<ImU8>(v_min), import_maybe_null_value<ImU8>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_S16:
-                return ImGui::SliderScalarV<ImS16>(label.c_str(), data_type, access_typed_array<ImS16>(v), import_maybe_null_value<ImS16>(v_min), import_maybe_null_value<ImS16>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::SliderScalarV<ImS16>(label.c_str(), data_type, access_typed_array<ImS16>(v), import_maybe_null_value<ImS16>(v_min), import_maybe_null_value<ImS16>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_U16:
-                return ImGui::SliderScalarV<ImU16>(label.c_str(), data_type, access_typed_array<ImU16>(v), import_maybe_null_value<ImU16>(v_min), import_maybe_null_value<ImU16>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::SliderScalarV<ImU16>(label.c_str(), data_type, access_typed_array<ImU16>(v), import_maybe_null_value<ImU16>(v_min), import_maybe_null_value<ImU16>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_S32:
-                return ImGui::SliderScalarV<ImS32>(label.c_str(), data_type, access_typed_array<ImS32>(v), import_maybe_null_value<ImS32>(v_min), import_maybe_null_value<ImS32>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::SliderScalarV<ImS32>(label.c_str(), data_type, access_typed_array<ImS32>(v), import_maybe_null_value<ImS32>(v_min), import_maybe_null_value<ImS32>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_U32:
-                return ImGui::SliderScalarV<ImU32>(label.c_str(), data_type, access_typed_array<ImU32>(v), import_maybe_null_value<ImU32>(v_min), import_maybe_null_value<ImU32>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::SliderScalarV<ImU32>(label.c_str(), data_type, access_typed_array<ImU32>(v), import_maybe_null_value<ImU32>(v_min), import_maybe_null_value<ImU32>(v_max), import_maybe_null_string(format), flags);
             // case ImGuiDataType_S64:
-            //     return ImGui::SliderScalarV<ImS64>(label.c_str(), data_type, access_typed_array<ImS64>(v), import_maybe_null_value<ImS64>(v_min), import_maybe_null_value<ImS64>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            //     return ImGui::SliderScalarV<ImS64>(label.c_str(), data_type, access_typed_array<ImS64>(v), import_maybe_null_value<ImS64>(v_min), import_maybe_null_value<ImS64>(v_max), import_maybe_null_string(format), flags);
             // case ImGuiDataType_U64:
-            //     return ImGui::SliderScalarV<ImU64>(label.c_str(), data_type, access_typed_array<ImU64>(v), import_maybe_null_value<ImU64>(v_min), import_maybe_null_value<ImU64>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            //     return ImGui::SliderScalarV<ImU64>(label.c_str(), data_type, access_typed_array<ImU64>(v), import_maybe_null_value<ImU64>(v_min), import_maybe_null_value<ImU64>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_Float:
-                return ImGui::SliderScalarV<float>(label.c_str(), data_type, access_typed_array<float>(v), import_maybe_null_value<float>(v_min), import_maybe_null_value<float>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::SliderScalarV<float>(label.c_str(), data_type, access_typed_array<float>(v), import_maybe_null_value<float>(v_min), import_maybe_null_value<float>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_Double:
-                return ImGui::SliderScalarV<double>(label.c_str(), data_type, access_typed_array<double>(v), import_maybe_null_value<double>(v_min), import_maybe_null_value<double>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::SliderScalarV<double>(label.c_str(), data_type, access_typed_array<double>(v), import_maybe_null_value<double>(v_min), import_maybe_null_value<double>(v_max), import_maybe_null_string(format), flags);
         }
         return false;
     }));
     // IMGUI_API bool          VSliderFloat(const char* label, const ImVec2& size, float* v, float v_min, float v_max, const char* format = "%.3f", float power = 1.0f);
-    emscripten::function("VSliderFloat", FUNCTION(bool, (std::string label, emscripten::val size, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
-        return ImGui::VSliderFloat(label.c_str(), import_ImVec2(size), access_value<float>(v), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), import_value<float>(power));
+    emscripten::function("VSliderFloat", FUNCTION(bool, (std::string label, emscripten::val size, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, int flags), {
+        return ImGui::VSliderFloat(label.c_str(), import_ImVec2(size), access_value<float>(v), import_value<float>(v_min), import_value<float>(v_max), import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          VSliderInt(const char* label, const ImVec2& size, int* v, int v_min, int v_max, const char* format = "%.0f");
-    emscripten::function("VSliderInt", FUNCTION(bool, (std::string label, emscripten::val size, emscripten::val v, int v_min, int v_max, emscripten::val format), {
-        return ImGui::VSliderInt(label.c_str(), import_ImVec2(size), access_value<int>(v), v_min, v_max, import_maybe_null_string(format));
+    emscripten::function("VSliderInt", FUNCTION(bool, (std::string label, emscripten::val size, emscripten::val v, int v_min, int v_max, emscripten::val format, int flags), {
+        return ImGui::VSliderInt(label.c_str(), import_ImVec2(size), access_value<int>(v), v_min, v_max, import_maybe_null_string(format), flags);
     }));
     // IMGUI_API bool          VSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
-    emscripten::function("VSliderScalar", FUNCTION(bool, (std::string label, emscripten::val size, ImGuiDataType data_type, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, emscripten::val power), {
+    emscripten::function("VSliderScalar", FUNCTION(bool, (std::string label, emscripten::val size, ImGuiDataType data_type, emscripten::val v, emscripten::val v_min, emscripten::val v_max, emscripten::val format, int flags), {
         switch (data_type) {
             case ImGuiDataType_S8:
-                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImS8>(v).data(), import_maybe_null_value<ImS8>(v_min), import_maybe_null_value<ImS8>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImS8>(v).data(), import_maybe_null_value<ImS8>(v_min), import_maybe_null_value<ImS8>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_U8:
-                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImU8>(v).data(), import_maybe_null_value<ImU8>(v_min), import_maybe_null_value<ImU8>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImU8>(v).data(), import_maybe_null_value<ImU8>(v_min), import_maybe_null_value<ImU8>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_S16:
-                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImS16>(v).data(), import_maybe_null_value<ImS16>(v_min), import_maybe_null_value<ImS16>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImS16>(v).data(), import_maybe_null_value<ImS16>(v_min), import_maybe_null_value<ImS16>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_U16:
-                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImU16>(v).data(), import_maybe_null_value<ImU16>(v_min), import_maybe_null_value<ImU16>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImU16>(v).data(), import_maybe_null_value<ImU16>(v_min), import_maybe_null_value<ImU16>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_S32:
-                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImS32>(v).data(), import_maybe_null_value<ImS32>(v_min), import_maybe_null_value<ImS32>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImS32>(v).data(), import_maybe_null_value<ImS32>(v_min), import_maybe_null_value<ImS32>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_U32:
-                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImU32>(v).data(), import_maybe_null_value<ImU32>(v_min), import_maybe_null_value<ImU32>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImU32>(v).data(), import_maybe_null_value<ImU32>(v_min), import_maybe_null_value<ImU32>(v_max), import_maybe_null_string(format), flags);
             // case ImGuiDataType_S64:
-            //     return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImS64>(v).data(), import_maybe_null_value<ImS64>(v_min), import_maybe_null_value<ImS64>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            //     return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImS64>(v).data(), import_maybe_null_value<ImS64>(v_min), import_maybe_null_value<ImS64>(v_max), import_maybe_null_string(format), flags);
             // case ImGuiDataType_U64:
-            //     return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImU64>(v).data(), import_maybe_null_value<ImU64>(v_min), import_maybe_null_value<ImU64>(v_max), import_maybe_null_string(format), import_value<float>(power));
+            //     return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<ImU64>(v).data(), import_maybe_null_value<ImU64>(v_min), import_maybe_null_value<ImU64>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_Float:
-                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<float>(v).data(), import_maybe_null_value<float>(v_min), import_maybe_null_value<float>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<float>(v).data(), import_maybe_null_value<float>(v_min), import_maybe_null_value<float>(v_max), import_maybe_null_string(format), flags);
             case ImGuiDataType_Double:
-                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<double>(v).data(), import_maybe_null_value<double>(v_min), import_maybe_null_value<double>(v_max), import_maybe_null_string(format), import_value<float>(power));
+                return ImGui::VSliderScalar(label.c_str(), import_ImVec2(size), data_type, access_typed_array<double>(v).data(), import_maybe_null_value<double>(v_min), import_maybe_null_value<double>(v_max), import_maybe_null_string(format), flags);
         }
         return false;
     }));
@@ -2634,14 +2654,14 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("EndTooltip", &ImGui::EndTooltip);
 
     // Menus
-    // IMGUI_API bool          BeginMainMenuBar();                                                 // create and append to a full screen menu-bar. only call EndMainMenuBar() if this returns true!
-    emscripten::function("BeginMainMenuBar", &ImGui::BeginMainMenuBar);
-    // IMGUI_API void          EndMainMenuBar();
-    emscripten::function("EndMainMenuBar", &ImGui::EndMainMenuBar);
     // IMGUI_API bool          BeginMenuBar();                                                     // append to menu-bar of current window (requires ImGuiWindowFlags_MenuBar flag set on parent window). only call EndMenuBar() if this returns true!
     emscripten::function("BeginMenuBar", &ImGui::BeginMenuBar);
     // IMGUI_API void          EndMenuBar();
     emscripten::function("EndMenuBar", &ImGui::EndMenuBar);
+    // IMGUI_API bool          BeginMainMenuBar();                                                 // create and append to a full screen menu-bar. only call EndMainMenuBar() if this returns true!
+    emscripten::function("BeginMainMenuBar", &ImGui::BeginMainMenuBar);
+    // IMGUI_API void          EndMainMenuBar();
+    emscripten::function("EndMainMenuBar", &ImGui::EndMainMenuBar);
     // IMGUI_API bool          BeginMenu(const char* label, bool enabled = true);                  // create a sub-menu entry. only call EndMenu() if this returns true!
     emscripten::function("BeginMenu", FUNCTION(bool, (std::string label, bool enabled), {
         return ImGui::BeginMenu(label.c_str(), enabled);
@@ -2657,109 +2677,72 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         return ImGui::MenuItem(label.c_str(), import_maybe_null_string(shortcut), access_maybe_null_value<bool>(p_selected), enabled);
     }));
 
-    // Popups, Modals
-    //  - They block normal mouse hovering detection (and therefore most mouse interactions) behind them.
-    //  - If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
-    //  - Their visibility state (~bool) is held internally instead of being held by the programmer as we are used to with regular Begin*() calls.
-    //  - The 3 properties above are related: we need to retain popup visibility state in the library because popups may be closed as any time.
-    //  - You can bypass the hovering restriction by using ImGuiHoveredFlags_AllowWhenBlockedByPopup when calling IsItemHovered() or IsWindowHovered().
-    //  - IMPORTANT: Popup identifiers are relative to the current ID stack, so OpenPopup and BeginPopup generally needs to be at the same level of the stack.
-    //    This is sometimes leading to confusing mistakes. May rework this in the future.
-    // Popups: begin/end functions
-    //  - BeginPopup(): query popup state, if open start appending into the window. Call EndPopup() afterwards. ImGuiWindowFlags are forwarded to the window.
-    //  - BeginPopupModal(): block every interactions behind the window, cannot be closed by user, add a dimming background, has a title bar.
-    // IMGUI_API bool          BeginPopup(const char* str_id, ImGuiWindowFlags flags = 0);                         // return true if the popup is open, and you can start outputting to it.
-    emscripten::function("BeginPopup", FUNCTION(bool, (std::string str_id, ImGuiWindowFlags flags), { return ImGui::BeginPopup(str_id.c_str(), flags); }));
-    // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0); // return true if the modal is open, and you can start outputting to it.
+    // Popups
+    // IMGUI_API bool          BeginPopup(const char* str_id);                                     // return true if the popup is open, and you can start outputting to it. only call EndPopup() if BeginPopup() returned true!
+    emscripten::function("BeginPopup", FUNCTION(bool, (std::string str_id), { return ImGui::BeginPopup(str_id.c_str()); }));
+    // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags extra_flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
     emscripten::function("BeginPopupModal", FUNCTION(bool, (std::string name, emscripten::val p_open, ImGuiWindowFlags extra_flags), {
         return ImGui::BeginPopupModal(name.c_str(), access_maybe_null_value<bool>(p_open), extra_flags);
     }));
     // IMGUI_API void          EndPopup();
     emscripten::function("EndPopup", &ImGui::EndPopup);
-    // Popups: open+begin combined functions helpers
-    //  - Helpers to do OpenPopup+BeginPopup where the Open action is triggered by e.g. hovering an item and right-clicking.
-    //  - They are convenient to easily create context menus, hence the name.
-    //  - IMPORTANT: Notice that BeginPopupContextXXX takes ImGuiPopupFlags just like OpenPopup() and unlike BeginPopup(). For full consistency, we may add ImGuiWindowFlags to the BeginPopupContextXXX functions in the future.
-    //  - IMPORTANT: we exceptionally default their flags to 1 (== ImGuiPopupFlags_MouseButtonRight) for backward compatibility with older API taking 'int mouse_button = 1' parameter, so if you add other flags remember to re-add the ImGuiPopupFlags_MouseButtonRight.
-    // IMGUI_API void          OpenPopup(const char* str_id, ImGuiPopupFlags popup_flags = 0);                     // call to mark popup as open (don't call every frame!).
-    emscripten::function("OpenPopup", FUNCTION(void, (std::string str_id, ImGuiPopupFlags popup_flags), { ImGui::OpenPopup(str_id.c_str(), popup_flags); }));
-    // IMGUI_API void          OpenPopupOnItemClick(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);   // helper to open popup when clicked on last item. return true when just opened. (note: actually triggers on the mouse _released_ event to be consistent with popup behaviors)
-    emscripten::function("OpenPopupOnItemClick", FUNCTION(void, (emscripten::val str_id, ImGuiPopupFlags popup_flags), { return ImGui::OpenPopupOnItemClick(import_maybe_null_string(str_id), popup_flags); }));
+
+    // IMGUI_API void          OpenPopup(const char* str_id);                                      // call to mark popup as open (don't call every frame!). popups are closed when user click outside, or if CloseCurrentPopup() is called within a BeginPopup()/EndPopup() block. By default, Selectable()/MenuItem() are calling CloseCurrentPopup(). Popup identifiers are relative to the current ID-stack (so OpenPopup and BeginPopup needs to be at the same level).
+    emscripten::function("OpenPopup", FUNCTION(void, (std::string str_id), { ImGui::OpenPopup(str_id.c_str()); }));
+    // IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
+    emscripten::function("OpenPopupOnItemClick", FUNCTION(void, (emscripten::val str_id, int mouse_button), { ImGui::OpenPopupOnItemClick(import_maybe_null_string(str_id), mouse_button); }));
     // IMGUI_API void          CloseCurrentPopup();                                                // close the popup we have begin-ed into. clicking on a MenuItem or Selectable automatically close the current popup.
     emscripten::function("CloseCurrentPopup", &ImGui::CloseCurrentPopup);
-    // Popups: open+begin combined functions helpers
-    //  - Helpers to do OpenPopup+BeginPopup where the Open action is triggered by e.g. hovering an item and right-clicking.
-    //  - They are convenient to easily create context menus, hence the name.
-    //  - IMPORTANT: Notice that BeginPopupContextXXX takes ImGuiPopupFlags just like OpenPopup() and unlike BeginPopup(). For full consistency, we may add ImGuiWindowFlags to the BeginPopupContextXXX functions in the future.
-    //  - IMPORTANT: we exceptionally default their flags to 1 (== ImGuiPopupFlags_MouseButtonRight) for backward compatibility with older API taking 'int mouse_button = 1' parameter, so if you add other flags remember to re-add the ImGuiPopupFlags_MouseButtonRight.
-    // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);  // open+begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
-    emscripten::function("BeginPopupContextItem", FUNCTION(bool, (emscripten::val str_id, ImGuiPopupFlags popup_flags), { return ImGui::BeginPopupContextItem(import_maybe_null_string(str_id), popup_flags); }));
-    // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);// open+begin popup when clicked on current window.
-    emscripten::function("BeginPopupContextWindow", FUNCTION(bool, (emscripten::val str_id, ImGuiPopupFlags popup_flags), { return ImGui::BeginPopupContextWindow(import_maybe_null_string(str_id), popup_flags); }));
-    // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);  // open+begin popup when clicked in void (where there are no windows).
-    emscripten::function("BeginPopupContextVoid", FUNCTION(bool, (emscripten::val str_id, ImGuiPopupFlags popup_flags), { return ImGui::BeginPopupContextVoid(import_maybe_null_string(str_id), popup_flags); }));
-    // IMGUI_API bool          IsPopupOpen(const char* str_id, ImGuiPopupFlags flags = 0);                         // return true if the popup is open.
-    emscripten::function("IsPopupOpen", FUNCTION(bool, (std::string str_id, ImGuiPopupFlags flags), { return ImGui::IsPopupOpen(str_id.c_str(), flags); }));
 
+    // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
+    emscripten::function("BeginPopupContextItem", FUNCTION(bool, (emscripten::val str_id, int mouse_button), { return ImGui::BeginPopupContextItem(import_maybe_null_string(str_id), mouse_button); }));
+    // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, int mouse_button = 1, bool also_over_items = true);  // helper to open and begin popup when clicked on current window.
+    emscripten::function("BeginPopupContextWindow", FUNCTION(bool, (emscripten::val str_id, int mouse_button), { return ImGui::BeginPopupContextWindow(import_maybe_null_string(str_id), mouse_button); }));
+    // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
+    emscripten::function("BeginPopupContextVoid", FUNCTION(bool, (emscripten::val str_id, int mouse_button), { return ImGui::BeginPopupContextVoid(import_maybe_null_string(str_id), mouse_button); }));
+
+    // IMGUI_API bool          IsPopupOpen(const char* str_id);                                    // return true if the popup is open
+    emscripten::function("IsPopupOpen", FUNCTION(bool, (std::string str_id), { return ImGui::IsPopupOpen(str_id.c_str()); }));
+
+    // Tables
     // IMGUI_API bool          BeginTable(const char* str_id, int column, ImGuiTableFlags flags = 0, const ImVec2& outer_size = ImVec2(0.0f, 0.0f), float inner_width = 0.0f);
-    emscripten::function("BeginTable", FUNCTION(bool, (std::string str_id, int column, int flags, emscripten::val outer_size, float inner_width), {
-        return ImGui::BeginTable(str_id.c_str(), column, flags, import_ImVec2(outer_size), inner_width);
-    }));
-    // IMGUI_API void          EndTable();                                 // only call EndTable() if BeginTable() returns true!
-    emscripten::function("EndTable", &ImGui::EndTable);
-    // IMGUI_API void          TableNextRow(ImGuiTableRowFlags row_flags = 0, float min_row_height = 0.0f); // append into the first cell of a new row.
-    emscripten::function("TableNextRow", FUNCTION(void, (int row_flags, float min_row_height), {
-        return ImGui::TableNextRow(row_flags, min_row_height);
-    }));
-    // IMGUI_API bool          TableNextColumn();                          // append into the next column (or first column of next row if currently in last column). Return true when column is visible.
-    emscripten::function("TableNextColumn", &ImGui::TableNextColumn);
-    // IMGUI_API bool          TableSetColumnIndex(int column_n);          // append into the specified column. Return true when column is visible.
-    emscripten::function("TableSetColumnIndex", &ImGui::TableSetColumnIndex);
-    // Tables: Headers & Columns declaration
-    // - Use TableSetupColumn() to specify label, resizing policy, default width/weight, id, various other flags etc.
-    // - Use TableHeadersRow() to create a header row and automatically submit a TableHeader() for each column.
-    //   Headers are required to perform: reordering, sorting, and opening the context menu.
-    //   The context menu can also be made available in columns body using ImGuiTableFlags_ContextMenuInBody.
-    // - You may manually submit headers using TableNextRow() + TableHeader() calls, but this is only useful in
-    //   some advanced use cases (e.g. adding custom widgets in header row).
-    // - Use TableSetupScrollFreeze() to lock columns/rows so they stay visible when scrolled.
+    emscripten::function("BeginTable", FUNCTION(bool, (std::string str_id, int column, int flags, emscripten::val outer_size, float inner_width), { return ImGui::BeginTable(str_id.c_str(), column, flags, import_ImVec2(outer_size), inner_width); }));
+    // IMGUI_API void          EndTable();
+    emscripten::function("EndTable", FUNCTION(void, (), { ImGui::EndTable(); }));
+    // IMGUI_API void          TableNextRow(ImGuiTableRowFlags row_flags = 0, float min_row_height = 0.0f);
+    emscripten::function("TableNextRow", FUNCTION(void, (ImGuiTableRowFlags row_flags, float min_row_height), { ImGui::TableNextRow(row_flags, min_row_height); }));
+    // IMGUI_API bool          TableNextColumn();
+    emscripten::function("TableNextColumn", FUNCTION(bool, (), { return ImGui::TableNextColumn(); }));
+    // IMGUI_API bool          TableSetColumnIndex(int column_n);
+    emscripten::function("TableSetColumnIndex", FUNCTION(bool, (int column_n), { return ImGui::TableSetColumnIndex(column_n); }));
+
     // IMGUI_API void          TableSetupColumn(const char* label, ImGuiTableColumnFlags flags = 0, float init_width_or_weight = 0.0f, ImU32 user_id = 0);
-    emscripten::function("TableSetupColumn", FUNCTION(void, (std::string label, int flags, float init_width_or_weight, ImU32 user_id), {
-        ImGui::TableSetupColumn(label.c_str(), flags, init_width_or_weight, user_id);
-    }));
-    // IMGUI_API void          TableSetupScrollFreeze(int cols, int rows); // lock columns/rows so they stay visible when scrolled.
-    emscripten::function("TableSetupScrollFreeze", &ImGui::TableSetupScrollFreeze);
-    // IMGUI_API void          TableHeadersRow();                          // submit all headers cells based on data provided to TableSetupColumn() + submit context menu
-    emscripten::function("TableHeadersRow", &ImGui::TableHeadersRow);
-    // IMGUI_API void          TableHeader(const char* label);             // submit one header cell manually (rarely used)
-    emscripten::function("TableHeader", FUNCTION(void, (std::string label), {
-        ImGui::TableHeader(label.c_str());
-    }));
-    // Tables: Sorting
-    // - Call TableGetSortSpecs() to retrieve latest sort specs for the table. NULL when not sorting.
-    // - When 'SpecsDirty == true' you should sort your data. It will be true when sorting specs have changed
-    //   since last call, or the first time. Make sure to set 'SpecsDirty = false' after sorting, else you may
-    //   wastefully sort your data every frame!
-    // - Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable().
-    // IMGUI_API ImGuiTableSortSpecs* TableGetSortSpecs();                        // get latest sort specs for the table (NULL if not sorting).
+    emscripten::function("TableSetupColumn", FUNCTION(void, (std::string label, ImGuiTableColumnFlags flags, float init_width_or_weight, ImU32 user_id), { ImGui::TableSetupColumn(label.c_str(), flags, init_width_or_weight, user_id); }));
+    // IMGUI_API void          TableSetupScrollFreeze(int cols, int rows);
+    emscripten::function("TableSetupScrollFreeze", FUNCTION(void, (int cols, int rows), { ImGui::TableSetupScrollFreeze(cols, rows); }));
+    // IMGUI_API void          TableHeadersRow();
+    emscripten::function("TableHeadersRow", FUNCTION(void, (), { ImGui::TableHeadersRow(); }));
+    // IMGUI_API void          TableHeader(const char* label);
+    emscripten::function("TableHeader", FUNCTION(void, (std::string label), { ImGui::TableHeader(label.c_str()); }));
+
+    // IMGUI_API ImGuiTableSortSpecs* TableGetSortSpecs();
     emscripten::function("TableGetSortSpecs", FUNCTION(emscripten::val, (), {
         ImGuiTableSortSpecs* p = ImGui::TableGetSortSpecs();
         return emscripten::val(p);
     }), emscripten::allow_raw_pointers());
-    // Tables: Miscellaneous functions
-    // - Functions args 'int column_n' treat the default value of -1 as the same as passing the current column index.
-    // IMGUI_API int                   TableGetColumnCount();                      // return number of columns (value passed to BeginTable)
-    emscripten::function("TableGetColumnCount", &ImGui::TableGetColumnCount);
-    // IMGUI_API int                   TableGetColumnIndex();                      // return current column index.
-    emscripten::function("TableGetColumnIndex", &ImGui::TableGetColumnIndex);
-    // IMGUI_API int                   TableGetRowIndex();                         // return current row index.
-    emscripten::function("TableGetRowIndex", &ImGui::TableGetRowIndex);
-    // IMGUI_API const char*           TableGetColumnName(int column_n = -1);      // return "" if column didn't have a name declared by TableSetupColumn(). Pass -1 to use current column.
-    emscripten::function("TableGetColumnName", FUNCTION(std::string, (int column_n), { return std::string(ImGui::TableGetColumnName(column_n)); }));
-    // IMGUI_API ImGuiTableColumnFlags TableGetColumnFlags(int column_n = -1);     // return column flags so you can query their Enabled/Visible/Sorted/Hovered status flags. Pass -1 to use current column.
-    emscripten::function("TableGetColumnFlags", &ImGui::TableGetColumnFlags);
-    // IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);  // change the color of a cell, row, or column. See ImGuiTableBgTarget_ flags for details.
-    emscripten::function("TableSetBgColor", &ImGui::TableSetBgColor);
+
+    // IMGUI_API int                   TableGetColumnCount();
+    emscripten::function("TableGetColumnCount", FUNCTION(int, (), { return ImGui::TableGetColumnCount(); }));
+    // IMGUI_API int                   TableGetColumnIndex();
+    emscripten::function("TableGetColumnIndex", FUNCTION(int, (), { return ImGui::TableGetColumnIndex(); }));
+    // IMGUI_API int                   TableGetRowIndex();
+    emscripten::function("TableGetRowIndex", FUNCTION(int, (), { return ImGui::TableGetRowIndex(); }));
+    // IMGUI_API const char*           TableGetColumnName(int column_n = -1);
+    emscripten::function("TableGetColumnName", FUNCTION(std::string, (int column_n), { return ImGui::TableGetColumnName(column_n); }));
+    // IMGUI_API ImGuiTableColumnFlags TableGetColumnFlags(int column_n = -1);
+    emscripten::function("TableGetColumnFlags", FUNCTION(ImGuiTableColumnFlags, (int column_n), { return ImGui::TableGetColumnFlags(column_n); }));
+    // IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);
+    emscripten::function("TableSetBgColor", FUNCTION(void, (ImGuiTableBgTarget target, ImU32 color, int column_n), { ImGui::TableSetBgColor(target, color, column_n); }));
 
     // Tab Bars, Tabs
     // [BETA API] API may evolve!
@@ -2779,6 +2762,11 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          EndTabItem();                                                       // only call EndTabItem() if BeginTabItem() returns true!
     // EndTabItem(): void;
     emscripten::function("EndTabItem", &ImGui::EndTabItem);
+    // IMGUI_API bool          TabItemButton(const char* label, ImGuiTabItemFlags flags = 0);      // create a Tab behaving like a button. return true when clicked. cannot be selected in the tab bar.
+    // TabItemButton(label: string, flags: ImGuiTabItemFlags): void;
+    emscripten::function("TabItemButton", FUNCTION(bool, (std::string label, int flags), {
+        return ImGui::TabItemButton(label.c_str(), flags);
+    }));
     // IMGUI_API void          SetTabItemClosed(const char* tab_or_docked_window_label);           // notify TabBar or Docking system of a closed tab/window ahead (useful to reduce visual flicker on reorderable tab bars). For tab-bar: call after BeginTabBar() and before Tab submissions. Otherwise call with a window name.
     // SetTabItemClosed(tab_or_docked_window_label: string): void;
     emscripten::function("SetTabItemClosed", FUNCTION(void, (std::string tab_or_docked_window_label), {
@@ -2851,7 +2839,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsItemEdited", &ImGui::IsItemEdited);
     // IMGUI_API bool          IsItemFocused();                                                    // is the last item focused for keyboard/gamepad navigation?
     emscripten::function("IsItemFocused", &ImGui::IsItemFocused);
-    // IMGUI_API bool          IsItemClicked(int mouse_button = 0);                                // is the last item clicked? (e.g. button/node just clicked on)
+    // IMGUI_API bool          IsItemClicked(ImGuiMouseButton mouse_button = 0);                                // is the last item clicked? (e.g. button/node just clicked on)
     emscripten::function("IsItemClicked", &ImGui::IsItemClicked);
     // IMGUI_API bool          IsItemVisible();                                                    // is the last item visible? (aka not out of sight due to clipping/scrolling.)
     emscripten::function("IsItemVisible", &ImGui::IsItemVisible);
@@ -2861,6 +2849,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsItemDeactivated", &ImGui::IsItemDeactivated);
     // IMGUI_API bool          IsItemDeactivatedAfterEdit();                                       // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
     emscripten::function("IsItemDeactivatedAfterEdit", &ImGui::IsItemDeactivatedAfterEdit);
+    // IMGUI_API bool          IsItemToggledOpen();
+    emscripten::function("IsItemToggledOpen", &ImGui::IsItemToggledOpen);
     // IMGUI_API bool          IsAnyItemHovered();
     emscripten::function("IsAnyItemHovered", &ImGui::IsAnyItemHovered);
     // IMGUI_API bool          IsAnyItemActive();
@@ -2909,10 +2899,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }), emscripten::allow_raw_pointers());
     // IMGUI_API const char*   GetStyleColorName(ImGuiCol idx);
     emscripten::function("GetStyleColorName", FUNCTION(std::string, (ImGuiCol idx), { return std::string(ImGui::GetStyleColorName(idx)); }));
-    // IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
-    emscripten::function("CalcTextSize", FUNCTION(emscripten::val, (std::string text, bool hide_text_after_double_hash, float wrap_width, emscripten::val out), {
-        return export_ImVec2(ImGui::CalcTextSize(text.c_str(), NULL, hide_text_after_double_hash, wrap_width), out);
-    }));
     // IMGUI_API void          CalcListClipping(int items_count, float items_height, int* out_items_display_start, int* out_items_display_end);    // calculate coarse clipping for large list of evenly sized items. Prefer using the ImGuiListClipper higher-level helper if you can.
     emscripten::function("CalcListClipping", FUNCTION(void, (int items_count, float items_height, emscripten::val out_items_display_start, emscripten::val out_items_display_end), {
         ImGui::CalcListClipping(items_count, items_height, access_value<int>(out_items_display_start), access_value<int>(out_items_display_end));
@@ -2922,6 +2908,12 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("BeginChildFrame", &ImGui::BeginChildFrame);
     // IMGUI_API void          EndChildFrame();
     emscripten::function("EndChildFrame", &ImGui::EndChildFrame);
+
+    // Text Utilities
+    // IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
+    emscripten::function("CalcTextSize", FUNCTION(emscripten::val, (std::string text, bool hide_text_after_double_hash, float wrap_width, emscripten::val out), {
+        return export_ImVec2(ImGui::CalcTextSize(text.c_str(), NULL, hide_text_after_double_hash, wrap_width), out);
+    }));
 
     // IMGUI_API ImVec4        ColorConvertU32ToFloat4(ImU32 in);
     emscripten::function("ColorConvertU32ToFloat4", FUNCTION(emscripten::val, (ImU32 in, emscripten::val out), {
@@ -2951,18 +2943,17 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsKeyReleased", &ImGui::IsKeyReleased);
     // IMGUI_API int           GetKeyPressedAmount(int key_index, float repeat_delay, float rate); // uses provided repeat rate/delay. return a count, most often 0 or 1 but might be >1 if RepeatRate is small enough that DeltaTime > RepeatRate
     emscripten::function("GetKeyPressedAmount", &ImGui::GetKeyPressedAmount);
+    // IMGUI_API void          CaptureKeyboardFromApp(bool capture = true);                        // manually override io.WantCaptureKeyboard flag next frame (said flag is entirely left for your application handle). e.g. force capture keyboard when your widget is being hovered.
+    emscripten::function("CaptureKeyboardFromApp", &ImGui::CaptureKeyboardFromApp);
+
     // IMGUI_API bool          IsMouseDown(int button);                                            // is mouse button held
     emscripten::function("IsMouseDown", &ImGui::IsMouseDown);
-    // IMGUI_API bool          IsAnyMouseDown();                                                   // is any mouse button held
-    emscripten::function("IsAnyMouseDown", &ImGui::IsAnyMouseDown);
     // IMGUI_API bool          IsMouseClicked(int button, bool repeat = false);                    // did mouse button clicked (went from !Down to Down)
     emscripten::function("IsMouseClicked", &ImGui::IsMouseClicked);
     // IMGUI_API bool          IsMouseDoubleClicked(int button);                                   // did mouse button double-clicked. a double-click returns false in IsMouseClicked(). uses io.MouseDoubleClickTime.
     emscripten::function("IsMouseDoubleClicked", &ImGui::IsMouseDoubleClicked);
     // IMGUI_API bool          IsMouseReleased(int button);                                        // did mouse button released (went from Down to !Down)
     emscripten::function("IsMouseReleased", &ImGui::IsMouseReleased);
-    // IMGUI_API bool          IsMouseDragging(int button = 0, float lock_threshold = -1.0f);      // is mouse dragging. if lock_threshold < -1.0f uses io.MouseDraggingThreshold
-    emscripten::function("IsMouseDragging", &ImGui::IsMouseDragging);
     // IMGUI_API bool          IsMouseHoveringRect(const ImVec2& r_min, const ImVec2& r_max, bool clip = true);  // is mouse hovering given bounding rect (in screen space). clipped by current clipping settings. disregarding of consideration of focus/window ordering/blocked by a popup.
     emscripten::function("IsMouseHoveringRect", FUNCTION(bool, (emscripten::val r_min, emscripten::val r_max, bool clip), {
         return ImGui::IsMouseHoveringRect(import_ImVec2(r_min), import_ImVec2(r_max), clip);
@@ -2971,6 +2962,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("IsMousePosValid", FUNCTION(bool, (emscripten::val mouse_pos), {
         return ImGui::IsMousePosValid(import_maybe_null_value<ImVec2>(mouse_pos));
     }));
+    // IMGUI_API bool          IsAnyMouseDown();                                                   // is any mouse button held
+    emscripten::function("IsAnyMouseDown", &ImGui::IsAnyMouseDown);
     // IMGUI_API ImVec2        GetMousePos();                                                      // shortcut to ImGui::GetIO().MousePos provided by user, to be consistent with other calls
     emscripten::function("GetMousePos", FUNCTION(emscripten::val, (emscripten::val out), {
         return export_ImVec2(ImGui::GetMousePos(), out);
@@ -2979,6 +2972,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("GetMousePosOnOpeningCurrentPopup", FUNCTION(emscripten::val, (emscripten::val out), {
         return export_ImVec2(ImGui::GetMousePosOnOpeningCurrentPopup(), out);
     }));
+    // IMGUI_API bool          IsMouseDragging(int button = 0, float lock_threshold = -1.0f);      // is mouse dragging. if lock_threshold < -1.0f uses io.MouseDraggingThreshold
+    emscripten::function("IsMouseDragging", &ImGui::IsMouseDragging);
     // IMGUI_API ImVec2        GetMouseDragDelta(int button = 0, float lock_threshold = -1.0f);    // dragging amount since clicking. if lock_threshold < -1.0f uses io.MouseDraggingThreshold
     emscripten::function("GetMouseDragDelta", FUNCTION(emscripten::val, (int button, float lock_threshold, emscripten::val out), {
         return export_ImVec2(ImGui::GetMouseDragDelta(button, lock_threshold), out);
@@ -2989,8 +2984,6 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("GetMouseCursor", &ImGui::GetMouseCursor);
     // IMGUI_API void          SetMouseCursor(ImGuiMouseCursor type);                              // set desired cursor type
     emscripten::function("SetMouseCursor", &ImGui::SetMouseCursor);
-    // IMGUI_API void          CaptureKeyboardFromApp(bool capture = true);                        // manually override io.WantCaptureKeyboard flag next frame (said flag is entirely left for your application handle). e.g. force capture keyboard when your widget is being hovered.
-    emscripten::function("CaptureKeyboardFromApp", &ImGui::CaptureKeyboardFromApp);
     // IMGUI_API void          CaptureMouseFromApp(bool capture = true);                           // manually override io.WantCaptureMouse flag next frame (said flag is entirely left for your application handle).
     emscripten::function("CaptureMouseFromApp", &ImGui::CaptureMouseFromApp);
 

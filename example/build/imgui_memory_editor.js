@@ -35,7 +35,7 @@
 // - Arrows are being sent to the InputText() about to disappear which for LeftArrow makes the text cursor appear at position 1 for one frame.
 System.register(["imgui-js"], function (exports_1, context_1) {
     "use strict";
-    var ImGui, imgui_js_1, imgui_js_2, imgui_js_3, imgui_js_4, imgui_js_5, imgui_js_6, imgui_js_7, MemoryEditor;
+    var ImGui, imgui_js_1, imgui_js_2, imgui_js_3, imgui_js_4, imgui_js_5, imgui_js_6, MemoryEditor;
     var __moduleName = context_1 && context_1.id;
     return {
         setters: [
@@ -47,7 +47,6 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 imgui_js_4 = ImGui_1;
                 imgui_js_5 = ImGui_1;
                 imgui_js_6 = ImGui_1;
-                imgui_js_7 = ImGui_1;
             }
         ],
         execute: function () {
@@ -282,6 +281,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                                 // FIXME: We should have a way to retrieve the text edit cursor position more easily in the API, this is rather tedious. This is such a ugly mess we may be better off not using InputText() at all here.
                                 function UserData_Callback(data) {
                                     const user_data = data.UserData;
+                                    ImGui.IM_ASSERT(user_data !== null);
                                     if (!data.HasSelection())
                                         user_data.CursorPos = data.CursorPos;
                                     if (data.SelectionStart === 0 && data.SelectionEnd === data.BufTextLen) {
@@ -383,7 +383,6 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                             }
                         }
                     }
-                    imgui_js_7.IM_ASSERT(clipper.Step() == false);
                     clipper.End();
                     clipper.delete();
                     ImGui.PopStyleVar(2);

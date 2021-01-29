@@ -48,7 +48,6 @@ import { ImGuiStyle } from "imgui-js";
 import { ImGuiListClipper } from "imgui-js";
 import { ImDrawList } from "imgui-js";
 import { ImGuiInputTextCallbackData } from "imgui-js";
-import { IM_ASSERT } from "imgui-js";
 
 export class MemoryEditor
 {
@@ -302,9 +301,10 @@ export class MemoryEditor
                     //     int    CursorPos;               // Output
                     // };
                     // FIXME: We should have a way to retrieve the text edit cursor position more easily in the API, this is rather tedious. This is such a ugly mess we may be better off not using InputText() at all here.
-                    function UserData_Callback(data: ImGuiInputTextCallbackData): number
+                    function UserData_Callback(data: ImGuiInputTextCallbackData<UserData>): number
                     {
-                        const user_data: UserData = data.UserData;
+                        const user_data: UserData | null = data.UserData;
+                        ImGui.IM_ASSERT(user_data !== null);
                         if (!data.HasSelection())
                             user_data.CursorPos = data.CursorPos;
                         if (data.SelectionStart === 0 && data.SelectionEnd === data.BufTextLen)
@@ -422,7 +422,6 @@ export class MemoryEditor
                 }
             }
         }
-        IM_ASSERT(clipper.Step() == false);
         clipper.End();
         clipper.delete();
         ImGui.PopStyleVar(2);

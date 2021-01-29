@@ -25,45 +25,90 @@ export type ImTuple2<T> = [ T, T ];
 export type ImTuple3<T> = [ T, T, T ];
 export type ImTuple4<T> = [ T, T, T, T ];
 
-// Typedefs and Enumerations (declared as int for compatibility and to not pollute the top of this file)
-// typedef unsigned int ImU32;         // 32-bit unsigned integer (typically used to store packed colors)
-export type ImU32 = number;
-// typedef unsigned int ImGuiID;       // unique ID used by widgets (typically hashed from a stack of string)
-export type ImGuiID = number;
-// typedef unsigned short ImWchar;     // character for keyboard input/display
-export type ImWchar = number;
-// typedef void* ImTextureID;          // user data to identify a texture (this is whatever to you want it to be! read the FAQ about ImTextureID in imgui.cpp)
+// Enums/Flags (declared as int for compatibility with old C++, to allow using as flags and to not pollute the top of this file)
+// - Tip: Use your programming IDE navigation facilities on the names in the _central column_ below to find the actual flags/enum lists!
+//   In Visual Studio IDE: CTRL+comma ("Edit.NavigateTo") can follow symbols in comments, whereas CTRL+F12 ("Edit.GoToImplementation") cannot.
+//   With Visual Assist installed: ALT+G ("VAssistX.GoToImplementation") can also follow symbols in comments.
+type ImGuiCol = number;               // -> enum ImGuiCol_             // Enum: A color identifier for styling
+type ImGuiCond = number;              // -> enum ImGuiCond_            // Enum: A condition for many Set*() functions
+type ImGuiDataType = number;          // -> enum ImGuiDataType_        // Enum: A primary data type
+type ImGuiDir = number;               // -> enum ImGuiDir_             // Enum: A cardinal direction
+type ImGuiKey = number;               // -> enum ImGuiKey_             // Enum: A key identifier (ImGui-side enum)
+type ImGuiNavInput = number;          // -> enum ImGuiNavInput_        // Enum: An input identifier for navigation
+type ImGuiMouseButton = number;       // -> enum ImGuiMouseButton_     // Enum: A mouse button identifier (0=left, 1=right, 2=middle)
+type ImGuiMouseCursor = number;       // -> enum ImGuiMouseCursor_     // Enum: A mouse cursor identifier
+type ImGuiSortDirection = number;     // -> enum ImGuiSortDirection_   // Enum: A sorting direction (ascending or descending)
+type ImGuiStyleVar = number;          // -> enum ImGuiStyleVar_        // Enum: A variable identifier for styling
+type ImGuiTableBgTarget = number;     // -> enum ImGuiTableBgTarget_   // Enum: A color target for TableSetBgColor()
+type ImDrawCornerFlags = number;      // -> enum ImDrawCornerFlags_    // Flags: for ImDrawList::AddRect(), AddRectFilled() etc.
+type ImDrawListFlags = number;        // -> enum ImDrawListFlags_      // Flags: for ImDrawList
+type ImFontAtlasFlags = number;       // -> enum ImFontAtlasFlags_     // Flags: for ImFontAtlas build
+type ImGuiBackendFlags = number;      // -> enum ImGuiBackendFlags_    // Flags: for io.BackendFlags
+type ImGuiButtonFlags = number;       // -> enum ImGuiButtonFlags_     // Flags: for InvisibleButton()
+type ImGuiColorEditFlags = number;    // -> enum ImGuiColorEditFlags_  // Flags: for ColorEdit4(), ColorPicker4() etc.
+type ImGuiConfigFlags = number;       // -> enum ImGuiConfigFlags_     // Flags: for io.ConfigFlags
+type ImGuiComboFlags = number;        // -> enum ImGuiComboFlags_      // Flags: for BeginCombo()
+type ImGuiDragDropFlags = number;     // -> enum ImGuiDragDropFlags_   // Flags: for BeginDragDropSource(), AcceptDragDropPayload()
+type ImGuiFocusedFlags = number;      // -> enum ImGuiFocusedFlags_    // Flags: for IsWindowFocused()
+type ImGuiHoveredFlags = number;      // -> enum ImGuiHoveredFlags_    // Flags: for IsItemHovered(), IsWindowHovered() etc.
+type ImGuiInputTextFlags = number;    // -> enum ImGuiInputTextFlags_  // Flags: for InputText(), InputTextMultiline()
+type ImGuiKeyModFlags = number;       // -> enum ImGuiKeyModFlags_     // Flags: for io.KeyMods (Ctrl/Shift/Alt/Super)
+type ImGuiPopupFlags = number;        // -> enum ImGuiPopupFlags_      // Flags: for OpenPopup*(), BeginPopupContext*(), IsPopupOpen()
+type ImGuiSelectableFlags = number;   // -> enum ImGuiSelectableFlags_ // Flags: for Selectable()
+type ImGuiSliderFlags = number;       // -> enum ImGuiSliderFlags_     // Flags: for DragFloat(), DragInt(), SliderFloat(), SliderInt() etc.
+type ImGuiTabBarFlags = number;       // -> enum ImGuiTabBarFlags_     // Flags: for BeginTabBar()
+type ImGuiTabItemFlags = number;      // -> enum ImGuiTabItemFlags_    // Flags: for BeginTabItem()
+type ImGuiTableFlags = number;        // -> enum ImGuiTableFlags_      // Flags: For BeginTable()
+type ImGuiTableColumnFlags = number;  // -> enum ImGuiTableColumnFlags_// Flags: For TableSetupColumn()
+type ImGuiTableRowFlags = number;     // -> enum ImGuiTableRowFlags_   // Flags: For TableNextRow()
+type ImGuiTreeNodeFlags = number;     // -> enum ImGuiTreeNodeFlags_   // Flags: for TreeNode(), TreeNodeEx(), CollapsingHeader()
+type ImGuiWindowFlags = number;       // -> enum ImGuiWindowFlags_     // Flags: for Begin(), BeginChild()
+
+// Other types
+// #ifndef ImTextureID                 // ImTextureID [configurable type: override in imconfig.h with '#define ImTextureID xxx']
+// typedef void* ImTextureID;          // User data for rendering backend to identify a texture. This is whatever to you want it to be! read the FAQ about ImTextureID for details.
+// #endif
 export type ImTextureID = number;
+// typedef unsigned int ImGuiID;       // A unique ID used by widgets, typically hashed from a stack of string.
+export type ImGuiID = number;
+// typedef int (*ImGuiInputTextCallback)(ImGuiInputTextCallbackData* data);    // Callback function for ImGui::InputText()
+export type ImGuiInputTextCallback = (data: reference_ImGuiInputTextCallbackData) => number;
+// typedef void (*ImGuiSizeCallback)(ImGuiSizeCallbackData* data);             // Callback function for ImGui::SetNextWindowSizeConstraints()
+export type ImGuiSizeCallback = (data: reference_ImGuiSizeCallbackData) => void;
 
-type ImGuiWindowFlags = number;
-type ImGuiPopupFlags = number;
-type ImGuiTableFlags = number;
-type ImGuiTableColumnFlags = number;
-type ImGuiTableRowFlags = number;
-type ImGuiTableBgTarget = number;
-type ImGuiInputTextFlags = number;
-type ImGuiTreeNodeFlags = number;
-type ImGuiSelectableFlags = number;
-type ImGuiComboFlags = number;
-type ImGuiTabBarFlags = number;
-type ImGuiTabItemFlags = number;
-type ImGuiFocusedFlags = number;
-type ImGuiHoveredFlags = number;
-type ImGuiDragDropFlags = number;
-type ImGuiDataType = number;
-type ImGuiDir = number;
-type ImGuiKey = number;
-type ImGuiNavInput = number;
-type ImGuiConfigFlags = number;
-type ImGuiBackendFlags = number;
-type ImGuiCol = number;
-type ImGuiStyleVar = number;
-type ImGuiColorEditFlags = number;
-type ImGuiMouseCursor = number;
-type ImGuiCond = number;
+// Character types
+// (we generally use UTF-8 encoded string in the API. This is storage specifically for a decoded character used for keyboard input and display)
+// typedef unsigned short ImWchar16;   // A single decoded U16 character/code point. We encode them as multi bytes UTF-8 when used in strings.
+export type ImWchar16 = number;
+// typedef unsigned int ImWchar32;     // A single decoded U32 character/code point. We encode them as multi bytes UTF-8 when used in strings.
+export type ImWchar32 = number;
+// #ifdef IMGUI_USE_WCHAR32            // ImWchar [configurable type: override in imconfig.h with '#define IMGUI_USE_WCHAR32' to support Unicode planes 1-16]
+// typedef ImWchar32 ImWchar;
+// #else
+// typedef ImWchar16 ImWchar;
+// #endif
+export type ImWchar = number;
 
-type ImDrawCornerFlags = number;
-type ImDrawListFlags = number;
+// Basic scalar data types
+// typedef signed char         ImS8;   // 8-bit signed integer
+// typedef unsigned char       ImU8;   // 8-bit unsigned integer
+// typedef signed short        ImS16;  // 16-bit signed integer
+export type ImS16 = number;
+// typedef unsigned short      ImU16;  // 16-bit unsigned integer
+// typedef signed int          ImS32;  // 32-bit signed integer == int
+// typedef unsigned int        ImU32;  // 32-bit unsigned integer (often used to store packed colors)
+export type ImU32 = number;
+// #if defined(_MSC_VER) && !defined(__clang__)
+// typedef signed   __int64    ImS64;  // 64-bit signed integer (pre and post C++11 with Visual Studio)
+// typedef unsigned __int64    ImU64;  // 64-bit unsigned integer (pre and post C++11 with Visual Studio)
+// #elif (defined(__clang__) || defined(__GNUC__)) && (__cplusplus < 201100)
+// #include <stdint.h>
+// typedef int64_t             ImS64;  // 64-bit signed integer (pre C++11)
+// typedef uint64_t            ImU64;  // 64-bit unsigned integer (pre C++11)
+// #else
+// typedef signed   long long  ImS64;  // 64-bit signed integer (post C++11)
+// typedef unsigned long long  ImU64;  // 64-bit unsigned integer (post C++11)
+// #endif
 
 export class WrapImGuiContext extends Emscripten.EmscriptenClass {}
 
@@ -88,8 +133,6 @@ export interface interface_ImVec4 {
 }
 
 export interface reference_ImVec4 extends Emscripten.EmscriptenClassReference, interface_ImVec4 {}
-
-export type ImGuiInputTextCallback = (data: reference_ImGuiInputTextCallbackData) => number;
 
 // Shared state of InputText(), passed to callback when a ImGuiInputTextFlags_Callback* flag is used and the corresponding callback is triggered.
 export interface reference_ImGuiInputTextCallbackData extends Emscripten.EmscriptenClassReference {
@@ -128,11 +171,13 @@ export interface reference_ImGuiInputTextCallbackData extends Emscripten.Emscrip
     DeleteChars(pos: number, bytes_count: number): void;
     // IMGUI_API void    InsertChars(int pos, const char* text, const char* text_end = NULL);
     InsertChars(pos: number, text: string): void;
+    // void                SelectAll()             { SelectionStart = 0; SelectionEnd = BufTextLen; }
+    SelectAll(): void;
+    // void                ClearSelection()        { SelectionStart = SelectionEnd = BufTextLen; }
+    ClearSelection(): void;
     // bool              HasSelection() const { return SelectionStart != SelectionEnd; }
     HasSelection(): boolean;
 }
-
-export type ImGuiSizeConstraintCallback = (data: reference_ImGuiSizeCallbackData) => void;
 
 // Resizing callback data to apply custom constraint. As enabled by SetNextWindowSizeConstraints(). Callback is called during the next Begin().
 // NB: For basic min/max size constraint on each axis you don't need to use the callback! The SetNextWindowSizeConstraints() parameters are enough.
@@ -149,26 +194,27 @@ export interface reference_ImGuiSizeCallbackData extends Emscripten.EmscriptenCl
 }
 
 export class ImGuiListClipper extends Emscripten.EmscriptenClass {
-    public StartPosY: number;
-    public ItemsHeight: number;
-    public ItemsCount: number;
-    public StepNo: number;
     public DisplayStart: number;
     public DisplayEnd: number;
+
+    public ItemsCount: number;
+    public StepNo: number;
+    public ItemsFrozen: number;
+    public ItemsHeight: number;
+    public StartPosY: number;
 
     // items_count:  Use -1 to ignore (you can call Begin later). Use INT_MAX if you don't know how many items you have (in which case the cursor won't be advanced in the final step).
     // items_height: Use -1.0f to be calculated automatically on first step. Otherwise pass in the distance between your items, typically GetTextLineHeightWithSpacing() or GetFrameHeightWithSpacing().
     // If you don't specify an items_height, you NEED to call Step(). If you specify items_height you may call the old Begin()/End() api directly, but prefer calling Step().
-    // ImGuiListClipper()  { .. } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
-    constructor();
+    // ImGuiListClipper(int items_count = -1, float items_height = -1.0f)  { Begin(items_count, items_height); } // NB: Begin() initialize every fields (as we allow user to call Begin/End multiple times on a same instance if they want).
     // ~ImGuiListClipper()                                                 { IM_ASSERT(ItemsCount == -1); }      // Assert if user forgot to call End() or Step() until false.
 
-    // IMGUI_API bool Step();                                              // Call until it returns false. The DisplayStart/DisplayEnd fields will be set and you can process/draw those items.
-    public Step(): boolean;
     // IMGUI_API void Begin(int items_count, float items_height = -1.0f);  // Automatically called by constructor if you passed 'items_count' or by Step() in Step 1.
     public Begin(items_count: number, items_height: number): void;
     // IMGUI_API void End();                                               // Automatically called on the last call of Step() that returns false.
     public End(): void;
+    // IMGUI_API bool Step();                                              // Call until it returns false. The DisplayStart/DisplayEnd fields will be set and you can process/draw those items.
+    public Step(): boolean;
 }
 
 export interface reference_ImGuiTableColumnSortSpecs extends Emscripten.EmscriptenClassReference {
@@ -231,6 +277,7 @@ export interface interface_ImGuiStyle {
     readonly ItemInnerSpacing: interface_ImVec2;
     // ImVec2      TouchExtraPadding;          // Expand reactive bounding box for touch-based system where touch position is not accurate enough. Unfortunately we don't sort widgets so priority on overlap will always be given to the first widget. So don't grow this too much!
     readonly TouchExtraPadding: interface_ImVec2;
+    readonly CellPadding: interface_ImVec2;
     // float       IndentSpacing;              // Horizontal indentation when e.g. entering a tree node. Generally == (FontSize + FramePadding.x*2).
     IndentSpacing: number;
     // float       ColumnsMinSpacing;          // Minimum horizontal spacing between two columns.
@@ -243,10 +290,13 @@ export interface interface_ImGuiStyle {
     GrabMinSize: number;
     // float       GrabRounding;               // Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs.
     GrabRounding: number;
+    LogSliderDeadzone: number;
     // float       TabRounding;                // Radius of upper corners of a tab. Set to 0.0f to have rectangular tabs.
     TabRounding: number;
     // float       TabBorderSize;              // Thickness of border around tabs. 
     TabBorderSize: number;
+    TabMinWidthForCloseButton: number;
+    ColorButtonPosition: number;
     // ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f,0.5f) for horizontally+vertically centered.
     readonly ButtonTextAlign: interface_ImVec2;
     // ImVec2      SelectableTextAlign;        // Alignment of selectable text when selectable is larger than text. Defaults to (0.0f, 0.0f) (top-left aligned).
@@ -259,10 +309,12 @@ export interface interface_ImGuiStyle {
     MouseCursorScale: number;
     // bool        AntiAliasedLines;           // Enable anti-aliasing on lines/borders. Disable if you are really tight on CPU/GPU.
     AntiAliasedLines: boolean;
+    AntiAliasedLinesUseTex: boolean;
     // bool        AntiAliasedFill;            // Enable anti-aliasing on filled shapes (rounded rectangles, circles, etc.)
     AntiAliasedFill: boolean;
-    // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCubicCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
+    // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
     CurveTessellationTol: number;
+    CircleSegmentMaxError: number;
     // ImVec4      Colors[ImGuiCol_COUNT];
     _getAt_Colors(idx: number): interface_ImVec4;
     _setAt_Colors(idx: number, value: Readonly<interface_ImVec4>): boolean;
@@ -290,22 +342,28 @@ export class ImGuiStyle extends Emscripten.EmscriptenClass implements interface_
     readonly ItemSpacing: reference_ImVec2;
     readonly ItemInnerSpacing: reference_ImVec2;
     readonly TouchExtraPadding: reference_ImVec2;
+    readonly CellPadding: reference_ImVec2;
     IndentSpacing: number;
     ColumnsMinSpacing: number;
     ScrollbarSize: number;
     ScrollbarRounding: number;
     GrabMinSize: number;
     GrabRounding: number;
+    LogSliderDeadzone: number;
     TabRounding: number;
     TabBorderSize: number;
+    TabMinWidthForCloseButton: number;
+    ColorButtonPosition: ImGuiDir;
     readonly ButtonTextAlign: reference_ImVec2;
     readonly SelectableTextAlign: reference_ImVec2;
     readonly DisplayWindowPadding: reference_ImVec2;
     readonly DisplaySafeAreaPadding: reference_ImVec2;
     MouseCursorScale: number;
     AntiAliasedLines: boolean;
+    AntiAliasedLinesUseTex: boolean;
     AntiAliasedFill: boolean;
     CurveTessellationTol: number;
+    CircleSegmentMaxError: number;
     _getAt_Colors(idx: number): reference_ImVec4;
     _setAt_Colors(idx: number, value: Readonly<interface_ImVec4>): boolean;
 
@@ -398,6 +456,10 @@ export interface reference_ImDrawList extends Emscripten.EmscriptenClassReferenc
     AddCircle(centre: Readonly<interface_ImVec2>, radius: number, col: ImU32, num_segments: number, thickness: number): void;
     // IMGUI_API void  AddCircleFilled(const ImVec2& centre, float radius, ImU32 col, int num_segments = 12);
     AddCircleFilled(centre: Readonly<interface_ImVec2>, radius: number, col: ImU32, num_segments: number): void;
+    // IMGUI_API void  AddNgon(const ImVec2& center, float radius, ImU32 col, int num_segments, float thickness = 1.0f);
+    AddNgon(centre: Readonly<interface_ImVec2>, radius: number, col: ImU32, num_segments: number, thickness: number): void;
+    // IMGUI_API void  AddNgonFilled(const ImVec2& center, float radius, ImU32 col, int num_segments);
+    AddNgonFilled(centre: Readonly<interface_ImVec2>, radius: number, col: ImU32, num_segments: number): void;
     // IMGUI_API void  AddText(const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL);
     AddText_A(pos: Readonly<interface_ImVec2>, col: ImU32, text_begin: string): void;
     // IMGUI_API void  AddText(const ImFont* font, float font_size, const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL, float wrap_width = 0.0f, const ImVec4* cpu_fine_clip_rect = NULL);
@@ -414,6 +476,7 @@ export interface reference_ImDrawList extends Emscripten.EmscriptenClassReferenc
     AddConvexPolyFilled(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32): void;
     // IMGUI_API void  AddBezierCubic(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
     AddBezierCubic(pos0: Readonly<interface_ImVec2>, cp0: Readonly<interface_ImVec2>, cp1: Readonly<interface_ImVec2>, pos1: Readonly<interface_ImVec2>, col: ImU32, thickness: number, num_segments: number): void;
+    AddBezierQuadratic(pos0: Readonly<interface_ImVec2>, cp0: Readonly<interface_ImVec2>, cp1: Readonly<interface_ImVec2>, col: ImU32, thickness: number, num_segments: number): void;
 
     // Stateful path API, add points then finish with PathFill() or PathStroke()
     // inline    void  PathClear()                                                 { _Path.resize(0); }
@@ -430,8 +493,9 @@ export interface reference_ImDrawList extends Emscripten.EmscriptenClassReferenc
     PathArcTo(centre: Readonly<interface_ImVec2>, radius: number, a_min: number, a_max: number, num_segments: number): void;
     // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
     PathArcToFast(centre: Readonly<interface_ImVec2>, radius: number, a_min_of_12: number, a_max_of_12: number): void;
-    // IMGUI_API void  PathBezierCubicCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
+    // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
     PathBezierCubicCurveTo(p1: Readonly<interface_ImVec2>, p2: Readonly<interface_ImVec2>, p3: Readonly<interface_ImVec2>, num_segments: number): void;
+    PathBezierQuadraticCurveTo(p2: Readonly<interface_ImVec2>, p3: Readonly<interface_ImVec2>, num_segments: number): void;
     // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
     PathRect(rect_min: Readonly<interface_ImVec2>, rect_max: Readonly<interface_ImVec2>, rounding: number, rounding_corners_flags: ImDrawCornerFlags): void;
 
@@ -459,6 +523,7 @@ export interface reference_ImDrawList extends Emscripten.EmscriptenClassReferenc
     ClearFreeMemory(): void;
     // IMGUI_API void  PrimReserve(int idx_count, int vtx_count);
     PrimReserve(idx_count: number, vtx_count: number): void;
+    PrimUnreserve(idx_count: number, vtx_count: number): void;
     // IMGUI_API void  PrimRect(const ImVec2& a, const ImVec2& b, ImU32 col);      // Axis aligned rectangle (composed of two triangles)
     PrimRect(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  PrimRectUV(const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col);
@@ -526,6 +591,7 @@ export interface reference_ImFont extends Emscripten.EmscriptenClassReference {
     FallbackAdvanceX: number;
     // ImWchar                     FallbackChar;       // = '?'        // Replacement glyph if one isn't found. Only set via SetFallbackChar()
     FallbackChar: number;
+    EllipsisChar: number;
     
     // Members: Cold ~18/26 bytes
     // short                       ConfigDataCount;    // ~ 1          // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
@@ -627,6 +693,7 @@ export interface reference_ImFontConfig extends Emscripten.EmscriptenClassRefere
 export interface interface_ImFontGlyph {
     // ImWchar         Codepoint;          // 0x0000..0xFFFF
     Codepoint: number;
+    Visible: boolean;
     // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
     AdvanceX: number;
     // float           X0, Y0, X1, Y1;     // Glyph corners
@@ -642,8 +709,6 @@ export interface interface_ImFontGlyph {
 }
 
 export interface reference_ImFontGlyph extends Emscripten.EmscriptenClassReference, interface_ImFontGlyph {}
-
-export type ImFontAtlasFlags = number;
 
 export interface reference_ImFontAtlas extends Emscripten.EmscriptenClassReference {
     // IMGUI_API ImFontAtlas();
@@ -828,10 +893,12 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     ConfigMacOSXBehaviors: boolean;
     // bool          ConfigInputTextCursorBlink;   // = true               // Enable blinking cursor, for users who consider it annoying.
     ConfigInputTextCursorBlink: boolean;
+    ConfigDragClickToInputText: boolean;
     // bool          ConfigWindowsResizeFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
     ConfigWindowsResizeFromEdges: boolean;
     // bool        ConfigWindowsMoveFromTitleBarOnly;// = false        // [BETA] Set to true to only allow moving windows when clicked+dragged from the title bar. Windows without a title bar are not affected.
     ConfigWindowsMoveFromTitleBarOnly: boolean;
+    ConfigMemoryCompactTimer: number;
 
     //------------------------------------------------------------------
     // Settings (User Functions)
@@ -894,6 +961,8 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // Functions
     // IMGUI_API void AddInputCharacter(ImWchar c);                        // Add new character into InputCharacters[]
     AddInputCharacter(c: number): void;
+    // IMGUI_API void  AddInputCharacterUTF16(ImWchar16 c);        // Queue new character input from an UTF-16 character, it can be a surrogate
+    AddInputCharacterUTF16(c: ImWchar16): void;
     // IMGUI_API void AddInputCharactersUTF8(const char* utf8_chars);      // Add new characters into InputCharacters[] from an UTF-8 string
     AddInputCharactersUTF8(utf8_chars: string): void;
     // inline void    ClearInputCharacters() { InputCharacters[0] = 0; }   // Clear the text input buffer manually
@@ -993,8 +1062,6 @@ DestroyContext(ctx: WrapImGuiContext | null): void;
 GetCurrentContext(): WrapImGuiContext | null;
 // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
 SetCurrentContext(ctx: WrapImGuiContext | null): void;
-// IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert);
-DebugCheckVersionAndDataLayout(version_str: string, sz_io: number, sz_style: number, sz_vec2: number, sz_vec4: number, sz_draw_vert: number, sz_draw_idx: number): boolean;
 
 // Main
 // IMGUI_API ImGuiIO&      GetIO();
@@ -1013,10 +1080,10 @@ EndFrame(): void;
 // Demo, Debug, Informations
 // IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create demo/test window (previously called ShowTestWindow). demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
 ShowDemoWindow(p_open: ImScalar<boolean> | null): void;
-// IMGUI_API void          ShowAboutWindow(bool* p_open = NULL);       // create about window. display Dear ImGui version, credits and build/system information.
-ShowAboutWindow(p_open: ImScalar<boolean> | null): void;
 // IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // create metrics window. display ImGui internals: draw commands (with individual draw calls and vertices), window list, basic internal state, etc.
 ShowMetricsWindow(p_open: ImScalar<boolean> | null): void;
+// IMGUI_API void          ShowAboutWindow(bool* p_open = NULL);       // create about window. display Dear ImGui version, credits and build/system information.
+ShowAboutWindow(p_open: ImScalar<boolean> | null): void;
 // IMGUI_API void          ShowStyleEditor(ImGuiStyle* ref = NULL);    // add style editor block (not a window). you can pass in a reference ImGuiStyle structure to compare to, revert to and save to (else it uses the default style)
 ShowStyleEditor(ref: ImGuiStyle | null): void;
 // IMGUI_API bool          ShowStyleSelector(const char* label);
@@ -1029,20 +1096,20 @@ ShowUserGuide(): void;
 GetVersion(): string;
 
 // Styles
-// IMGUI_API void          StyleColorsClassic(ImGuiStyle* dst = NULL);
-StyleColorsClassic(dst: ImGuiStyle | null/* = NULL */): void;
 // IMGUI_API void          StyleColorsDark(ImGuiStyle* dst = NULL);
 StyleColorsDark(dst: ImGuiStyle | null/* = NULL */): void;
 // IMGUI_API void          StyleColorsLight(ImGuiStyle* dst = NULL);
 StyleColorsLight(dst: ImGuiStyle | null/* = NULL */): void;
+// IMGUI_API void          StyleColorsClassic(ImGuiStyle* dst = NULL);
+StyleColorsClassic(dst: ImGuiStyle | null/* = NULL */): void;
 
 // Window
 Begin(name: string, p_open: ImScalar<boolean> | null /* = NULL */, flags: ImGuiWindowFlags/* = 0 */): boolean;
 End(): void;
 BeginChild(id: string | ImGuiID, size: Readonly<interface_ImVec2>, border: boolean, extra_flags: ImGuiWindowFlags): boolean;
 EndChild(): void;
-GetContentRegionMax(out: interface_ImVec2): typeof out;
 GetContentRegionAvail(out: interface_ImVec2): typeof out;
+GetContentRegionMax(out: interface_ImVec2): typeof out;
 GetWindowContentRegionMin(out: interface_ImVec2): typeof out;
 GetWindowContentRegionMax(out: interface_ImVec2): typeof out;
 GetWindowContentRegionWidth(): number;
@@ -1057,7 +1124,7 @@ SetWindowFontScale(scale: number): void;
 
 SetNextWindowPos(pos: Readonly<interface_ImVec2>, cond: ImGuiCond/* = 0 */, pivot: Readonly<interface_ImVec2>/* = ImVec2(0,0) */): void;
 SetNextWindowSize(size: Readonly<interface_ImVec2>, cond: ImGuiCond/* = 0 */): void;
-SetNextWindowSizeConstraints(size_min: Readonly<interface_ImVec2>, size_max: Readonly<interface_ImVec2>, custom_callback: ImGuiSizeConstraintCallback | null/* = NULL */, data: any/* = NULL */): void;
+SetNextWindowSizeConstraints(size_min: Readonly<interface_ImVec2>, size_max: Readonly<interface_ImVec2>, custom_callback: ImGuiSizeCallback | null/* = NULL */, data: any/* = NULL */): void;
 SetNextWindowContentSize(size: Readonly<interface_ImVec2>): void;
 SetNextWindowCollapsed(collapsed: boolean, cond: ImGuiCond/* = 0 */): void;
 SetNextWindowFocus(): void;
@@ -1073,11 +1140,13 @@ SetWindowNameFocus(name: string): void;
 
 GetScrollX(): number;
 GetScrollY(): number;
-GetScrollMaxX(): number;
-GetScrollMaxY(): number;
 SetScrollX(scroll_x: number): void;
 SetScrollY(scroll_y: number): void;
+GetScrollMaxX(): number;
+GetScrollMaxY(): number;
+SetScrollHereX(center_x_ratio: number/* = 0.5f */): void;
 SetScrollHereY(center_y_ratio: number/* = 0.5f */): void;
+SetScrollFromPosX(pos_x: number, center_x_ratio: number/* = 0.5f */): void;
 SetScrollFromPosY(pos_y: number, center_y_ratio: number/* = 0.5f */): void;
 // function SetStateStorage(tree: ImGuiStorage | null): void;
 // function GetStateStorage(): ImGuiStorage | null;
@@ -1090,12 +1159,10 @@ PopStyleColor(count: number/* = 1 */): void;
 PushStyleVar(idx: ImGuiStyleVar, val: number | Readonly<interface_ImVec2>): void;
 PopStyleVar(count: number/* = 1 */): void;
 GetStyleColorVec4(idx: ImGuiCol): Readonly<reference_ImVec4>;
-GetFont(): reference_ImFont;
-GetFontSize(): number;
-GetFontTexUvWhitePixel(out: interface_ImVec2): typeof out;
-GetColorU32_A(idx: ImGuiCol, alpha_mul: number/* = 1.0f */): ImU32;
-GetColorU32_B(col: Readonly<interface_ImVec4>): ImU32;
-GetColorU32_C(col: ImU32): ImU32;
+PushAllowKeyboardFocus(allow_keyboard_focus: boolean): void;
+PopAllowKeyboardFocus(): void;
+PushButtonRepeat(repeat: boolean): void;
+PopButtonRepeat(): void;
 
 // Parameters stacks (current window)
 PushItemWidth(item_width: number): void;
@@ -1104,10 +1171,14 @@ SetNextItemWidth(item_width: number): void;
 CalcItemWidth(): number;
 PushTextWrapPos(wrap_pos_x: number/* = 0.0f */): void;
 PopTextWrapPos(): void;
-PushAllowKeyboardFocus(allow_keyboard_focus: boolean): void;
-PopAllowKeyboardFocus(): void;
-PushButtonRepeat(repeat: boolean): void;
-PopButtonRepeat(): void;
+
+// Style read access
+GetFont(): reference_ImFont;
+GetFontSize(): number;
+GetFontTexUvWhitePixel(out: interface_ImVec2): typeof out;
+GetColorU32_A(idx: ImGuiCol, alpha_mul: number/* = 1.0f */): ImU32;
+GetColorU32_B(col: Readonly<interface_ImVec4>): ImU32;
+GetColorU32_C(col: ImU32): ImU32;
 
 // Cursor / Layout
 Separator(): void;
@@ -1191,7 +1262,7 @@ Bullet(): void;
 Button(label: string, size: Readonly<interface_ImVec2>): boolean;
 SmallButton(label: string): boolean;
 ArrowButton(label: string, dir: ImGuiDir): boolean;
-InvisibleButton(str_id: string, size: Readonly<interface_ImVec2>): boolean;
+InvisibleButton(str_id: string, size: Readonly<interface_ImVec2>, flags: ImGuiButtonFlags): boolean;
 // IMGUI_API void          Image(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0), const ImVec2& uv1 = ImVec2(1,1), const ImVec4& tint_col = ImVec4(1,1,1,1), const ImVec4& border_col = ImVec4(0,0,0,0));
 Image(user_texture_id: any, size: Readonly<interface_ImVec2>, uv0: Readonly<interface_ImVec2>, uv1: Readonly<interface_ImVec2>, tint_col: Readonly<interface_ImVec4>, border_col: Readonly<interface_ImVec4>): void;
 // IMGUI_API bool          ImageButton(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = ImVec2(0,0),  const ImVec2& uv1 = ImVec2(1,1), int frame_padding = -1, const ImVec4& bg_col = ImVec4(0,0,0,0), const ImVec4& tint_col = ImVec4(1,1,1,1));    // <0 frame_padding uses default frame padding settings. 0 for no padding
@@ -1223,19 +1294,19 @@ Combo(label: string, current_item: ImScalar<number>, items_getter: (data: any, i
 
 // Widgets: Drags (tip: ctrl+click on a drag box to input with keyboard. manually input values aren't clamped, can go off-bounds)
 // For all the Float2/Float3/Float4/Int2/Int3/Int4 versions of every functions, note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can pass address of your first element out of a contiguous set, e.g. &myvector.x
-DragFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, display_format: string | null/* = "%.3f" */, power: number/* = 1.0f */): boolean;
-DragFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
-DragFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
-DragFloat4(label: string, v: ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
-DragFloatRange2(label: string, v_current_min: ImScalar<number>, v_current_max: ImScalar<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, display_format: string/* = "%.3f" */, display_format_max: string | null/* = NULL */, power: number/* = 1.0f */): boolean;
-DragInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */): boolean;
-DragInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */): boolean;
-DragInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */): boolean;
-DragInt4(label: string, v: ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */): boolean;
-DragIntRange2(label: string, v_current_min: ImScalar<number>, v_current_max: ImScalar<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */, display_format_max: string | null/* = NULL */): boolean;
+DragFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, display_format: string | null/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+DragFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, display_format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+DragFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, display_format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+DragFloat4(label: string, v: ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, display_format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+DragFloatRange2(label: string, v_current_min: ImScalar<number>, v_current_max: ImScalar<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, display_format: string/* = "%.3f" */, display_format_max: string | null/* = NULL */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+DragInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+DragInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+DragInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+DragInt4(label: string, v: ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+DragIntRange2(label: string, v_current_min: ImScalar<number>, v_current_max: ImScalar<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, display_format: string/* = "%.0f" */, display_format_max: string | null/* = NULL */, flags: ImGuiSliderFlags/* = 0 */): boolean;
 // IMGUI_API bool          DragScalar(const char* label, ImGuiDataType data_type, void* v, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
 // IMGUI_API bool          DragScalarN(const char* label, ImGuiDataType data_type, void* v, int components, float v_speed, const void* v_min = NULL, const void* v_max = NULL, const char* format = NULL, float power = 1.0f);
-DragScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
+DragScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min: number | null, v_max: number | null, format: string | null, flags: ImGuiSliderFlags/* = 0 */): boolean;
 
 // Widgets: Input with Keyboard
 InputText(label: string, buf: [ string ], buf_size: number, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiInputTextCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
@@ -1257,22 +1328,22 @@ InputDouble(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<num
 InputScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, step: number | null, step_fast: number | null, format: string | null, extra_flags: ImGuiInputTextFlags): boolean;
 
 // Widgets: Sliders (tip: ctrl+click on a slider to input with keyboard. manually input values aren't clamped, can go off-bounds)
-SliderFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
-SliderFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
-SliderFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
-SliderFloat4(label: string, v: ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
-SliderAngle(label: string, v_rad: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_degrees_min: number/* = -360.0f */, v_degrees_max: number/* = +360.0f */): boolean;
-SliderInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
-SliderInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
-SliderInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
-SliderInt4(label: string, v: ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
+SliderFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+SliderFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+SliderFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+SliderFloat4(label: string, v: ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+SliderAngle(label: string, v_rad: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_degrees_min: number/* = -360.0f */, v_degrees_max: number/* = +360.0f */, display_format: string/* = "%.0f deg" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+SliderInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+SliderInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+SliderInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+SliderInt4(label: string, v: ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
 // IMGUI_API bool          SliderScalar(const char* label, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
 // IMGUI_API bool          SliderScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
-SliderScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
-VSliderFloat(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, power: number/* = 1.0f */): boolean;
-VSliderInt(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */): boolean;
+SliderScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, flags: ImGuiSliderFlags/* = 0 */): boolean;
+VSliderFloat(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
+VSliderInt(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, display_format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
 // IMGUI_API bool          VSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* v, const void* v_min, const void* v_max, const char* format = NULL, float power = 1.0f);
-VSliderScalar(label: string, size: Readonly<interface_ImVec2>, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, power: number): boolean;
+VSliderScalar(label: string, size: Readonly<interface_ImVec2>, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, flags: ImGuiSliderFlags/* = 0 */): boolean;
 
 // Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little colored preview square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
 // Note that a 'float v[X]' function argument is the same as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible. You can the pass the address of a first float element out of a contiguous structure, e.g. &myvector.x
@@ -1307,8 +1378,6 @@ TreePush_A(str_id: string): void;
 TreePush_B(ptr_id: number): void;
 // IMGUI_API void          TreePop();                                                              // ~ Unindent()+PopId()
 TreePop(): void;
-// IMGUI_API void          TreeAdvanceToLabelPos();                                                // advance cursor x position by GetTreeNodeToLabelSpacing()
-TreeAdvanceToLabelPos(): void;
 // IMGUI_API float         GetTreeNodeToLabelSpacing();                                            // horizontal distance preceding label when using TreeNode*() or Bullet() == (g.FontSize + style.FramePadding.x*2) for a regular unframed TreeNode
 GetTreeNodeToLabelSpacing(): number;
 // IMGUI_API bool          CollapsingHeader(const char* label, ImGuiTreeNodeFlags flags = 0);      // if returning 'true' the header is open. doesn't indent nor push on ID stack. user doesn't have to call TreePop().
@@ -1347,10 +1416,10 @@ BeginTooltip(): void;
 EndTooltip(): void;
 
 // Menus
-BeginMainMenuBar(): boolean;
-EndMainMenuBar(): void;
 BeginMenuBar(): boolean;
 EndMenuBar(): void;
+BeginMainMenuBar(): boolean;
+EndMainMenuBar(): void;
 BeginMenu(label: string, enabled: boolean/* = true */): boolean;
 EndMenu(): void;
 // IMGUI_API bool          MenuItem(const char* label, const char* shortcut = NULL, bool selected = false, bool enabled = true);  // return true when activated. shortcuts are displayed for convenience but not processed by ImGui at the moment
@@ -1359,35 +1428,56 @@ MenuItem_A(label: string, shortcut: string | null, selected: boolean, enabled: b
 MenuItem_B(label: string, shortcut: string | null, p_selected: ImScalar<boolean>, enabled: boolean/* = true */): boolean;
 
 // Popups
-OpenPopup(str_id: string, popup_flags: ImGuiPopupFlags/* = 0 */): void;
-OpenPopupOnItemClick(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
-BeginPopup(str_id: string, flags: ImGuiWindowFlags/* = 0 */): boolean;
+BeginPopup(str_id: string): boolean;
 BeginPopupModal(name: string, p_open: ImScalar<boolean> | null/* = NULL */, extra_flags: ImGuiWindowFlags/* = 0 */): boolean;
-BeginPopupContextItem(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
-BeginPopupContextWindow(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
-BeginPopupContextVoid(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
 EndPopup(): void;
-IsPopupOpen(str_id: string, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
+
+OpenPopup(str_id: string): void;
+OpenPopupOnItemClick(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): void;
 CloseCurrentPopup(): void;
 
+BeginPopupContextItem(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): boolean;
+BeginPopupContextWindow(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): boolean;
+BeginPopupContextVoid(str_id: string | null/* = NULL */, mouse_button: number/* = 1 */): boolean;
+
+IsPopupOpen(str_id: string): boolean;
+
 // Tables
-BeginTable(str_id: string, column: number, flags: ImGuiTableFlags/* = 1 */, outer_size: Readonly<interface_ImVec2>, inner_width: number): boolean;
+// IMGUI_API bool          BeginTable(const char* str_id, int column, ImGuiTableFlags flags = 0, const ImVec2& outer_size = ImVec2(0.0f, 0.0f), float inner_width = 0.0f);
+BeginTable(str_id: string, column: number, flags: ImGuiTableFlags, outer_size: interface_ImVec2, inner_width: number): boolean;
+// IMGUI_API void          EndTable();
 EndTable(): void;
-TableNextRow(row_flags: ImGuiTableRowFlags/* = 0*/, min_row_height: number/* = 0.0*/): void;
-TableNextColumn(): boolean;
+// IMGUI_API void          TableNextRow(ImGuiTableRowFlags row_flags = 0, float min_row_height = 0.0f);
+TableNextRow(row_flags: ImGuiTableRowFlags, min_row_height: number): void;
+// IMGUI_API bool          TableNextColumn();
+TableNextColumn(): boolean
+// IMGUI_API bool          TableSetColumnIndex(int column_n);
 TableSetColumnIndex(column_n: number): boolean;
-TableSetupColumn(label: string, flags: ImGuiTableColumnFlags/* = 0*/, init_width_or_weight: number/* = 0.0*/, user_id: ImU32/* = 0*/): void;
+
+// IMGUI_API void          TableSetupColumn(const char* label, ImGuiTableColumnFlags flags = 0, float init_width_or_weight = 0.0f, ImU32 user_id = 0);
+TableSetupColumn(label: string, flags: ImGuiTableColumnFlags, init_width_or_weight: number, user_id: ImU32): void;
+// IMGUI_API void          TableSetupScrollFreeze(int cols, int rows);
 TableSetupScrollFreeze(cols: number, rows: number): void;
+// IMGUI_API void          TableHeadersRow();
 TableHeadersRow(): void;
+// IMGUI_API void          TableHeader(const char* label);
 TableHeader(label: string): void;
+
+// IMGUI_API ImGuiTableSortSpecs* TableGetSortSpecs();
 TableGetSortSpecs(): reference_ImGuiTableSortSpecs | null;
+
+// IMGUI_API int                   TableGetColumnCount();
 TableGetColumnCount(): number;
+// IMGUI_API int                   TableGetColumnIndex();
 TableGetColumnIndex(): number;
+// IMGUI_API int                   TableGetRowIndex();
 TableGetRowIndex(): number;
-TableGetColumnName(column_n: number/* = -1*/): string;
-TableGetColumnFlags(column_n: number/* = -1*/): ImGuiTableColumnFlags;
-TableGetColumnFlags(column_n: number/* = -1*/): ImGuiTableColumnFlags;
-TableSetBgColor(target: ImGuiTableBgTarget, color: ImU32, column_n: number/* -1 */): void;
+// IMGUI_API const char*           TableGetColumnName(int column_n = -1);
+TableGetColumnName(column_n: number): string;
+// IMGUI_API ImGuiTableColumnFlags TableGetColumnFlags(int column_n = -1);
+TableGetColumnFlags(column_n: number): ImGuiTableColumnFlags;
+// IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);
+TableSetBgColor(target: ImGuiTableBgTarget, color: ImU32, column_n: number): void;
 
 // Tab Bars, Tabs
 // [BETA API] API may evolve!
@@ -1399,6 +1489,8 @@ EndTabBar(): void;
 BeginTabItem(label: string, p_open: ImScalar<boolean> | null, flags: ImGuiTabBarFlags): boolean;
 // IMGUI_API void          EndTabItem();                                                       // only call EndTabItem() if BeginTabItem() returns true!
 EndTabItem(): void;
+// IMGUI_API bool          TabItemButton(const char* label, ImGuiTabItemFlags flags = 0);      // create a Tab behaving like a button. return true when clicked. cannot be selected in the tab bar.
+TabItemButton(label: string, flags: ImGuiTabItemFlags): boolean;
 // IMGUI_API void          SetTabItemClosed(const char* tab_or_docked_window_label);           // notify TabBar or Docking system of a closed tab/window ahead (useful to reduce visual flicker on reorderable tab bars). For tab-bar: call after BeginTabBar() and before Tab submissions. Otherwise call with a window name.
 SetTabItemClosed(tab_or_docked_window_label: string): void;
 
@@ -1455,7 +1547,7 @@ IsItemActive(): boolean;
 IsItemEdited(): boolean;
 // IMGUI_API bool          IsItemFocused();                                                    // is the last item focused for keyboard/gamepad navigation?
 IsItemFocused(): boolean;
-// IMGUI_API bool          IsItemClicked(int mouse_button = 0);                                // is the last item clicked? (e.g. button/node just clicked on)
+// IMGUI_API bool          IsItemClicked(ImGuiMouseButton mouse_button = 0);                                // is the last item clicked? (e.g. button/node just clicked on)
 IsItemClicked(mouse_button: number/* = 0 */): boolean;
 // IMGUI_API bool          IsItemVisible();                                                    // is the last item visible? (aka not out of sight due to clipping/scrolling.)
 IsItemVisible(): boolean;
@@ -1465,6 +1557,8 @@ IsItemActivated(): boolean;
 IsItemDeactivated(): boolean;
 // IMGUI_API bool          IsItemDeactivatedAfterEdit();                                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that requires continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
 IsItemDeactivatedAfterEdit(): boolean;
+// IMGUI_API bool          IsItemToggledOpen();
+IsItemToggledOpen(): boolean;
 // IMGUI_API bool          IsAnyItemHovered();
 IsAnyItemHovered(): boolean;
 // IMGUI_API bool          IsAnyItemActive();
@@ -1497,8 +1591,6 @@ GetForegroundDrawList(): reference_ImDrawList;
 GetDrawListSharedData(): reference_ImDrawListSharedData;
 // IMGUI_API const char*   GetStyleColorName(ImGuiCol idx);
 GetStyleColorName(idx: ImGuiCol): string;
-// IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
-CalcTextSize(text: string, hide_text_after_double_hash: boolean/* = false */, wrap_width: number/* = -1.0f */, out: interface_ImVec2): typeof out;
 // IMGUI_API void          CalcListClipping(int items_count, float items_height, int* out_items_display_start, int* out_items_display_end);    // calculate coarse clipping for large list of evenly sized items. Prefer using the ImGuiListClipper higher-level helper if you can.
 CalcListClipping(items_count: number, items_height: number, out_items_display_start: ImScalar<number>, out_items_display_end: ImScalar<number>): void;
 
@@ -1506,6 +1598,10 @@ CalcListClipping(items_count: number, items_height: number, out_items_display_st
 BeginChildFrame(id: ImGuiID, size: Readonly<interface_ImVec2>, extra_flags: ImGuiWindowFlags/* = 0 */): boolean;
 // IMGUI_API void          EndChildFrame();                                                    // always call EndChildFrame() regardless of BeginChildFrame() return values (which indicates a collapsed/clipped window)
 EndChildFrame(): void;
+
+// Text Utilities
+// IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
+CalcTextSize(text: string, hide_text_after_double_hash: boolean/* = false */, wrap_width: number/* = -1.0f */, out: interface_ImVec2): typeof out;
 
 // IMGUI_API ImVec4        ColorConvertU32ToFloat4(ImU32 in);
 ColorConvertU32ToFloat4(in_: ImU32, out: interface_ImVec4): typeof out;
@@ -1527,26 +1623,29 @@ IsKeyPressed(user_key_index: number, repeat: boolean/* = true */): boolean;
 IsKeyReleased(user_key_index: number): boolean;
 // IMGUI_API int           GetKeyPressedAmount(int key_index, float repeat_delay, float rate); // uses provided repeat rate/delay. return a count, most often 0 or 1 but might be >1 if RepeatRate is small enough that DeltaTime > RepeatRate
 GetKeyPressedAmount(key_index: number, repeat_delay: number, rate: number): number;
+// IMGUI_API void          CaptureKeyboardFromApp(bool capture = true);                        // manually override io.WantCaptureKeyboard flag next frame (said flag is entirely left for your application handle). e.g. force capture keyboard when your widget is being hovered.
+CaptureKeyboardFromApp(capture: boolean/* = true */): void;
+
 // IMGUI_API bool          IsMouseDown(int button);                                            // is mouse button held
 IsMouseDown(button: number): boolean;
-// IMGUI_API bool          IsAnyMouseDown();                                                   // is any mouse button held
-IsAnyMouseDown(): boolean;
 // IMGUI_API bool          IsMouseClicked(int button, bool repeat = false);                    // did mouse button clicked (went from !Down to Down)
 IsMouseClicked(button: number, repeat: boolean/* = false */): boolean;
 // IMGUI_API bool          IsMouseDoubleClicked(int button);                                   // did mouse button double-clicked. a double-click returns false in IsMouseClicked(). uses io.MouseDoubleClickTime.
 IsMouseDoubleClicked(button: number): boolean;
 // IMGUI_API bool          IsMouseReleased(int button);                                        // did mouse button released (went from Down to !Down)
 IsMouseReleased(button: number): boolean;
-// IMGUI_API bool          IsMouseDragging(int button = 0, float lock_threshold = -1.0f);      // is mouse dragging. if lock_threshold < -1.0f uses io.MouseDraggingThreshold
-IsMouseDragging(button: number/* = 0 */, lock_threshold: number/* = -1.0f */): boolean;
 // IMGUI_API bool          IsMouseHoveringRect(const ImVec2& r_min, const ImVec2& r_max, bool clip = true);  // is mouse hovering given bounding rect (in screen space). clipped by current clipping settings. disregarding of consideration of focus/window ordering/blocked by a popup.
 IsMouseHoveringRect(r_min: Readonly<interface_ImVec2>, r_max: Readonly<interface_ImVec2>, clip: boolean/* = true */): boolean;
 // IMGUI_API bool          IsMousePosValid(const ImVec2* mouse_pos = NULL);                    //
 IsMousePosValid(mouse_pos: Readonly<interface_ImVec2> | null/* = NULL */): boolean;
+// IMGUI_API bool          IsAnyMouseDown();                                                   // is any mouse button held
+IsAnyMouseDown(): boolean;
 // IMGUI_API ImVec2        GetMousePos();                                                      // shortcut to ImGui::GetIO().MousePos provided by user, to be consistent with other calls
 GetMousePos(out: interface_ImVec2): typeof out;
 // IMGUI_API ImVec2        GetMousePosOnOpeningCurrentPopup();                                 // retrieve backup of mouse positioning at the time of opening popup we have BeginPopup() into
 GetMousePosOnOpeningCurrentPopup(out: interface_ImVec2): typeof out;
+// IMGUI_API bool          IsMouseDragging(int button = 0, float lock_threshold = -1.0f);      // is mouse dragging. if lock_threshold < -1.0f uses io.MouseDraggingThreshold
+IsMouseDragging(button: number/* = 0 */, lock_threshold: number/* = -1.0f */): boolean;
 // IMGUI_API ImVec2        GetMouseDragDelta(int button = 0, float lock_threshold = -1.0f);    // dragging amount since clicking. if lock_threshold < -1.0f uses io.MouseDraggingThreshold
 GetMouseDragDelta(button: number/* = 0 */, lock_threshold: number/* = -1.0f */, out: interface_ImVec2): typeof out;
 // IMGUI_API void          ResetMouseDragDelta(int button = 0);                                //
@@ -1555,8 +1654,6 @@ ResetMouseDragDelta(button: number/* = 0 */): void;
 GetMouseCursor(): ImGuiMouseCursor;
 // IMGUI_API void          SetMouseCursor(ImGuiMouseCursor type);                              // set desired cursor type
 SetMouseCursor(type: ImGuiMouseCursor): void;
-// IMGUI_API void          CaptureKeyboardFromApp(bool capture = true);                        // manually override io.WantCaptureKeyboard flag next frame (said flag is entirely left for your application handle). e.g. force capture keyboard when your widget is being hovered.
-CaptureKeyboardFromApp(capture: boolean/* = true */): void;
 // IMGUI_API void          CaptureMouseFromApp(bool capture = true);                           // manually override io.WantCaptureMouse flag next frame (said flag is entirely left for your application handle).
 CaptureMouseFromApp(capture: boolean/* = true */): void;
 
@@ -1577,6 +1674,10 @@ LoadIniSettingsFromMemory(ini_data: string/*, ini_size: number*/): void;
 // SaveIniSettingsToDisk(ini_filename: string): void;
 // IMGUI_API const char*   SaveIniSettingsToMemory(size_t* out_ini_size = NULL);               // return a zero-terminated string with the .ini data which you can save by your own mean. call when io.WantSaveIniSettings is set, then save data by your own mean and clear io.WantSaveIniSettings.
 SaveIniSettingsToMemory(/*out_ini_size: ImScalar<number> | null*/): string;
+
+// Debug Utilities
+// IMGUI_API bool          DebugCheckVersionAndDataLayout(const char* version_str, size_t sz_io, size_t sz_style, size_t sz_vec2, size_t sz_vec4, size_t sz_drawvert);
+DebugCheckVersionAndDataLayout(version_str: string, sz_io: number, sz_style: number, sz_vec2: number, sz_vec4: number, sz_draw_vert: number, sz_draw_idx: number): boolean;
 
 // Memory Utilities
 // All those functions are not reliant on the current context.
