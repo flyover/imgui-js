@@ -1376,7 +1376,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API void          LabelTextV(const char* label, const char* fmt, va_list args)    IM_FMTLIST(2);
     // IMGUI_API void          BulletText(const char* fmt, ...)                                IM_FMTARGS(1); // shortcut for Bullet()+Text()
     // IMGUI_API void          BulletTextV(const char* fmt, va_list args)                      IM_FMTLIST(1);
-    TextUnformatted(text: string, /* text_end: string = NULL */): void;
+    TextUnformatted(text: string): void;
     Text(fmt: string): void;
     TextColored(col: Readonly<interface_ImVec4>, fmt: string): void;
     TextDisabled(fmt: string): void;
@@ -1423,7 +1423,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API bool          Combo(const char* label, int* current_item, bool(*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int popup_max_height_in_items = -1);
     BeginCombo(label: string, preview_value: string | null, flags: ImGuiComboFlags): boolean;
     EndCombo(): void;
-    Combo(label: string, current_item: ImScalar<number>, items_getter: (data: any, idx: number, out_text: [string]) => boolean, data: any, items_count: number, popup_max_height_in_items: number): boolean;
+    Combo<T>(label: string, current_item: ImScalar<number>, items_getter: (data: T, idx: number, out_text: [string]) => boolean, data: T, items_count: number, popup_max_height_in_items: number): boolean;
 
     // Widgets: Drag Sliders
     // - CTRL+Click on any drag box to turn them into an input box. Manually input values aren't clamped and can go off-bounds.
@@ -1590,7 +1590,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API bool          ListBoxHeader(const char* label, int items_count, int height_in_items = -1); // "
     // IMGUI_API void          ListBoxFooter();                                                    // terminate the scrolling region. only call ListBoxFooter() if ListBoxHeader() returned true!
     ListBox_A(label: string, current_item: ImScalar<number>, items: string[], items_count: number, height_in_items: number): boolean;
-    ListBox_B(label: string, current_item: ImScalar<number>, items_getter: any, data: any, items_count: number, height_in_items: number): boolean;
+    ListBox_B<T>(label: string, current_item: ImScalar<number>, items_getter: (data: T, idx: number, out_text: [string]) => boolean, data: T, items_count: number, height_in_items: number): boolean;
     ListBoxHeader_A(label: string, size: Readonly<interface_ImVec2>): boolean;
     ListBoxHeader_B(label: string, items_count: number, height_in_items: number): boolean;
     ListBoxFooter(): void;
@@ -1600,8 +1600,8 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API void          PlotLines(const char* label, float(*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0));
     // IMGUI_API void          PlotHistogram(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0), int stride = sizeof(float));
     // IMGUI_API void          PlotHistogram(const char* label, float(*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0));
-    PlotLines(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number, value_offset: number, overlay_text: string | null, scale_min: number, scale_max: number, graph_size: Readonly<interface_ImVec2>): void;
-    PlotHistogram(label: string, values_getter: (data: any, idx: number) => number, data: any, values_count: number, value_offset: number, overlay_text: string | null, scale_min: number, scale_max: number, graph_size: Readonly<interface_ImVec2>): void;
+    PlotLines<T>(label: string, values_getter: (data: T, idx: number) => number, data: T, values_count: number, value_offset: number, overlay_text: string | null, scale_min: number, scale_max: number, graph_size: Readonly<interface_ImVec2>): void;
+    PlotHistogram<T>(label: string, values_getter: (data: T, idx: number) => number, data: T, values_count: number, value_offset: number, overlay_text: string | null, scale_min: number, scale_max: number, graph_size: Readonly<interface_ImVec2>): void;
 
     // Widgets: Value() Helpers.
     // - Those are merely shortcut to calling Text() with a format string. Output single value in "name: value" format (tip: freely declare more in your code to handle your types. you can add functions to the ImGui namespace)

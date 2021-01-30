@@ -2058,7 +2058,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         return ImGui::ImageButton((ImTextureID) user_texture_id.as<int>(), import_ImVec2(size), import_ImVec2(uv0), import_ImVec2(uv1), frame_padding, import_ImVec4(bg_col), import_ImVec4(tint_col));
     }));
     emscripten::function("Checkbox", FUNCTION(bool, (std::string label, emscripten::val v), { return ImGui::Checkbox(label.c_str(), access_value<bool>(v)); }));
-    emscripten::function("CheckboxFlags", FUNCTION(bool, (std::string label, emscripten::val flags, unsigned int flags_value), { return ImGui::CheckboxFlags(label.c_str(), access_value<unsigned int>(flags), flags_value); }));
+    emscripten::function("CheckboxFlags", FUNCTION(bool, (std::string label, emscripten::val flags, unsigned int flags_value), {
+        return ImGui::CheckboxFlags(label.c_str(), access_value<unsigned int>(flags), flags_value);
+    }));
     emscripten::function("RadioButton_A", FUNCTION(bool, (std::string label, bool active), { return ImGui::RadioButton(label.c_str(), active); }));
     emscripten::function("RadioButton_B", FUNCTION(bool, (std::string label, emscripten::val v, int v_button), { return ImGui::RadioButton(label.c_str(), access_value<int>(v), v_button); }));
     emscripten::function("ProgressBar", FUNCTION(void, (float fraction, emscripten::val size_arg, emscripten::val overlay), { ImGui::ProgressBar(fraction, import_ImVec2(size_arg), import_maybe_null_string(overlay)); }));

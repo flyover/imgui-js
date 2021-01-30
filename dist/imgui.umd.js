@@ -4096,7 +4096,7 @@
     // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0); // return true if the modal is open, and you can start outputting to it.
     // IMGUI_API void          EndPopup();                                                                         // only call EndPopup() if BeginPopupXXX() returns true!
     function BeginPopup(str_id, flags = 0) { return exports.bind.BeginPopup(str_id, flags); }
-    function BeginPopupModal(str_id = "", p_open = null, flags = 0) {
+    function BeginPopupModal(str_id, p_open = null, flags = 0) {
         if (Array.isArray(p_open)) {
             return exports.bind.BeginPopupModal(str_id, p_open, flags);
         }
@@ -4131,15 +4131,9 @@
     // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);  // open+begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
     // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);// open+begin popup when clicked on current window.
     // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);  // open+begin popup when clicked in void (where there are no windows).
-    function BeginPopupContextItem(str_id = null, popup_flags = 1) {
-        return exports.bind.BeginPopupContextItem(str_id, popup_flags);
-    }
-    function BeginPopupContextWindow(str_id = null, popup_flags = 1) {
-        return exports.bind.BeginPopupContextWindow(str_id, popup_flags);
-    }
-    function BeginPopupContextVoid(str_id = null, popup_flags = 1) {
-        return exports.bind.BeginPopupContextVoid(str_id, popup_flags);
-    }
+    function BeginPopupContextItem(str_id = null, popup_flags = 1) { return exports.bind.BeginPopupContextItem(str_id, popup_flags); }
+    function BeginPopupContextWindow(str_id = null, popup_flags = 1) { return exports.bind.BeginPopupContextWindow(str_id, popup_flags); }
+    function BeginPopupContextVoid(str_id = null, popup_flags = 1) { return exports.bind.BeginPopupContextVoid(str_id, popup_flags); }
     // Popups: test function
     //  - IsPopupOpen(): return true if the popup is open at the current BeginPopup() level of the popup stack.
     //  - IsPopupOpen() with ImGuiPopupFlags_AnyPopupId: return true if any popup is open at the current BeginPopup() level of the popup stack.
@@ -4232,7 +4226,7 @@
     // IMGUI_API float         GetColumnOffset(int column_index = -1);                             // get position of column line (in pixels, from the left side of the contents region). pass -1 to use current column, otherwise 0..GetColumnsCount() inclusive. column 0 is typically 0.0f
     // IMGUI_API void          SetColumnOffset(int column_index, float offset_x);                  // set position of column line (in pixels, from the left side of the contents region). pass -1 to use current column
     // IMGUI_API int           GetColumnsCount();
-    function Columns(count = 1, id = null, border = true) { id = id || ""; exports.bind.Columns(count, id, border); }
+    function Columns(count = 1, id = null, border = true) { exports.bind.Columns(count, id, border); }
     function NextColumn() { exports.bind.NextColumn(); }
     function GetColumnIndex() { return exports.bind.GetColumnIndex(); }
     function GetColumnWidth(column_index = -1) { return exports.bind.GetColumnWidth(column_index); }
@@ -4351,10 +4345,10 @@
     // IMGUI_API void          SetItemAllowOverlap();                                              // allow last item to be overlapped by a subsequent item. sometimes useful with invisible buttons, selectables, etc. to catch unused area.
     function IsItemHovered(flags = 0) { return exports.bind.IsItemHovered(flags); }
     function IsItemActive() { return exports.bind.IsItemActive(); }
-    function IsItemEdited() { return exports.bind.IsItemEdited(); }
     function IsItemFocused() { return exports.bind.IsItemFocused(); }
     function IsItemClicked(mouse_button = 0) { return exports.bind.IsItemClicked(mouse_button); }
     function IsItemVisible() { return exports.bind.IsItemVisible(); }
+    function IsItemEdited() { return exports.bind.IsItemEdited(); }
     function IsItemActivated() { return exports.bind.IsItemActivated(); }
     function IsItemDeactivated() { return exports.bind.IsItemDeactivated(); }
     function IsItemDeactivatedAfterEdit() { return exports.bind.IsItemDeactivatedAfterEdit(); }

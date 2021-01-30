@@ -2884,7 +2884,7 @@ export function End(): void { bind.End(); }
 // IMGUI_API bool          BeginChild(const char* str_id, const ImVec2& size = ImVec2(0, 0), bool border = false, ImGuiWindowFlags flags = 0);
 // IMGUI_API bool          BeginChild(ImGuiID id, const ImVec2& size = ImVec2(0, 0), bool border = false, ImGuiWindowFlags flags = 0);
 // IMGUI_API void          EndChild();
-export function BeginChild(id: string | Bind.ImGuiID, size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, border: boolean = false, flags: ImGuiWindowFlags = 0): boolean {
+export function BeginChild(id: string | ImGuiID, size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, border: boolean = false, flags: ImGuiWindowFlags = 0): boolean {
     return bind.BeginChild(id, size, border, flags);
 }
 export function EndChild(): void { bind.EndChild(); }
@@ -3163,7 +3163,7 @@ export function GetFrameHeightWithSpacing(): number { return bind.GetFrameHeight
 // IMGUI_API ImGuiID       GetID(const void* ptr_id);
 export function PushID(id: string | number): void { bind.PushID(id); }
 export function PopID(): void { bind.PopID(); }
-export function GetID(id: string | number): Bind.ImGuiID { return bind.GetID(id); }
+export function GetID(id: string | number): ImGuiID { return bind.GetID(id); }
 
 // Widgets: Text
 // IMGUI_API void          TextUnformatted(const char* text, const char* text_end = NULL); // raw text without formatting. Roughly equivalent to Text("%s", text) but: A) doesn't require null terminated string if 'text_end' is specified, B) it's faster, no memory copy is done, no buffer size limits, recommended for long chunks of text.
@@ -3263,29 +3263,29 @@ export function Bullet(): void { bind.Bullet(); }
 // IMGUI_API bool          Combo(const char* label, int* current_item, bool(*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int popup_max_height_in_items = -1);
 export function BeginCombo(label: string, preview_value: string | null = null, flags: ImGuiComboFlags = 0): boolean { return bind.BeginCombo(label, preview_value, flags); }
 export function EndCombo(): void { bind.EndCombo(); }
-export type ComboValueGetter = (data: any, idx: number, out_text: [string]) => boolean;
+export type ComboValueGetter<T> = (data: T, idx: number, out_text: [string]) => boolean;
 export function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items: string[], items_count?: number, popup_max_height_in_items?: number): boolean;
 export function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_separated_by_zeros: string, popup_max_height_in_items?: number): boolean;
-export function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ComboValueGetter, data: any, items_count: number, popup_max_height_in_items?: number): boolean;
-export function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, ...args: any[]): boolean {
+export function Combo<T>(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ComboValueGetter<T>, data: T, items_count: number, popup_max_height_in_items?: number): boolean;
+export function Combo<T>(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, ...args: any[]): boolean {
     let ret = false;
     const _current_item: Bind.ImScalar<number> = Array.isArray(current_item) ? current_item : [ current_item() ];
     if (Array.isArray(args[0])) {
         const items: string[] = args[0];
         const items_count = typeof(args[1]) === "number" ? args[1] : items.length;
         const popup_max_height_in_items: number = typeof(args[2]) === "number" ? args[2] : -1;
-        const items_getter = (data: any, idx: number, out_text: [string]): boolean => { out_text[0] = items[idx]; return true; };
+        const items_getter = (data: null, idx: number, out_text: [string]): boolean => { out_text[0] = items[idx]; return true; };
         ret = bind.Combo(label, _current_item, items_getter, null, items_count, popup_max_height_in_items);
     } else if (typeof(args[0]) === "string") {
         const items_separated_by_zeros: string = args[0]
         const popup_max_height_in_items: number = typeof(args[1]) === "number" ? args[1] : -1;
         const items: string[] = items_separated_by_zeros.replace(/^\0+|\0+$/g, "").split("\0");
         const items_count: number = items.length;
-        const items_getter = (data: any, idx: number, out_text: [string]): boolean => { out_text[0] = items[idx]; return true; };
+        const items_getter = (data: null, idx: number, out_text: [string]): boolean => { out_text[0] = items[idx]; return true; };
         ret = bind.Combo(label, _current_item, items_getter, null, items_count, popup_max_height_in_items);
     } else {
-        const items_getter: (data: any, idx: number, out_text: [string]) => boolean = args[0];
-        const data: any = args[1];
+        const items_getter: (data: T, idx: number, out_text: [string]) => boolean = args[0];
+        const data: T = args[1];
         const items_count = args[2];
         const popup_max_height_in_items: number = typeof(args[3]) === "number" ? args[3] : -1;
         ret = bind.Combo(label, _current_item, items_getter, data, items_count, popup_max_height_in_items);
@@ -3829,10 +3829,10 @@ export function Selectable(label: string, ...args: any[]): boolean {
 // IMGUI_API bool          ListBoxHeader(const char* label, const ImVec2& size = ImVec2(0, 0)); // use if you want to reimplement ListBox() will custom data or interactions. if the function return true, you can output elements then call ListBoxFooter() afterwards.
 // IMGUI_API bool          ListBoxHeader(const char* label, int items_count, int height_in_items = -1); // "
 // IMGUI_API void          ListBoxFooter();                                                    // terminate the scrolling region. only call ListBoxFooter() if ListBoxHeader() returned true!
-export type ListBoxItemGetter = (data: any, idx: number, out_text: [string]) => boolean;
+export type ListBoxItemGetter<T> = (data: T, idx: number, out_text: [string]) => boolean;
 export function ListBox(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items: string[], items_count?: number, height_in_items?: number): boolean;
-export function ListBox(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ListBoxItemGetter, data: any, items_count: number, height_in_items?: number): boolean;
-export function ListBox(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, ...args: any[]): boolean {
+export function ListBox<T>(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ListBoxItemGetter<T>, data: T, items_count: number, height_in_items?: number): boolean;
+export function ListBox<T>(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, ...args: any[]): boolean {
     let ret: boolean = false;
     const _current_item: Bind.ImScalar<number> = Array.isArray(current_item) ? current_item : [ current_item() ];
     if (Array.isArray(args[0])) {
@@ -3841,7 +3841,7 @@ export function ListBox(label: string, current_item: Bind.ImAccess<number> | Bin
         const height_in_items: number = typeof(args[2]) === "number" ? args[2] : -1;
         ret = bind.ListBox_A(label, _current_item, items, items_count, height_in_items);
     } else {
-        const items_getter: ListBoxItemGetter = args[0];
+        const items_getter: ListBoxItemGetter<T> = args[0];
         const data: any = args[1];
         const items_count: number = args[2];
         const height_in_items: number = typeof(args[3]) === "number" ? args[3] : -1;
@@ -3869,13 +3869,13 @@ export function ListBoxFooter(): void { bind.ListBoxFooter(); }
 // IMGUI_API void          PlotLines(const char* label, float(*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0));
 // IMGUI_API void          PlotHistogram(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0), int stride = sizeof(float));
 // IMGUI_API void          PlotHistogram(const char* label, float(*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0));
-export type PlotLinesValueGetter = (data: any, idx: number) => number;
+export type PlotLinesValueGetter<T> = (data: T, idx: number) => number;
 export function PlotLines(label: string, values: ArrayLike<number>, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>, stride?: number): void;
-export function PlotLines(label: string, values_getter: PlotLinesValueGetter, data: any, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
-export function PlotLines(label: string, ...args: any[]): void {
+export function PlotLines<T>(label: string, values_getter: PlotLinesValueGetter<T>, data: T, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
+export function PlotLines<T>(label: string, ...args: any[]): void {
     if (Array.isArray(args[0])) {
         const values: ArrayLike<number> = args[0];
-        const values_getter: PlotLinesValueGetter = (data: any, idx: number): number => values[idx * stride];
+        const values_getter: PlotLinesValueGetter<null> = (data: null, idx: number): number => values[idx * stride];
         const values_count: number = typeof(args[1]) === "number" ? args[1] : values.length;
         const values_offset: number = typeof(args[2]) === "number" ? args[2] : 0;
         const overlay_text: string | null = typeof(args[3]) === "string" ? args[3] : null;
@@ -3885,7 +3885,7 @@ export function PlotLines(label: string, ...args: any[]): void {
         const stride: number = typeof(args[7]) === "number" ? args[7] : 1;
         bind.PlotLines(label, values_getter, null, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
     } else {
-        const values_getter: PlotLinesValueGetter = args[0];
+        const values_getter: PlotLinesValueGetter<T> = args[0];
         const data: any = args[1];
         const values_count: number = args[2];
         const values_offset: number = typeof(args[3]) === "number" ? args[3] : 0;
@@ -3896,13 +3896,13 @@ export function PlotLines(label: string, ...args: any[]): void {
         bind.PlotLines(label, values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
     }
 }
-export type PlotHistogramValueGetter = (data: any, idx: number) => number;
+export type PlotHistogramValueGetter<T> = (data: T, idx: number) => number;
 export function PlotHistogram(label: string, values: ArrayLike<number>, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>, stride?: number): void;
-export function PlotHistogram(label: string, values_getter: PlotHistogramValueGetter, data: any, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
-export function PlotHistogram(label: string, ...args: any[]): void {
+export function PlotHistogram<T>(label: string, values_getter: PlotHistogramValueGetter<T>, data: T, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
+export function PlotHistogram<T>(label: string, ...args: any[]): void {
     if (Array.isArray(args[0])) {
         const values: ArrayLike<number> = args[0];
-        const values_getter: PlotHistogramValueGetter = (data: any, idx: number): number => values[idx * stride];
+        const values_getter: PlotHistogramValueGetter<null> = (data: null, idx: number): number => values[idx * stride];
         const values_count: number = typeof(args[1]) === "number" ? args[1] : values.length;
         const values_offset: number = typeof(args[2]) === "number" ? args[2] : 0;
         const overlay_text: string | null = typeof(args[3]) === "string" ? args[3] : null;
@@ -3912,8 +3912,8 @@ export function PlotHistogram(label: string, ...args: any[]): void {
         const stride: number = typeof(args[7]) === "number" ? args[7] : 1;
         bind.PlotHistogram(label, values_getter, null, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
     } else {
-        const values_getter: PlotHistogramValueGetter = args[0];
-        const data: any = args[1];
+        const values_getter: PlotHistogramValueGetter<T> = args[0];
+        const data: T = args[1];
         const values_count: number = args[2];
         const values_offset: number = typeof(args[3]) === "number" ? args[3] : 0;
         const overlay_text: string | null = typeof(args[4]) === "string" ? args[4] : null;
@@ -4016,7 +4016,7 @@ export function SetTooltip(fmt: string): void { bind.SetTooltip(fmt); }
 // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0); // return true if the modal is open, and you can start outputting to it.
 // IMGUI_API void          EndPopup();                                                                         // only call EndPopup() if BeginPopupXXX() returns true!
 export function BeginPopup(str_id: string, flags: ImGuiWindowFlags = 0): boolean { return bind.BeginPopup(str_id, flags); }
-export function BeginPopupModal(str_id: string = "", p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null = null, flags: ImGuiWindowFlags = 0): boolean {
+export function BeginPopupModal(str_id: string, p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null = null, flags: ImGuiWindowFlags = 0): boolean {
     if (Array.isArray(p_open)) {
         return bind.BeginPopupModal(str_id, p_open, flags);
     } else if (typeof(p_open) === "function") {
@@ -4049,15 +4049,9 @@ export function CloseCurrentPopup(): void { bind.CloseCurrentPopup(); }
 // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);  // open+begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
 // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);// open+begin popup when clicked on current window.
 // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);  // open+begin popup when clicked in void (where there are no windows).
-export function BeginPopupContextItem(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean {
-    return bind.BeginPopupContextItem(str_id, popup_flags);
-}
-export function BeginPopupContextWindow(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean {
-    return bind.BeginPopupContextWindow(str_id, popup_flags);
-}
-export function BeginPopupContextVoid(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean {
-    return bind.BeginPopupContextVoid(str_id, popup_flags);
-}
+export function BeginPopupContextItem(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean { return bind.BeginPopupContextItem(str_id, popup_flags); }
+export function BeginPopupContextWindow(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean { return bind.BeginPopupContextWindow(str_id, popup_flags); }
+export function BeginPopupContextVoid(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean { return bind.BeginPopupContextVoid(str_id, popup_flags); }
 // Popups: test function
 //  - IsPopupOpen(): return true if the popup is open at the current BeginPopup() level of the popup stack.
 //  - IsPopupOpen() with ImGuiPopupFlags_AnyPopupId: return true if any popup is open at the current BeginPopup() level of the popup stack.
@@ -4152,7 +4146,7 @@ export function TableSetBgColor(target: ImGuiTableBgTarget, color: Bind.ImU32, c
 // IMGUI_API float         GetColumnOffset(int column_index = -1);                             // get position of column line (in pixels, from the left side of the contents region). pass -1 to use current column, otherwise 0..GetColumnsCount() inclusive. column 0 is typically 0.0f
 // IMGUI_API void          SetColumnOffset(int column_index, float offset_x);                  // set position of column line (in pixels, from the left side of the contents region). pass -1 to use current column
 // IMGUI_API int           GetColumnsCount();
-export function Columns(count: number = 1, id: string | null = null, border: boolean = true): void { id = id || ""; bind.Columns(count, id, border); }
+export function Columns(count: number = 1, id: string | null = null, border: boolean = true): void { bind.Columns(count, id, border); }
 export function NextColumn(): void { bind.NextColumn(); }
 export function GetColumnIndex(): number { return bind.GetColumnIndex(); }
 export function GetColumnWidth(column_index: number = -1): number { return bind.GetColumnWidth(column_index); }
@@ -4275,10 +4269,10 @@ export function SetKeyboardFocusHere(offset: number = 0): void { bind.SetKeyboar
 // IMGUI_API void          SetItemAllowOverlap();                                              // allow last item to be overlapped by a subsequent item. sometimes useful with invisible buttons, selectables, etc. to catch unused area.
 export function IsItemHovered(flags: ImGuiHoveredFlags = 0): boolean { return bind.IsItemHovered(flags); }
 export function IsItemActive(): boolean { return bind.IsItemActive(); }
-export function IsItemEdited(): boolean { return bind.IsItemEdited(); }
 export function IsItemFocused(): boolean { return bind.IsItemFocused(); }
 export function IsItemClicked(mouse_button: ImGuiMouseButton = 0): boolean { return bind.IsItemClicked(mouse_button); }
 export function IsItemVisible(): boolean { return bind.IsItemVisible(); }
+export function IsItemEdited(): boolean { return bind.IsItemEdited(); }
 export function IsItemActivated(): boolean { return bind.IsItemActivated(); }
 export function IsItemDeactivated(): boolean { return bind.IsItemDeactivated(); }
 export function IsItemDeactivatedAfterEdit(): boolean { return bind.IsItemDeactivatedAfterEdit(); }
@@ -4334,7 +4328,7 @@ export function GetStyleColorName(idx: ImGuiCol): string { return bind.GetStyleC
 export function CalcListClipping(items_count: number, items_height: number, out_items_display_start: Bind.ImScalar<number>, out_items_display_end: Bind.ImScalar<number>): void {
     return bind.CalcListClipping(items_count, items_height, out_items_display_start, out_items_display_end);
 }
-export function BeginChildFrame(id: Bind.ImGuiID, size: Readonly<Bind.interface_ImVec2>, flags: ImGuiWindowFlags = 0): boolean { return bind.BeginChildFrame(id, size, flags); }
+export function BeginChildFrame(id: ImGuiID, size: Readonly<Bind.interface_ImVec2>, flags: ImGuiWindowFlags = 0): boolean { return bind.BeginChildFrame(id, size, flags); }
 export function EndChildFrame(): void { bind.EndChildFrame(); }
 
 // Text Utilities
