@@ -9,7 +9,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             step((generator = generator.apply(thisArg, _arguments || [])).next());
         });
     };
-    var ImGui, ImGui_Impl, imgui_js_1, imgui_js_2, imgui_demo_js_1, imgui_memory_editor_js_1, font, show_demo_window, show_another_window, clear_color, memory_editor, show_sandbox_window, show_gamepad_window, show_movie_window, f, counter, done, source, image_urls, image_url, image_element, image_gl_texture, video_urls, video_url, video_element, video_gl_texture, video_w, video_h, video_time_active, video_time, video_duration;
+    var ImGui, ImGui_Impl, imgui_demo_js_1, imgui_memory_editor_js_1, font, show_demo_window, show_another_window, clear_color, memory_editor, show_sandbox_window, show_gamepad_window, show_movie_window, f, counter, done, source, image_urls, image_url, image_element, image_gl_texture, video_urls, video_url, video_element, video_gl_texture, video_w, video_h, video_time_active, video_time, video_duration;
     var __moduleName = context_1 && context_1.id;
     function LoadArrayBuffer(url) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -40,7 +40,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
     exports_1("default", main);
     function AddFontFromFileTTF(url, size_pixels, font_cfg = null, glyph_ranges = null) {
         return __awaiter(this, void 0, void 0, function* () {
-            font_cfg = font_cfg || new ImGui.ImFontConfig();
+            font_cfg = font_cfg || new ImGui.FontConfig();
             font_cfg.Name = font_cfg.Name || `${url.split(/[\\\/]/).pop()}, ${size_pixels.toFixed(0)}px`;
             return ImGui.GetIO().Fonts.AddFontFromMemoryTTF(yield LoadArrayBuffer(url), size_pixels, font_cfg, glyph_ranges);
         });
@@ -49,7 +49,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         return __awaiter(this, void 0, void 0, function* () {
             console.log("Total allocated space (uordblks) @ _init:", ImGui.bind.mallinfo().uordblks);
             // Setup Dear ImGui binding
-            ImGui.IMGUI_CHECKVERSION();
+            ImGui.CHECKVERSION();
             ImGui.CreateContext();
             const io = ImGui.GetIO();
             // io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;  // Enable Keyboard Controls
@@ -70,7 +70,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             // font = await AddFontFromFileTTF("../imgui/misc/fonts/ProggyTiny.ttf", 10.0);
             // font = await AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
             // font = await AddFontFromFileTTF("https://raw.githubusercontent.com/googlei18n/noto-cjk/master/NotoSansJP-Regular.otf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
-            ImGui.IM_ASSERT(font !== null);
+            ImGui.ASSERT(font !== null);
             if (typeof (window) !== "undefined") {
                 const output = document.getElementById("output") || document.body;
                 const canvas = document.createElement("canvas");
@@ -138,7 +138,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             ImGui.Text(`Total allocated space (uordblks):      ${mi.uordblks}`);
             ImGui.Text(`Total free space (fordblks):           ${mi.fordblks}`);
             // ImGui.Text(`Topmost releasable block (keepcost):   ${mi.keepcost}`);
-            if (ImGui.ImageButton(image_gl_texture, new imgui_js_1.ImVec2(48, 48))) {
+            if (ImGui.ImageButton(image_gl_texture, new ImGui.Vec2(48, 48))) {
                 // show_demo_window = !show_demo_window;
                 image_url = image_urls[(image_urls.indexOf(image_url) + 1) % image_urls.length];
                 if (image_element) {
@@ -238,19 +238,19 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         }
     }
     function ShowSandboxWindow(title, p_open = null) {
-        ImGui.SetNextWindowSize(new imgui_js_1.ImVec2(320, 240), ImGui.Cond.FirstUseEver);
+        ImGui.SetNextWindowSize(new ImGui.Vec2(320, 240), ImGui.Cond.FirstUseEver);
         ImGui.Begin(title, p_open);
         ImGui.Text("Source");
         ImGui.SameLine();
         ShowHelpMarker("Contents evaluated and appended to the window.");
         ImGui.PushItemWidth(-1);
-        ImGui.InputTextMultiline("##source", (_ = source) => (source = _), 1024, imgui_js_1.ImVec2.ZERO, ImGui.InputTextFlags.AllowTabInput);
+        ImGui.InputTextMultiline("##source", (_ = source) => (source = _), 1024, ImGui.Vec2.ZERO, ImGui.InputTextFlags.AllowTabInput);
         ImGui.PopItemWidth();
         try {
             eval(source);
         }
         catch (e) {
-            ImGui.TextColored(new imgui_js_2.ImVec4(1.0, 0.0, 0.0, 1.0), "error: ");
+            ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 0.0, 1.0), "error: ");
             ImGui.SameLine();
             ImGui.Text(e.message);
         }
@@ -368,7 +368,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             }
             ImGui.BeginGroup();
             if (ImGui.BeginCombo("##urls", null, ImGui.ComboFlags.NoPreview | ImGui.ComboFlags.PopupAlignLeft)) {
-                for (let n = 0; n < ImGui.IM_ARRAYSIZE(video_urls); n++) {
+                for (let n = 0; n < ImGui.ARRAYSIZE(video_urls); n++) {
                     if (ImGui.Selectable(video_urls[n])) {
                         video_url = video_urls[n];
                         console.log(video_url);
@@ -386,7 +386,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             }
             ImGui.PopItemWidth();
             ImGui.EndGroup();
-            if (ImGui.ImageButton(video_gl_texture, new imgui_js_1.ImVec2(video_w, video_h))) {
+            if (ImGui.ImageButton(video_gl_texture, new ImGui.Vec2(video_w, video_h))) {
                 if (video_element.readyState >= video_element.HAVE_CURRENT_DATA) {
                     video_element.paused ? video_element.play() : video_element.pause();
                 }
@@ -419,8 +419,6 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         setters: [
             function (ImGui_1) {
                 ImGui = ImGui_1;
-                imgui_js_1 = ImGui_1;
-                imgui_js_2 = ImGui_1;
             },
             function (ImGui_Impl_1) {
                 ImGui_Impl = ImGui_Impl_1;
@@ -436,7 +434,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             font = null;
             show_demo_window = true;
             show_another_window = false;
-            clear_color = new imgui_js_2.ImVec4(0.45, 0.55, 0.60, 1.00);
+            clear_color = new ImGui.Vec4(0.45, 0.55, 0.60, 1.00);
             memory_editor = new imgui_memory_editor_js_1.MemoryEditor();
             show_sandbox_window = false;
             show_gamepad_window = false;

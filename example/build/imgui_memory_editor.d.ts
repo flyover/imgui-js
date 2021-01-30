@@ -1,5 +1,4 @@
-import { ImStringBuffer } from "imgui-js";
-import { ImU32 } from "imgui-js";
+import * as ImGui from "imgui-js";
 export declare class MemoryEditor {
     Open: boolean;
     ReadOnly: boolean;
@@ -9,15 +8,15 @@ export declare class MemoryEditor {
     OptGreyOutZeroes: boolean;
     OptMidRowsCount: number;
     OptAddrDigitsCount: number;
-    HighlightColor: ImU32;
+    HighlightColor: ImGui.U32;
     ReadFn: ((data: ArrayBuffer, off: number) => number) | null;
     WriteFn: ((data: ArrayBuffer, off: number, d: number) => void) | null;
     HighlightFn: ((data: ArrayBuffer, off: number) => boolean) | null;
     ContentsWidthChanged: boolean;
     DataEditingAddr: number;
     DataEditingTakeFocus: boolean;
-    DataInputBuf: ImStringBuffer;
-    AddrInputBuf: ImStringBuffer;
+    DataInputBuf: ImGui.StringBuffer;
+    AddrInputBuf: ImGui.StringBuffer;
     GotoAddr: number;
     HighlightMin: number;
     HighlightMax: number;

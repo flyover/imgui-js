@@ -145,14 +145,17 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
         col.y = tuple[1];
         col.z = tuple[2];
     }
-    // #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
     function IMGUI_CHECKVERSION() { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, bind.ImGuiIOSize, bind.ImGuiStyleSize, bind.ImVec2Size, bind.ImVec4Size, bind.ImDrawVertSize, bind.ImDrawIdxSize); }
     exports_1("IMGUI_CHECKVERSION", IMGUI_CHECKVERSION);
+    exports_1("CHECKVERSION", IMGUI_CHECKVERSION);
+    function ASSERT(c) { if (!c) {
+        throw new Error();
+    } }
+    exports_1("ASSERT", ASSERT);
     function IM_ASSERT(c) { if (!c) {
         throw new Error();
     } }
     exports_1("IM_ASSERT", IM_ASSERT);
-    exports_1("ASSERT", IM_ASSERT);
     function IM_ARRAYSIZE(_ARR) {
         if (_ARR instanceof ImStringBuffer) {
             return _ARR.size;
@@ -167,6 +170,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
         return ((A << IM_COL32_A_SHIFT) | (B << IM_COL32_B_SHIFT) | (G << IM_COL32_G_SHIFT) | (R << IM_COL32_R_SHIFT)) >>> 0;
     }
     exports_1("IM_COL32", IM_COL32);
+    exports_1("COL32", IM_COL32);
     function CreateContext(shared_font_atlas = null) {
         const ctx = new ImGuiContext(bind.CreateContext());
         if (ImGuiContext.current_ctx === null) {
@@ -184,7 +188,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     }
     exports_1("DestroyContext", DestroyContext);
     function GetCurrentContext() {
-        // const ctx_native: BindImGui.ImGuiContext | null = bind.GetCurrentContext();
+        // const ctx_native: Bind.ImGuiContext | null = bind.GetCurrentContext();
         return ImGuiContext.current_ctx;
     }
     exports_1("GetCurrentContext", GetCurrentContext);
@@ -2215,6 +2219,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImStringBuffer", ImStringBuffer);
+            exports_1("StringBuffer", ImStringBuffer);
             (function (ImGuiWindowFlags) {
                 ImGuiWindowFlags[ImGuiWindowFlags["None"] = 0] = "None";
                 ImGuiWindowFlags[ImGuiWindowFlags["NoTitleBar"] = 1] = "NoTitleBar";
@@ -2851,6 +2856,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImVec2", ImVec2);
+            exports_1("Vec2", ImVec2);
             ImVec2.ZERO = new ImVec2(0.0, 0.0);
             ImVec2.UNIT = new ImVec2(1.0, 1.0);
             ImVec2.UNIT_X = new ImVec2(1.0, 0.0);
@@ -2893,6 +2899,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImVec4", ImVec4);
+            exports_1("Vec4", ImVec4);
             ImVec4.ZERO = new ImVec4(0.0, 0.0, 0.0, 0.0);
             ImVec4.UNIT = new ImVec4(1.0, 1.0, 1.0, 1.0);
             ImVec4.UNIT_X = new ImVec4(1.0, 0.0, 0.0, 0.0);
@@ -2901,11 +2908,6 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             ImVec4.UNIT_W = new ImVec4(0.0, 0.0, 0.0, 1.0);
             ImVec4.BLACK = new ImVec4(0.0, 0.0, 0.0, 1.0);
             ImVec4.WHITE = new ImVec4(1.0, 1.0, 1.0, 1.0);
-            //-----------------------------------------------------------------------------
-            // Helpers
-            //-----------------------------------------------------------------------------
-            // Lightweight std::vector<> like class to avoid dragging dependencies (also: windows implementation of STL with debug enabled is absurdly slow, so let's bypass it so our code runs fast in debug).
-            // Our implementation does NOT call C++ constructors/destructors. This is intentional and we do not require it. Do not use this class as a straight std::vector replacement in your code!
             ImVector = class ImVector extends Array {
                 constructor() {
                     super(...arguments);
@@ -2986,14 +2988,9 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImVector", ImVector);
-            // Helper: Unicode defines
-            // #define IM_UNICODE_CODEPOINT_INVALID 0xFFFD     // Invalid Unicode code point (standard value).
-            // #ifdef IMGUI_USE_WCHAR32
-            // #define IM_UNICODE_CODEPOINT_MAX     0x10FFFF   // Maximum Unicode code point supported by this build.
-            // #else
-            // #define IM_UNICODE_CODEPOINT_MAX     0xFFFF     // Maximum Unicode code point supported by this build.
-            // #endif
+            exports_1("Vector", ImVector);
             exports_1("IM_UNICODE_CODEPOINT_MAX", IM_UNICODE_CODEPOINT_MAX = 0xFFFF); // Maximum Unicode code point supported by this build.
+            exports_1("UNICODE_CODEPOINT_MAX", IM_UNICODE_CODEPOINT_MAX);
             ImGuiTextFilter = class ImGuiTextFilter {
                 // IMGUI_API           ImGuiTextFilter(const char* default_filter = "");
                 constructor(default_filter = "") {
@@ -3130,13 +3127,12 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             exports_1("IM_COL32_B_SHIFT", IM_COL32_B_SHIFT = config.IMGUI_USE_BGRA_PACKED_COLOR ? 0 : 16);
             exports_1("IM_COL32_A_SHIFT", IM_COL32_A_SHIFT = 24);
             exports_1("IM_COL32_A_MASK", IM_COL32_A_MASK = 0xFF000000);
-            exports_1("IM_COL32_WHITE", IM_COL32_WHITE = IM_COL32(255, 255, 255, 255)); // Opaque white = 0xFFFFFFFF
-            exports_1("IM_COL32_BLACK", IM_COL32_BLACK = IM_COL32(0, 0, 0, 255)); // Opaque black
-            exports_1("IM_COL32_BLACK_TRANS", IM_COL32_BLACK_TRANS = IM_COL32(0, 0, 0, 0)); // Transparent black = 0x00000000
-            // ImColor() helper to implicity converts colors to either ImU32 (packed 4x1 byte) or ImVec4 (4x1 float)
-            // Prefer using IM_COL32() macros if you want a guaranteed compile-time ImU32 for usage with ImDrawList API.
-            // **Avoid storing ImColor! Store either u32 of ImVec4. This is not a full-featured color class. MAY OBSOLETE.
-            // **None of the ImGui API are using ImColor directly but you can use it as a convenience to pass colors in either ImU32 or ImVec4 formats. Explicitly cast to ImU32 or ImVec4 if needed.
+            exports_1("IM_COL32_WHITE", IM_COL32_WHITE = IM_COL32(255, 255, 255, 255));
+            exports_1("COL32_WHITE", IM_COL32_WHITE);
+            exports_1("IM_COL32_BLACK", IM_COL32_BLACK = IM_COL32(0, 0, 0, 255));
+            exports_1("COL32_BLACK", IM_COL32_BLACK);
+            exports_1("IM_COL32_BLACK_TRANS", IM_COL32_BLACK_TRANS = IM_COL32(0, 0, 0, 0));
+            exports_1("COL32_BLACK_TRANS", IM_COL32_BLACK_TRANS);
             ImColor = class ImColor {
                 constructor(r = 0.0, g = 0.0, b = 0.0, a = 1.0) {
                     // ImVec4              Value;
@@ -3194,6 +3190,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImColor", ImColor);
+            exports_1("Color", ImColor);
             exports_1("ImGuiInputTextDefaultSize", ImGuiInputTextDefaultSize = 128);
             exports_1("InputTextDefaultSize", ImGuiInputTextDefaultSize);
             ImGuiInputTextCallbackData = class ImGuiInputTextCallbackData {
@@ -3340,9 +3337,6 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             // This is useful for example if you submitted callbacks which you know have altered the render state and you want it to be restored.
             // It is not done by default because they are many perfectly useful way of altering render state for imgui contents (e.g. changing shader/blending settings before an Image call).
             exports_1("ImDrawCallback_ResetRenderState", ImDrawCallback_ResetRenderState = -1);
-            // Typically, 1 command = 1 GPU draw call (unless command is a callback)
-            // Pre 1.71 back-ends will typically ignore the VtxOffset/IdxOffset fields. When 'io.BackendFlags & ImGuiBackendFlags_RendererHasVtxOffset'
-            // is enabled, those fields allow us to render meshes larger than 64K vertices while keeping 16-bits indices.
             ImDrawCmd = class ImDrawCmd {
                 constructor(native) {
                     this.native = native;
@@ -3365,19 +3359,17 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 get IdxOffset() { return this.native.IdxOffset; }
             };
             exports_1("ImDrawCmd", ImDrawCmd);
-            // Vertex index
-            // (to allow large meshes with 16-bits indices: set 'io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset' and handle ImDrawCmd::VtxOffset in the renderer back-end)
-            // (to use 32-bits indices: override with '#define ImDrawIdx unsigned int' in imconfig.h)
-            // #ifndef ImDrawIdx
-            // typedef unsigned short ImDrawIdx;
-            // #endif
+            exports_1("DrawCmd", ImDrawCmd);
             exports_1("ImDrawIdxSize", ImDrawIdxSize = 2); // bind.ImDrawIdxSize;
-            // Vertex layout
-            // #ifndef IMGUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT
+            exports_1("DrawIdxSize", ImDrawIdxSize);
             exports_1("ImDrawVertSize", ImDrawVertSize = 20); // bind.ImDrawVertSize;
+            exports_1("DrawVertSize", ImDrawVertSize);
             exports_1("ImDrawVertPosOffset", ImDrawVertPosOffset = 0); // bind.ImDrawVertPosOffset;
+            exports_1("DrawVertPosOffset", ImDrawVertPosOffset);
             exports_1("ImDrawVertUVOffset", ImDrawVertUVOffset = 8); // bind.ImDrawVertUVOffset;
+            exports_1("DrawVertUVOffset", ImDrawVertUVOffset);
             exports_1("ImDrawVertColOffset", ImDrawVertColOffset = 16); // bind.ImDrawVertColOffset;
+            exports_1("DrawVertColOffset", ImDrawVertColOffset);
             ImDrawVert = class ImDrawVert {
                 constructor(buffer, byteOffset = 0) {
                     this.pos = new Float32Array(buffer, byteOffset + bind.ImDrawVertPosOffset, 2);
@@ -3386,6 +3378,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImDrawVert", ImDrawVert);
+            exports_1("DrawVert", ImDrawVert);
             // #else
             // You can override the vertex format layout by defining IMGUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT in imconfig.h
             // The code expect ImVec2 pos (8 bytes), ImVec2 uv (8 bytes), ImU32 col (4 bytes), but you can re-order them or add other fields as needed to simplify integration in your engine.
@@ -3408,12 +3401,6 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImDrawListSharedData", ImDrawListSharedData);
-            // Draw command list
-            // This is the low-level list of polygons that ImGui functions are filling. At the end of the frame, all command lists are passed to your ImGuiIO::RenderDrawListFn function for rendering.
-            // Each ImGui window contains its own ImDrawList. You can use ImGui::GetWindowDrawList() to access the current window draw list and draw custom primitives.
-            // You can interleave normal ImGui:: calls and adding primitives to the current draw list.
-            // All positions are generally in pixel coordinates (top-left at (0,0), bottom-right at io.DisplaySize), however you are totally free to apply whatever transformation matrix to want to the data (if you apply such transformation you'll want to apply it to ClipRect as well)
-            // Important: Primitives are always added to the list and not culled (culling is done at higher-level by ImGui:: functions), if you use this API a lot consider coarse culling your drawn objects.
             ImDrawList = class ImDrawList {
                 constructor(native) {
                     this.native = native;
@@ -3625,7 +3612,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 PrimVtx(pos, uv, col) { this.native.PrimVtx(pos, uv, col); }
             };
             exports_1("ImDrawList", ImDrawList);
-            // All draw data to render an ImGui frame
+            exports_1("DrawList", ImDrawList);
             ImDrawData = class ImDrawData {
                 constructor(native) {
                     this.native = native;
@@ -3660,6 +3647,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImDrawData", ImDrawData);
+            exports_1("DrawData", ImDrawData);
             script_ImFontConfig = class script_ImFontConfig {
                 constructor() {
                     // void*           FontData;                   //          // TTF/OTF data
@@ -3748,6 +3736,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImFontConfig", ImFontConfig);
+            exports_1("FontConfig", ImFontConfig);
             // struct ImFontGlyph
             script_ImFontGlyph = class script_ImFontGlyph {
                 constructor() {
@@ -3801,6 +3790,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ;
             };
             exports_1("ImFontGlyph", ImFontGlyph);
+            exports_1("FontGlyph", ImFontGlyph);
             // See ImFontAtlas::AddCustomRectXXX functions.
             ImFontAtlasCustomRect = class ImFontAtlasCustomRect {
             };
@@ -3812,14 +3802,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImFontAtlasFlags[ImFontAtlasFlags["NoBakedLines"] = 4] = "NoBakedLines";
             })(ImFontAtlasFlags || (ImFontAtlasFlags = {}));
             exports_1("ImFontAtlasFlags", ImFontAtlasFlags);
-            // Load and rasterize multiple TTF/OTF fonts into a same texture.
-            // Sharing a texture for multiple fonts allows us to reduce the number of draw calls during rendering.
-            // We also add custom graphic data into the texture that serves for ImGui.
-            //  1. (Optional) Call AddFont*** functions. If you don't call any, the default font will be loaded for you.
-            //  2. Call GetTexDataAsAlpha8() or GetTexDataAsRGBA32() to build and retrieve pixels data.
-            //  3. Upload the pixels data into a texture within your graphics system.
-            //  4. Call SetTexID(my_tex_id); and pass the pointer/identifier to your texture. This value will be passed back to you during rendering to identify the texture.
-            // IMPORTANT: If you pass a 'glyph_ranges' array to AddFont*** functions, you need to make sure that your array persist up until the ImFont is build (when calling GetTextData*** or Build()). We only copy the pointer, not the data.
+            exports_1("FontAtlasFlags", ImFontAtlasFlags);
             ImFontAtlas = class ImFontAtlas {
                 constructor(native) {
                     this.native = native;
@@ -3961,8 +3944,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImFontAtlas", ImFontAtlas);
-            // Font runtime data and rendering
-            // ImFontAtlas automatically loads a default embedded font for you when you call GetTexDataAsAlpha8() or GetTexDataAsRGBA32().
+            exports_1("FontAtlas", ImFontAtlas);
             ImFont = class ImFont {
                 constructor(native) {
                     this.native = native;
@@ -4069,7 +4051,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 IsGlyphRangeUnused(c_begin, c_last) { return false; } // TODO
             };
             exports_1("ImFont", ImFont);
-            // a script version of BindImGui.ImGuiStyle with matching interface
+            exports_1("Font", ImFont);
+            // a script version of Bind.ImGuiStyle with matching interface
             script_ImGuiStyle = class script_ImGuiStyle {
                 constructor() {
                     this.Alpha = 1.0;

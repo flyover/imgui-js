@@ -38,16 +38,6 @@
 // #include <stdio.h>  // sprintf, scanf
 
 import * as ImGui from "imgui-js";
-import { ImGuiCol } from "imgui-js";
-import { ImGuiWindowFlags } from "imgui-js";
-import { ImGuiHoveredFlags } from "imgui-js";
-import { ImStringBuffer } from "imgui-js";
-import { ImU32 } from "imgui-js";
-import { ImVec2 } from "imgui-js";
-import { ImGuiStyle } from "imgui-js";
-import { ImGuiListClipper } from "imgui-js";
-import { ImDrawList } from "imgui-js";
-import { ImGuiInputTextCallbackData } from "imgui-js";
 
 export class MemoryEditor
 {
@@ -70,8 +60,8 @@ export class MemoryEditor
     public OptMidRowsCount: number = 8;
     // int             OptAddrDigitsCount;                     // = 0      // number of addr digits to display (default calculated based on maximum displayed addr)
     public OptAddrDigitsCount: number = 0;
-    // ImU32           HighlightColor;                         //          // color of highlight
-    public HighlightColor: ImU32 = ImGui.IM_COL32(255, 255, 255, 40);
+    // ImGui.U32           HighlightColor;                         //          // color of highlight
+    public HighlightColor: ImGui.U32 = ImGui.COL32(255, 255, 255, 40);
     // u8              (*ReadFn)(u8* data, size_t off);        // = NULL   // optional handler to read bytes
     public ReadFn: ((data: ArrayBuffer, off: number) => number) | null = null
     // void            (*WriteFn)(u8* data, size_t off, u8 d); // = NULL   // optional handler to write bytes
@@ -87,9 +77,9 @@ export class MemoryEditor
     // bool            DataEditingTakeFocus;
     public DataEditingTakeFocus: boolean = false;
     // char            DataInputBuf[32];
-    public DataInputBuf: ImStringBuffer = new ImStringBuffer(32, "");
+    public DataInputBuf: ImGui.StringBuffer = new ImGui.StringBuffer(32, "");
     // char            AddrInputBuf[32];
-    public AddrInputBuf: ImStringBuffer = new ImStringBuffer(32, "");
+    public AddrInputBuf: ImGui.StringBuffer = new ImGui.StringBuffer(32, "");
     // size_t          GotoAddr;
     public GotoAddr: number = -1;
     // size_t          HighlightMin, HighlightMax;
@@ -119,7 +109,7 @@ export class MemoryEditor
 
     public CalcSizes(s: MemoryEditor.Sizes, mem_size: number, base_display_addr: number): void
     {
-        const style: ImGuiStyle = ImGui.GetStyle();
+        const style: ImGui.Style = ImGui.GetStyle();
         s.AddrDigitsCount = this.OptAddrDigitsCount;
         if (s.AddrDigitsCount === 0)
             for (let n = base_display_addr + mem_size - 1; n > 0; n >>= 4)
@@ -159,20 +149,20 @@ export class MemoryEditor
     {
         const s: MemoryEditor.Sizes = new MemoryEditor.Sizes();
         this.CalcSizes(s, mem_size, base_display_addr);
-        // ImGui.SetNextWindowSizeConstraints(new ImVec2(0.0, 0.0), new ImVec2(s.WindowWidth, FLT_MAX));
-        ImGui.SetNextWindowSizeConstraints(new ImVec2(0.0, 0.0), new ImVec2(s.WindowWidth, Number.MAX_VALUE));
+        // ImGui.SetNextWindowSizeConstraints(new ImGui.Vec2(0.0, 0.0), new ImGui.Vec2(s.WindowWidth, FLT_MAX));
+        ImGui.SetNextWindowSizeConstraints(new ImGui.Vec2(0.0, 0.0), new ImGui.Vec2(s.WindowWidth, Number.MAX_VALUE));
 
         // this.Open = true;
         // if (ImGui.Begin(title, &Open, ImGuiWindowFlags_NoScrollbar))
-        if (ImGui.Begin(title, (value = this.Open) => this.Open = value, ImGuiWindowFlags.NoScrollbar))
+        if (ImGui.Begin(title, (value = this.Open) => this.Open = value, ImGui.WindowFlags.NoScrollbar))
         {
-            if (ImGui.IsWindowHovered(ImGuiHoveredFlags.RootAndChildWindows) && ImGui.IsMouseClicked(1))
+            if (ImGui.IsWindowHovered(ImGui.HoveredFlags.RootAndChildWindows) && ImGui.IsMouseClicked(1))
                 ImGui.OpenPopup("context");
             this.DrawContents(mem_data, mem_size, base_display_addr);
             if (this.ContentsWidthChanged)
             {
                 this.CalcSizes(s, mem_size, base_display_addr);
-                ImGui.SetWindowSize(new ImVec2(s.WindowWidth, ImGui.GetWindowSize().y));
+                ImGui.SetWindowSize(new ImGui.Vec2(s.WindowWidth, ImGui.GetWindowSize().y));
             }
         }
         ImGui.End();
@@ -183,17 +173,17 @@ export class MemoryEditor
     {
         const s: MemoryEditor.Sizes = new MemoryEditor.Sizes();
         this.CalcSizes(s, mem_size, base_display_addr);
-        const style: ImGuiStyle = ImGui.GetStyle();
+        const style: ImGui.Style = ImGui.GetStyle();
 
         const footer_height_to_reserve: number = ImGui.GetStyle().ItemSpacing.y + ImGui.GetFrameHeightWithSpacing(); // 1 separator, 1 input text
-        ImGui.BeginChild("##scrolling", new ImVec2(0, -footer_height_to_reserve));
-        const draw_list: ImDrawList = ImGui.GetWindowDrawList();
+        ImGui.BeginChild("##scrolling", new ImGui.Vec2(0, -footer_height_to_reserve));
+        const draw_list: ImGui.DrawList = ImGui.GetWindowDrawList();
 
-        ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new ImVec2(0, 0));
-        ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new ImVec2(0, 0));
+        ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new ImGui.Vec2(0, 0));
+        ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new ImGui.Vec2(0, 0));
 
         const line_total_count: number = 0|((mem_size + this.Rows - 1) / this.Rows);
-        const clipper: ImGuiListClipper = new ImGuiListClipper();
+        const clipper: ImGui.ListClipper = new ImGui.ListClipper();
         clipper.Begin(line_total_count, s.LineHeight);
         clipper.Step();
         const visible_start_addr: number = clipper.DisplayStart * this.Rows;
@@ -224,12 +214,12 @@ export class MemoryEditor
         }
 
         // Draw vertical separator
-        const window_pos: ImVec2 = ImGui.GetWindowPos();
+        const window_pos: ImGui.Vec2 = ImGui.GetWindowPos();
         if (this.OptShowAscii)
-            draw_list.AddLine(new ImVec2(window_pos.x + s.PosAsciiStart - s.GlyphWidth, window_pos.y), new ImVec2(window_pos.x + s.PosAsciiStart - s.GlyphWidth, window_pos.y + 9999), ImGui.GetColorU32(ImGuiCol.Border));
+            draw_list.AddLine(new ImGui.Vec2(window_pos.x + s.PosAsciiStart - s.GlyphWidth, window_pos.y), new ImGui.Vec2(window_pos.x + s.PosAsciiStart - s.GlyphWidth, window_pos.y + 9999), ImGui.GetColorU32(ImGui.Col.Border));
 
-        const color_text: ImU32 = ImGui.GetColorU32(ImGuiCol.Text);
-        const color_disabled: ImU32 = this.OptGreyOutZeroes ? ImGui.GetColorU32(ImGuiCol.TextDisabled) : color_text;
+        const color_text: ImGui.U32 = ImGui.GetColorU32(ImGui.Col.Text);
+        const color_disabled: ImGui.U32 = this.OptGreyOutZeroes ? ImGui.GetColorU32(ImGui.Col.TextDisabled) : color_text;
 
         for (let line_i = clipper.DisplayStart; line_i < clipper.DisplayEnd; line_i++) // display only visible lines
         {
@@ -248,7 +238,7 @@ export class MemoryEditor
                 // Draw highlight
                 if ((addr >= this.HighlightMin && addr < this.HighlightMax) || (this.HighlightFn && this.HighlightFn(mem_data, addr)))
                 {
-                    const pos: ImVec2 = ImGui.GetCursorScreenPos();
+                    const pos: ImGui.Vec2 = ImGui.GetCursorScreenPos();
                     let highlight_width: number = s.GlyphWidth * 2;
                     const is_next_byte_highlighted: boolean = (addr + 1 < mem_size) && ((this.HighlightMax !== -1 && addr + 1 < this.HighlightMax) || (this.HighlightFn && this.HighlightFn(mem_data, addr + 1) || false));
                     if (is_next_byte_highlighted || (n + 1 === this.Rows))
@@ -257,7 +247,7 @@ export class MemoryEditor
                         if (this.OptMidRowsCount > 0 && n > 0 && (n + 1) < this.Rows && ((n + 1) % this.OptMidRowsCount) === 0)
                             highlight_width += s.SpacingBetweenMidRows;
                     }
-                    draw_list.AddRectFilled(pos, new ImVec2(pos.x + highlight_width, pos.y + s.LineHeight), this.HighlightColor);
+                    draw_list.AddRectFilled(pos, new ImGui.Vec2(pos.x + highlight_width, pos.y + s.LineHeight), this.HighlightColor);
                 }
 
                 if (this.DataEditingAddr === addr)
@@ -301,10 +291,10 @@ export class MemoryEditor
                     //     int    CursorPos;               // Output
                     // };
                     // FIXME: We should have a way to retrieve the text edit cursor position more easily in the API, this is rather tedious. This is such a ugly mess we may be better off not using InputText() at all here.
-                    function UserData_Callback(data: ImGuiInputTextCallbackData<UserData>): number
+                    function UserData_Callback(data: ImGui.InputTextCallbackData<UserData>): number
                     {
                         const user_data: UserData | null = data.UserData;
-                        ImGui.IM_ASSERT(user_data !== null);
+                        ImGui.ASSERT(user_data !== null);
                         if (!data.HasSelection())
                             user_data.CursorPos = data.CursorPos;
                         if (data.SelectionStart === 0 && data.SelectionEnd === data.BufTextLen)
@@ -396,10 +386,10 @@ export class MemoryEditor
             {
                 // Draw ASCII values
                 ImGui.SameLine(s.PosAsciiStart);
-                const pos: ImVec2 = ImGui.GetCursorScreenPos();
+                const pos: ImGui.Vec2 = ImGui.GetCursorScreenPos();
                 addr = line_i * this.Rows;
                 ImGui.PushID(line_i);
-                if (ImGui.InvisibleButton("ascii", new ImVec2(s.PosAsciiEnd - s.PosAsciiStart, s.LineHeight)))
+                if (ImGui.InvisibleButton("ascii", new ImGui.Vec2(s.PosAsciiEnd - s.PosAsciiStart, s.LineHeight)))
                 {
                     this.DataEditingAddr = addr + ((ImGui.GetIO().MousePos.x - pos.x) / s.GlyphWidth);
                     this.DataEditingTakeFocus = true;
@@ -409,8 +399,8 @@ export class MemoryEditor
                 {
                     if (addr === this.DataEditingAddr)
                     {
-                        draw_list.AddRectFilled(pos, new ImVec2(pos.x + s.GlyphWidth, pos.y + s.LineHeight), ImGui.GetColorU32(ImGuiCol.FrameBg));
-                        draw_list.AddRectFilled(pos, new ImVec2(pos.x + s.GlyphWidth, pos.y + s.LineHeight), ImGui.GetColorU32(ImGuiCol.TextSelectedBg));
+                        draw_list.AddRectFilled(pos, new ImGui.Vec2(pos.x + s.GlyphWidth, pos.y + s.LineHeight), ImGui.GetColorU32(ImGui.Col.FrameBg));
+                        draw_list.AddRectFilled(pos, new ImGui.Vec2(pos.x + s.GlyphWidth, pos.y + s.LineHeight), ImGui.GetColorU32(ImGui.Col.TextSelectedBg));
                     }
                     // unsigned char c = ReadFn ? ReadFn(mem_data, addr) : mem_data[addr];
                     const c: number = this.ReadFn ? this.ReadFn(mem_data, addr) : new Uint8Array(mem_data)[addr];

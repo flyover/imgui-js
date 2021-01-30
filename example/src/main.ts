@@ -1,18 +1,13 @@
 import * as ImGui from "imgui-js";
 import * as ImGui_Impl from "./imgui_impl.js";
-
-import { ImVec2 } from "imgui-js";
-import { ImVec4 } from "imgui-js";
-import { ImGuiIO } from "imgui-js";
 import { ShowDemoWindow } from "./imgui_demo.js";
-
 import { MemoryEditor } from "./imgui_memory_editor.js";
 
-let font: ImGui.ImFont | null = null;
+let font: ImGui.Font | null = null;
 
 let show_demo_window: boolean = true;
 let show_another_window: boolean = false;
-const clear_color: ImVec4 = new ImVec4(0.45, 0.55, 0.60, 1.00);
+const clear_color: ImGui.Vec4 = new ImGui.Vec4(0.45, 0.55, 0.60, 1.00);
 
 const memory_editor: MemoryEditor = new MemoryEditor();
 
@@ -44,8 +39,8 @@ export default async function main(): Promise<void> {
     }
 }
 
-async function AddFontFromFileTTF(url: string, size_pixels: number, font_cfg: ImGui.ImFontConfig | null = null, glyph_ranges: number | null = null): Promise<ImGui.ImFont> {
-    font_cfg = font_cfg || new ImGui.ImFontConfig();
+async function AddFontFromFileTTF(url: string, size_pixels: number, font_cfg: ImGui.FontConfig | null = null, glyph_ranges: number | null = null): Promise<ImGui.Font> {
+    font_cfg = font_cfg || new ImGui.FontConfig();
     font_cfg.Name = font_cfg.Name || `${url.split(/[\\\/]/).pop()}, ${size_pixels.toFixed(0)}px`;
     return ImGui.GetIO().Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer(url), size_pixels, font_cfg, glyph_ranges);
 }
@@ -54,10 +49,10 @@ async function _init(): Promise<void> {
     console.log("Total allocated space (uordblks) @ _init:", ImGui.bind.mallinfo().uordblks);
 
     // Setup Dear ImGui binding
-    ImGui.IMGUI_CHECKVERSION();
+    ImGui.CHECKVERSION();
     ImGui.CreateContext();
 
-    const io: ImGuiIO = ImGui.GetIO();
+    const io: ImGui.IO = ImGui.GetIO();
     // io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;  // Enable Keyboard Controls
 
     // Setup style
@@ -78,7 +73,7 @@ async function _init(): Promise<void> {
     // font = await AddFontFromFileTTF("../imgui/misc/fonts/ProggyTiny.ttf", 10.0);
     // font = await AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
     // font = await AddFontFromFileTTF("https://raw.githubusercontent.com/googlei18n/noto-cjk/master/NotoSansJP-Regular.otf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
-    ImGui.IM_ASSERT(font !== null);
+    ImGui.ASSERT(font !== null);
 
     if (typeof(window) !== "undefined") {
         const output: HTMLElement = document.getElementById("output") || document.body;
@@ -157,7 +152,7 @@ function _loop(time: number): void {
         ImGui.Text(`Total allocated space (uordblks):      ${mi.uordblks}`);
         ImGui.Text(`Total free space (fordblks):           ${mi.fordblks}`);
         // ImGui.Text(`Topmost releasable block (keepcost):   ${mi.keepcost}`);
-        if (ImGui.ImageButton(image_gl_texture, new ImVec2(48, 48))) {
+        if (ImGui.ImageButton(image_gl_texture, new ImGui.Vec2(48, 48))) {
             // show_demo_window = !show_demo_window;
             image_url = image_urls[(image_urls.indexOf(image_url) + 1) % image_urls.length];
             if (image_element) {
@@ -272,25 +267,25 @@ let source: string = [
     "",
 ].join("\n");
 
-function ShowSandboxWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
-    ImGui.SetNextWindowSize(new ImVec2(320, 240), ImGui.Cond.FirstUseEver);
+function ShowSandboxWindow(title: string, p_open: ImGui.Access<boolean> | null = null): void {
+    ImGui.SetNextWindowSize(new ImGui.Vec2(320, 240), ImGui.Cond.FirstUseEver);
     ImGui.Begin(title, p_open);
     ImGui.Text("Source");
     ImGui.SameLine(); ShowHelpMarker("Contents evaluated and appended to the window.");
     ImGui.PushItemWidth(-1);
-    ImGui.InputTextMultiline("##source", (_ = source) => (source = _), 1024, ImVec2.ZERO, ImGui.InputTextFlags.AllowTabInput);
+    ImGui.InputTextMultiline("##source", (_ = source) => (source = _), 1024, ImGui.Vec2.ZERO, ImGui.InputTextFlags.AllowTabInput);
     ImGui.PopItemWidth();
     try {
         eval(source);
     } catch (e) {
-        ImGui.TextColored(new ImVec4(1.0, 0.0, 0.0, 1.0), "error: ");
+        ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 0.0, 1.0), "error: ");
         ImGui.SameLine();
         ImGui.Text(e.message);
     }
     ImGui.End();
 }
 
-function ShowGamepadWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
+function ShowGamepadWindow(title: string, p_open: ImGui.Access<boolean> | null = null): void {
     ImGui.Begin(title, p_open, ImGui.WindowFlags.AlwaysAutoResize);
     const gamepads: (Gamepad | null)[] = (typeof(navigator) !== "undefined" && typeof(navigator.getGamepads) === "function") ? navigator.getGamepads() : [];
     if (gamepads.length > 0) {
@@ -423,7 +418,7 @@ function UpdateVideo(): void {
     }
 }
 
-function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
+function ShowMovieWindow(title: string, p_open: ImGui.Access<boolean> | null = null): void {
     ImGui.Begin(title, p_open, ImGui.WindowFlags.AlwaysAutoResize);
     if (video_element !== null) {
         if (p_open && !p_open()) {
@@ -436,7 +431,7 @@ function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null =
 
         ImGui.BeginGroup();
         if (ImGui.BeginCombo("##urls", null, ImGui.ComboFlags.NoPreview | ImGui.ComboFlags.PopupAlignLeft)) {
-            for (let n = 0; n < ImGui.IM_ARRAYSIZE(video_urls); n++) {
+            for (let n = 0; n < ImGui.ARRAYSIZE(video_urls); n++) {
                 if (ImGui.Selectable(video_urls[n])) {
                     video_url = video_urls[n];
                     console.log(video_url);
@@ -455,7 +450,7 @@ function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null =
         ImGui.PopItemWidth();
         ImGui.EndGroup();
 
-        if (ImGui.ImageButton(video_gl_texture, new ImVec2(video_w, video_h))) {
+        if (ImGui.ImageButton(video_gl_texture, new ImGui.Vec2(video_w, video_h))) {
             if (video_element.readyState >= video_element.HAVE_CURRENT_DATA) {
                 video_element.paused ? video_element.play() : video_element.pause();
             }

@@ -93,11 +93,12 @@ export { IMGUI_VERSION_NUM as VERSION_NUM }
 export const IMGUI_VERSION_NUM: number = 18000; // bind.IMGUI_VERSION_NUM;
 
 // #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
+export { IMGUI_CHECKVERSION as CHECKVERSION }
 export function IMGUI_CHECKVERSION(): boolean { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, bind.ImGuiIOSize, bind.ImGuiStyleSize, bind.ImVec2Size, bind.ImVec4Size, bind.ImDrawVertSize, bind.ImDrawIdxSize); }
 
 export const IMGUI_HAS_TABLE: boolean = true;
 
-export { IM_ASSERT as ASSERT }
+export function ASSERT(c: any): asserts c { if (!c) { throw new Error(); } }
 export function IM_ASSERT(c: any): asserts c { if (!c) { throw new Error(); } }
 
 export { IM_ARRAYSIZE as ARRAYSIZE }
@@ -109,16 +110,18 @@ export function IM_ARRAYSIZE(_ARR: ArrayLike<any> | ImStringBuffer): number {
     }
 }
 
+export { ImStringBuffer as StringBuffer }
 export class ImStringBuffer {
     constructor(public size: number, public buffer: string = "") {}
 }
 
-export { ImAccess } from "bind-imgui";
-export { ImScalar } from "bind-imgui";
-export { ImTuple2 } from "bind-imgui";
-export { ImTuple3 } from "bind-imgui";
-export { ImTuple4 } from "bind-imgui";
+export type ImAccess<T> = Bind.ImAccess<T>; export { ImAccess as Access }
+export type ImScalar<T> = Bind.ImScalar<T>; export { ImScalar as Scalar }
+export type ImTuple2<T> = Bind.ImTuple2<T>; export { ImTuple2 as Tuple2 }
+export type ImTuple3<T> = Bind.ImTuple3<T>; export { ImTuple3 as Tuple3 }
+export type ImTuple4<T> = Bind.ImTuple4<T>; export { ImTuple4 as Tuple4 }
 
+export { ImTextureID as TextureID }
 export type ImTextureID = WebGLTexture;
 export { ImGuiID as ID }
 export type ImGuiID = Bind.ImGuiID;
@@ -792,11 +795,13 @@ export enum ImDrawListFlags
     AllowVtxOffset          = 1 << 3   // Can emit 'VtxOffset > 0' to allow large meshes. Set when 'ImGuiBackendFlags_RendererHasVtxOffset' is enabled.
 }
 
-export { ImU32 } from "bind-imgui";
+export { ImU32 as U32 }
+export type ImU32 = Bind.ImU32;
 
 export { interface_ImVec2 } from "bind-imgui";
 export { reference_ImVec2 } from "bind-imgui";
 
+export { ImVec2 as Vec2 }
 export class ImVec2 implements Bind.interface_ImVec2 {
     public static readonly ZERO: Readonly<ImVec2> = new ImVec2(0.0, 0.0);
     public static readonly UNIT: Readonly<ImVec2> = new ImVec2(1.0, 1.0);
@@ -827,6 +832,7 @@ export class ImVec2 implements Bind.interface_ImVec2 {
 export { interface_ImVec4 } from "bind-imgui";
 export { reference_ImVec4 } from "bind-imgui";
 
+export { ImVec4 as Vec4 }
 export class ImVec4 implements Bind.interface_ImVec4 {
     public static readonly ZERO: Readonly<ImVec4> = new ImVec4(0.0, 0.0, 0.0, 0.0);
     public static readonly UNIT: Readonly<ImVec4> = new ImVec4(1.0, 1.0, 1.0, 1.0);
@@ -870,6 +876,7 @@ export class ImVec4 implements Bind.interface_ImVec4 {
 
 // Lightweight std::vector<> like class to avoid dragging dependencies (also: windows implementation of STL with debug enabled is absurdly slow, so let's bypass it so our code runs fast in debug).
 // Our implementation does NOT call C++ constructors/destructors. This is intentional and we do not require it. Do not use this class as a straight std::vector replacement in your code!
+export { ImVector as Vector }
 export class ImVector<T> extends Array<T>
 {
     public get Size(): number { return this.length; }
@@ -964,6 +971,7 @@ export class ImVector<T> extends Array<T>
 // #else
 // #define IM_UNICODE_CODEPOINT_MAX     0xFFFF     // Maximum Unicode code point supported by this build.
 // #endif
+export { IM_UNICODE_CODEPOINT_MAX as UNICODE_CODEPOINT_MAX }
 export const IM_UNICODE_CODEPOINT_MAX: number = 0xFFFF; // Maximum Unicode code point supported by this build.
 
 // Helper: Parse and apply text filters. In format "aaaaa[,bbbb][,ccccc]"
@@ -1177,17 +1185,19 @@ export const IM_COL32_G_SHIFT: number = 8;
 export const IM_COL32_B_SHIFT: number = config.IMGUI_USE_BGRA_PACKED_COLOR ? 0 : 16;
 export const IM_COL32_A_SHIFT: number = 24;
 export const IM_COL32_A_MASK: number = 0xFF000000;
+export { IM_COL32 as COL32 }
 export function IM_COL32(R: number, G: number, B: number, A: number = 255): number {
     return ((A << IM_COL32_A_SHIFT) | (B << IM_COL32_B_SHIFT) | (G << IM_COL32_G_SHIFT) | (R << IM_COL32_R_SHIFT)) >>> 0;
 }
-export const IM_COL32_WHITE: number = IM_COL32(255, 255, 255, 255);  // Opaque white = 0xFFFFFFFF
-export const IM_COL32_BLACK: number = IM_COL32(0, 0, 0, 255);        // Opaque black
-export const IM_COL32_BLACK_TRANS: number = IM_COL32(0, 0, 0, 0);    // Transparent black = 0x00000000
+export const IM_COL32_WHITE: number = IM_COL32(255, 255, 255, 255); export { IM_COL32_WHITE as COL32_WHITE }  // Opaque white = 0xFFFFFFFF
+export const IM_COL32_BLACK: number = IM_COL32(0, 0, 0, 255); export { IM_COL32_BLACK as COL32_BLACK }        // Opaque black
+export const IM_COL32_BLACK_TRANS: number = IM_COL32(0, 0, 0, 0); export { IM_COL32_BLACK_TRANS as COL32_BLACK_TRANS }    // Transparent black = 0x00000000
 
 // ImColor() helper to implicity converts colors to either ImU32 (packed 4x1 byte) or ImVec4 (4x1 float)
 // Prefer using IM_COL32() macros if you want a guaranteed compile-time ImU32 for usage with ImDrawList API.
 // **Avoid storing ImColor! Store either u32 of ImVec4. This is not a full-featured color class. MAY OBSOLETE.
 // **None of the ImGui API are using ImColor directly but you can use it as a convenience to pass colors in either ImU32 or ImVec4 formats. Explicitly cast to ImU32 or ImVec4 if needed.
+export { ImColor as Color }
 export class ImColor
 {
     // ImVec4              Value;
@@ -1431,6 +1441,7 @@ export const ImDrawCallback_ResetRenderState = -1;
 // Typically, 1 command = 1 GPU draw call (unless command is a callback)
 // Pre 1.71 back-ends will typically ignore the VtxOffset/IdxOffset fields. When 'io.BackendFlags & ImGuiBackendFlags_RendererHasVtxOffset'
 // is enabled, those fields allow us to render meshes larger than 64K vertices while keeping 16-bits indices.
+export { ImDrawCmd as DrawCmd }
 export class ImDrawCmd
 {
     constructor(public readonly native: Bind.reference_ImDrawCmd) {}
@@ -1461,15 +1472,22 @@ export class ImDrawCmd
 // #ifndef ImDrawIdx
 // typedef unsigned short ImDrawIdx;
 // #endif
+export { ImDrawIdxSize as DrawIdxSize }
 export const ImDrawIdxSize: number = 2; // bind.ImDrawIdxSize;
+export { ImDrawIdx as DrawIdx }
 export type ImDrawIdx = number;
 
 // Vertex layout
 // #ifndef IMGUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT
+export { ImDrawVertSize as DrawVertSize }
 export const ImDrawVertSize: number = 20; // bind.ImDrawVertSize;
+export { ImDrawVertPosOffset as DrawVertPosOffset }
 export const ImDrawVertPosOffset: number = 0; // bind.ImDrawVertPosOffset;
+export { ImDrawVertUVOffset as DrawVertUVOffset }
 export const ImDrawVertUVOffset: number = 8; // bind.ImDrawVertUVOffset;
+export { ImDrawVertColOffset as DrawVertColOffset }
 export const ImDrawVertColOffset: number = 16; // bind.ImDrawVertColOffset;
+export { ImDrawVert as DrawVert }
 export class ImDrawVert
 {
     // ImVec2  pos;
@@ -1520,6 +1538,7 @@ export class ImDrawListSharedData
 // You can interleave normal ImGui:: calls and adding primitives to the current draw list.
 // All positions are generally in pixel coordinates (top-left at (0,0), bottom-right at io.DisplaySize), however you are totally free to apply whatever transformation matrix to want to the data (if you apply such transformation you'll want to apply it to ClipRect as well)
 // Important: Primitives are always added to the list and not culled (culling is done at higher-level by ImGui:: functions), if you use this API a lot consider coarse culling your drawn objects.
+export { ImDrawList as DrawList }
 export class ImDrawList
 {
     constructor(public readonly native: Bind.reference_ImDrawList) {}
@@ -1744,6 +1763,7 @@ export class ImDrawList
 }
 
 // All draw data to render an ImGui frame
+export { ImDrawData as DrawData }
 export class ImDrawData
 {
     constructor(public readonly native: Bind.reference_ImDrawData) {}
@@ -1824,6 +1844,7 @@ export class script_ImFontConfig implements Bind.interface_ImFontConfig
     // IMGUI_API ImFontConfig();
 }
 
+export { ImFontConfig as FontConfig }
 export class ImFontConfig {
     constructor(public readonly internal: Bind.interface_ImFontConfig = new script_ImFontConfig()) {}
 
@@ -1892,6 +1913,7 @@ export class script_ImFontGlyph implements Bind.interface_ImFontGlyph
     V1: number = 1.0;
 }
 
+export { ImFontGlyph as FontGlyph }
 export class ImFontGlyph implements Bind.interface_ImFontGlyph {
     constructor(public readonly internal: Bind.interface_ImFontGlyph = new script_ImFontGlyph()) {}
     // unsigned int    Codepoint : 31;     // 0x0000..0xFFFF
@@ -1925,6 +1947,7 @@ export class ImFontAtlasCustomRect
     // bool IsPacked() const           { return X != 0xFFFF; }
 }
 
+export { ImFontAtlasFlags as FontAtlasFlags }
 export enum ImFontAtlasFlags
 {
     None               = 0,
@@ -1941,6 +1964,7 @@ export enum ImFontAtlasFlags
 //  3. Upload the pixels data into a texture within your graphics system.
 //  4. Call SetTexID(my_tex_id); and pass the pointer/identifier to your texture. This value will be passed back to you during rendering to identify the texture.
 // IMPORTANT: If you pass a 'glyph_ranges' array to AddFont*** functions, you need to make sure that your array persist up until the ImFont is build (when calling GetTextData*** or Build()). We only copy the pointer, not the data.
+export { ImFontAtlas as FontAtlas }
 export class ImFontAtlas
 {
     constructor(public readonly native: Bind.reference_ImFontAtlas) {}
@@ -2097,6 +2121,7 @@ export class ImFontAtlas
 
 // Font runtime data and rendering
 // ImFontAtlas automatically loads a default embedded font for you when you call GetTexDataAsAlpha8() or GetTexDataAsRGBA32().
+export { ImFont as Font }
 export class ImFont
 {
     constructor(public readonly native: Bind.reference_ImFont) {}
@@ -2209,7 +2234,7 @@ export class ImFont
     public IsGlyphRangeUnused(c_begin: number, c_last: number): boolean { return false; } // TODO
 }
 
-// a script version of BindImGui.ImGuiStyle with matching interface
+// a script version of Bind.ImGuiStyle with matching interface
 class script_ImGuiStyle implements Bind.interface_ImGuiStyle {
     public Alpha: number = 1.0;
     public WindowPadding: ImVec2 = new ImVec2(8, 8);
@@ -2722,7 +2747,7 @@ export function DestroyContext(ctx: ImGuiContext | null = null): void {
     bind.DestroyContext((ctx === null) ? null : ctx.native);
 }
 export function GetCurrentContext(): ImGuiContext | null {
-    // const ctx_native: BindImGui.ImGuiContext | null = bind.GetCurrentContext();
+    // const ctx_native: Bind.ImGuiContext | null = bind.GetCurrentContext();
     return ImGuiContext.current_ctx;
 }
 export function SetCurrentContext(ctx: ImGuiContext | null): void {

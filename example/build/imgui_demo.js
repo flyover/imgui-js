@@ -2,7 +2,7 @@
 // (demo code)
 System.register(["imgui-js"], function (exports_1, context_1) {
     "use strict";
-    var ImGui, imgui_js_1, imgui_js_2, imgui_js_3, imgui_js_4, INT_MIN, INT_MAX, UINT_MAX, FLT_MIN, FLT_MAX, Static, _static_map, StaticArray, _static_array_map, IM_NEWLINE, done, MyItemColumnID, MyItem, ExampleAppConsole, ExampleAppLog, MyDocument, ExampleAppDocuments;
+    var ImGui, INT_MIN, INT_MAX, UINT_MAX, FLT_MIN, FLT_MAX, Static, _static_map, StaticArray, _static_array_map, IM_NEWLINE, done, MyItemColumnID, MyItem, ExampleAppConsole, ExampleAppLog, MyDocument, ExampleAppDocuments;
     var __moduleName = context_1 && context_1.id;
     // const LLONG_MIN: float = 0; // 0x8000000000000000
     // const LLONG_MAX: float = 0; // 0x7fffffffffffffff
@@ -58,18 +58,18 @@ System.register(["imgui-js"], function (exports_1, context_1) {
     //-----------------------------------------------------------------------------
     // #if !defined(IMGUI_DISABLE_DEMO_WINDOWS)
     // Forward Declarations
-    // static void ShowExampleAppDocuments(p_open: ImAccess<boolean>);
+    // static void ShowExampleAppDocuments(p_open: ImGui.Access<boolean>);
     // static void ShowExampleAppMainMenuBar();
-    // static void ShowExampleAppConsole(p_open: ImAccess<boolean>);
-    // static void ShowExampleAppLog(p_open: ImAccess<boolean>);
-    // static void ShowExampleAppLayout(p_open: ImAccess<boolean>);
-    // static void ShowExampleAppPropertyEditor(p_open: ImAccess<boolean>);
-    // static void ShowExampleAppLongText(p_open: ImAccess<boolean>);
-    // static void ShowExampleAppAutoResize(p_open: ImAccess<boolean>);
-    // static void ShowExampleAppConstrainedResize(p_open: ImAccess<boolean>);
-    // static void ShowExampleAppSimpleOverlay(p_open: ImAccess<boolean>);
-    // static void ShowExampleAppWindowTitles(p_open: ImAccess<boolean>);
-    // static void ShowExampleAppCustomRendering(p_open: ImAccess<boolean>);
+    // static void ShowExampleAppConsole(p_open: ImGui.Access<boolean>);
+    // static void ShowExampleAppLog(p_open: ImGui.Access<boolean>);
+    // static void ShowExampleAppLayout(p_open: ImGui.Access<boolean>);
+    // static void ShowExampleAppPropertyEditor(p_open: ImGui.Access<boolean>);
+    // static void ShowExampleAppLongText(p_open: ImGui.Access<boolean>);
+    // static void ShowExampleAppAutoResize(p_open: ImGui.Access<boolean>);
+    // static void ShowExampleAppConstrainedResize(p_open: ImGui.Access<boolean>);
+    // static void ShowExampleAppSimpleOverlay(p_open: ImGui.Access<boolean>);
+    // static void ShowExampleAppWindowTitles(p_open: ImGui.Access<boolean>);
+    // static void ShowExampleAppCustomRendering(p_open: ImGui.Access<boolean>);
     // static void ShowExampleMenuFile();
     // Helper to display a little (?) mark which shows a tooltip when hovered.
     // In your own code you may want to display an actual icon if you are using a merged icon fonts (see docs/FONTS.md)
@@ -119,7 +119,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         done = false;
         // Exceptionally add an extra assert here for people confused about initial Dear ImGui setup
         // Most ImGui functions would normally just crash if the context is missing.
-        ImGui.IM_ASSERT(ImGui.GetCurrentContext() !== null && "Missing dear imgui context. Refer to examples app!");
+        ImGui.ASSERT(ImGui.GetCurrentContext() !== null && "Missing dear imgui context. Refer to examples app!");
         // Examples Apps (accessible from the "Examples" menu)
         const show_app_main_menu_bar = STATIC(UNIQUE("show_app_main_menu_bar#6a959c6a"), false);
         const show_app_documents = STATIC(UNIQUE("show_app_documents#f11837e5"), false);
@@ -203,11 +203,11 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         if (no_bring_to_front.value)
             window_flags |= ImGui.WindowFlags.NoBringToFrontOnFocus;
         if (no_close.value)
-            p_open = null; // Don't pass our ImAccess<boolean> to Begin
+            p_open = null; // Don't pass our ImGui.Access<boolean> to Begin
         // We specify a default position/size in case there's no data in the .ini file.
         // We only do it to make the demo applications a little more welcoming, but typically this isn't required.
-        ImGui.SetNextWindowPos(new imgui_js_1.ImVec2(650, 20), ImGui.Cond.FirstUseEver);
-        ImGui.SetNextWindowSize(new imgui_js_1.ImVec2(550, 680), ImGui.Cond.FirstUseEver);
+        ImGui.SetNextWindowPos(new ImGui.Vec2(650, 20), ImGui.Cond.FirstUseEver);
+        ImGui.SetNextWindowSize(new ImGui.Vec2(550, 680), ImGui.Cond.FirstUseEver);
         // Main body of the Demo window starts here.
         if (!ImGui.Begin("Dear ImGui Demo", p_open, window_flags)) {
             // Early out if the window is collapsed, as an optimization.
@@ -403,9 +403,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 if (i > 0)
                     ImGui.SameLine();
                 ImGui.PushID(i);
-                ImGui.PushStyleColor(ImGui.Col.Button, /*(ImVec4)*/ imgui_js_3.ImColor.HSV(i / 7.0, 0.6, 0.6));
-                ImGui.PushStyleColor(ImGui.Col.ButtonHovered, /*(ImVec4)*/ imgui_js_3.ImColor.HSV(i / 7.0, 0.7, 0.7));
-                ImGui.PushStyleColor(ImGui.Col.ButtonActive, /*(ImVec4)*/ imgui_js_3.ImColor.HSV(i / 7.0, 0.8, 0.8));
+                ImGui.PushStyleColor(ImGui.Col.Button, /*(ImGui.Vec4)*/ ImGui.Color.HSV(i / 7.0, 0.6, 0.6));
+                ImGui.PushStyleColor(ImGui.Col.ButtonHovered, /*(ImGui.Vec4)*/ ImGui.Color.HSV(i / 7.0, 0.7, 0.7));
+                ImGui.PushStyleColor(ImGui.Col.ButtonActive, /*(ImGui.Vec4)*/ ImGui.Color.HSV(i / 7.0, 0.8, 0.8));
                 ImGui.Button("Click");
                 ImGui.PopStyleColor(3);
                 ImGui.PopID();
@@ -457,7 +457,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             {
                 // To wire InputText() with std::string or any other custom string type,
                 // see the "Text Input > Resize Callback" section of this demo, and the misc/cpp/imgui_stdlib.h file.
-                const str0 = STATIC(UNIQUE("str0#16cfd787"), new imgui_js_4.ImStringBuffer(128, "Hello, world!"));
+                const str0 = STATIC(UNIQUE("str0#16cfd787"), new ImGui.StringBuffer(128, "Hello, world!"));
                 ImGui.InputText("input text", str0.value, ImGui.ARRAYSIZE(str0.value));
                 ImGui.SameLine();
                 HelpMarker("USER:\n" +
@@ -471,7 +471,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     "You can use the ImGui.InputTextFlags.CallbackResize facility if you need to wire InputText() " +
                     "to a dynamic string type. See misc/cpp/imgui_stdlib.h for an example (this is not demonstrated " +
                     "in imgui_demo.cpp).");
-                const str1 = STATIC(UNIQUE("str1#9aa9883e"), new imgui_js_4.ImStringBuffer(128, ""));
+                const str1 = STATIC(UNIQUE("str1#9aa9883e"), new ImGui.StringBuffer(128, ""));
                 ImGui.InputTextWithHint("input text (w/ hint)", "enter text here", str1.value, ImGui.ARRAYSIZE(str1.value));
                 const i0 = STATIC(UNIQUE("i0#d03168af"), 123);
                 ImGui.InputInt("input int", i0.access);
@@ -686,8 +686,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         if (ImGui.TreeNode("Text")) {
             if (ImGui.TreeNode("Colorful Text")) {
                 // Using shortcut. You can use PushStyleColor()/PopStyleColor() for more flexibility.
-                ImGui.TextColored(new imgui_js_2.ImVec4(1.0, 0.0, 1.0, 1.0), "Pink");
-                ImGui.TextColored(new imgui_js_2.ImVec4(1.0, 1.0, 0.0, 1.0), "Yellow");
+                ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
+                ImGui.TextColored(new ImGui.Vec4(1.0, 1.0, 0.0, 1.0), "Yellow");
                 ImGui.TextDisabled("Disabled");
                 ImGui.SameLine();
                 HelpMarker("The TextDisabled color is stored in ImGui.Style.");
@@ -704,16 +704,16 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 for (let n = 0; n < 2; n++) {
                     ImGui.Text(`Test paragraph ${n}:`);
                     const pos = ImGui.GetCursorScreenPos();
-                    const marker_min = new imgui_js_1.ImVec2(pos.x + wrap_width.value, pos.y);
-                    const marker_max = new imgui_js_1.ImVec2(pos.x + wrap_width.value + 10, pos.y + ImGui.GetTextLineHeight());
+                    const marker_min = new ImGui.Vec2(pos.x + wrap_width.value, pos.y);
+                    const marker_max = new ImGui.Vec2(pos.x + wrap_width.value + 10, pos.y + ImGui.GetTextLineHeight());
                     ImGui.PushTextWrapPos(ImGui.GetCursorPos().x + wrap_width.value);
                     if (n === 0)
                         ImGui.Text(`The lazy dog is a good dog. This paragraph should fit within ${wrap_width.value.toFixed(0)} pixels. Testing a 1 character word. The quick brown fox jumps over the lazy dog.`);
                     else
                         ImGui.Text("aaaaaaaa bbbbbbbb, c cccccccc,dddddddd. d eeeeeeee   ffffffff. gggggggg!hhhhhhhh");
                     // Draw actual text bounding box, following by marker of our expected limit (should not overlap!)
-                    draw_list.AddRect(ImGui.GetItemRectMin(), ImGui.GetItemRectMax(), ImGui.IM_COL32(255, 255, 0, 255));
-                    draw_list.AddRectFilled(marker_min, marker_max, ImGui.IM_COL32(255, 0, 255, 255));
+                    draw_list.AddRect(ImGui.GetItemRectMin(), ImGui.GetItemRectMax(), ImGui.COL32(255, 255, 0, 255));
+                    draw_list.AddRectFilled(marker_min, marker_max, ImGui.COL32(255, 0, 255, 255));
                     ImGui.PopTextWrapPos();
                 }
                 ImGui.TreePop();
@@ -744,9 +744,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 // 本 \xe6\x9c\xac U+672C &#26412;
                 // 語 \xe8\xaa\x9e U+8A9E &#35486;
                 ImGui.Text("Kanjis: 日本語 (nihongo)");
-                // const buf = STATIC<ImStringBuffer>(UNIQUE("buf#5d65d4f9"), new ImStringBuffer(32, "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e"));
-                const buf = STATIC(UNIQUE("buf#2d64d85e"), new imgui_js_4.ImStringBuffer(32, "日本語"));
-                //const buf = STATIC<ImStringBuffer>(UNIQUE("buf#4610aac2"), new ImStringBuffer(32, /*u8*/"NIHONGO")); // <- this is how you would write it with C++11, using real kanjis
+                // const buf = STATIC<ImGui.StringBuffer>(UNIQUE("buf#5d65d4f9"), new ImGui.StringBuffer(32, "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e"));
+                const buf = STATIC(UNIQUE("buf#2d64d85e"), new ImGui.StringBuffer(32, "日本語"));
+                //const buf = STATIC<ImGui.StringBuffer>(UNIQUE("buf#4610aac2"), new ImGui.StringBuffer(32, /*u8*/"NIHONGO")); // <- this is how you would write it with C++11, using real kanjis
                 ImGui.InputText("UTF-8 input", buf.value, ImGui.ARRAYSIZE(buf.value));
                 ImGui.TreePop();
             }
@@ -778,11 +778,11 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             {
                 ImGui.Text(`${my_tex_w.toFixed(0)}x${my_tex_h.toFixed(0)}`);
                 const pos = ImGui.GetCursorScreenPos();
-                const uv_min = new imgui_js_1.ImVec2(0.0, 0.0); // Top-left
-                const uv_max = new imgui_js_1.ImVec2(1.0, 1.0); // Lower-right
-                const tint_col = new imgui_js_2.ImVec4(1.0, 1.0, 1.0, 1.0); // No tint
-                const border_col = new imgui_js_2.ImVec4(1.0, 1.0, 1.0, 0.5); // 50% opaque white
-                ImGui.Image(my_tex_id, new imgui_js_1.ImVec2(my_tex_w, my_tex_h), uv_min, uv_max, tint_col, border_col);
+                const uv_min = new ImGui.Vec2(0.0, 0.0); // Top-left
+                const uv_max = new ImGui.Vec2(1.0, 1.0); // Lower-right
+                const tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0); // No tint
+                const border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.5); // 50% opaque white
+                ImGui.Image(my_tex_id, new ImGui.Vec2(my_tex_w, my_tex_h), uv_min, uv_max, tint_col, border_col);
                 if (ImGui.IsItemHovered()) {
                     ImGui.BeginTooltip();
                     const region_sz = 32.0;
@@ -803,9 +803,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     }
                     ImGui.Text(`Min: (${region_x.toFixed(2)}, ${region_y.toFixed(2)})`);
                     ImGui.Text(`Max: (${(region_x + region_sz).toFixed(2)}, ${(region_y + region_sz).toFixed(2)})`);
-                    const uv0 = new imgui_js_1.ImVec2((region_x) / my_tex_w, (region_y) / my_tex_h);
-                    const uv1 = new imgui_js_1.ImVec2((region_x + region_sz) / my_tex_w, (region_y + region_sz) / my_tex_h);
-                    ImGui.Image(my_tex_id, new imgui_js_1.ImVec2(region_sz * zoom, region_sz * zoom), uv0, uv1, tint_col, border_col);
+                    const uv0 = new ImGui.Vec2((region_x) / my_tex_w, (region_y) / my_tex_h);
+                    const uv1 = new ImGui.Vec2((region_x + region_sz) / my_tex_w, (region_y + region_sz) / my_tex_h);
+                    ImGui.Image(my_tex_id, new ImGui.Vec2(region_sz * zoom, region_sz * zoom), uv0, uv1, tint_col, border_col);
                     ImGui.EndTooltip();
                 }
             }
@@ -814,11 +814,11 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             for (let i = 0; i < 8; i++) {
                 ImGui.PushID(i);
                 let frame_padding = -1 + i; // -1 === uses default padding (style.FramePadding)
-                const size = new imgui_js_1.ImVec2(32.0, 32.0); // Size of the image we want to make visible
-                const uv0 = new imgui_js_1.ImVec2(0.0, 0.0); // UV coordinates for lower-left
-                const uv1 = new imgui_js_1.ImVec2(32.0 / my_tex_w, 32.0 / my_tex_h); // UV coordinates for (32,32) in our texture
-                const bg_col = new imgui_js_2.ImVec4(0.0, 0.0, 0.0, 1.0); // Black background
-                const tint_col = new imgui_js_2.ImVec4(1.0, 1.0, 1.0, 1.0); // No tint
+                const size = new ImGui.Vec2(32.0, 32.0); // Size of the image we want to make visible
+                const uv0 = new ImGui.Vec2(0.0, 0.0); // UV coordinates for lower-left
+                const uv1 = new ImGui.Vec2(32.0 / my_tex_w, 32.0 / my_tex_h); // UV coordinates for (32,32) in our texture
+                const bg_col = new ImGui.Vec4(0.0, 0.0, 0.0, 1.0); // Black background
+                const tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0); // No tint
                 if (ImGui.ImageButton(my_tex_id, size, uv0, uv1, frame_padding, bg_col, tint_col))
                     pressed_count.value += 1;
                 ImGui.PopID();
@@ -958,13 +958,13 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 // const winning_state: boolean = memchr(selected, 0, sizeof(selected)) === null; // If all cells are selected...
                 const winning_state = 1 === selected.value.reduce((total, row) => total & row.reduce((row_total, cell) => row_total & cell, 1), 1); // If all cells are selected...
                 if (winning_state)
-                    ImGui.PushStyleVar(ImGui.StyleVar.SelectableTextAlign, new imgui_js_1.ImVec2(0.5 + 0.5 * Math.cos(time * 2.0), 0.5 + 0.5 * Math.sin(time * 3.0)));
+                    ImGui.PushStyleVar(ImGui.StyleVar.SelectableTextAlign, new ImGui.Vec2(0.5 + 0.5 * Math.cos(time * 2.0), 0.5 + 0.5 * Math.sin(time * 3.0)));
                 for (let y = 0; y < 4; y++)
                     for (let x = 0; x < 4; x++) {
                         if (x > 0)
                             ImGui.SameLine();
                         ImGui.PushID(y * 4 + x);
-                        if (ImGui.Selectable("Sailor", selected.value[y][x] !== 0, 0, new imgui_js_1.ImVec2(50, 50))) {
+                        if (ImGui.Selectable("Sailor", selected.value[y][x] !== 0, 0, new ImGui.Vec2(50, 50))) {
                             // Toggle clicked cell + toggle neighbors
                             selected.value[y][x] ^= 1;
                             if (x > 0) {
@@ -993,12 +993,12 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 const selected = STATIC_ARRAY(9 /*3*3*/, UNIQUE("selected#846dd8d4"), [true, false, true, false, true, false, true, false, true]);
                 for (let y = 0; y < 3; y++) {
                     for (let x = 0; x < 3; x++) {
-                        const alignment = new imgui_js_1.ImVec2(x / 2.0, y / 2.0);
+                        const alignment = new ImGui.Vec2(x / 2.0, y / 2.0);
                         const name = `${alignment.x.toFixed(1)},${alignment.y.toFixed(1)}`;
                         if (x > 0)
                             ImGui.SameLine();
                         ImGui.PushStyleVar(ImGui.StyleVar.SelectableTextAlign, alignment);
-                        ImGui.Selectable(name, selected.access(3 * y + x), ImGui.SelectableFlags.None, new imgui_js_1.ImVec2(80, 80));
+                        ImGui.Selectable(name, selected.access(3 * y + x), ImGui.SelectableFlags.None, new ImGui.Vec2(80, 80));
                         ImGui.PopStyleVar();
                     }
                 }
@@ -1012,7 +1012,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             if (ImGui.TreeNode("Multi-line Text Input")) {
                 // Note: we are using a fixed-sized buffer for simplicity here. See ImGui.InputTextFlags.CallbackResize
                 // and the code in misc/cpp/imgui_stdlib.h for how to setup InputText() for dynamically resizing strings.
-                const text = STATIC(UNIQUE("text#a6a428ac"), new imgui_js_4.ImStringBuffer(1024 * 16, "/*\n" +
+                const text = STATIC(UNIQUE("text#a6a428ac"), new ImGui.StringBuffer(1024 * 16, "/*\n" +
                     " The Pentium F00F bug, shorthand for F0 0F C7 C8,\n" +
                     " the hexadecimal encoding of one offending instruction,\n" +
                     " more formally, the invalid operand with locked CMPXCHG8B\n" +
@@ -1027,7 +1027,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 ImGui.CheckboxFlags("ImGui.InputTextFlags.ReadOnly", flags.access, ImGui.InputTextFlags.ReadOnly);
                 ImGui.CheckboxFlags("ImGui.InputTextFlags.AllowTabInput", flags.access, ImGui.InputTextFlags.AllowTabInput);
                 ImGui.CheckboxFlags("ImGui.InputTextFlags.CtrlEnterForNewLine", flags.access, ImGui.InputTextFlags.CtrlEnterForNewLine);
-                ImGui.InputTextMultiline("##source", text.value, ImGui.ARRAYSIZE(text.value), new imgui_js_1.ImVec2(-FLT_MIN, ImGui.GetTextLineHeight() * 16), flags.value);
+                ImGui.InputTextMultiline("##source", text.value, ImGui.ARRAYSIZE(text.value), new ImGui.Vec2(-FLT_MIN, ImGui.GetTextLineHeight() * 16), flags.value);
                 ImGui.TreePop();
             }
             if (ImGui.TreeNode("Filtered Text Input")) {
@@ -1039,22 +1039,22 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         return 1;
                     }
                 }
-                const buf1 = STATIC(UNIQUE("buf1#92a08891"), new imgui_js_4.ImStringBuffer(64, ""));
+                const buf1 = STATIC(UNIQUE("buf1#92a08891"), new ImGui.StringBuffer(64, ""));
                 ImGui.InputText("default", buf1.value, ImGui.ARRAYSIZE(buf1.value));
-                const buf2 = STATIC(UNIQUE("buf2#e0010b25"), new imgui_js_4.ImStringBuffer(64, ""));
+                const buf2 = STATIC(UNIQUE("buf2#e0010b25"), new ImGui.StringBuffer(64, ""));
                 ImGui.InputText("decimal", buf2.value, ImGui.ARRAYSIZE(buf2.value), ImGui.InputTextFlags.CharsDecimal);
-                const buf3 = STATIC(UNIQUE("buf3#bdf9a76f"), new imgui_js_4.ImStringBuffer(64, ""));
+                const buf3 = STATIC(UNIQUE("buf3#bdf9a76f"), new ImGui.StringBuffer(64, ""));
                 ImGui.InputText("hexadecimal", buf3.value, ImGui.ARRAYSIZE(buf3.value), ImGui.InputTextFlags.CharsHexadecimal | ImGui.InputTextFlags.CharsUppercase);
-                const buf4 = STATIC(UNIQUE("buf4#5777c5e3"), new imgui_js_4.ImStringBuffer(64, ""));
+                const buf4 = STATIC(UNIQUE("buf4#5777c5e3"), new ImGui.StringBuffer(64, ""));
                 ImGui.InputText("uppercase", buf4.value, ImGui.ARRAYSIZE(buf4.value), ImGui.InputTextFlags.CharsUppercase);
-                const buf5 = STATIC(UNIQUE("buf5#5bd76499"), new imgui_js_4.ImStringBuffer(64, ""));
+                const buf5 = STATIC(UNIQUE("buf5#5bd76499"), new ImGui.StringBuffer(64, ""));
                 ImGui.InputText("no blank", buf5.value, ImGui.ARRAYSIZE(buf5.value), ImGui.InputTextFlags.CharsNoBlank);
-                const buf6 = STATIC(UNIQUE("buf6#29e951c2"), new imgui_js_4.ImStringBuffer(64, ""));
+                const buf6 = STATIC(UNIQUE("buf6#29e951c2"), new ImGui.StringBuffer(64, ""));
                 ImGui.InputText("\"imgui\" letters", buf6.value, ImGui.ARRAYSIZE(buf6.value), ImGui.InputTextFlags.CallbackCharFilter, TextFilters.FilterImGuiLetters);
                 ImGui.TreePop();
             }
             if (ImGui.TreeNode("Password Input")) {
-                const password = STATIC(UNIQUE("password#42d6a6d6"), new imgui_js_4.ImStringBuffer(64, "password123"));
+                const password = STATIC(UNIQUE("password#42d6a6d6"), new ImGui.StringBuffer(64, "password123"));
                 ImGui.InputText("password", password.value, ImGui.ARRAYSIZE(password.value), ImGui.InputTextFlags.Password);
                 ImGui.SameLine();
                 HelpMarker("Display all characters as '*'.\nDisable clipboard cut and copy.\nDisable logging.\n");
@@ -1089,21 +1089,21 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                             // Increment a counter
                             // int* p_int = (int*)data.UserData;
                             // *p_int = *p_int + 1;
-                            ImGui.IM_ASSERT(data.UserData !== null);
+                            ImGui.ASSERT(data.UserData !== null);
                             data.UserData(data.UserData() + 1);
                         }
                         return 0;
                     }
                 }
-                const buf1 = STATIC(UNIQUE("buf1#b05534af"), new imgui_js_4.ImStringBuffer(64, ""));
+                const buf1 = STATIC(UNIQUE("buf1#b05534af"), new ImGui.StringBuffer(64, ""));
                 ImGui.InputText("Completion", buf1.value, 64, ImGui.InputTextFlags.CallbackCompletion, Funcs.MyCallback);
                 ImGui.SameLine();
                 HelpMarker("Here we append \"..\" each time Tab is pressed. See 'Examples>Console' for a more meaningful demonstration of using this callback.");
-                const buf2 = STATIC(UNIQUE("buf2#251effa3"), new imgui_js_4.ImStringBuffer(64, ""));
+                const buf2 = STATIC(UNIQUE("buf2#251effa3"), new ImGui.StringBuffer(64, ""));
                 ImGui.InputText("History", buf2.value, 64, ImGui.InputTextFlags.CallbackHistory, Funcs.MyCallback);
                 ImGui.SameLine();
                 HelpMarker("Here we replace and select text each time Up/Down are pressed. See 'Examples>Console' for a more meaningful demonstration of using this callback.");
-                const buf3 = STATIC(UNIQUE("buf3#9fa9b241"), new imgui_js_4.ImStringBuffer(64, ""));
+                const buf3 = STATIC(UNIQUE("buf3#9fa9b241"), new ImGui.StringBuffer(64, ""));
                 const edit_count = STATIC(UNIQUE("edit_count#7897b95f"), 0);
                 ImGui.InputText("Edit", buf3.value, 64, ImGui.InputTextFlags.CallbackEdit, Funcs.MyCallback, /*(void*)&*/ edit_count.access);
                 ImGui.SameLine();
@@ -1122,18 +1122,18 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     static MyResizeCallback(data) {
                         if (data.EventFlag === ImGui.InputTextFlags.CallbackResize) {
                             const my_str = data.UserData;
-                            // ImGui.IM_ASSERT(my_str.begin() === data.Buf);
+                            // ImGui.ASSERT(my_str.begin() === data.Buf);
                             // my_str.resize(data.BufSize); // NB: On resizing calls, generally data.BufSize === data.BufTextLen + 1
                             // data.Buf = my_str.begin();
-                            ImGui.IM_ASSERT(my_str.buffer === data.Buf);
+                            ImGui.ASSERT(my_str.buffer === data.Buf);
                             my_str.size = data.BufSize;
                         }
                         return 0;
                     }
                     // Note: Because ImGui. is a namespace you would typically add your own function into the namespace.
                     // For example, you code may declare a function 'ImGui.InputText(string label, MyString* my_str)'
-                    static MyInputTextMultiline(label, my_str, size = new imgui_js_1.ImVec2(0, 0), flags = 0) {
-                        ImGui.IM_ASSERT((flags & ImGui.InputTextFlags.CallbackResize) === 0);
+                    static MyInputTextMultiline(label, my_str, size = new ImGui.Vec2(0, 0), flags = 0) {
+                        ImGui.ASSERT((flags & ImGui.InputTextFlags.CallbackResize) === 0);
                         // return ImGui.InputTextMultiline(label, my_str.begin(), /*(size_t)*/my_str.size(), size, flags | ImGui.InputTextFlags.CallbackResize, Funcs.MyResizeCallback, /*(void*)*/my_str);
                         return ImGui.InputTextMultiline(label, my_str, /*(size_t)*/ my_str.size, size, flags | ImGui.InputTextFlags.CallbackResize, Funcs.MyResizeCallback, /*(void*)*/ my_str);
                     }
@@ -1141,10 +1141,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 // For this demo we are using ImVector as a string container.
                 // Note that because we need to store a terminating zero character, our size/capacity are 1 more
                 // than usually reported by a typical string class.
-                const my_str = STATIC(UNIQUE("my_str#428942b6"), new imgui_js_4.ImStringBuffer(0));
+                const my_str = STATIC(UNIQUE("my_str#428942b6"), new ImGui.StringBuffer(0));
                 // if (my_str.value.empty())
                 //     my_str.value.push_back(0);
-                Funcs.MyInputTextMultiline("##MyStr", my_str.value, new imgui_js_1.ImVec2(-FLT_MIN, ImGui.GetTextLineHeight() * 16));
+                Funcs.MyInputTextMultiline("##MyStr", my_str.value, new ImGui.Vec2(-FLT_MIN, ImGui.GetTextLineHeight() * 16));
                 // ImGui.Text("Data: %p\nSize: %d\nCapacity: %d", /*(void*)*/my_str.value.begin(), my_str.value.size(), my_str.value.capacity());
                 ImGui.Text(`Size: ${my_str.value.buffer.length}\nCapacity: ${my_str.value.size}`);
                 ImGui.TreePop();
@@ -1211,7 +1211,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 ImGui.TreePop();
             }
             if (ImGui.TreeNode("TabItemButton & Leading/Trailing flags")) {
-                const active_tabs = STATIC(UNIQUE("active_tabs#2fdfbe01"), new ImGui.ImVector());
+                const active_tabs = STATIC(UNIQUE("active_tabs#2fdfbe01"), new ImGui.Vector());
                 const next_tab_id = STATIC(UNIQUE("next_tab_id#ad2f2f99"), 0);
                 if (next_tab_id.value === 0) // Initialize with some default tabs
                     for (let i = 0; i < 3; i++)
@@ -1298,9 +1298,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     average += values.value[n];
                 average /= ImGui.ARRAYSIZE(values.value);
                 const overlay = `avg ${average.toFixed(6)}`;
-                ImGui.PlotLines("Lines", values.value, ImGui.ARRAYSIZE(values.value), values_offset.value, overlay, -1.0, 1.0, new imgui_js_1.ImVec2(0, 80.0));
+                ImGui.PlotLines("Lines", values.value, ImGui.ARRAYSIZE(values.value), values_offset.value, overlay, -1.0, 1.0, new ImGui.Vec2(0, 80.0));
             }
-            ImGui.PlotHistogram("Histogram", arr.value, ImGui.ARRAYSIZE(arr.value), 0, null, 0.0, 1.0, new imgui_js_1.ImVec2(0, 80.0));
+            ImGui.PlotHistogram("Histogram", arr.value, ImGui.ARRAYSIZE(arr.value), 0, null, 0.0, 1.0, new ImGui.Vec2(0, 80.0));
             // Use functions to generate output
             // FIXME: This is rather awkward because current plot API only pass in indices.
             // We probably want an API passing floats and user provide sample rate/count.
@@ -1316,8 +1316,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.SameLine();
             ImGui.SliderInt("Sample count", display_count.access, 1, 400);
             const func = (func_type.value === 0) ? Funcs.Sin : Funcs.Saw;
-            ImGui.PlotLines("Lines", func, null, display_count.value, 0, null, -1.0, 1.0, new imgui_js_1.ImVec2(0, 80));
-            ImGui.PlotHistogram("Histogram", func, null, display_count.value, 0, null, -1.0, 1.0, new imgui_js_1.ImVec2(0, 80));
+            ImGui.PlotLines("Lines", func, null, display_count.value, 0, null, -1.0, 1.0, new ImGui.Vec2(0, 80));
+            ImGui.PlotHistogram("Histogram", func, null, display_count.value, 0, null, -1.0, 1.0, new ImGui.Vec2(0, 80));
             ImGui.Separator();
             // Animate a simple progress bar
             const progress = STATIC(UNIQUE("progress#b9037fad"), 0.0);
@@ -1333,18 +1333,18 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     progress_dir.value *= -1.0;
                 }
             }
-            // Typically we would use new ImVec2(-1.0,0.0) or new ImVec2(-FLT_MIN,0.0) to use all available width,
-            // or new ImVec2(width,0.0) for a specified width. new ImVec2(0.0,0.0) uses ItemWidth.
-            ImGui.ProgressBar(progress.value, new imgui_js_1.ImVec2(0.0, 0.0));
+            // Typically we would use new ImGui.Vec2(-1.0,0.0) or new ImGui.Vec2(-FLT_MIN,0.0) to use all available width,
+            // or new ImGui.Vec2(width,0.0) for a specified width. new ImGui.Vec2(0.0,0.0) uses ItemWidth.
+            ImGui.ProgressBar(progress.value, new ImGui.Vec2(0.0, 0.0));
             ImGui.SameLine(0.0, ImGui.GetStyle().ItemInnerSpacing.x);
             ImGui.Text("Progress Bar");
             const progress_saturated = IM_CLAMP(progress.value, 0.0, 1.0);
             const buf = `${Math.floor(progress_saturated * 1753)}/${1753}`;
-            ImGui.ProgressBar(progress.value, new imgui_js_1.ImVec2(0., 0.), buf);
+            ImGui.ProgressBar(progress.value, new ImGui.Vec2(0., 0.), buf);
             ImGui.TreePop();
         }
         if (ImGui.TreeNode("Color/Picker Widgets")) {
-            const color = STATIC(UNIQUE("color#60ccdb0e"), new imgui_js_2.ImVec4(114.0 / 255.0, 144.0 / 255.0, 154.0 / 255.0, 200.0 / 255.0));
+            const color = STATIC(UNIQUE("color#60ccdb0e"), new ImGui.Vec4(114.0 / 255.0, 144.0 / 255.0, 154.0 / 255.0, 200.0 / 255.0));
             const alpha_preview = STATIC(UNIQUE("alpha_preview#63bcbd34"), true);
             const alpha_half_preview = STATIC(UNIQUE("alpha_half_preview#133a6af8"), false);
             const drag_and_drop = STATIC(UNIQUE("drag_and_drop#ef0593da"), true);
@@ -1378,7 +1378,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.Text("Color button with Custom Picker Popup:");
             // Generate a default palette. The palette will persist and can be edited.
             const saved_palette_init = STATIC(UNIQUE("saved_palette_init#a309e45d"), true);
-            // const saved_palette[32] = STATIC<ImVec4>(UNIQUE("saved_palette[32]"), {});
+            // const saved_palette[32] = STATIC<ImGui.Vec4>(UNIQUE("saved_palette[32]"), {});
             const saved_palette = STATIC_ARRAY(32, UNIQUE("saved_palette#e6400d23"), []);
             if (saved_palette_init.value) {
                 for (let n = 0; n < 32 /*ImGui.ARRAYSIZE(saved_palette.value)*/; n++) {
@@ -1390,11 +1390,11 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     const g = [0];
                     const b = [0];
                     ImGui.ColorConvertHSVtoRGB(n / 31.0, 0.8, 0.8, r, g, b);
-                    saved_palette.value[n] = new imgui_js_2.ImVec4(r[0], g[0], b[0], 1.0);
+                    saved_palette.value[n] = new ImGui.Vec4(r[0], g[0], b[0], 1.0);
                 }
                 saved_palette_init.value = false;
             }
-            const backup_color = STATIC(UNIQUE("backup_color#22597cbf"), new imgui_js_2.ImVec4());
+            const backup_color = STATIC(UNIQUE("backup_color#22597cbf"), new ImGui.Vec4());
             let open_popup = ImGui.ColorButton("MyColor##3b", color.value, misc_flags);
             ImGui.SameLine(0, ImGui.GetStyle().ItemInnerSpacing.x);
             if (ImGui.Button("Palette")) {
@@ -1411,9 +1411,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 ImGui.SameLine();
                 ImGui.BeginGroup(); // Lock X position
                 ImGui.Text("Current");
-                ImGui.ColorButton("##current", color.value, ImGui.ColorEditFlags.NoPicker | ImGui.ColorEditFlags.AlphaPreviewHalf, new imgui_js_1.ImVec2(60, 40));
+                ImGui.ColorButton("##current", color.value, ImGui.ColorEditFlags.NoPicker | ImGui.ColorEditFlags.AlphaPreviewHalf, new ImGui.Vec2(60, 40));
                 ImGui.Text("Previous");
-                if (ImGui.ColorButton("##previous", backup_color.value, ImGui.ColorEditFlags.NoPicker | ImGui.ColorEditFlags.AlphaPreviewHalf, new imgui_js_1.ImVec2(60, 40)))
+                if (ImGui.ColorButton("##previous", backup_color.value, ImGui.ColorEditFlags.NoPicker | ImGui.ColorEditFlags.AlphaPreviewHalf, new ImGui.Vec2(60, 40)))
                     color.value.Copy(backup_color.value);
                 ImGui.Separator();
                 ImGui.Text("Palette");
@@ -1422,8 +1422,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     if ((n % 8) !== 0)
                         ImGui.SameLine(0.0, ImGui.GetStyle().ItemSpacing.y);
                     const palette_button_flags = ImGui.ColorEditFlags.NoAlpha | ImGui.ColorEditFlags.NoPicker | ImGui.ColorEditFlags.NoTooltip;
-                    if (ImGui.ColorButton("##palette", saved_palette.value[n], palette_button_flags, new imgui_js_1.ImVec2(20, 20)))
-                        color.value.Copy(new imgui_js_2.ImVec4(saved_palette.value[n].x, saved_palette.value[n].y, saved_palette.value[n].z, color.value.w)); // Preserve alpha!
+                    if (ImGui.ColorButton("##palette", saved_palette.value[n], palette_button_flags, new ImGui.Vec2(20, 20)))
+                        color.value.Copy(new ImGui.Vec4(saved_palette.value[n].x, saved_palette.value[n].y, saved_palette.value[n].z, color.value.w)); // Preserve alpha!
                     // TODO(imgui-js): ImGui.AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_*)
                     // Allow user to drop colors into each palette entry. Note that ColorButton() is already a
                     // drag source by default, unless specifying the ImGui.ColorEditFlags.NoDragDrop flag.
@@ -1443,13 +1443,13 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.Text("Color button only:");
             const no_border = STATIC(UNIQUE("no_border#66a40476"), false);
             ImGui.Checkbox("ImGui.ColorEditFlags.NoBorder", no_border.access);
-            ImGui.ColorButton("MyColor##3c", color.value, misc_flags | (no_border.value ? ImGui.ColorEditFlags.NoBorder : 0), new imgui_js_1.ImVec2(80, 80));
+            ImGui.ColorButton("MyColor##3c", color.value, misc_flags | (no_border.value ? ImGui.ColorEditFlags.NoBorder : 0), new ImGui.Vec2(80, 80));
             ImGui.Text("Color picker:");
             const alpha = STATIC(UNIQUE("alpha#ae11fb55"), true);
             const alpha_bar = STATIC(UNIQUE("alpha_bar#ea0fc5b4"), true);
             const side_preview = STATIC(UNIQUE("side_preview#89f2df34"), true);
             const ref_color = STATIC(UNIQUE("ref_color#4882f800"), false);
-            const ref_color_v = STATIC(UNIQUE("ref_color_v#3af7b017"), new imgui_js_2.ImVec4(1.0, 0.0, 1.0, 0.5));
+            const ref_color_v = STATIC(UNIQUE("ref_color_v#3af7b017"), new ImGui.Vec4(1.0, 0.0, 1.0, 0.5));
             const display_mode = STATIC(UNIQUE("display_mode#f788fb8a"), 0);
             const picker_mode = STATIC(UNIQUE("picker_mode#2ca07a18"), 0);
             ImGui.Checkbox("With Alpha", alpha.access);
@@ -1502,7 +1502,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             if (ImGui.Button("Default: Float + HDR + Hue Wheel"))
                 ImGui.SetColorEditOptions(ImGui.ColorEditFlags.Float | ImGui.ColorEditFlags.HDR | ImGui.ColorEditFlags.PickerHueWheel);
             // HSV encoded support (to avoid RGB<>HSV round trips and singularities when S==0 or V==0)
-            const color_hsv = STATIC(UNIQUE("color_hsv#2a9b290b"), new imgui_js_2.ImVec4(0.23, 1.0, 1.0, 1.0)); // Stored as HSV!
+            const color_hsv = STATIC(UNIQUE("color_hsv#2a9b290b"), new ImGui.Vec4(0.23, 1.0, 1.0, 1.0)); // Stored as HSV!
             ImGui.Spacing();
             ImGui.Text("HSV encoded colors");
             ImGui.SameLine();
@@ -1693,9 +1693,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         }
         if (ImGui.TreeNode("Vertical Sliders")) {
             const spacing = 4;
-            ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new imgui_js_1.ImVec2(spacing, spacing));
+            ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new ImGui.Vec2(spacing, spacing));
             const int_value = STATIC(UNIQUE("int_value#b9179d91"), 0);
-            ImGui.VSliderInt("##int", new imgui_js_1.ImVec2(18, 160), int_value.access, 0, 5);
+            ImGui.VSliderInt("##int", new ImGui.Vec2(18, 160), int_value.access, 0, 5);
             ImGui.SameLine();
             const values = STATIC_ARRAY(7, UNIQUE("values#be41e47b"), [0.0, 0.60, 0.35, 0.9, 0.70, 0.20, 0.0]);
             ImGui.PushID("set1");
@@ -1703,11 +1703,11 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 if (i > 0)
                     ImGui.SameLine();
                 ImGui.PushID(i);
-                ImGui.PushStyleColor(ImGui.Col.FrameBg, imgui_js_3.ImColor.HSV(i / 7.0, 0.5, 0.5));
-                ImGui.PushStyleColor(ImGui.Col.FrameBgHovered, imgui_js_3.ImColor.HSV(i / 7.0, 0.6, 0.5));
-                ImGui.PushStyleColor(ImGui.Col.FrameBgActive, imgui_js_3.ImColor.HSV(i / 7.0, 0.7, 0.5));
-                ImGui.PushStyleColor(ImGui.Col.SliderGrab, imgui_js_3.ImColor.HSV(i / 7.0, 0.9, 0.9));
-                ImGui.VSliderFloat("##v", new imgui_js_1.ImVec2(18, 160), values.access(i), 0.0, 1.0, "");
+                ImGui.PushStyleColor(ImGui.Col.FrameBg, ImGui.Color.HSV(i / 7.0, 0.5, 0.5));
+                ImGui.PushStyleColor(ImGui.Col.FrameBgHovered, ImGui.Color.HSV(i / 7.0, 0.6, 0.5));
+                ImGui.PushStyleColor(ImGui.Col.FrameBgActive, ImGui.Color.HSV(i / 7.0, 0.7, 0.5));
+                ImGui.PushStyleColor(ImGui.Col.SliderGrab, ImGui.Color.HSV(i / 7.0, 0.9, 0.9));
+                ImGui.VSliderFloat("##v", new ImGui.Vec2(18, 160), values.access(i), 0.0, 1.0, "");
                 if (ImGui.IsItemActive() || ImGui.IsItemHovered())
                     ImGui.SetTooltip(`${values.value[i].toFixed(3)}`);
                 ImGui.PopStyleColor(4);
@@ -1718,7 +1718,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.PushID("set2");
             const values2 = STATIC_ARRAY(4, UNIQUE("values2#5617c79c"), [0.20, 0.80, 0.40, 0.25]);
             const rows = 3;
-            const small_slider_size = STATIC(UNIQUE("small_slider_size#816e0354"), new imgui_js_1.ImVec2(18, Math.floor /*(float)(int)*/((160.0 - (rows - 1) * spacing) / rows)));
+            const small_slider_size = STATIC(UNIQUE("small_slider_size#816e0354"), new ImGui.Vec2(18, Math.floor /*(float)(int)*/((160.0 - (rows - 1) * spacing) / rows)));
             for (let nx = 0; nx < 4; nx++) {
                 if (nx > 0)
                     ImGui.SameLine();
@@ -1740,7 +1740,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     ImGui.SameLine();
                 ImGui.PushID(i);
                 ImGui.PushStyleVar(ImGui.StyleVar.GrabMinSize, 40);
-                ImGui.VSliderFloat("##v", new imgui_js_1.ImVec2(40, 160), values.access(i), 0.0, 1.0, "%.2f\nsec");
+                ImGui.VSliderFloat("##v", new ImGui.Vec2(40, 160), values.access(i), 0.0, 1.0, "%.2f\nsec");
                 ImGui.PopStyleVar();
                 ImGui.PopID();
             }
@@ -1790,7 +1790,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     ImGui.PushID(n);
                     if ((n % 3) !== 0)
                         ImGui.SameLine();
-                    ImGui.Button(names.value[n], new imgui_js_1.ImVec2(60, 60));
+                    ImGui.Button(names.value[n], new ImGui.Vec2(60, 60));
                     // Our buttons are both drag sources and drag targets here!
                     if (ImGui.BeginDragDropSource(ImGui.DragDropFlags.None)) {
                         // Set payload to carry the index of our item (could be anything)
@@ -1811,7 +1811,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     if (ImGui.BeginDragDropTarget()) {
                         let payload;
                         if (payload = ImGui.AcceptDragDropPayload("DND_DEMO_CELL")) {
-                            // ImGui.IM_ASSERT(payload.DataSize === sizeof(int));
+                            // ImGui.ASSERT(payload.DataSize === sizeof(int));
                             const payload_n = payload.Data;
                             if (mode.value === Mode.Copy) {
                                 names.value[n] = names.value[payload_n];
@@ -1867,7 +1867,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             let ret = false;
             const b = STATIC(UNIQUE("b#477b9cc2"), false);
             const col4f = STATIC(UNIQUE("col4f#f57415e8"), [1.0, 0.5, 0.0, 1.0]);
-            const str = STATIC(UNIQUE("str#092e5277"), new imgui_js_4.ImStringBuffer(16, ""));
+            const str = STATIC(UNIQUE("str#092e5277"), new ImGui.StringBuffer(16, ""));
             if (item_type.value === 0) {
                 ImGui.Text("ITEM: Text");
             } // Testing text items with no identifier/interaction
@@ -1943,7 +1943,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             const embed_all_inside_a_child_window = STATIC(UNIQUE("embed_all_inside_a_child_window#4a40e4ac"), false);
             ImGui.Checkbox("Embed everything inside a child window (for additional testing)", embed_all_inside_a_child_window.access);
             if (embed_all_inside_a_child_window.value)
-                ImGui.BeginChild("outer_child", new imgui_js_1.ImVec2(0, ImGui.GetFontSize() * 20.0), true);
+                ImGui.BeginChild("outer_child", new ImGui.Vec2(0, ImGui.GetFontSize() * 20.0), true);
             // Testing IsWindowFocused() function with its various flags.
             // Note that the ImGui.FocusedFlags.XXX flags can be combined.
             ImGui.BulletText(`IsWindowFocused() = ${ImGui.IsWindowFocused()}\n` +
@@ -1961,7 +1961,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 `IsWindowHovered(_ChildWindows|_AllowWhenBlockedByPopup) = ${ImGui.IsWindowHovered(ImGui.HoveredFlags.ChildWindows | ImGui.HoveredFlags.AllowWhenBlockedByPopup)}\n` +
                 `IsWindowHovered(_RootWindow) = ${ImGui.IsWindowHovered(ImGui.HoveredFlags.RootWindow)}\n` +
                 `IsWindowHovered(_AnyWindow) = ${ImGui.IsWindowHovered(ImGui.HoveredFlags.AnyWindow)}\n`);
-            ImGui.BeginChild("child", new imgui_js_1.ImVec2(0, 50), true);
+            ImGui.BeginChild("child", new ImGui.Vec2(0, 50), true);
             ImGui.Text("This is another child window for testing the _ChildWindows flag.");
             ImGui.EndChild();
             if (embed_all_inside_a_child_window.value)
@@ -2002,7 +2002,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 let window_flags = ImGui.WindowFlags.HorizontalScrollbar;
                 if (disable_mouse_wheel.value)
                     window_flags |= ImGui.WindowFlags.NoScrollWithMouse;
-                ImGui.BeginChild("ChildL", new imgui_js_1.ImVec2(ImGui.GetWindowContentRegionWidth() * 0.5, 260), false, window_flags);
+                ImGui.BeginChild("ChildL", new ImGui.Vec2(ImGui.GetWindowContentRegionWidth() * 0.5, 260), false, window_flags);
                 for (let i = 0; i < 100; i++)
                     ImGui.Text(`${i.toString().padStart(4, "0")}: scrollable region`);
                 ImGui.EndChild();
@@ -2016,7 +2016,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 if (!disable_menu.value)
                     window_flags |= ImGui.WindowFlags.MenuBar;
                 ImGui.PushStyleVar(ImGui.StyleVar.ChildRounding, 5.0);
-                ImGui.BeginChild("ChildR", new imgui_js_1.ImVec2(0, 260), true, window_flags);
+                ImGui.BeginChild("ChildR", new ImGui.Vec2(0, 260), true, window_flags);
                 if (!disable_menu && ImGui.BeginMenuBar()) {
                     if (ImGui.BeginMenu("Menu")) {
                         ShowExampleMenuFile();
@@ -2028,7 +2028,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     for (let i = 0; i < 100; i++) {
                         const buf = `${i.toString().padStart(3, "0")}`;
                         ImGui.TableNextColumn();
-                        ImGui.Button(buf, new imgui_js_1.ImVec2(-FLT_MIN, 0.0));
+                        ImGui.Button(buf, new ImGui.Vec2(-FLT_MIN, 0.0));
                     }
                     ImGui.EndTable();
                 }
@@ -2048,8 +2048,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 ImGui.SetNextItemWidth(100);
                 ImGui.DragInt("Offset X", offset_x.access, 1.0, -1000, 1000);
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + offset_x.value);
-                ImGui.PushStyleColor(ImGui.Col.ChildBg, ImGui.IM_COL32(255, 0, 0, 100));
-                ImGui.BeginChild("Red", new imgui_js_1.ImVec2(200, 100), true, ImGui.WindowFlags.None);
+                ImGui.PushStyleColor(ImGui.Col.ChildBg, ImGui.COL32(255, 0, 0, 100));
+                ImGui.BeginChild("Red", new ImGui.Vec2(200, 100), true, ImGui.WindowFlags.None);
                 for (let n = 0; n < 50; n++)
                     ImGui.Text(`Some test ${n}`);
                 ImGui.EndChild();
@@ -2134,11 +2134,11 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             // Text
             ImGui.Text("Two items: Hello");
             ImGui.SameLine();
-            ImGui.TextColored(new imgui_js_2.ImVec4(1, 1, 0, 1), "Sailor");
+            ImGui.TextColored(new ImGui.Vec4(1, 1, 0, 1), "Sailor");
             // Adjust spacing
             ImGui.Text("More spacing: Hello");
             ImGui.SameLine(0, 20);
-            ImGui.TextColored(new imgui_js_2.ImVec4(1, 1, 0, 1), "Sailor");
+            ImGui.TextColored(new ImGui.Vec4(1, 1, 0, 1), "Sailor");
             // Button
             ImGui.AlignTextToFramePadding();
             ImGui.Text("Normal buttons");
@@ -2200,7 +2200,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             }
             ImGui.PopItemWidth();
             // Dummy
-            const button_sz = new imgui_js_1.ImVec2(40, 40);
+            const button_sz = new ImGui.Vec2(40, 40);
             ImGui.Button("A", button_sz);
             ImGui.SameLine();
             ImGui.Dummy(button_sz);
@@ -2248,9 +2248,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             const size = ImGui.GetItemRectSize();
             const values = [0.5, 0.20, 0.80, 0.60, 0.25];
             ImGui.PlotHistogram("##values", values, ImGui.ARRAYSIZE(values), 0, null, 0.0, 1.0, size);
-            ImGui.Button("ACTION", new imgui_js_1.ImVec2((size.x - ImGui.GetStyle().ItemSpacing.x) * 0.5, size.y));
+            ImGui.Button("ACTION", new ImGui.Vec2((size.x - ImGui.GetStyle().ItemSpacing.x) * 0.5, size.y));
             ImGui.SameLine();
-            ImGui.Button("REACTION", new imgui_js_1.ImVec2((size.x - ImGui.GetStyle().ItemSpacing.x) * 0.5, size.y));
+            ImGui.Button("REACTION", new ImGui.Vec2((size.x - ImGui.GetStyle().ItemSpacing.x) * 0.5, size.y));
             ImGui.EndGroup();
             ImGui.SameLine();
             ImGui.Button("LEVERAGE\nBUZZWORD", size);
@@ -2335,9 +2335,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 ImGui.BulletText("Misc items:");
                 ImGui.Indent();
                 // SmallButton() sets FramePadding to zero. Text baseline is aligned to match baseline of previous Button.
-                ImGui.Button("80x80", new imgui_js_1.ImVec2(80, 80));
+                ImGui.Button("80x80", new ImGui.Vec2(80, 80));
                 ImGui.SameLine();
-                ImGui.Button("50x50", new imgui_js_1.ImVec2(50, 50));
+                ImGui.Button("50x50", new ImGui.Vec2(50, 50));
                 ImGui.SameLine();
                 ImGui.Button("Button()");
                 ImGui.SameLine();
@@ -2419,7 +2419,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 ImGui.TextUnformatted(names[i]);
                 const child_flags = enable_extra_decorations.value ? ImGui.WindowFlags.MenuBar : 0;
                 const child_id = ImGui.GetID(/*(void*)(intptr_t)*/ i);
-                const child_is_visible = ImGui.BeginChild(child_id, new imgui_js_1.ImVec2(child_w, 200.0), true, child_flags);
+                const child_is_visible = ImGui.BeginChild(child_id, new ImGui.Vec2(child_w, 200.0), true, child_flags);
                 if (ImGui.BeginMenuBar()) {
                     ImGui.TextUnformatted("abc");
                     ImGui.EndMenuBar();
@@ -2432,7 +2432,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                  {
                     for (let item = 0; item < 100; item++) {
                         if (enable_track.value && item === track_item.value) {
-                            ImGui.TextColored(new imgui_js_2.ImVec4(1, 1, 0, 1), `Item ${item}`);
+                            ImGui.TextColored(new ImGui.Vec4(1, 1, 0, 1), `Item ${item}`);
                             ImGui.SetScrollHereY(i * 0.25); // 0.0:top, 0.5:center, 1.0:bottom
                         }
                         else {
@@ -2458,7 +2458,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 const child_height = ImGui.GetTextLineHeight() + style.ScrollbarSize + style.WindowPadding.y * 2.0;
                 const child_flags = ImGui.WindowFlags.HorizontalScrollbar | (enable_extra_decorations ? ImGui.WindowFlags.AlwaysVerticalScrollbar : 0);
                 const child_id = ImGui.GetID(/*(void*)(intptr_t)*/ i);
-                const child_is_visible = ImGui.BeginChild(child_id, new imgui_js_1.ImVec2(-100, child_height), true, child_flags);
+                const child_is_visible = ImGui.BeginChild(child_id, new ImGui.Vec2(-100, child_height), true, child_flags);
                 if (scroll_to_off)
                     ImGui.SetScrollX(scroll_to_off_px.value);
                 if (scroll_to_pos)
@@ -2467,7 +2467,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                  {
                     for (let item = 0; item < 100; item++) {
                         if (enable_track.value && item === track_item.value) {
-                            ImGui.TextColored(new imgui_js_2.ImVec4(1, 1, 0, 1), `Item ${item}`);
+                            ImGui.TextColored(new ImGui.Vec4(1, 1, 0, 1), `Item ${item}`);
                             ImGui.SetScrollHereX(i * 0.25); // 0.0:left, 0.5:center, 1.0:right
                         }
                         else {
@@ -2491,8 +2491,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             const lines = STATIC(UNIQUE("lines#a00837f9"), 7);
             ImGui.SliderInt("Lines", lines.access, 1, 15);
             ImGui.PushStyleVar(ImGui.StyleVar.FrameRounding, 3.0);
-            ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new imgui_js_1.ImVec2(2.0, 1.0));
-            const scrolling_child_size = new imgui_js_1.ImVec2(0, ImGui.GetFrameHeightWithSpacing() * 7 + 30);
+            ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new ImGui.Vec2(2.0, 1.0));
+            const scrolling_child_size = new ImGui.Vec2(0, ImGui.GetFrameHeightWithSpacing() * 7 + 30);
             ImGui.BeginChild("scrolling", scrolling_child_size, true, ImGui.WindowFlags.HorizontalScrollbar);
             for (let line = 0; line < lines.value; line++) {
                 // Display random stuff. For the sake of this trivial demo we are using basic Button() + SameLine()
@@ -2507,10 +2507,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     const num_buf = `${n}`;
                     const label = (!(n % 15)) ? "FizzBuzz" : (!(n % 3)) ? "Fizz" : (!(n % 5)) ? "Buzz" : num_buf;
                     const hue = n * 0.05;
-                    ImGui.PushStyleColor(ImGui.Col.Button, imgui_js_3.ImColor.HSV(hue, 0.6, 0.6));
-                    ImGui.PushStyleColor(ImGui.Col.ButtonHovered, imgui_js_3.ImColor.HSV(hue, 0.7, 0.7));
-                    ImGui.PushStyleColor(ImGui.Col.ButtonActive, imgui_js_3.ImColor.HSV(hue, 0.8, 0.8));
-                    ImGui.Button(label, new imgui_js_1.ImVec2(40.0 + Math.sin((line + n)) * 20.0, 0.0));
+                    ImGui.PushStyleColor(ImGui.Col.Button, ImGui.Color.HSV(hue, 0.6, 0.6));
+                    ImGui.PushStyleColor(ImGui.Col.ButtonHovered, ImGui.Color.HSV(hue, 0.7, 0.7));
+                    ImGui.PushStyleColor(ImGui.Col.ButtonActive, ImGui.Color.HSV(hue, 0.8, 0.8));
+                    ImGui.Button(label, new ImGui.Vec2(40.0 + Math.sin((line + n)) * 20.0, 0.0));
                     ImGui.PopStyleColor(3);
                     ImGui.PopID();
                 }
@@ -2552,10 +2552,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 const explicit_content_size = STATIC(UNIQUE("explicit_content_size#ae0d4401"), false);
                 const contents_size_x = STATIC(UNIQUE("contents_size_x#d9c6189b"), 300.0);
                 if (explicit_content_size.value)
-                    ImGui.SetNextWindowContentSize(new imgui_js_1.ImVec2(contents_size_x.value, 0.0));
+                    ImGui.SetNextWindowContentSize(new ImGui.Vec2(contents_size_x.value, 0.0));
                 ImGui.Begin("Horizontal contents size demo window", show_horizontal_contents_size_demo_window.access, show_h_scrollbar ? ImGui.WindowFlags.HorizontalScrollbar : 0);
-                ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new imgui_js_1.ImVec2(2, 0));
-                ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new imgui_js_1.ImVec2(2, 0));
+                ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new ImGui.Vec2(2, 0));
+                ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new ImGui.Vec2(2, 0));
                 HelpMarker("Test of different widgets react and impact the work rectangle growing when horizontal scrolling is enabled.\n\nUse 'Metrics.Tools.Show windows rectangles' to visualize rectangles.");
                 ImGui.Checkbox("H-scrollbar", show_h_scrollbar.access);
                 ImGui.Checkbox("Button", show_button.access); // Will grow contents size (unless explicitly overwritten)
@@ -2571,14 +2571,14 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     ImGui.SetNextItemWidth(100);
                     ImGui.DragFloat("##csx", contents_size_x.access);
                     const p = ImGui.GetCursorScreenPos();
-                    ImGui.GetWindowDrawList().AddRectFilled(p, new imgui_js_1.ImVec2(p.x + 10, p.y + 10), ImGui.IM_COL32_WHITE);
-                    ImGui.GetWindowDrawList().AddRectFilled(new imgui_js_1.ImVec2(p.x + contents_size_x.value - 10, p.y), new imgui_js_1.ImVec2(p.x + contents_size_x.value, p.y + 10), ImGui.IM_COL32_WHITE);
-                    ImGui.Dummy(new imgui_js_1.ImVec2(0, 10));
+                    ImGui.GetWindowDrawList().AddRectFilled(p, new ImGui.Vec2(p.x + 10, p.y + 10), ImGui.COL32_WHITE);
+                    ImGui.GetWindowDrawList().AddRectFilled(new ImGui.Vec2(p.x + contents_size_x.value - 10, p.y), new ImGui.Vec2(p.x + contents_size_x.value, p.y + 10), ImGui.COL32_WHITE);
+                    ImGui.Dummy(new ImGui.Vec2(0, 10));
                 }
                 ImGui.PopStyleVar(2);
                 ImGui.Separator();
                 if (show_button.value) {
-                    ImGui.Button("this is a 300-wide button", new imgui_js_1.ImVec2(300, 0));
+                    ImGui.Button("this is a 300-wide button", new ImGui.Vec2(300, 0));
                 }
                 if (show_tree_nodes.value) {
                     let open = true;
@@ -2627,7 +2627,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     ImGui.EndTabBar();
                 }
                 if (show_child.value) {
-                    ImGui.BeginChild("child", new imgui_js_1.ImVec2(0, 0), true);
+                    ImGui.BeginChild("child", new ImGui.Vec2(0, 0), true);
                     ImGui.EndChild();
                 }
                 ImGui.End();
@@ -2635,8 +2635,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.TreePop();
         }
         if (ImGui.TreeNode("Clipping")) {
-            const size = STATIC(UNIQUE("size#db17ebc1"), new imgui_js_1.ImVec2(100.0, 100.0));
-            const offset = STATIC(UNIQUE("offset#345f2a79"), new imgui_js_1.ImVec2(30.0, 30.0));
+            const size = STATIC(UNIQUE("size#db17ebc1"), new ImGui.Vec2(100.0, 100.0));
+            const offset = STATIC(UNIQUE("offset#345f2a79"), new ImGui.Vec2(30.0, 30.0));
             ImGui.DragFloat2("size", size.value, 0.5, 1.0, 200.0, "%.0f");
             ImGui.TextWrapped("(Click and drag to scroll)");
             for (let n = 0; n < 3; n++) {
@@ -2652,7 +2652,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 const p0 = ImGui.GetItemRectMin();
                 const p1 = ImGui.GetItemRectMax();
                 const text_str = "Line 1 hello\nLine 2 clip me!";
-                const text_pos = new imgui_js_1.ImVec2(p0.x + offset.value.x, p0.y + offset.value.y);
+                const text_pos = new ImGui.Vec2(p0.x + offset.value.x, p0.y + offset.value.y);
                 const draw_list = ImGui.GetWindowDrawList();
                 switch (n) {
                     case 0:
@@ -2660,8 +2660,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                             "Will alter ImGui hit-testing logic + ImDrawList rendering.\n" +
                             "(use this if you want your clipping rectangle to affect interactions)");
                         ImGui.PushClipRect(p0, p1, true);
-                        draw_list.AddRectFilled(p0, p1, ImGui.IM_COL32(90, 90, 120, 255));
-                        draw_list.AddText(text_pos, ImGui.IM_COL32_WHITE, text_str);
+                        draw_list.AddRectFilled(p0, p1, ImGui.COL32(90, 90, 120, 255));
+                        draw_list.AddText(text_pos, ImGui.COL32_WHITE, text_str);
                         ImGui.PopClipRect();
                         break;
                     case 1:
@@ -2669,17 +2669,17 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                             "Will alter ImDrawList rendering only.\n" +
                             "(use this as a shortcut if you are only using ImDrawList calls)");
                         draw_list.PushClipRect(p0, p1, true);
-                        draw_list.AddRectFilled(p0, p1, ImGui.IM_COL32(90, 90, 120, 255));
-                        draw_list.AddText(text_pos, ImGui.IM_COL32_WHITE, text_str);
+                        draw_list.AddRectFilled(p0, p1, ImGui.COL32(90, 90, 120, 255));
+                        draw_list.AddText(text_pos, ImGui.COL32_WHITE, text_str);
                         draw_list.PopClipRect();
                         break;
                     case 2:
                         HelpMarker("Using ImDrawList.AddText() with a fine ClipRect:\n" +
                             "Will alter only this specific ImDrawList.AddText() rendering.\n" +
                             "(this is often used internally to avoid altering the clipping rectangle and minimize draw calls)");
-                        const clip_rect = new imgui_js_2.ImVec4(p0.x, p0.y, p1.x, p1.y); // AddText() takes a ImVec4* here so let's convert.
-                        draw_list.AddRectFilled(p0, p1, ImGui.IM_COL32(90, 90, 120, 255));
-                        draw_list.AddText(ImGui.GetFont(), ImGui.GetFontSize(), text_pos, ImGui.IM_COL32_WHITE, text_str, null, 0.0, clip_rect);
+                        const clip_rect = new ImGui.Vec4(p0.x, p0.y, p1.x, p1.y); // AddText() takes a ImGui.Vec4* here so let's convert.
+                        draw_list.AddRectFilled(p0, p1, ImGui.COL32(90, 90, 120, 255));
+                        draw_list.AddText(ImGui.GetFont(), ImGui.GetFontSize(), text_pos, ImGui.COL32_WHITE, text_str, null, 0.0, clip_rect);
                         break;
                 }
                 ImGui.EndGroup();
@@ -2795,7 +2795,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             // BeginPopupContextItem() will use the last item ID as the popup ID.
             // In addition here, we want to include your editable label inside the button label.
             // We use the ### operator to override the ID (read FAQ about ID for details)
-            const name = STATIC(UNIQUE("name#c8522cc0"), new imgui_js_4.ImStringBuffer(32, "Label1"));
+            const name = STATIC(UNIQUE("name#c8522cc0"), new ImGui.StringBuffer(32, "Label1"));
             const buf = `Button: ${name.value}###Button`;
             ImGui.Button(buf);
             if (ImGui.BeginPopupContextItem()) {
@@ -2814,23 +2814,23 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             if (ImGui.Button("Delete.."))
                 ImGui.OpenPopup("Delete?");
             // Always center this window when appearing
-            const center = new imgui_js_1.ImVec2(ImGui.GetIO().DisplaySize.x * 0.5, ImGui.GetIO().DisplaySize.y * 0.5);
-            ImGui.SetNextWindowPos(center, ImGui.Cond.Appearing, new imgui_js_1.ImVec2(0.5, 0.5));
+            const center = new ImGui.Vec2(ImGui.GetIO().DisplaySize.x * 0.5, ImGui.GetIO().DisplaySize.y * 0.5);
+            ImGui.SetNextWindowPos(center, ImGui.Cond.Appearing, new ImGui.Vec2(0.5, 0.5));
             if (ImGui.BeginPopupModal("Delete?", null, ImGui.WindowFlags.AlwaysAutoResize)) {
                 ImGui.Text("All those beautiful files will be deleted.\nThis operation cannot be undone!\n\n");
                 ImGui.Separator();
                 //const unused_i = STATIC<int>(UNIQUE("unused_i#7fa699b8"), 0);
                 //ImGui.Combo("Combo", &unused_i, "Delete\0Delete harder\0");
                 const dont_ask_me_next_time = STATIC(UNIQUE("dont_ask_me_next_time#03274588"), false);
-                ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new imgui_js_1.ImVec2(0, 0));
+                ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new ImGui.Vec2(0, 0));
                 ImGui.Checkbox("Don't ask me next time", dont_ask_me_next_time.access);
                 ImGui.PopStyleVar();
-                if (ImGui.Button("OK", new imgui_js_1.ImVec2(120, 0))) {
+                if (ImGui.Button("OK", new ImGui.Vec2(120, 0))) {
                     ImGui.CloseCurrentPopup();
                 }
                 ImGui.SetItemDefaultFocus();
                 ImGui.SameLine();
-                if (ImGui.Button("Cancel", new imgui_js_1.ImVec2(120, 0))) {
+                if (ImGui.Button("Cancel", new ImGui.Vec2(120, 0))) {
                     ImGui.CloseCurrentPopup();
                 }
                 ImGui.EndPopup();
@@ -2893,8 +2893,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
     // Make the UI compact because there are so many fields
     function PushStyleCompact() {
         const style = ImGui.GetStyle();
-        ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new imgui_js_1.ImVec2(style.FramePadding.x, Math.floor /*(float)(int)*/(style.FramePadding.y * 0.60)));
-        ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new imgui_js_1.ImVec2(style.ItemSpacing.x, Math.floor /*(float)(int)*/(style.ItemSpacing.y * 0.60)));
+        ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new ImGui.Vec2(style.FramePadding.x, Math.floor /*(float)(int)*/(style.FramePadding.y * 0.60)));
+        ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new ImGui.Vec2(style.ItemSpacing.x, Math.floor /*(float)(int)*/(style.ItemSpacing.y * 0.60)));
     }
     function PopStyleCompact() {
         ImGui.PopStyleVar(2);
@@ -3116,7 +3116,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         if (contents_type.value === ContentsType.Text)
                             ImGui.TextUnformatted(buf);
                         else if (contents_type)
-                            ImGui.Button(buf, new imgui_js_1.ImVec2(-FLT_MIN, 0.0));
+                            ImGui.Button(buf, new ImGui.Vec2(-FLT_MIN, 0.0));
                     }
                 }
                 ImGui.EndTable();
@@ -3244,7 +3244,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 ImGui.EndTable();
             }
             // Use outer_size.x === 0.0 instead of default to make the table as tight as possible (only valid when no scrolling and no stretch column)
-            if (ImGui.BeginTable("table2", 3, flags.value | ImGui.TableFlags.SizingFixedFit, new imgui_js_1.ImVec2(0.0, 0.0))) {
+            if (ImGui.BeginTable("table2", 3, flags.value | ImGui.TableFlags.SizingFixedFit, new ImGui.Vec2(0.0, 0.0))) {
                 ImGui.TableSetupColumn("One");
                 ImGui.TableSetupColumn("Two");
                 ImGui.TableSetupColumn("Three");
@@ -3304,10 +3304,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         }
                         else {
                             const buf = `Hello ${column},${row}`;
-                            ImGui.Button(buf, new imgui_js_1.ImVec2(-FLT_MIN, 0.0));
+                            ImGui.Button(buf, new ImGui.Vec2(-FLT_MIN, 0.0));
                         }
                         //if (ImGui.TableGetColumnFlags() & ImGui.TableColumnFlags.IsHovered)
-                        //    ImGui.TableSetBgColor(ImGui.TableBgTarget.CellBg, ImGui.IM_COL32(0, 100, 0, 255));
+                        //    ImGui.TableSetBgColor(ImGui.TableBgTarget.CellBg, ImGui.COL32(0, 100, 0, 255));
                     }
                 }
                 ImGui.EndTable();
@@ -3316,7 +3316,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             // FIXME-TABLE: Vertical border effectively not displayed the same way as horizontal one...
             HelpMarker("Setting style.CellPadding to (0,0) or a custom value.");
             const flags2 = STATIC(UNIQUE("flags2#0342b569"), ImGui.TableFlags.Borders | ImGui.TableFlags.RowBg);
-            const cell_padding = STATIC(UNIQUE("cell_padding#6fe05f4a"), new imgui_js_1.ImVec2(0.0, 0.0));
+            const cell_padding = STATIC(UNIQUE("cell_padding#6fe05f4a"), new ImGui.Vec2(0.0, 0.0));
             const show_widget_frame_bg = STATIC(UNIQUE("show_widget_frame_bg#e73de326"), true);
             PushStyleCompact();
             ImGui.CheckboxFlags("ImGui.TableFlags.Borders", flags2.access, ImGui.TableFlags.Borders);
@@ -3338,7 +3338,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 for (let cell = 0; cell < 3 * 5; cell++) {
                     ImGui.TableNextColumn();
                     if (init.value)
-                        text_bufs.value[cell] = new imgui_js_4.ImStringBuffer(16, "edit me");
+                        text_bufs.value[cell] = new ImGui.StringBuffer(16, "edit me");
                     ImGui.SetNextItemWidth(-FLT_MIN);
                     ImGui.PushID(cell);
                     ImGui.InputText("##cell", text_bufs.value[cell], ImGui.ARRAYSIZE(text_bufs.value[cell]));
@@ -3430,13 +3430,13 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.PopItemWidth();
             ImGui.PopID();
             PopStyleCompact();
-            if (ImGui.BeginTable("table2", column_count.value, flags.value, new imgui_js_1.ImVec2(0.0, TEXT_BASE_HEIGHT * 7))) {
+            if (ImGui.BeginTable("table2", column_count.value, flags.value, new ImGui.Vec2(0.0, TEXT_BASE_HEIGHT * 7))) {
                 for (let cell = 0; cell < 10 * column_count.value; cell++) {
                     ImGui.TableNextColumn();
                     let column = ImGui.TableGetColumnIndex();
                     let row = ImGui.TableGetRowIndex();
                     ImGui.PushID(cell);
-                    const text_buf = STATIC(UNIQUE("text_buf#0dfe49db"), new imgui_js_4.ImStringBuffer(32, ""));
+                    const text_buf = STATIC(UNIQUE("text_buf#0dfe49db"), new ImGui.StringBuffer(32, ""));
                     const label = `Hello ${column},${row}`;
                     switch (contents_type.value) {
                         case ContentsType.ShortText:
@@ -3452,7 +3452,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                             ImGui.Button(label);
                             break;
                         case ContentsType.FillButton:
-                            ImGui.Button(label, new imgui_js_1.ImVec2(-FLT_MIN, 0.0));
+                            ImGui.Button(label, new ImGui.Vec2(-FLT_MIN, 0.0));
                             break;
                         case ContentsType.InputText:
                             ImGui.SetNextItemWidth(-FLT_MIN);
@@ -3475,7 +3475,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             PopStyleCompact();
             // When using ScrollX or ScrollY we need to specify a size for our table container!
             // Otherwise by default the table will fit all available space, like a BeginChild() call.
-            const outer_size = new imgui_js_1.ImVec2(0.0, TEXT_BASE_HEIGHT * 8);
+            const outer_size = new ImGui.Vec2(0.0, TEXT_BASE_HEIGHT * 8);
             if (ImGui.BeginTable("table_scrolly", 3, flags.value, outer_size)) {
                 ImGui.TableSetupScrollFreeze(0, 1); // Make top row always visible
                 ImGui.TableSetupColumn("One", ImGui.TableColumnFlags.None);
@@ -3519,7 +3519,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             PopStyleCompact();
             // When using ScrollX or ScrollY we need to specify a size for our table container!
             // Otherwise by default the table will fit all available space, like a BeginChild() call.
-            const outer_size = new imgui_js_1.ImVec2(0.0, TEXT_BASE_HEIGHT * 8);
+            const outer_size = new ImGui.Vec2(0.0, TEXT_BASE_HEIGHT * 8);
             if (ImGui.BeginTable("table_scrollx", 7, flags.value, outer_size)) {
                 ImGui.TableSetupScrollFreeze(freeze_cols.value, freeze_rows.value);
                 ImGui.TableSetupColumn("Line #", ImGui.TableColumnFlags.NoHide); // Make the first column not hideable to match our use of TableSetupScrollFreeze()
@@ -3606,7 +3606,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             const flags = ImGui.TableFlags.SizingFixedFit | ImGui.TableFlags.ScrollX | ImGui.TableFlags.ScrollY
                 | ImGui.TableFlags.RowBg | ImGui.TableFlags.BordersOuter | ImGui.TableFlags.BordersV
                 | ImGui.TableFlags.Resizable | ImGui.TableFlags.Reorderable | ImGui.TableFlags.Hideable | ImGui.TableFlags.Sortable;
-            const outer_size = new imgui_js_1.ImVec2(0.0, TEXT_BASE_HEIGHT * 9);
+            const outer_size = new ImGui.Vec2(0.0, TEXT_BASE_HEIGHT * 9);
             if (ImGui.BeginTable("table_columns_flags", column_count, flags, outer_size)) {
                 for (let column = 0; column < column_count; column++)
                     ImGui.TableSetupColumn(column_names[column], column_flags.value[column]);
@@ -3750,7 +3750,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.SameLine();
             HelpMarker("Make outer height stop exactly at outer_size.y (prevent auto-extending table past the limit).\n\nOnly available when ScrollX/ScrollY are disabled. Data below the limit will be clipped and not visible.");
             PopStyleCompact();
-            const outer_size = new imgui_js_1.ImVec2(0.0, TEXT_BASE_HEIGHT * 5.5);
+            const outer_size = new ImGui.Vec2(0.0, TEXT_BASE_HEIGHT * 5.5);
             if (ImGui.BeginTable("table1", 3, flags.value, outer_size)) {
                 for (let row = 0; row < 10; row++) {
                     ImGui.TableNextRow();
@@ -3765,7 +3765,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.Text("Hello!");
             ImGui.Spacing();
             ImGui.Text("Using explicit size:");
-            if (ImGui.BeginTable("table2", 3, ImGui.TableFlags.Borders | ImGui.TableFlags.RowBg, new imgui_js_1.ImVec2(TEXT_BASE_WIDTH * 30, 0.0))) {
+            if (ImGui.BeginTable("table2", 3, ImGui.TableFlags.Borders | ImGui.TableFlags.RowBg, new ImGui.Vec2(TEXT_BASE_WIDTH * 30, 0.0))) {
                 for (let row = 0; row < 5; row++) {
                     ImGui.TableNextRow();
                     for (let column = 0; column < 3; column++) {
@@ -3776,7 +3776,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 ImGui.EndTable();
             }
             ImGui.SameLine();
-            if (ImGui.BeginTable("table3", 3, ImGui.TableFlags.Borders | ImGui.TableFlags.RowBg, new imgui_js_1.ImVec2(TEXT_BASE_WIDTH * 30, 0.0))) {
+            if (ImGui.BeginTable("table3", 3, ImGui.TableFlags.Borders | ImGui.TableFlags.RowBg, new ImGui.Vec2(TEXT_BASE_WIDTH * 30, 0.0))) {
                 for (let row = 0; row < 3; row++) {
                     ImGui.TableNextRow(0, TEXT_BASE_HEIGHT * 1.5);
                     for (let column = 0; column < 3; column++) {
@@ -3807,9 +3807,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.Combo("cell bg type", cell_bg_type.access, "None\0Blue\0");
             ImGui.SameLine();
             HelpMarker("We are colorizing cells to B1.C2 here.");
-            ImGui.IM_ASSERT(row_bg_type.value >= 0 && row_bg_type.value <= 2);
-            ImGui.IM_ASSERT(row_bg_target.value >= 0 && row_bg_target.value <= 1);
-            ImGui.IM_ASSERT(cell_bg_type.value >= 0 && cell_bg_type.value <= 1);
+            ImGui.ASSERT(row_bg_type.value >= 0 && row_bg_type.value <= 2);
+            ImGui.ASSERT(row_bg_target.value >= 0 && row_bg_target.value <= 1);
+            ImGui.ASSERT(cell_bg_type.value >= 0 && cell_bg_type.value <= 1);
             PopStyleCompact();
             if (ImGui.BeginTable("table1", 5, flags.value)) {
                 for (let row = 0; row < 6; row++) {
@@ -3817,7 +3817,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     // Demonstrate setting a row background color with 'ImGui.TableSetBgColor(ImGui.TableBgTarget.RowBgX, ...)'
                     // We use a transparent color so we can see the one behind in case our target is RowBg1 and RowBg0 was already targeted by the ImGui.TableFlags.RowBg flag.
                     if (row_bg_type.value !== 0) {
-                        const row_bg_color = ImGui.GetColorU32(row_bg_type.value === 1 ? new imgui_js_2.ImVec4(0.7, 0.3, 0.3, 0.65) : new imgui_js_2.ImVec4(0.2 + row * 0.1, 0.2, 0.2, 0.65)); // Flat or Gradient?
+                        const row_bg_color = ImGui.GetColorU32(row_bg_type.value === 1 ? new ImGui.Vec4(0.7, 0.3, 0.3, 0.65) : new ImGui.Vec4(0.2 + row * 0.1, 0.2, 0.2, 0.65)); // Flat or Gradient?
                         ImGui.TableSetBgColor(ImGui.TableBgTarget.RowBg0 + row_bg_target.value, row_bg_color);
                     }
                     // Fill cells
@@ -3829,7 +3829,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         // (the CellBg color will be blended over the RowBg and ColumnBg colors)
                         // We can also pass a column number as a third parameter to TableSetBgColor() and do this outside the column loop.
                         if (row >= 1 && row <= 2 && column >= 1 && column <= 2 && cell_bg_type.value === 1) {
-                            const cell_bg_color = ImGui.GetColorU32(new imgui_js_2.ImVec4(0.3, 0.3, 0.7, 0.65));
+                            const cell_bg_color = ImGui.GetColorU32(new ImGui.Vec4(0.3, 0.3, 0.7, 0.65));
                             ImGui.TableSetBgColor(ImGui.TableBgTarget.CellBg, cell_bg_color);
                         }
                     }
@@ -3952,7 +3952,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     ImGui.TableSetColumnIndex(column);
                     const column_name = ImGui.TableGetColumnName(column); // Retrieve name passed to TableSetupColumn()
                     ImGui.PushID(column);
-                    ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new imgui_js_1.ImVec2(0, 0));
+                    ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new ImGui.Vec2(0, 0));
                     ImGui.Checkbox("##checkall", column_selected.access(column));
                     ImGui.PopStyleVar();
                     ImGui.SameLine(0.0, ImGui.GetStyle().ItemInnerSpacing.x);
@@ -4090,7 +4090,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.SetNextItemOpen(open_action !== 0);
         if (ImGui.TreeNode("Sorting")) {
             // Create item list
-            const items = STATIC(UNIQUE("items#1b67a6dd"), new ImGui.ImVector());
+            const items = STATIC(UNIQUE("items#1b67a6dd"), new ImGui.Vector());
             if (items.value.Size === 0) {
                 items.value.resize(50, () => new MyItem());
                 for (let n = 0; n < items.value.Size; n++) {
@@ -4113,7 +4113,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.SameLine();
             HelpMarker("When sorting is enabled: allow no sorting, disable default sorting. TableGetSortSpecs() may return specs where (SpecsCount === 0).");
             PopStyleCompact();
-            if (ImGui.BeginTable("table_sorting", 4, flags.value, new imgui_js_1.ImVec2(0.0, TEXT_BASE_HEIGHT * 15), 0.0)) {
+            if (ImGui.BeginTable("table_sorting", 4, flags.value, new ImGui.Vec2(0.0, TEXT_BASE_HEIGHT * 15), 0.0)) {
                 // Declare columns
                 // We use the "user_id" parameter of TableSetupColumn() to specify a user id that will be stored in the sort specifications.
                 // This is so our sort function can identify a column given our own identifier. We could also identify them based on their index!
@@ -4184,7 +4184,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             const freeze_cols = STATIC(UNIQUE("freeze_cols#d8a04a56"), 1);
             const freeze_rows = STATIC(UNIQUE("freeze_rows#f64daf19"), 1);
             const items_count = STATIC(UNIQUE("items_count#0781ca13"), ImGui.ARRAYSIZE(template_items_names) * 2);
-            const outer_size_value = STATIC(UNIQUE("outer_size_value#94490908"), new imgui_js_1.ImVec2(0.0, TEXT_BASE_HEIGHT * 12));
+            const outer_size_value = STATIC(UNIQUE("outer_size_value#94490908"), new ImGui.Vec2(0.0, TEXT_BASE_HEIGHT * 12));
             const row_min_height = STATIC(UNIQUE("row_min_height#607e0581"), 0.0); // Auto
             const inner_width_with_scroll = STATIC(UNIQUE("inner_width_with_scroll#2fde8d77"), 0.0); // Auto-extend
             const outer_size_enabled = STATIC(UNIQUE("outer_size_enabled#c9eb1b88"), true);
@@ -4297,8 +4297,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 ImGui.TreePop();
             }
             // Recreate/reset item list if we changed the number of items
-            const items = STATIC(UNIQUE("items#5b077f64"), new ImGui.ImVector());
-            const selection = STATIC(UNIQUE("selection#01260bec"), new ImGui.ImVector());
+            const items = STATIC(UNIQUE("items#5b077f64"), new ImGui.Vector());
+            const selection = STATIC(UNIQUE("selection#01260bec"), new ImGui.Vector());
             const items_need_sort = STATIC(UNIQUE("items_need_sort#d49bf4fa"), false);
             if (items.value.Size !== items_count.value) {
                 items.value.resize(items_count.value, () => new MyItem());
@@ -4313,10 +4313,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             const parent_draw_list = ImGui.GetWindowDrawList();
             // TODO(imgui-js): ImDrawList.CmdBuffer
             const parent_draw_list_draw_cmd_count = parent_draw_list.IdxBuffer.length; // parent_draw_list.CmdBuffer.Size;
-            const table_scroll_cur = new imgui_js_1.ImVec2(), table_scroll_max = new imgui_js_1.ImVec2(); // For debug display
+            const table_scroll_cur = new ImGui.Vec2(), table_scroll_max = new ImGui.Vec2(); // For debug display
             let table_draw_list = null; // "
             const inner_width_to_use = (flags.value & ImGui.TableFlags.ScrollX) ? inner_width_with_scroll.value : 0.0;
-            if (ImGui.BeginTable("table_advanced", 6, flags.value, outer_size_enabled.value ? outer_size_value.value : new imgui_js_1.ImVec2(0, 0), inner_width_to_use)) {
+            if (ImGui.BeginTable("table_advanced", 6, flags.value, outer_size_enabled.value ? outer_size_value.value : new ImGui.Vec2(0, 0), inner_width_to_use)) {
                 // Declare columns
                 // We use the "user_id" parameter of TableSetupColumn() to specify a user id that will be stored in the sort specifications.
                 // This is so our sort function can identify a column given our own identifier. We could also identify them based on their index!
@@ -4377,10 +4377,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         else if (contents_type.value === ContentsType.SmallButton)
                             ImGui.SmallButton(label);
                         else if (contents_type.value === ContentsType.FillButton)
-                            ImGui.Button(label, new imgui_js_1.ImVec2(-FLT_MIN, 0.0));
+                            ImGui.Button(label, new ImGui.Vec2(-FLT_MIN, 0.0));
                         else if (contents_type.value === ContentsType.Selectable || contents_type.value === ContentsType.SelectableSpanRow) {
                             const selectable_flags = (contents_type.value === ContentsType.SelectableSpanRow) ? ImGui.SelectableFlags.SpanAllColumns | ImGui.SelectableFlags.AllowItemOverlap : ImGui.SelectableFlags.None;
-                            if (ImGui.Selectable(label, item_is_selected, selectable_flags, new imgui_js_1.ImVec2(0, row_min_height.value))) {
+                            if (ImGui.Selectable(label, item_is_selected, selectable_flags, new ImGui.Vec2(0, row_min_height.value))) {
                                 if (ImGui.GetIO().KeyCtrl) {
                                     if (item_is_selected)
                                         selection.value.find_erase_unsorted(item.ID);
@@ -4467,7 +4467,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             for (let n = 0; n < 14; n++) {
                 const label = `Item ${n}`;
                 if (ImGui.Selectable(label)) { }
-                //if (ImGui.Button(label, new ImVec2(-FLT_MIN,0.0))) {}
+                //if (ImGui.Button(label, new ImGui.Vec2(-FLT_MIN,0.0))) {}
                 ImGui.NextColumn();
             }
             ImGui.Columns(1);
@@ -4528,7 +4528,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 ImGui.Text(`Avail ${ImGui.GetContentRegionAvail().x.toFixed(2)}`);
                 ImGui.Text(`Offset ${ImGui.GetColumnOffset().toFixed(2)}`);
                 ImGui.Text("Long text that is likely to clip");
-                ImGui.Button("Button", new imgui_js_1.ImVec2(-FLT_MIN, 0.0));
+                ImGui.Button("Button", new ImGui.Vec2(-FLT_MIN, 0.0));
                 ImGui.NextColumn();
             }
             ImGui.Columns(1);
@@ -4584,8 +4584,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.TreePop();
         }
         if (ImGui.TreeNode("Horizontal Scrolling")) {
-            ImGui.SetNextWindowContentSize(new imgui_js_1.ImVec2(1500.0, 0.0));
-            const child_size = new imgui_js_1.ImVec2(0, ImGui.GetFontSize() * 20.0);
+            ImGui.SetNextWindowContentSize(new ImGui.Vec2(1500.0, 0.0));
+            const child_size = new ImGui.Vec2(0, ImGui.GetFontSize() * 20.0);
             ImGui.BeginChild("##ScrollingRegion", child_size, false, ImGui.WindowFlags.HorizontalScrollbar);
             ImGui.Columns(10);
             // Also demonstrate using clipper for large vertical lists
@@ -4740,7 +4740,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             }
             if (ImGui.TreeNode("Tabbing")) {
                 ImGui.Text("Use TAB/SHIFT+TAB to cycle through keyboard editable fields.");
-                const buf = STATIC(UNIQUE("buf#9770eaac"), new imgui_js_4.ImStringBuffer(32, "hello"));
+                const buf = STATIC(UNIQUE("buf#9770eaac"), new ImGui.StringBuffer(32, "hello"));
                 ImGui.InputText("1", buf.value, ImGui.ARRAYSIZE(buf.value));
                 ImGui.InputText("2", buf.value, ImGui.ARRAYSIZE(buf.value));
                 ImGui.InputText("3", buf.value, ImGui.ARRAYSIZE(buf.value));
@@ -4758,7 +4758,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 ImGui.SameLine();
                 const focus_3 = ImGui.Button("Focus on 3");
                 let has_focus = 0;
-                const buf = STATIC(UNIQUE("buf#f50d3898"), new imgui_js_4.ImStringBuffer(128, "click on a button to set focus"));
+                const buf = STATIC(UNIQUE("buf#f50d3898"), new ImGui.StringBuffer(128, "click on a button to set focus"));
                 if (focus_1)
                     ImGui.SetKeyboardFocusHere();
                 ImGui.InputText("1", buf.value, ImGui.ARRAYSIZE(buf.value));
@@ -4825,7 +4825,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             }
             if (ImGui.TreeNode("Mouse cursors")) {
                 const mouse_cursors_names = ["Arrow", "TextInput", "ResizeAll", "ResizeNS", "ResizeEW", "ResizeNESW", "ResizeNWSE", "Hand", "NotAllowed"];
-                ImGui.IM_ASSERT(ImGui.ARRAYSIZE(mouse_cursors_names) === ImGui.MouseCursor.COUNT);
+                ImGui.ASSERT(ImGui.ARRAYSIZE(mouse_cursors_names) === ImGui.MouseCursor.COUNT);
                 const current = ImGui.GetMouseCursor();
                 ImGui.Text(`Current mouse cursor = ${current}: ${mouse_cursors_names[current]}`);
                 ImGui.Text("Hover to see mouse cursors:");
@@ -4863,7 +4863,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             const io = ImGui.GetIO();
             const style = ImGui.GetStyle();
             const copy_to_clipboard = ImGui.Button("Copy to clipboard");
-            const child_size = new imgui_js_1.ImVec2(0, ImGui.GetTextLineHeightWithSpacing() * 18);
+            const child_size = new ImGui.Vec2(0, ImGui.GetTextLineHeightWithSpacing() * 18);
             ImGui.BeginChildFrame(ImGui.GetID("cfg_infos"), child_size, ImGui.WindowFlags.NoMove);
             if (copy_to_clipboard) {
                 ImGui.LogToClipboard();
@@ -4872,7 +4872,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ImGui.Text(`Dear ImGui ${ImGui.VERSION} (${ImGui.VERSION_NUM})`);
             ImGui.Separator();
             // ImGui.Text("sizeof(size_t): %d, sizeof(ImDrawIdx): %d, sizeof(ImDrawVert): %d", (int)sizeof(size_t), (int)sizeof(ImDrawIdx), (int)sizeof(ImDrawVert));
-            ImGui.Text(`ImGui.ImDrawIdxSize: ${ImGui.ImDrawIdxSize}, ImGui.ImDrawVertSize: ${ImGui.ImDrawVertSize}`);
+            ImGui.Text(`ImGui.DrawIdxSize: ${ImGui.DrawIdxSize}, ImGui.DrawVertSize: ${ImGui.DrawVertSize}`);
             // ImGui.Text("define: __cplusplus=%d", (int)__cplusplus);
             // #ifdef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
             // ImGui.Text("define: IMGUI_DISABLE_OBSOLETE_FUNCTIONS");
@@ -5073,7 +5073,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         if (ImGui.TreeNode("Glyphs", `Glyphs (${font.Glyphs.Size})`)) {
             // Display all glyphs of the fonts in separate pages of 256 characters
             const glyph_col = ImGui.GetColorU32(ImGui.Col.Text);
-            for (let base = 0; base <= ImGui.IM_UNICODE_CODEPOINT_MAX; base += 256) {
+            for (let base = 0; base <= ImGui.UNICODE_CODEPOINT_MAX; base += 256) {
                 // Skip ahead if a large bunch of glyphs are not present in the font (test in chunks of 4k)
                 // This is only a small optimization to reduce the number of iterations when IM_UNICODE_MAX_CODEPOINT
                 // is large // (if ImWchar==ImWchar32 we will do at least about 272 queries here)
@@ -5096,10 +5096,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 for (let n = 0; n < 256; n++) {
                     // We use ImFont.RenderChar as a shortcut because we don't have UTF-8 conversion functions
                     // available here and thus cannot easily generate a zero-terminated UTF-8 encoded string.
-                    const cell_p1 = new imgui_js_1.ImVec2(base_pos.x + (n % 16) * (cell_size + cell_spacing), base_pos.y + (0 | (n / 16)) * (cell_size + cell_spacing));
-                    const cell_p2 = new imgui_js_1.ImVec2(cell_p1.x + cell_size, cell_p1.y + cell_size);
+                    const cell_p1 = new ImGui.Vec2(base_pos.x + (n % 16) * (cell_size + cell_spacing), base_pos.y + (0 | (n / 16)) * (cell_size + cell_spacing));
+                    const cell_p2 = new ImGui.Vec2(cell_p1.x + cell_size, cell_p1.y + cell_size);
                     const glyph = font.FindGlyphNoFallback((base + n));
-                    draw_list.AddRect(cell_p1, cell_p2, glyph ? ImGui.IM_COL32(255, 255, 255, 100) : ImGui.IM_COL32(255, 255, 255, 50));
+                    draw_list.AddRect(cell_p1, cell_p2, glyph ? ImGui.COL32(255, 255, 255, 100) : ImGui.COL32(255, 255, 255, 50));
                     if (glyph)
                         font.RenderChar(draw_list, cell_size, cell_p1, glyph_col, (base + n));
                     if (glyph && ImGui.IsMouseHoveringRect(cell_p1, cell_p2)) {
@@ -5113,7 +5113,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         ImGui.EndTooltip();
                     }
                 }
-                ImGui.Dummy(new imgui_js_1.ImVec2((cell_size + cell_spacing) * 16, (cell_size + cell_spacing) * 16));
+                ImGui.Dummy(new ImGui.Vec2((cell_size + cell_spacing) * 16, (cell_size + cell_spacing) * 16));
                 ImGui.TreePop();
             }
             ImGui.TreePop();
@@ -5135,7 +5135,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         ImGui.PushItemWidth(ImGui.GetWindowWidth() * 0.50);
         if ( /*ImGui.*/ShowStyleSelector("Colors##Selector"))
             ref_saved_style.value.Copy(style); // ref_saved_style = style;
-        ImGui.ShowFontSelector("Fonts##Selector");
+        /*ImGui.*/ ShowFontSelector("Fonts##Selector");
         // Simplified Settings (expose floating-pointer border sizes as boolean representing 0.0 or 1.0)
         if (ImGui.SliderFloat("FrameRounding", (_ = style.FrameRounding) => style.FrameRounding = _, 0.0, 12.0, "%.0f"))
             style.GrabRounding = style.FrameRounding; // Make GrabRounding always the same value as FrameRounding
@@ -5222,12 +5222,12 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         ImGui.LogToClipboard();
                     else
                         ImGui.LogToTTY();
-                    ImGui.LogText(`const colors: ImVec4[] = ImGui.GetStyle().Colors;${IM_NEWLINE}`);
+                    ImGui.LogText(`const colors: ImGui.Vec4[] = ImGui.GetStyle().Colors;${IM_NEWLINE}`);
                     for (let i = 0; i < ImGui.Col.COUNT; i++) {
                         const col = style.Colors[i];
                         const name = ImGui.GetStyleColorName(i);
                         if (!output_only_modified.value || !col.Equals(ref.Colors[i]))
-                            ImGui.LogText(`colors[ImGui.Col.${name}] = new ImVec4(${col.x}, ${col.y}, ${col.z}, ${col.w});${IM_NEWLINE}`);
+                            ImGui.LogText(`colors[ImGui.Col.${name}] = new ImGui.Vec4(${col.x}, ${col.y}, ${col.z}, ${col.w});${IM_NEWLINE}`);
                     }
                     ImGui.LogFinish();
                 }
@@ -5254,7 +5254,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 HelpMarker("In the color list:\n" +
                     "Left-click on color square to open color picker,\n" +
                     "Right-click to open edit options menu.");
-                ImGui.BeginChild("##colors", new imgui_js_1.ImVec2(0, 0), true, ImGui.WindowFlags.AlwaysVerticalScrollbar | ImGui.WindowFlags.AlwaysHorizontalScrollbar | ImGui.WindowFlags.NavFlattened);
+                ImGui.BeginChild("##colors", new ImGui.Vec2(0, 0), true, ImGui.WindowFlags.AlwaysVerticalScrollbar | ImGui.WindowFlags.AlwaysHorizontalScrollbar | ImGui.WindowFlags.NavFlattened);
                 ImGui.PushItemWidth(-160);
                 for (let i = 0; i < ImGui.Col.COUNT; i++) {
                     const name = ImGui.GetStyleColorName(i);
@@ -5295,9 +5295,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     ImGui.PopID();
                 }
                 if (ImGui.TreeNode("Atlas texture", `Atlas texture (${atlas.TexWidth}x${atlas.TexHeight} pixels)`)) {
-                    const tint_col = new imgui_js_2.ImVec4(1.0, 1.0, 1.0, 1.0);
-                    const border_col = new imgui_js_2.ImVec4(1.0, 1.0, 1.0, 0.5);
-                    ImGui.Image(atlas.TexID, new imgui_js_1.ImVec2(atlas.TexWidth, atlas.TexHeight), new imgui_js_1.ImVec2(0, 0), new imgui_js_1.ImVec2(1, 1), tint_col, border_col);
+                    const tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0);
+                    const border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.5);
+                    ImGui.Image(atlas.TexID, new ImGui.Vec2(atlas.TexWidth, atlas.TexHeight), new ImGui.Vec2(0, 0), new ImGui.Vec2(1, 1), tint_col, border_col);
                     ImGui.TreePop();
                 }
                 // Post-baking font scaling. Note that this is NOT the nice way of scaling fonts, read below.
@@ -5338,10 +5338,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     let off_x = 10.0;
                     for (let n = 0; n < 7; n++) {
                         const rad = RAD_MIN + (RAD_MAX - RAD_MIN) * n / (7.0 - 1.0);
-                        draw_list.AddCircle(new imgui_js_1.ImVec2(p.x + off_x + rad, p.y + RAD_MAX), rad, ImGui.GetColorU32(ImGui.Col.Text), 0);
+                        draw_list.AddCircle(new ImGui.Vec2(p.x + off_x + rad, p.y + RAD_MAX), rad, ImGui.GetColorU32(ImGui.Col.Text), 0);
                         off_x += 10.0 + rad * 2.0;
                     }
-                    ImGui.Dummy(new imgui_js_1.ImVec2(off_x, RAD_MAX * 2.0));
+                    ImGui.Dummy(new ImGui.Vec2(off_x, RAD_MAX * 2.0));
                     ImGui.EndTooltip();
                 }
                 ImGui.SameLine();
@@ -5409,7 +5409,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         if (ImGui.BeginMenu("Options")) {
             const enabled = STATIC(UNIQUE("enabled#5f4b3785"), true);
             ImGui.MenuItem("Enabled", "", enabled.access);
-            ImGui.BeginChild("child", new imgui_js_1.ImVec2(0, 60), true);
+            ImGui.BeginChild("child", new ImGui.Vec2(0, 60), true);
             for (let i = 0; i < 10; i++)
                 ImGui.Text(`Scrolling Text ${i}`);
             ImGui.EndChild();
@@ -5425,8 +5425,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             for (let i = 0; i < ImGui.Col.COUNT; i++) {
                 const name = ImGui.GetStyleColorName(i);
                 const p = ImGui.GetCursorScreenPos();
-                ImGui.GetWindowDrawList().AddRectFilled(p, new imgui_js_1.ImVec2(p.x + sz, p.y + sz), ImGui.GetColorU32(i));
-                ImGui.Dummy(new imgui_js_1.ImVec2(sz, sz));
+                ImGui.GetWindowDrawList().AddRectFilled(p, new ImGui.Vec2(p.x + sz, p.y + sz), ImGui.GetColorU32(i));
+                ImGui.Dummy(new ImGui.Vec2(sz, sz));
                 ImGui.SameLine();
                 ImGui.MenuItem(name);
             }
@@ -5443,7 +5443,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         }
         if (ImGui.BeginMenu("Disabled", false)) // Disabled
          {
-            ImGui.IM_ASSERT(0);
+            ImGui.ASSERT(0);
         }
         if (ImGui.MenuItem("Checked", null, true)) { }
         if (ImGui.MenuItem("Quit", "Alt+F4")) {
@@ -5460,7 +5460,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         // For the demo: add a debug button _BEFORE_ the normal log window contents
         // We take advantage of a rarely used feature: multiple calls to Begin()/End() are appending to the _same_ window.
         // Most of the contents of the window will be added by the log.Draw() call.
-        ImGui.SetNextWindowSize(new imgui_js_1.ImVec2(500, 400), ImGui.Cond.FirstUseEver);
+        ImGui.SetNextWindowSize(new ImGui.Vec2(500, 400), ImGui.Cond.FirstUseEver);
         ImGui.Begin("Example: Log", p_open);
         if (ImGui.SmallButton("[Debug] Add 5 entries")) {
             const counter = STATIC(UNIQUE("counter#b459af44"), 0);
@@ -5482,7 +5482,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
     //-----------------------------------------------------------------------------
     // Demonstrate create a window with multiple child windows.
     function ShowExampleAppLayout(p_open) {
-        ImGui.SetNextWindowSize(new imgui_js_1.ImVec2(500, 440), ImGui.Cond.FirstUseEver);
+        ImGui.SetNextWindowSize(new ImGui.Vec2(500, 440), ImGui.Cond.FirstUseEver);
         if (ImGui.Begin("Example: Simple layout", p_open, ImGui.WindowFlags.MenuBar)) {
             if (ImGui.BeginMenuBar()) {
                 if (ImGui.BeginMenu("File")) {
@@ -5495,7 +5495,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             // Left
             const selected = STATIC(UNIQUE("selected#079abfa7"), 0);
             {
-                ImGui.BeginChild("left pane", new imgui_js_1.ImVec2(150, 0), true);
+                ImGui.BeginChild("left pane", new ImGui.Vec2(150, 0), true);
                 for (let i = 0; i < 100; i++) {
                     const label = `MyObject ${i}`;
                     if (ImGui.Selectable(label, selected.value === i))
@@ -5507,7 +5507,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             // Right
             {
                 ImGui.BeginGroup();
-                ImGui.BeginChild("item view", new imgui_js_1.ImVec2(0, -ImGui.GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+                ImGui.BeginChild("item view", new ImGui.Vec2(0, -ImGui.GetFrameHeightWithSpacing())); // Leave room for 1 line below us
                 ImGui.Text(`MyObject: ${selected.value}`);
                 ImGui.Separator();
                 if (ImGui.BeginTabBar("##Tabs", ImGui.TabBarFlags.None)) {
@@ -5573,7 +5573,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
     }
     // Demonstrate create a simple property editor.
     function ShowExampleAppPropertyEditor(p_open) {
-        ImGui.SetNextWindowSize(new imgui_js_1.ImVec2(430, 450), ImGui.Cond.FirstUseEver);
+        ImGui.SetNextWindowSize(new ImGui.Vec2(430, 450), ImGui.Cond.FirstUseEver);
         if (!ImGui.Begin("Example: Property editor", p_open)) {
             ImGui.End();
             return;
@@ -5582,7 +5582,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             "All objects/fields data are dummies here.\n" +
             "Remember that in many simple cases, you can use ImGui.SameLine(xxx) to position\n" +
             "your cursor horizontally instead of using the Columns() API.");
-        ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new imgui_js_1.ImVec2(2, 2));
+        ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new ImGui.Vec2(2, 2));
         if (ImGui.BeginTable("split", 2, ImGui.TableFlags.BordersOuter | ImGui.TableFlags.Resizable)) {
             // Iterate placeholder objects (all the same data)
             for (let obj_i = 0; obj_i < 4; obj_i++) {
@@ -5599,7 +5599,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
     //-----------------------------------------------------------------------------
     // Demonstrate/test rendering huge amount of text, and the incidence of clipping.
     function ShowExampleAppLongText(p_open) {
-        ImGui.SetNextWindowSize(new imgui_js_1.ImVec2(520, 600), ImGui.Cond.FirstUseEver);
+        ImGui.SetNextWindowSize(new ImGui.Vec2(520, 600), ImGui.Cond.FirstUseEver);
         if (!ImGui.Begin("Example: Long text display", p_open)) {
             ImGui.End();
             return;
@@ -5632,7 +5632,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             case 1:
                 {
                     // Multiple calls to Text(), manually coarsely clipped - demonstrate how to use the ImGui.ListClipper helper.
-                    ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new imgui_js_1.ImVec2(0, 0));
+                    ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new ImGui.Vec2(0, 0));
                     const clipper = new ImGui.ListClipper();
                     clipper.Begin(lines.value);
                     while (clipper.Step())
@@ -5643,7 +5643,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 }
             case 2:
                 // Multiple calls to Text(), not clipped (slow)
-                ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new imgui_js_1.ImVec2(0, 0));
+                ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new ImGui.Vec2(0, 0));
                 for (let i = 0; i < lines.value; i++)
                     ImGui.Text(`${i} The quick brown fox jumps over the lazy dog`);
                 ImGui.PopStyleVar();
@@ -5693,31 +5693,31 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         const type = STATIC(UNIQUE("type#2ea441c9"), 0);
         const display_lines = STATIC(UNIQUE("display_lines#154bc4b5"), 10);
         if (type.value === 0)
-            ImGui.SetNextWindowSizeConstraints(new imgui_js_1.ImVec2(-1, 0), new imgui_js_1.ImVec2(-1, FLT_MAX)); // Vertical only
+            ImGui.SetNextWindowSizeConstraints(new ImGui.Vec2(-1, 0), new ImGui.Vec2(-1, FLT_MAX)); // Vertical only
         if (type.value === 1)
-            ImGui.SetNextWindowSizeConstraints(new imgui_js_1.ImVec2(0, -1), new imgui_js_1.ImVec2(FLT_MAX, -1)); // Horizontal only
+            ImGui.SetNextWindowSizeConstraints(new ImGui.Vec2(0, -1), new ImGui.Vec2(FLT_MAX, -1)); // Horizontal only
         if (type.value === 2)
-            ImGui.SetNextWindowSizeConstraints(new imgui_js_1.ImVec2(100, 100), new imgui_js_1.ImVec2(FLT_MAX, FLT_MAX)); // Width > 100, Height > 100
+            ImGui.SetNextWindowSizeConstraints(new ImGui.Vec2(100, 100), new ImGui.Vec2(FLT_MAX, FLT_MAX)); // Width > 100, Height > 100
         if (type.value === 3)
-            ImGui.SetNextWindowSizeConstraints(new imgui_js_1.ImVec2(400, -1), new imgui_js_1.ImVec2(500, -1)); // Width 400-500
+            ImGui.SetNextWindowSizeConstraints(new ImGui.Vec2(400, -1), new ImGui.Vec2(500, -1)); // Width 400-500
         if (type.value === 4)
-            ImGui.SetNextWindowSizeConstraints(new imgui_js_1.ImVec2(-1, 400), new imgui_js_1.ImVec2(-1, 500)); // Height 400-500
+            ImGui.SetNextWindowSizeConstraints(new ImGui.Vec2(-1, 400), new ImGui.Vec2(-1, 500)); // Height 400-500
         if (type.value === 5)
-            ImGui.SetNextWindowSizeConstraints(new imgui_js_1.ImVec2(0, 0), new imgui_js_1.ImVec2(FLT_MAX, FLT_MAX), CustomConstraints.Square); // Always Square
+            ImGui.SetNextWindowSizeConstraints(new ImGui.Vec2(0, 0), new ImGui.Vec2(FLT_MAX, FLT_MAX), CustomConstraints.Square); // Always Square
         if (type.value === 6)
-            ImGui.SetNextWindowSizeConstraints(new imgui_js_1.ImVec2(0, 0), new imgui_js_1.ImVec2(FLT_MAX, FLT_MAX), CustomConstraints.Step, /*(void*)(intptr_t)*/ 100); // Fixed Step
+            ImGui.SetNextWindowSizeConstraints(new ImGui.Vec2(0, 0), new ImGui.Vec2(FLT_MAX, FLT_MAX), CustomConstraints.Step, /*(void*)(intptr_t)*/ 100); // Fixed Step
         const flags = auto_resize ? ImGui.WindowFlags.AlwaysAutoResize : 0;
         if (ImGui.Begin("Example: Constrained Resize", p_open, flags)) {
             if (ImGui.Button("200x200")) {
-                ImGui.SetWindowSize(new imgui_js_1.ImVec2(200, 200));
+                ImGui.SetWindowSize(new ImGui.Vec2(200, 200));
             }
             ImGui.SameLine();
             if (ImGui.Button("500x500")) {
-                ImGui.SetWindowSize(new imgui_js_1.ImVec2(500, 500));
+                ImGui.SetWindowSize(new ImGui.Vec2(500, 500));
             }
             ImGui.SameLine();
             if (ImGui.Button("800x200")) {
-                ImGui.SetWindowSize(new imgui_js_1.ImVec2(800, 200));
+                ImGui.SetWindowSize(new ImGui.Vec2(800, 200));
             }
             ImGui.SetNextItemWidth(200);
             ImGui.Combo("Constraint", type.access, test_desc, ImGui.ARRAYSIZE(test_desc));
@@ -5741,8 +5741,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         let window_flags = ImGui.WindowFlags.NoDecoration | ImGui.WindowFlags.AlwaysAutoResize | ImGui.WindowFlags.NoSavedSettings | ImGui.WindowFlags.NoFocusOnAppearing | ImGui.WindowFlags.NoNav;
         if (corner.value !== -1) {
             window_flags |= ImGui.WindowFlags.NoMove;
-            const window_pos = new imgui_js_1.ImVec2((corner.value & 1) ? io.DisplaySize.x - DISTANCE : DISTANCE, (corner.value & 2) ? io.DisplaySize.y - DISTANCE : DISTANCE);
-            const window_pos_pivot = new imgui_js_1.ImVec2((corner.value & 1) ? 1.0 : 0.0, (corner.value & 2) ? 1.0 : 0.0);
+            const window_pos = new ImGui.Vec2((corner.value & 1) ? io.DisplaySize.x - DISTANCE : DISTANCE, (corner.value & 2) ? io.DisplaySize.y - DISTANCE : DISTANCE);
+            const window_pos_pivot = new ImGui.Vec2((corner.value & 1) ? 1.0 : 0.0, (corner.value & 2) ? 1.0 : 0.0);
             ImGui.SetNextWindowPos(window_pos, ImGui.Cond.Always, window_pos_pivot);
         }
         ImGui.SetNextWindowBgAlpha(0.35); // Transparent background
@@ -5781,17 +5781,17 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         // By default, Windows are uniquely identified by their title.
         // You can use the "##" and "###" markers to manipulate the display/ID.
         // Using "##" to display same title but have unique identifier.
-        ImGui.SetNextWindowPos(new imgui_js_1.ImVec2(100, 100), ImGui.Cond.FirstUseEver);
+        ImGui.SetNextWindowPos(new ImGui.Vec2(100, 100), ImGui.Cond.FirstUseEver);
         ImGui.Begin("Same title as another window##1");
         ImGui.Text("This is window 1.\nMy title is the same as window 2, but my identifier is unique.");
         ImGui.End();
-        ImGui.SetNextWindowPos(new imgui_js_1.ImVec2(100, 200), ImGui.Cond.FirstUseEver);
+        ImGui.SetNextWindowPos(new ImGui.Vec2(100, 200), ImGui.Cond.FirstUseEver);
         ImGui.Begin("Same title as another window##2");
         ImGui.Text("This is window 2.\nMy title is the same as window 1, but my identifier is unique.");
         ImGui.End();
         // Using "###" to display a changing title but keep a static identifier "AnimatedTitle"
         const buf = `Animated title ${"|/-\\"[Math.floor /*(int)*/(ImGui.GetTime() / 0.25) & 3]} ${ImGui.GetFrameCount()}###AnimatedTitle`;
-        ImGui.SetNextWindowPos(new imgui_js_1.ImVec2(100, 300), ImGui.Cond.FirstUseEver);
+        ImGui.SetNextWindowPos(new ImGui.Vec2(100, 300), ImGui.Cond.FirstUseEver);
         ImGui.Begin(buf);
         ImGui.Text("This window has a changing title.");
         ImGui.End();
@@ -5807,7 +5807,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         }
         // Tip: If you do a lot of custom rendering, you probably want to use your own geometrical types and benefit of
         // overloaded operators, etc. Define IM_VEC2_CLASS_EXTRA in imconfig.h to create implicit conversions between your
-        // types and ImVec2/ImVec4. Dear ImGui defines overloaded operators but they are internal to imgui.cpp and not
+        // types and ImGui.Vec2/ImGui.Vec4. Dear ImGui defines overloaded operators but they are internal to imgui.cpp and not
         // exposed outside (to avoid messing with your types) In this example we are not using the maths operators!
         if (ImGui.BeginTabBar("##TabBar")) {
             if (ImGui.BeginTabItem("Primitives")) {
@@ -5815,22 +5815,22 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 const draw_list = ImGui.GetWindowDrawList();
                 // Draw gradients
                 // (note that those are currently exacerbating our sRGB/Linear issues)
-                // Calling ImGui.GetColorU32() multiplies the given colors by the current Style Alpha, but you may pass the ImGui.IM_COL32() directly as well..
+                // Calling ImGui.GetColorU32() multiplies the given colors by the current Style Alpha, but you may pass the ImGui.COL32() directly as well..
                 ImGui.Text("Gradients");
-                const gradient_size = new imgui_js_1.ImVec2(ImGui.CalcItemWidth(), ImGui.GetFrameHeight());
+                const gradient_size = new ImGui.Vec2(ImGui.CalcItemWidth(), ImGui.GetFrameHeight());
                 {
                     const p0 = ImGui.GetCursorScreenPos();
-                    const p1 = new imgui_js_1.ImVec2(p0.x + gradient_size.x, p0.y + gradient_size.y);
-                    const col_a = ImGui.GetColorU32(ImGui.IM_COL32(0, 0, 0, 255));
-                    const col_b = ImGui.GetColorU32(ImGui.IM_COL32(255, 255, 255, 255));
+                    const p1 = new ImGui.Vec2(p0.x + gradient_size.x, p0.y + gradient_size.y);
+                    const col_a = ImGui.GetColorU32(ImGui.COL32(0, 0, 0, 255));
+                    const col_b = ImGui.GetColorU32(ImGui.COL32(255, 255, 255, 255));
                     draw_list.AddRectFilledMultiColor(p0, p1, col_a, col_b, col_b, col_a);
                     ImGui.InvisibleButton("##gradient1", gradient_size);
                 }
                 {
                     const p0 = ImGui.GetCursorScreenPos();
-                    const p1 = new imgui_js_1.ImVec2(p0.x + gradient_size.x, p0.y + gradient_size.y);
-                    const col_a = ImGui.GetColorU32(ImGui.IM_COL32(0, 255, 0, 255));
-                    const col_b = ImGui.GetColorU32(ImGui.IM_COL32(255, 0, 0, 255));
+                    const p1 = new ImGui.Vec2(p0.x + gradient_size.x, p0.y + gradient_size.y);
+                    const col_a = ImGui.GetColorU32(ImGui.COL32(0, 255, 0, 255));
+                    const col_b = ImGui.GetColorU32(ImGui.COL32(255, 0, 0, 255));
                     draw_list.AddRectFilledMultiColor(p0, p1, col_a, col_b, col_b, col_a);
                     ImGui.InvisibleButton("##gradient2", gradient_size);
                 }
@@ -5843,7 +5843,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 const circle_segments_override_v = STATIC(UNIQUE("circle_segments_override_v#8ae75d44"), 12);
                 const curve_segments_override = STATIC(UNIQUE("curve_segments_override#4bc9456e"), false);
                 const curve_segments_override_v = STATIC(UNIQUE("curve_segments_override_v#c0102a7a"), 8);
-                const colf = STATIC(UNIQUE("colf#379f26e6"), new imgui_js_2.ImVec4(1.0, 1.0, 0.4, 1.0));
+                const colf = STATIC(UNIQUE("colf#379f26e6"), new ImGui.Vec4(1.0, 1.0, 0.4, 1.0));
                 ImGui.DragFloat("Size", sz.access, 0.2, 2.0, 72.0, "%.0f");
                 ImGui.DragFloat("Thickness", thickness.access, 0.05, 1.0, 8.0, "%.02f");
                 ImGui.SliderInt("N-gon sides", ngon_sides.access, 3, 12);
@@ -5859,7 +5859,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 }
                 ImGui.ColorEdit4("Color", colf.value);
                 const p = ImGui.GetCursorScreenPos();
-                const col = new ImGui.ImColor(colf.value).toImU32();
+                const col = new ImGui.Color(colf.value).toImU32();
                 const spacing = 10.0;
                 const corners_none = 0;
                 const corners_all = ImGui.DrawCornerFlags.All;
@@ -5871,62 +5871,62 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 for (let n = 0; n < 2; n++) {
                     // First line uses a thickness of 1.0, second line uses the configurable thickness
                     const th = (n === 0) ? 1.0 : thickness.value;
-                    draw_list.AddNgon(new imgui_js_1.ImVec2(x + sz.value * 0.5, y + sz.value * 0.5), sz.value * 0.5, col, ngon_sides.value, th);
+                    draw_list.AddNgon(new ImGui.Vec2(x + sz.value * 0.5, y + sz.value * 0.5), sz.value * 0.5, col, ngon_sides.value, th);
                     x += sz.value + spacing; // N-gon
-                    draw_list.AddCircle(new imgui_js_1.ImVec2(x + sz.value * 0.5, y + sz.value * 0.5), sz.value * 0.5, col, circle_segments, th);
+                    draw_list.AddCircle(new ImGui.Vec2(x + sz.value * 0.5, y + sz.value * 0.5), sz.value * 0.5, col, circle_segments, th);
                     x += sz.value + spacing; // Circle
-                    draw_list.AddRect(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + sz.value, y + sz.value), col, 0.0, corners_none, th);
+                    draw_list.AddRect(new ImGui.Vec2(x, y), new ImGui.Vec2(x + sz.value, y + sz.value), col, 0.0, corners_none, th);
                     x += sz.value + spacing; // Square
-                    draw_list.AddRect(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + sz.value, y + sz.value), col, 10.0, corners_all, th);
+                    draw_list.AddRect(new ImGui.Vec2(x, y), new ImGui.Vec2(x + sz.value, y + sz.value), col, 10.0, corners_all, th);
                     x += sz.value + spacing; // Square with all rounded corners
-                    draw_list.AddRect(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + sz.value, y + sz.value), col, 10.0, corners_tl_br, th);
+                    draw_list.AddRect(new ImGui.Vec2(x, y), new ImGui.Vec2(x + sz.value, y + sz.value), col, 10.0, corners_tl_br, th);
                     x += sz.value + spacing; // Square with two rounded corners
-                    draw_list.AddTriangle(new imgui_js_1.ImVec2(x + sz.value * 0.5, y), new imgui_js_1.ImVec2(x + sz.value, y + sz.value - 0.5), new imgui_js_1.ImVec2(x, y + sz.value - 0.5), col, th);
+                    draw_list.AddTriangle(new ImGui.Vec2(x + sz.value * 0.5, y), new ImGui.Vec2(x + sz.value, y + sz.value - 0.5), new ImGui.Vec2(x, y + sz.value - 0.5), col, th);
                     x += sz.value + spacing; // Triangle
-                    //draw_list.AddTriangle(new ImVec2(x+sz.value*0.2,y), new ImVec2(x, y+sz.value-0.5), new ImVec2(x+sz.value*0.4, y+sz.value-0.5), col, th);x+= sz.value*0.4 + spacing; // Thin triangle
-                    draw_list.AddLine(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + sz.value, y), col, th);
+                    //draw_list.AddTriangle(new ImGui.Vec2(x+sz.value*0.2,y), new ImGui.Vec2(x, y+sz.value-0.5), new ImGui.Vec2(x+sz.value*0.4, y+sz.value-0.5), col, th);x+= sz.value*0.4 + spacing; // Thin triangle
+                    draw_list.AddLine(new ImGui.Vec2(x, y), new ImGui.Vec2(x + sz.value, y), col, th);
                     x += sz.value + spacing; // Horizontal line (note: drawing a filled rectangle will be faster!)
-                    draw_list.AddLine(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x, y + sz.value), col, th);
+                    draw_list.AddLine(new ImGui.Vec2(x, y), new ImGui.Vec2(x, y + sz.value), col, th);
                     x += spacing; // Vertical line (note: drawing a filled rectangle will be faster!)
-                    draw_list.AddLine(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + sz.value, y + sz.value), col, th);
+                    draw_list.AddLine(new ImGui.Vec2(x, y), new ImGui.Vec2(x + sz.value, y + sz.value), col, th);
                     x += sz.value + spacing; // Diagonal line
                     // Quadratic Bezier Curve (3 control points)
-                    const cp3 = [new imgui_js_1.ImVec2(x, y + sz.value * 0.6), new imgui_js_1.ImVec2(x + sz.value * 0.5, y - sz.value * 0.4), new imgui_js_1.ImVec2(x + sz.value, y + sz.value)];
+                    const cp3 = [new ImGui.Vec2(x, y + sz.value * 0.6), new ImGui.Vec2(x + sz.value * 0.5, y - sz.value * 0.4), new ImGui.Vec2(x + sz.value, y + sz.value)];
                     draw_list.AddBezierQuadratic(cp3[0], cp3[1], cp3[2], col, th, curve_segments);
                     x += sz.value + spacing;
                     // Cubic Bezier Curve (4 control points)
-                    const cp4 = [new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + sz.value * 1.3, y + sz.value * 0.3), new imgui_js_1.ImVec2(x + sz.value - sz.value * 1.3, y + sz.value - sz.value * 0.3), new imgui_js_1.ImVec2(x + sz.value, y + sz.value)];
+                    const cp4 = [new ImGui.Vec2(x, y), new ImGui.Vec2(x + sz.value * 1.3, y + sz.value * 0.3), new ImGui.Vec2(x + sz.value - sz.value * 1.3, y + sz.value - sz.value * 0.3), new ImGui.Vec2(x + sz.value, y + sz.value)];
                     draw_list.AddBezierCubic(cp4[0], cp4[1], cp4[2], cp4[3], col, th, curve_segments);
                     x = p.x + 4;
                     y += sz.value + spacing;
                 }
-                draw_list.AddNgonFilled(new imgui_js_1.ImVec2(x + sz.value * 0.5, y + sz.value * 0.5), sz.value * 0.5, col, ngon_sides.value);
+                draw_list.AddNgonFilled(new ImGui.Vec2(x + sz.value * 0.5, y + sz.value * 0.5), sz.value * 0.5, col, ngon_sides.value);
                 x += sz.value + spacing; // N-gon
-                draw_list.AddCircleFilled(new imgui_js_1.ImVec2(x + sz.value * 0.5, y + sz.value * 0.5), sz.value * 0.5, col, circle_segments);
+                draw_list.AddCircleFilled(new ImGui.Vec2(x + sz.value * 0.5, y + sz.value * 0.5), sz.value * 0.5, col, circle_segments);
                 x += sz.value + spacing; // Circle
-                draw_list.AddRectFilled(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + sz.value, y + sz.value), col);
+                draw_list.AddRectFilled(new ImGui.Vec2(x, y), new ImGui.Vec2(x + sz.value, y + sz.value), col);
                 x += sz.value + spacing; // Square
-                draw_list.AddRectFilled(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + sz.value, y + sz.value), col, 10.0);
+                draw_list.AddRectFilled(new ImGui.Vec2(x, y), new ImGui.Vec2(x + sz.value, y + sz.value), col, 10.0);
                 x += sz.value + spacing; // Square with all rounded corners
-                draw_list.AddRectFilled(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + sz.value, y + sz.value), col, 10.0, corners_tl_br);
+                draw_list.AddRectFilled(new ImGui.Vec2(x, y), new ImGui.Vec2(x + sz.value, y + sz.value), col, 10.0, corners_tl_br);
                 x += sz.value + spacing; // Square with two rounded corners
-                draw_list.AddTriangleFilled(new imgui_js_1.ImVec2(x + sz.value * 0.5, y), new imgui_js_1.ImVec2(x + sz.value, y + sz.value - 0.5), new imgui_js_1.ImVec2(x, y + sz.value - 0.5), col);
+                draw_list.AddTriangleFilled(new ImGui.Vec2(x + sz.value * 0.5, y), new ImGui.Vec2(x + sz.value, y + sz.value - 0.5), new ImGui.Vec2(x, y + sz.value - 0.5), col);
                 x += sz.value + spacing; // Triangle
-                //draw_list.AddTriangleFilled(new ImVec2(x+sz.value*0.2,y), new ImVec2(x, y+sz.value-0.5), new ImVec2(x+sz.value*0.4, y+sz.value-0.5), col); x += sz.value*0.4 + spacing; // Thin triangle
-                draw_list.AddRectFilled(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + sz.value, y + thickness.value), col);
+                //draw_list.AddTriangleFilled(new ImGui.Vec2(x+sz.value*0.2,y), new ImGui.Vec2(x, y+sz.value-0.5), new ImGui.Vec2(x+sz.value*0.4, y+sz.value-0.5), col); x += sz.value*0.4 + spacing; // Thin triangle
+                draw_list.AddRectFilled(new ImGui.Vec2(x, y), new ImGui.Vec2(x + sz.value, y + thickness.value), col);
                 x += sz.value + spacing; // Horizontal line (faster than AddLine, but only handle integer thickness)
-                draw_list.AddRectFilled(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + thickness.value, y + sz.value), col);
+                draw_list.AddRectFilled(new ImGui.Vec2(x, y), new ImGui.Vec2(x + thickness.value, y + sz.value), col);
                 x += spacing * 2.0; // Vertical line (faster than AddLine, but only handle integer thickness)
-                draw_list.AddRectFilled(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + 1, y + 1), col);
+                draw_list.AddRectFilled(new ImGui.Vec2(x, y), new ImGui.Vec2(x + 1, y + 1), col);
                 x += sz.value; // Pixel (faster than AddLine)
-                draw_list.AddRectFilledMultiColor(new imgui_js_1.ImVec2(x, y), new imgui_js_1.ImVec2(x + sz.value, y + sz.value), ImGui.IM_COL32(0, 0, 0, 255), ImGui.IM_COL32(255, 0, 0, 255), ImGui.IM_COL32(255, 255, 0, 255), ImGui.IM_COL32(0, 255, 0, 255));
-                ImGui.Dummy(new imgui_js_1.ImVec2((sz.value + spacing) * 10.2, (sz.value + spacing) * 3.0));
+                draw_list.AddRectFilledMultiColor(new ImGui.Vec2(x, y), new ImGui.Vec2(x + sz.value, y + sz.value), ImGui.COL32(0, 0, 0, 255), ImGui.COL32(255, 0, 0, 255), ImGui.COL32(255, 255, 0, 255), ImGui.COL32(0, 255, 0, 255));
+                ImGui.Dummy(new ImGui.Vec2((sz.value + spacing) * 10.2, (sz.value + spacing) * 3.0));
                 ImGui.PopItemWidth();
                 ImGui.EndTabItem();
             }
             if (ImGui.BeginTabItem("Canvas")) {
-                const points = STATIC(UNIQUE("points#a04ba04e"), new ImGui.ImVector());
-                const scrolling = STATIC(UNIQUE("scrolling#f5569b88"), new imgui_js_1.ImVec2(0.0, 0.0));
+                const points = STATIC(UNIQUE("points#a04ba04e"), new ImGui.Vector());
+                const scrolling = STATIC(UNIQUE("scrolling#f5569b88"), new ImGui.Vec2(0.0, 0.0));
                 const opt_enable_grid = STATIC(UNIQUE("opt_enable_grid#874bd734"), true);
                 const opt_enable_context_menu = STATIC(UNIQUE("opt_enable_context_menu#8733fbe9"), true);
                 const adding_line = STATIC(UNIQUE("adding_line#306a0717"), false);
@@ -5936,9 +5936,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 // Typically you would use a BeginChild()/EndChild() pair to benefit from a clipping region + own scrolling.
                 // Here we demonstrate that this can be replaced by simple offsetting + custom drawing + PushClipRect/PopClipRect() calls.
                 // To use a child window instead we could use, e.g:
-                //      ImGui.PushStyleVar(ImGui.StyleVar.WindowPadding, new ImVec2(0, 0));      // Disable padding
-                //      ImGui.PushStyleColor(ImGui.Col.ChildBg, ImGui.IM_COL32(50, 50, 50, 255));  // Set a background color
-                //      ImGui.BeginChild("canvas", new ImVec2(0.0, 0.0), true, ImGui.WindowFlags.NoMove);
+                //      ImGui.PushStyleVar(ImGui.StyleVar.WindowPadding, new ImGui.Vec2(0, 0));      // Disable padding
+                //      ImGui.PushStyleColor(ImGui.Col.ChildBg, ImGui.COL32(50, 50, 50, 255));  // Set a background color
+                //      ImGui.BeginChild("canvas", new ImGui.Vec2(0.0, 0.0), true, ImGui.WindowFlags.NoMove);
                 //      ImGui.PopStyleColor();
                 //      ImGui.PopStyleVar();
                 //      [...]
@@ -5950,22 +5950,22 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     canvas_sz.x = 50.0;
                 if (canvas_sz.y < 50.0)
                     canvas_sz.y = 50.0;
-                const canvas_p1 = new imgui_js_1.ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
+                const canvas_p1 = new ImGui.Vec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
                 // Draw border and background color
                 const io = ImGui.GetIO();
                 const draw_list = ImGui.GetWindowDrawList();
-                draw_list.AddRectFilled(canvas_p0, canvas_p1, ImGui.IM_COL32(50, 50, 50, 255));
-                draw_list.AddRect(canvas_p0, canvas_p1, ImGui.IM_COL32(255, 255, 255, 255));
+                draw_list.AddRectFilled(canvas_p0, canvas_p1, ImGui.COL32(50, 50, 50, 255));
+                draw_list.AddRect(canvas_p0, canvas_p1, ImGui.COL32(255, 255, 255, 255));
                 // This will catch our interactions
                 ImGui.InvisibleButton("canvas", canvas_sz, ImGui.ButtonFlags.MouseButtonLeft | ImGui.ButtonFlags.MouseButtonRight);
                 const is_hovered = ImGui.IsItemHovered(); // Hovered
                 const is_active = ImGui.IsItemActive(); // Held
-                const origin = new imgui_js_1.ImVec2(canvas_p0.x + scrolling.value.x, canvas_p0.y + scrolling.value.y); // Lock scrolled origin
-                const mouse_pos_in_canvas = new imgui_js_1.ImVec2(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
+                const origin = new ImGui.Vec2(canvas_p0.x + scrolling.value.x, canvas_p0.y + scrolling.value.y); // Lock scrolled origin
+                const mouse_pos_in_canvas = new ImGui.Vec2(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
                 // Add first and second point
                 if (is_hovered && !adding_line.value && ImGui.IsMouseClicked(ImGui.MouseButton.Left)) {
-                    points.value.push_back(new imgui_js_1.ImVec2().Copy(mouse_pos_in_canvas));
-                    points.value.push_back(new imgui_js_1.ImVec2().Copy(mouse_pos_in_canvas));
+                    points.value.push_back(new ImGui.Vec2().Copy(mouse_pos_in_canvas));
+                    points.value.push_back(new ImGui.Vec2().Copy(mouse_pos_in_canvas));
                     adding_line.value = true;
                 }
                 if (adding_line.value) {
@@ -6001,12 +6001,12 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 if (opt_enable_grid.value) {
                     const GRID_STEP = 64.0;
                     for (let x = fmodf(scrolling.value.x, GRID_STEP); x < canvas_sz.x; x += GRID_STEP)
-                        draw_list.AddLine(new imgui_js_1.ImVec2(canvas_p0.x + x, canvas_p0.y), new imgui_js_1.ImVec2(canvas_p0.x + x, canvas_p1.y), ImGui.IM_COL32(200, 200, 200, 40));
+                        draw_list.AddLine(new ImGui.Vec2(canvas_p0.x + x, canvas_p0.y), new ImGui.Vec2(canvas_p0.x + x, canvas_p1.y), ImGui.COL32(200, 200, 200, 40));
                     for (let y = fmodf(scrolling.value.y, GRID_STEP); y < canvas_sz.y; y += GRID_STEP)
-                        draw_list.AddLine(new imgui_js_1.ImVec2(canvas_p0.x, canvas_p0.y + y), new imgui_js_1.ImVec2(canvas_p1.x, canvas_p0.y + y), ImGui.IM_COL32(200, 200, 200, 40));
+                        draw_list.AddLine(new ImGui.Vec2(canvas_p0.x, canvas_p0.y + y), new ImGui.Vec2(canvas_p1.x, canvas_p0.y + y), ImGui.COL32(200, 200, 200, 40));
                 }
                 for (let n = 0; n < points.value.Size; n += 2)
-                    draw_list.AddLine(new imgui_js_1.ImVec2(origin.x + points.value[n].x, origin.y + points.value[n].y), new imgui_js_1.ImVec2(origin.x + points.value[n + 1].x, origin.y + points.value[n + 1].y), ImGui.IM_COL32(255, 255, 0, 255), 2.0);
+                    draw_list.AddLine(new ImGui.Vec2(origin.x + points.value[n].x, origin.y + points.value[n].y), new ImGui.Vec2(origin.x + points.value[n + 1].x, origin.y + points.value[n + 1].y), ImGui.COL32(255, 255, 0, 255), 2.0);
                 draw_list.PopClipRect();
                 ImGui.EndTabItem();
             }
@@ -6021,11 +6021,11 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 HelpMarker("The Foreground draw list will be rendered over every Dear ImGui windows.");
                 const window_pos = ImGui.GetWindowPos();
                 const window_size = ImGui.GetWindowSize();
-                const window_center = new imgui_js_1.ImVec2(window_pos.x + window_size.x * 0.5, window_pos.y + window_size.y * 0.5);
+                const window_center = new ImGui.Vec2(window_pos.x + window_size.x * 0.5, window_pos.y + window_size.y * 0.5);
                 if (draw_bg.value)
-                    ImGui.GetBackgroundDrawList().AddCircle(window_center, window_size.x * 0.6, ImGui.IM_COL32(255, 0, 0, 200), 0, 10 + 4);
+                    ImGui.GetBackgroundDrawList().AddCircle(window_center, window_size.x * 0.6, ImGui.COL32(255, 0, 0, 200), 0, 10 + 4);
                 if (draw_fg.value)
-                    ImGui.GetForegroundDrawList().AddCircle(window_center, window_size.y * 0.6, ImGui.IM_COL32(0, 255, 0, 200), 0, 10);
+                    ImGui.GetForegroundDrawList().AddCircle(window_center, window_size.y * 0.6, ImGui.COL32(0, 255, 0, 200), 0, 10);
                 ImGui.EndTabItem();
             }
             ImGui.EndTabBar();
@@ -6124,7 +6124,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             }
         }
         // Update closing queue
-        const close_queue = STATIC(UNIQUE("close_queue#0bbccedf"), new ImGui.ImVector());
+        const close_queue = STATIC(UNIQUE("close_queue#0bbccedf"), new ImGui.Vector());
         if (close_queue.value.empty()) {
             // Close queue is locked once we started a popup
             for (let doc_n = 0; doc_n < app.value.Documents.Size; doc_n++) {
@@ -6159,7 +6159,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                                 ImGui.Text(`${close_queue.value[n].Name}`);
                         ImGui.ListBoxFooter();
                     }
-                    if (ImGui.Button("Yes", new imgui_js_1.ImVec2(80, 0))) {
+                    if (ImGui.Button("Yes", new ImGui.Vec2(80, 0))) {
                         for (let n = 0; n < close_queue.value.Size; n++) {
                             if (close_queue.value[n].Dirty)
                                 close_queue.value[n].DoSave();
@@ -6169,14 +6169,14 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         ImGui.CloseCurrentPopup();
                     }
                     ImGui.SameLine();
-                    if (ImGui.Button("No", new imgui_js_1.ImVec2(80, 0))) {
+                    if (ImGui.Button("No", new ImGui.Vec2(80, 0))) {
                         for (let n = 0; n < close_queue.value.Size; n++)
                             close_queue.value[n].DoForceClose();
                         close_queue.value.clear();
                         ImGui.CloseCurrentPopup();
                     }
                     ImGui.SameLine();
-                    if (ImGui.Button("Cancel", new imgui_js_1.ImVec2(80, 0))) {
+                    if (ImGui.Button("Cancel", new ImGui.Vec2(80, 0))) {
                         close_queue.value.clear();
                         ImGui.CloseCurrentPopup();
                     }
@@ -6190,10 +6190,6 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         setters: [
             function (ImGui_1) {
                 ImGui = ImGui_1;
-                imgui_js_1 = ImGui_1;
-                imgui_js_2 = ImGui_1;
-                imgui_js_3 = ImGui_1;
-                imgui_js_4 = ImGui_1;
             }
         ],
         execute: function () {
@@ -6300,7 +6296,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 static CompareWithSortSpecs(lhs, rhs) {
                     const a = lhs;
                     const b = rhs;
-                    ImGui.IM_ASSERT(MyItem.s_current_sort_specs !== null);
+                    ImGui.ASSERT(MyItem.s_current_sort_specs !== null);
                     for (let n = 0; n < MyItem.s_current_sort_specs.SpecsCount; n++) {
                         // Here we identify columns using the ColumnUserID value that we ourselves passed to TableSetupColumn()
                         // We could also choose to identify columns based on their index (sort_spec.ColumnIndex), which is simpler!
@@ -6320,7 +6316,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                                 delta = (a.Name.localeCompare(b.Name));
                                 break;
                             default:
-                                ImGui.IM_ASSERT(0);
+                                ImGui.ASSERT(0);
                                 break;
                         }
                         if (delta > 0)
@@ -6348,10 +6344,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             // For the console example, we are using a more C++ like approach of declaring a class to hold both data and functions.
             ExampleAppConsole = class ExampleAppConsole {
                 constructor() {
-                    this.InputBuf = new imgui_js_4.ImStringBuffer(256, "");
-                    this.Items = new ImGui.ImVector();
-                    this.Commands = new ImGui.ImVector();
-                    this.History = new ImGui.ImVector();
+                    this.InputBuf = new ImGui.StringBuffer(256, "");
+                    this.Items = new ImGui.Vector();
+                    this.Commands = new ImGui.Vector();
+                    this.History = new ImGui.Vector();
                     this.HistoryPos = -1; // -1: new line, 0..this.History.Size-1 browsing history.
                     this.Filter = new ImGui.TextFilter();
                     this.AutoScroll = true;
@@ -6376,7 +6372,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 // Portable helpers
                 // const   Stricmp(string s1, string s2)         { int d; while ((d = STATIC<int>(UNIQUE("  Stricmp(string s1, string s2)         { int d; while ((d"), toupper(*s2) - toupper(*s1)) === 0 && *s1) { s1++; s2++; } return d); }
                 // const   Strnicmp(string s1, string s2, int n) { let d: int = 0; while (n > 0 && (d = STATIC<int>(UNIQUE("  Strnicmp(string s1, string s2, int n) { let d: int = 0; while (n > 0 && (d"), toupper(*s2) - toupper(*s1)) === 0 && *s1) { s1++; s2++; n--; } return d); }
-                // static char* Strdup(string s)                           { ImGui.IM_ASSERT(s); size_t len = strlen(s) + 1; void* buf = malloc(len); ImGui.IM_ASSERT(buf); return (char*)memcpy(buf, (const void*)s, len); }
+                // static char* Strdup(string s)                           { ImGui.ASSERT(s); size_t len = strlen(s) + 1; void* buf = malloc(len); ImGui.ASSERT(buf); return (char*)memcpy(buf, (const void*)s, len); }
                 // const  Strtrim(char* s)                                { char* str_end = s + strlen(s); while (str_end > s && str_end[-1] === ' ') str_end--; *str_end = STATIC<void>(UNIQUE(" Strtrim(char* s)                                { char* str_end = s + strlen(s); while (str_end > s && str_end[-1] === ' ') str_end--; *str_end"), 0); }
                 ClearLog() {
                     // for (let i = 0; i < this.Items.Size; i++)
@@ -6395,7 +6391,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     this.Items.push_back(fmt);
                 }
                 Draw(title, p_open) {
-                    ImGui.SetNextWindowSize(new imgui_js_1.ImVec2(520, 600), ImGui.Cond.FirstUseEver);
+                    ImGui.SetNextWindowSize(new ImGui.Vec2(520, 600), ImGui.Cond.FirstUseEver);
                     if (!ImGui.Begin(title, p_open)) {
                         ImGui.End();
                         return;
@@ -6442,7 +6438,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     ImGui.Separator();
                     // Reserve enough left-over height for 1 separator + 1 input text
                     const footer_height_to_reserve = ImGui.GetStyle().ItemSpacing.y + ImGui.GetFrameHeightWithSpacing();
-                    ImGui.BeginChild("ScrollingRegion", new imgui_js_1.ImVec2(0, -footer_height_to_reserve), false, ImGui.WindowFlags.HorizontalScrollbar);
+                    ImGui.BeginChild("ScrollingRegion", new ImGui.Vec2(0, -footer_height_to_reserve), false, ImGui.WindowFlags.HorizontalScrollbar);
                     if (ImGui.BeginPopupContextWindow()) {
                         if (ImGui.Selectable("Clear"))
                             this.ClearLog();
@@ -6472,7 +6468,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     // If your items are of variable height:
                     // - Split them into same height items would be simpler and facilitate random-seeking into your list.
                     // - Consider using manual call to IsRectVisible() and skipping extraneous decoration from your items.
-                    ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new imgui_js_1.ImVec2(4, 1)); // Tighten spacing
+                    ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new ImGui.Vec2(4, 1)); // Tighten spacing
                     if (copy_to_clipboard)
                         ImGui.LogToClipboard();
                     for (let i = 0; i < this.Items.Size; i++) {
@@ -6481,14 +6477,14 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                             continue;
                         // Normally you would store more information in your item than just a string.
                         // (e.g. make this.Items[] an array of structure, store color/type etc.)
-                        const color = new imgui_js_2.ImVec4();
+                        const color = new ImGui.Vec4();
                         let has_color = false;
-                        // if (strstr(item, "[error]"))          { color = new ImVec4(1.0, 0.4, 0.4, 1.0); has_color = true; }
+                        // if (strstr(item, "[error]"))          { color = new ImGui.Vec4(1.0, 0.4, 0.4, 1.0); has_color = true; }
                         if (/\[error\]/.test(item)) {
                             color.Set(1.0, 0.4, 0.4, 1.0);
                             has_color = true;
                         }
-                        // else if (strncmp(item, "# ", 2) === 0) { color = new ImVec4(1.0, 0.8, 0.6, 1.0); has_color = true; }
+                        // else if (strncmp(item, "# ", 2) === 0) { color = new ImGui.Vec4(1.0, 0.8, 0.6, 1.0); has_color = true; }
                         else if (/^# /.test(item)) {
                             color.Set(1.0, 0.8, 0.6, 1.0);
                             has_color = true;
@@ -6568,7 +6564,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 // In C++11 you'd be better off using lambdas for this sort of forwarding callbacks
                 static TextEditCallbackStub(data) {
                     const console = data.UserData;
-                    ImGui.IM_ASSERT(console);
+                    ImGui.ASSERT(console);
                     return console.TextEditCallback(data);
                 }
                 TextEditCallback(data) {
@@ -6673,7 +6669,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 constructor() {
                     this.Buf = new ImGui.TextBuffer();
                     this.Filter = new ImGui.TextFilter();
-                    this.LineOffsets = new ImGui.ImVector(); // Index to lines offset. We maintain this with this.AddLog() calls.
+                    this.LineOffsets = new ImGui.Vector(); // Index to lines offset. We maintain this with this.AddLog() calls.
                     this.AutoScroll = true;
                     this.Clear();
                 }
@@ -6713,12 +6709,12 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     ImGui.SameLine();
                     this.Filter.Draw("Filter", -100.0);
                     ImGui.Separator();
-                    ImGui.BeginChild("scrolling", new imgui_js_1.ImVec2(0, 0), false, ImGui.WindowFlags.HorizontalScrollbar);
+                    ImGui.BeginChild("scrolling", new ImGui.Vec2(0, 0), false, ImGui.WindowFlags.HorizontalScrollbar);
                     if (clear)
                         this.Clear();
                     if (copy)
                         ImGui.LogToClipboard();
-                    ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new imgui_js_1.ImVec2(0, 0));
+                    ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new ImGui.Vec2(0, 0));
                     // string buf = Buf.begin();
                     // string buf_end = Buf.end();
                     const buf_end = this.Buf.Buf.length;
@@ -6775,7 +6771,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             //-----------------------------------------------------------------------------
             // Simplified structure to mimic a Document model
             MyDocument = class MyDocument {
-                constructor(name, open = true, color = new imgui_js_2.ImVec4(1.0, 1.0, 1.0, 1.0)) {
+                constructor(name, open = true, color = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0)) {
                     this.ID = MyDocument.ID++;
                     this.Name = name;
                     this.Open = this.OpenPrev = open;
@@ -6794,10 +6790,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     ImGui.PushStyleColor(ImGui.Col.Text, doc.Color);
                     ImGui.TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
                     ImGui.PopStyleColor();
-                    if (ImGui.Button("Modify", new imgui_js_1.ImVec2(100, 0)))
+                    if (ImGui.Button("Modify", new ImGui.Vec2(100, 0)))
                         doc.Dirty = true;
                     ImGui.SameLine();
-                    if (ImGui.Button("Save", new imgui_js_1.ImVec2(100, 0)))
+                    if (ImGui.Button("Save", new ImGui.Vec2(100, 0)))
                         doc.DoSave();
                     ImGui.ColorEdit3("color", doc.Color); // Useful to test drag and drop and hold-dragged-to-open-tab behavior.
                     ImGui.PopID();
@@ -6817,11 +6813,11 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             MyDocument.ID = 0;
             ExampleAppDocuments = class ExampleAppDocuments {
                 constructor() {
-                    this.Documents = new ImGui.ImVector();
-                    this.Documents.push_back(new MyDocument("Lettuce", true, new imgui_js_2.ImVec4(0.4, 0.8, 0.4, 1.0)));
-                    this.Documents.push_back(new MyDocument("Eggplant", true, new imgui_js_2.ImVec4(0.8, 0.5, 1.0, 1.0)));
-                    this.Documents.push_back(new MyDocument("Carrot", true, new imgui_js_2.ImVec4(1.0, 0.8, 0.5, 1.0)));
-                    this.Documents.push_back(new MyDocument("Tomato", false, new imgui_js_2.ImVec4(1.0, 0.3, 0.4, 1.0)));
+                    this.Documents = new ImGui.Vector();
+                    this.Documents.push_back(new MyDocument("Lettuce", true, new ImGui.Vec4(0.4, 0.8, 0.4, 1.0)));
+                    this.Documents.push_back(new MyDocument("Eggplant", true, new ImGui.Vec4(0.8, 0.5, 1.0, 1.0)));
+                    this.Documents.push_back(new MyDocument("Carrot", true, new ImGui.Vec4(1.0, 0.8, 0.5, 1.0)));
+                    this.Documents.push_back(new MyDocument("Tomato", false, new ImGui.Vec4(1.0, 0.3, 0.4, 1.0)));
                     this.Documents.push_back(new MyDocument("A Rather Long Title", false));
                     this.Documents.push_back(new MyDocument("Some Document", false));
                 }

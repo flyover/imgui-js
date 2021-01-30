@@ -25,22 +25,30 @@ export { IMGUI_VERSION as VERSION };
 export declare const IMGUI_VERSION: string;
 export { IMGUI_VERSION_NUM as VERSION_NUM };
 export declare const IMGUI_VERSION_NUM: number;
+export { IMGUI_CHECKVERSION as CHECKVERSION };
 export declare function IMGUI_CHECKVERSION(): boolean;
 export declare const IMGUI_HAS_TABLE: boolean;
-export { IM_ASSERT as ASSERT };
+export declare function ASSERT(c: any): asserts c;
 export declare function IM_ASSERT(c: any): asserts c;
 export { IM_ARRAYSIZE as ARRAYSIZE };
 export declare function IM_ARRAYSIZE(_ARR: ArrayLike<any> | ImStringBuffer): number;
+export { ImStringBuffer as StringBuffer };
 export declare class ImStringBuffer {
     size: number;
     buffer: string;
     constructor(size: number, buffer?: string);
 }
-export { ImAccess } from "bind-imgui";
-export { ImScalar } from "bind-imgui";
-export { ImTuple2 } from "bind-imgui";
-export { ImTuple3 } from "bind-imgui";
-export { ImTuple4 } from "bind-imgui";
+export declare type ImAccess<T> = Bind.ImAccess<T>;
+export { ImAccess as Access };
+export declare type ImScalar<T> = Bind.ImScalar<T>;
+export { ImScalar as Scalar };
+export declare type ImTuple2<T> = Bind.ImTuple2<T>;
+export { ImTuple2 as Tuple2 };
+export declare type ImTuple3<T> = Bind.ImTuple3<T>;
+export { ImTuple3 as Tuple3 };
+export declare type ImTuple4<T> = Bind.ImTuple4<T>;
+export { ImTuple4 as Tuple4 };
+export { ImTextureID as TextureID };
 export declare type ImTextureID = WebGLTexture;
 export { ImGuiID as ID };
 export declare type ImGuiID = Bind.ImGuiID;
@@ -593,9 +601,11 @@ export declare enum ImDrawListFlags {
     AntiAliasedFill = 4,
     AllowVtxOffset = 8
 }
-export { ImU32 } from "bind-imgui";
+export { ImU32 as U32 };
+export declare type ImU32 = Bind.ImU32;
 export { interface_ImVec2 } from "bind-imgui";
 export { reference_ImVec2 } from "bind-imgui";
+export { ImVec2 as Vec2 };
 export declare class ImVec2 implements Bind.interface_ImVec2 {
     x: number;
     y: number;
@@ -610,6 +620,7 @@ export declare class ImVec2 implements Bind.interface_ImVec2 {
 }
 export { interface_ImVec4 } from "bind-imgui";
 export { reference_ImVec4 } from "bind-imgui";
+export { ImVec4 as Vec4 };
 export declare class ImVec4 implements Bind.interface_ImVec4 {
     x: number;
     y: number;
@@ -628,6 +639,7 @@ export declare class ImVec4 implements Bind.interface_ImVec4 {
     Copy(other: Readonly<Bind.interface_ImVec4>): this;
     Equals(other: Readonly<Bind.interface_ImVec4>): boolean;
 }
+export { ImVector as Vector };
 export declare class ImVector<T> extends Array<T> {
     get Size(): number;
     Data: T[];
@@ -642,6 +654,7 @@ export declare class ImVector<T> extends Array<T> {
     contains(value: T): boolean;
     find_erase_unsorted(value: T): void;
 }
+export { IM_UNICODE_CODEPOINT_MAX as UNICODE_CODEPOINT_MAX };
 export declare const IM_UNICODE_CODEPOINT_MAX: number;
 export { ImGuiTextFilter as TextFilter };
 export declare class ImGuiTextFilter {
@@ -673,10 +686,15 @@ export declare const IM_COL32_G_SHIFT: number;
 export declare const IM_COL32_B_SHIFT: number;
 export declare const IM_COL32_A_SHIFT: number;
 export declare const IM_COL32_A_MASK: number;
+export { IM_COL32 as COL32 };
 export declare function IM_COL32(R: number, G: number, B: number, A?: number): number;
 export declare const IM_COL32_WHITE: number;
+export { IM_COL32_WHITE as COL32_WHITE };
 export declare const IM_COL32_BLACK: number;
+export { IM_COL32_BLACK as COL32_BLACK };
 export declare const IM_COL32_BLACK_TRANS: number;
+export { IM_COL32_BLACK_TRANS as COL32_BLACK_TRANS };
+export { ImColor as Color };
 export declare class ImColor {
     Value: ImVec4;
     constructor();
@@ -770,6 +788,7 @@ export declare class ImGuiListClipper {
 export declare const IM_DRAWLIST_TEX_LINES_WIDTH_MAX: number;
 export declare type ImDrawCallback = (parent_list: Readonly<ImDrawList>, cmd: Readonly<ImDrawCmd>) => void;
 export declare const ImDrawCallback_ResetRenderState = -1;
+export { ImDrawCmd as DrawCmd };
 export declare class ImDrawCmd {
     readonly native: Bind.reference_ImDrawCmd;
     constructor(native: Bind.reference_ImDrawCmd);
@@ -781,12 +800,19 @@ export declare class ImDrawCmd {
     readonly UserCallback: ImDrawCallback | null;
     readonly UserCallbackData: any;
 }
+export { ImDrawIdxSize as DrawIdxSize };
 export declare const ImDrawIdxSize: number;
+export { ImDrawIdx as DrawIdx };
 export declare type ImDrawIdx = number;
+export { ImDrawVertSize as DrawVertSize };
 export declare const ImDrawVertSize: number;
+export { ImDrawVertPosOffset as DrawVertPosOffset };
 export declare const ImDrawVertPosOffset: number;
+export { ImDrawVertUVOffset as DrawVertUVOffset };
 export declare const ImDrawVertUVOffset: number;
+export { ImDrawVertColOffset as DrawVertColOffset };
 export declare const ImDrawVertColOffset: number;
+export { ImDrawVert as DrawVert };
 export declare class ImDrawVert {
     pos: Float32Array;
     uv: Float32Array;
@@ -801,6 +827,7 @@ export declare class ImDrawListSharedData {
     readonly native: Bind.reference_ImDrawListSharedData;
     constructor(native: Bind.reference_ImDrawListSharedData);
 }
+export { ImDrawList as DrawList };
 export declare class ImDrawList {
     readonly native: Bind.reference_ImDrawList;
     constructor(native: Bind.reference_ImDrawList);
@@ -861,6 +888,7 @@ export declare class ImDrawList {
     PrimWriteIdx(idx: ImDrawIdx): void;
     PrimVtx(pos: Readonly<Bind.interface_ImVec2>, uv: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32): void;
 }
+export { ImDrawData as DrawData };
 export declare class ImDrawData {
     readonly native: Bind.reference_ImDrawData;
     constructor(native: Bind.reference_ImDrawData);
@@ -895,6 +923,7 @@ export declare class script_ImFontConfig implements Bind.interface_ImFontConfig 
     Name: string;
     DstFont: Bind.reference_ImFont | null;
 }
+export { ImFontConfig as FontConfig };
 export declare class ImFontConfig {
     readonly internal: Bind.interface_ImFontConfig;
     constructor(internal?: Bind.interface_ImFontConfig);
@@ -930,6 +959,7 @@ export declare class script_ImFontGlyph implements Bind.interface_ImFontGlyph {
     U1: number;
     V1: number;
 }
+export { ImFontGlyph as FontGlyph };
 export declare class ImFontGlyph implements Bind.interface_ImFontGlyph {
     readonly internal: Bind.interface_ImFontGlyph;
     constructor(internal?: Bind.interface_ImFontGlyph);
@@ -947,12 +977,14 @@ export declare class ImFontGlyph implements Bind.interface_ImFontGlyph {
 }
 export declare class ImFontAtlasCustomRect {
 }
+export { ImFontAtlasFlags as FontAtlasFlags };
 export declare enum ImFontAtlasFlags {
     None = 0,
     NoPowerOfTwoHeight = 1,
     NoMouseCursors = 2,
     NoBakedLines = 4
 }
+export { ImFontAtlas as FontAtlas };
 export declare class ImFontAtlas {
     readonly native: Bind.reference_ImFontAtlas;
     constructor(native: Bind.reference_ImFontAtlas);
@@ -1001,6 +1033,7 @@ export declare class ImFontAtlas {
     get TexUvWhitePixel(): Readonly<Bind.reference_ImVec2>;
     get Fonts(): ImVector<ImFont>;
 }
+export { ImFont as Font };
 export declare class ImFont {
     readonly native: Bind.reference_ImFont;
     constructor(native: Bind.reference_ImFont);

@@ -465,9 +465,11 @@
     }
     const IMGUI_VERSION = "1.80"; // bind.IMGUI_VERSION;
     const IMGUI_VERSION_NUM = 18000; // bind.IMGUI_VERSION_NUM;
-    // #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert))
     function IMGUI_CHECKVERSION() { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, exports.bind.ImGuiIOSize, exports.bind.ImGuiStyleSize, exports.bind.ImVec2Size, exports.bind.ImVec4Size, exports.bind.ImDrawVertSize, exports.bind.ImDrawIdxSize); }
     const IMGUI_HAS_TABLE = true;
+    function ASSERT(c) { if (!c) {
+        throw new Error();
+    } }
     function IM_ASSERT(c) { if (!c) {
         throw new Error();
     } }
@@ -1102,11 +1104,6 @@
     ImVec4.UNIT_W = new ImVec4(0.0, 0.0, 0.0, 1.0);
     ImVec4.BLACK = new ImVec4(0.0, 0.0, 0.0, 1.0);
     ImVec4.WHITE = new ImVec4(1.0, 1.0, 1.0, 1.0);
-    //-----------------------------------------------------------------------------
-    // Helpers
-    //-----------------------------------------------------------------------------
-    // Lightweight std::vector<> like class to avoid dragging dependencies (also: windows implementation of STL with debug enabled is absurdly slow, so let's bypass it so our code runs fast in debug).
-    // Our implementation does NOT call C++ constructors/destructors. This is intentional and we do not require it. Do not use this class as a straight std::vector replacement in your code!
     class ImVector extends Array {
         constructor() {
             super(...arguments);
@@ -1186,13 +1183,6 @@
             }
         }
     }
-    // Helper: Unicode defines
-    // #define IM_UNICODE_CODEPOINT_INVALID 0xFFFD     // Invalid Unicode code point (standard value).
-    // #ifdef IMGUI_USE_WCHAR32
-    // #define IM_UNICODE_CODEPOINT_MAX     0x10FFFF   // Maximum Unicode code point supported by this build.
-    // #else
-    // #define IM_UNICODE_CODEPOINT_MAX     0xFFFF     // Maximum Unicode code point supported by this build.
-    // #endif
     const IM_UNICODE_CODEPOINT_MAX = 0xFFFF; // Maximum Unicode code point supported by this build.
     class ImGuiTextFilter {
         // IMGUI_API           ImGuiTextFilter(const char* default_filter = "");
@@ -1328,13 +1318,9 @@
     function IM_COL32(R, G, B, A = 255) {
         return ((A << IM_COL32_A_SHIFT) | (B << IM_COL32_B_SHIFT) | (G << IM_COL32_G_SHIFT) | (R << IM_COL32_R_SHIFT)) >>> 0;
     }
-    const IM_COL32_WHITE = IM_COL32(255, 255, 255, 255); // Opaque white = 0xFFFFFFFF
-    const IM_COL32_BLACK = IM_COL32(0, 0, 0, 255); // Opaque black
-    const IM_COL32_BLACK_TRANS = IM_COL32(0, 0, 0, 0); // Transparent black = 0x00000000
-    // ImColor() helper to implicity converts colors to either ImU32 (packed 4x1 byte) or ImVec4 (4x1 float)
-    // Prefer using IM_COL32() macros if you want a guaranteed compile-time ImU32 for usage with ImDrawList API.
-    // **Avoid storing ImColor! Store either u32 of ImVec4. This is not a full-featured color class. MAY OBSOLETE.
-    // **None of the ImGui API are using ImColor directly but you can use it as a convenience to pass colors in either ImU32 or ImVec4 formats. Explicitly cast to ImU32 or ImVec4 if needed.
+    const IM_COL32_WHITE = IM_COL32(255, 255, 255, 255);
+    const IM_COL32_BLACK = IM_COL32(0, 0, 0, 255);
+    const IM_COL32_BLACK_TRANS = IM_COL32(0, 0, 0, 0);
     class ImColor {
         constructor(r = 0.0, g = 0.0, b = 0.0, a = 1.0) {
             // ImVec4              Value;
@@ -1526,9 +1512,6 @@
     // This is useful for example if you submitted callbacks which you know have altered the render state and you want it to be restored.
     // It is not done by default because they are many perfectly useful way of altering render state for imgui contents (e.g. changing shader/blending settings before an Image call).
     const ImDrawCallback_ResetRenderState = -1;
-    // Typically, 1 command = 1 GPU draw call (unless command is a callback)
-    // Pre 1.71 back-ends will typically ignore the VtxOffset/IdxOffset fields. When 'io.BackendFlags & ImGuiBackendFlags_RendererHasVtxOffset'
-    // is enabled, those fields allow us to render meshes larger than 64K vertices while keeping 16-bits indices.
     class ImDrawCmd {
         constructor(native) {
             this.native = native;
@@ -1550,15 +1533,7 @@
         // unsigned int    IdxOffset;              // Start offset in index buffer. Always equal to sum of ElemCount drawn so far.
         get IdxOffset() { return this.native.IdxOffset; }
     }
-    // Vertex index
-    // (to allow large meshes with 16-bits indices: set 'io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset' and handle ImDrawCmd::VtxOffset in the renderer back-end)
-    // (to use 32-bits indices: override with '#define ImDrawIdx unsigned int' in imconfig.h)
-    // #ifndef ImDrawIdx
-    // typedef unsigned short ImDrawIdx;
-    // #endif
     const ImDrawIdxSize = 2; // bind.ImDrawIdxSize;
-    // Vertex layout
-    // #ifndef IMGUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT
     const ImDrawVertSize = 20; // bind.ImDrawVertSize;
     const ImDrawVertPosOffset = 0; // bind.ImDrawVertPosOffset;
     const ImDrawVertUVOffset = 8; // bind.ImDrawVertUVOffset;
@@ -1589,12 +1564,6 @@
             this.native = native;
         }
     }
-    // Draw command list
-    // This is the low-level list of polygons that ImGui functions are filling. At the end of the frame, all command lists are passed to your ImGuiIO::RenderDrawListFn function for rendering.
-    // Each ImGui window contains its own ImDrawList. You can use ImGui::GetWindowDrawList() to access the current window draw list and draw custom primitives.
-    // You can interleave normal ImGui:: calls and adding primitives to the current draw list.
-    // All positions are generally in pixel coordinates (top-left at (0,0), bottom-right at io.DisplaySize), however you are totally free to apply whatever transformation matrix to want to the data (if you apply such transformation you'll want to apply it to ClipRect as well)
-    // Important: Primitives are always added to the list and not culled (culling is done at higher-level by ImGui:: functions), if you use this API a lot consider coarse culling your drawn objects.
     class ImDrawList {
         constructor(native) {
             this.native = native;
@@ -1805,7 +1774,6 @@
         // inline    void  PrimVtx(const ImVec2& pos, const ImVec2& uv, ImU32 col)     { PrimWriteIdx((ImDrawIdx)_VtxCurrentIdx); PrimWriteVtx(pos, uv, col); }
         PrimVtx(pos, uv, col) { this.native.PrimVtx(pos, uv, col); }
     }
-    // All draw data to render an ImGui frame
     class ImDrawData {
         constructor(native) {
             this.native = native;
@@ -1985,14 +1953,6 @@
         ImFontAtlasFlags[ImFontAtlasFlags["NoMouseCursors"] = 2] = "NoMouseCursors";
         ImFontAtlasFlags[ImFontAtlasFlags["NoBakedLines"] = 4] = "NoBakedLines";
     })(exports.ImFontAtlasFlags || (exports.ImFontAtlasFlags = {}));
-    // Load and rasterize multiple TTF/OTF fonts into a same texture.
-    // Sharing a texture for multiple fonts allows us to reduce the number of draw calls during rendering.
-    // We also add custom graphic data into the texture that serves for ImGui.
-    //  1. (Optional) Call AddFont*** functions. If you don't call any, the default font will be loaded for you.
-    //  2. Call GetTexDataAsAlpha8() or GetTexDataAsRGBA32() to build and retrieve pixels data.
-    //  3. Upload the pixels data into a texture within your graphics system.
-    //  4. Call SetTexID(my_tex_id); and pass the pointer/identifier to your texture. This value will be passed back to you during rendering to identify the texture.
-    // IMPORTANT: If you pass a 'glyph_ranges' array to AddFont*** functions, you need to make sure that your array persist up until the ImFont is build (when calling GetTextData*** or Build()). We only copy the pointer, not the data.
     class ImFontAtlas {
         constructor(native) {
             this.native = native;
@@ -2133,8 +2093,6 @@
             return fonts;
         }
     }
-    // Font runtime data and rendering
-    // ImFontAtlas automatically loads a default embedded font for you when you call GetTexDataAsAlpha8() or GetTexDataAsRGBA32().
     class ImFont {
         constructor(native) {
             this.native = native;
@@ -2240,7 +2198,7 @@
         // IMGUI_API bool              IsGlyphRangeUnused(unsigned int c_begin, unsigned int c_last);
         IsGlyphRangeUnused(c_begin, c_last) { return false; } // TODO
     }
-    // a script version of BindImGui.ImGuiStyle with matching interface
+    // a script version of Bind.ImGuiStyle with matching interface
     class script_ImGuiStyle {
         constructor() {
             this.Alpha = 1.0;
@@ -2783,7 +2741,7 @@
         exports.bind.DestroyContext((ctx === null) ? null : ctx.native);
     }
     function GetCurrentContext() {
-        // const ctx_native: BindImGui.ImGuiContext | null = bind.GetCurrentContext();
+        // const ctx_native: Bind.ImGuiContext | null = bind.GetCurrentContext();
         return ImGuiContext.current_ctx;
     }
     function SetCurrentContext(ctx) {
@@ -4488,7 +4446,7 @@
     function MemFree(ptr) { exports.bind.MemFree(ptr); }
 
     exports.ARRAYSIZE = IM_ARRAYSIZE;
-    exports.ASSERT = IM_ASSERT;
+    exports.ASSERT = ASSERT;
     exports.AcceptDragDropPayload = AcceptDragDropPayload;
     exports.AlignTextToFramePadding = AlignTextToFramePadding;
     exports.ArrowButton = ArrowButton;
@@ -4517,6 +4475,11 @@
     exports.BulletText = BulletText;
     exports.Button = Button;
     exports.ButtonFlags = exports.ImGuiButtonFlags;
+    exports.CHECKVERSION = IMGUI_CHECKVERSION;
+    exports.COL32 = IM_COL32;
+    exports.COL32_BLACK = IM_COL32_BLACK;
+    exports.COL32_BLACK_TRANS = IM_COL32_BLACK_TRANS;
+    exports.COL32_WHITE = IM_COL32_WHITE;
     exports.CalcItemWidth = CalcItemWidth;
     exports.CalcListClipping = CalcListClipping;
     exports.CalcTextSize = CalcTextSize;
@@ -4527,6 +4490,7 @@
     exports.CloseCurrentPopup = CloseCurrentPopup;
     exports.Col = exports.ImGuiCol;
     exports.CollapsingHeader = CollapsingHeader;
+    exports.Color = ImColor;
     exports.ColorButton = ColorButton;
     exports.ColorConvertFloat4ToU32 = ColorConvertFloat4ToU32;
     exports.ColorConvertHSVtoRGB = ColorConvertHSVtoRGB;
@@ -4559,7 +4523,16 @@
     exports.DragInt4 = DragInt4;
     exports.DragIntRange2 = DragIntRange2;
     exports.DragScalar = DragScalar;
+    exports.DrawCmd = ImDrawCmd;
     exports.DrawCornerFlags = exports.ImDrawCornerFlags;
+    exports.DrawData = ImDrawData;
+    exports.DrawIdxSize = ImDrawIdxSize;
+    exports.DrawList = ImDrawList;
+    exports.DrawVert = ImDrawVert;
+    exports.DrawVertColOffset = ImDrawVertColOffset;
+    exports.DrawVertPosOffset = ImDrawVertPosOffset;
+    exports.DrawVertSize = ImDrawVertSize;
+    exports.DrawVertUVOffset = ImDrawVertUVOffset;
     exports.Dummy = Dummy;
     exports.End = End;
     exports.EndChild = EndChild;
@@ -4578,6 +4551,11 @@
     exports.EndTable = EndTable;
     exports.EndTooltip = EndTooltip;
     exports.FocusedFlags = exports.ImGuiFocusedFlags;
+    exports.Font = ImFont;
+    exports.FontAtlas = ImFontAtlas;
+    exports.FontAtlasFlags = exports.ImFontAtlasFlags;
+    exports.FontConfig = ImFontConfig;
+    exports.FontGlyph = ImFontGlyph;
     exports.GetBackgroundDrawList = GetBackgroundDrawList;
     exports.GetClipboardText = GetClipboardText;
     exports.GetColorU32 = GetColorU32;
@@ -4867,6 +4845,7 @@
     exports.SliderScalar = SliderScalar;
     exports.SmallButton = SmallButton;
     exports.Spacing = Spacing;
+    exports.StringBuffer = ImStringBuffer;
     exports.Style = ImGuiStyle;
     exports.StyleColorsClassic = StyleColorsClassic;
     exports.StyleColorsDark = StyleColorsDark;
@@ -4899,6 +4878,7 @@
     exports.TreeNodeEx = TreeNodeEx;
     exports.TreePop = TreePop;
     exports.TreePush = TreePush;
+    exports.UNICODE_CODEPOINT_MAX = IM_UNICODE_CODEPOINT_MAX;
     exports.Unindent = Unindent;
     exports.VERSION = IMGUI_VERSION;
     exports.VERSION_NUM = IMGUI_VERSION_NUM;
@@ -4906,6 +4886,9 @@
     exports.VSliderInt = VSliderInt;
     exports.VSliderScalar = VSliderScalar;
     exports.Value = Value;
+    exports.Vec2 = ImVec2;
+    exports.Vec4 = ImVec4;
+    exports.Vector = ImVector;
     exports.default = imgui;
     exports.script_ImFontConfig = script_ImFontConfig;
     exports.script_ImFontGlyph = script_ImFontGlyph;
