@@ -2025,17 +2025,11 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          BulletTextV(const char* fmt, va_list args)                      IM_FMTLIST(1);
     emscripten::function("TextUnformatted", FUNCTION(void, (std::string text), { ImGui::TextUnformatted(text.c_str(), NULL); }));
     emscripten::function("Text", FUNCTION(void, (std::string fmt), { ImGui::Text("%s", fmt.c_str()); }));
-    emscripten::function("TextV", FUNCTION(void, (std::string fmt), { ImGui::Text("%s", fmt.c_str()); }));
     emscripten::function("TextColored", FUNCTION(void, (emscripten::val col, std::string fmt), { ImGui::TextColored(import_ImVec4(col), "%s", fmt.c_str()); }));
-    emscripten::function("TextColoredV", FUNCTION(void, (emscripten::val col, std::string fmt), { ImGui::TextColored(import_ImVec4(col), "%s", fmt.c_str()); }));
     emscripten::function("TextDisabled", FUNCTION(void, (std::string fmt), { ImGui::TextDisabled("%s", fmt.c_str()); }));
-    emscripten::function("TextDisabledV", FUNCTION(void, (std::string fmt), { ImGui::TextDisabled("%s", fmt.c_str()); }));
     emscripten::function("TextWrapped", FUNCTION(void, (std::string fmt), { ImGui::TextWrapped("%s", fmt.c_str()); }));
-    emscripten::function("TextWrappedV", FUNCTION(void, (std::string fmt), { ImGui::TextWrapped("%s", fmt.c_str()); }));
     emscripten::function("LabelText", FUNCTION(void, (std::string label, std::string fmt), { ImGui::LabelText(label.c_str(), "%s", fmt.c_str()); }));
-    emscripten::function("LabelTextV", FUNCTION(void, (std::string label, std::string fmt), { ImGui::LabelText(label.c_str(), "%s", fmt.c_str()); }));
     emscripten::function("BulletText", FUNCTION(void, (std::string fmt), { ImGui::BulletText("%s", fmt.c_str()); }));
-    emscripten::function("BulletTextV", FUNCTION(void, (std::string fmt), { ImGui::BulletText("%s", fmt.c_str()); }));
 
     // Widgets: Main
     // - Most widgets return true when the value has been changed or when pressed/selected

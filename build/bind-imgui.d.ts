@@ -1109,9 +1109,9 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API void          StyleColorsDark(ImGuiStyle* dst = NULL);    // new, recommended style (default)
     // IMGUI_API void          StyleColorsLight(ImGuiStyle* dst = NULL);   // best used with borders and a custom, thicker font
     // IMGUI_API void          StyleColorsClassic(ImGuiStyle* dst = NULL); // classic imgui style
-    StyleColorsDark(dst: ImGuiStyle | null/* = NULL */): void;
-    StyleColorsLight(dst: ImGuiStyle | null/* = NULL */): void;
-    StyleColorsClassic(dst: ImGuiStyle | null/* = NULL */): void;
+    StyleColorsDark(dst: ImGuiStyle | null): void;
+    StyleColorsLight(dst: ImGuiStyle | null): void;
+    StyleColorsClassic(dst: ImGuiStyle | null): void;
 
     // Windows
     // - Begin() = push window to the stack and start appending to it. End() = pop window from the stack.
@@ -1127,7 +1127,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     // - Note that the bottom of window stack always contains a window called "Debug".
     // IMGUI_API bool          Begin(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0);
     // IMGUI_API void          End();
-    Begin(name: string, p_open: ImScalar<boolean> | null /* = NULL */, flags: ImGuiWindowFlags/* = 0 */): boolean;
+    Begin(name: string, p_open: ImScalar<boolean> | null , flags: ImGuiWindowFlags): boolean;
     End(): void;
 
     // Child Windows
@@ -1157,8 +1157,8 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API float         GetWindowHeight();                          // get current window height (shortcut for GetWindowSize().y)
     IsWindowAppearing(): boolean;
     IsWindowCollapsed(): boolean;
-    IsWindowFocused(flags: ImGuiFocusedFlags/* = 0 */): boolean;
-    IsWindowHovered(flags: ImGuiHoveredFlags/* = 0 */): boolean;
+    IsWindowFocused(flags: ImGuiFocusedFlags): boolean;
+    IsWindowHovered(flags: ImGuiHoveredFlags): boolean;
     GetWindowDrawList(): reference_ImDrawList;
     GetWindowPos(out: interface_ImVec2): typeof out;
     GetWindowSize(out: interface_ImVec2): typeof out;
@@ -1182,21 +1182,21 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API void          SetWindowSize(const char* name, const ImVec2& size, ImGuiCond cond = 0);    // set named window size. set axis to 0.0f to force an auto-fit on this axis.
     // IMGUI_API void          SetWindowCollapsed(const char* name, bool collapsed, ImGuiCond cond = 0);   // set named window collapsed state
     // IMGUI_API void          SetWindowFocus(const char* name);                                           // set named window to be focused / top-most. use NULL to remove focus.
-    SetNextWindowPos(pos: Readonly<interface_ImVec2>, cond: ImGuiCond/* = 0 */, pivot: Readonly<interface_ImVec2>/* = ImVec2(0,0) */): void;
-    SetNextWindowSize(size: Readonly<interface_ImVec2>, cond: ImGuiCond/* = 0 */): void;
-    SetNextWindowSizeConstraints(size_min: Readonly<interface_ImVec2>, size_max: Readonly<interface_ImVec2>, custom_callback: ImGuiSizeCallback | null/* = NULL */, data: any/* = NULL */): void;
+    SetNextWindowPos(pos: Readonly<interface_ImVec2>, cond: ImGuiCond, pivot: Readonly<interface_ImVec2>): void;
+    SetNextWindowSize(size: Readonly<interface_ImVec2>, cond: ImGuiCond): void;
+    SetNextWindowSizeConstraints(size_min: Readonly<interface_ImVec2>, size_max: Readonly<interface_ImVec2>, custom_callback: ImGuiSizeCallback | null, data: any): void;
     SetNextWindowContentSize(size: Readonly<interface_ImVec2>): void;
-    SetNextWindowCollapsed(collapsed: boolean, cond: ImGuiCond/* = 0 */): void;
+    SetNextWindowCollapsed(collapsed: boolean, cond: ImGuiCond): void;
     SetNextWindowFocus(): void;
     SetNextWindowBgAlpha(alpha: number): void;
-    SetWindowPos(pos: Readonly<interface_ImVec2>, cond: ImGuiCond/* = 0 */): void;
-    SetWindowSize(size: Readonly<interface_ImVec2>, cond: ImGuiCond/* = 0 */): void;
-    SetWindowCollapsed(collapsed: boolean, cond: ImGuiCond/* = 0 */): void;
+    SetWindowPos(pos: Readonly<interface_ImVec2>, cond: ImGuiCond): void;
+    SetWindowSize(size: Readonly<interface_ImVec2>, cond: ImGuiCond): void;
+    SetWindowCollapsed(collapsed: boolean, cond: ImGuiCond): void;
     SetWindowFocus(): void;
     SetWindowFontScale(scale: number): void;
-    SetWindowNamePos(name: string, pos: Readonly<interface_ImVec2>, cond: ImGuiCond/* = 0 */): void;
-    SetWindowNameSize(name: string, size: Readonly<interface_ImVec2>, cond: ImGuiCond/* = 0 */): void;
-    SetWindowNameCollapsed(name: string, collapsed: boolean, cond: ImGuiCond/* = 0 */): void;
+    SetWindowNamePos(name: string, pos: Readonly<interface_ImVec2>, cond: ImGuiCond): void;
+    SetWindowNameSize(name: string, size: Readonly<interface_ImVec2>, cond: ImGuiCond): void;
+    SetWindowNameCollapsed(name: string, collapsed: boolean, cond: ImGuiCond): void;
     SetWindowNameFocus(name: string): void;
 
     // Content region
@@ -1230,10 +1230,10 @@ export interface Module extends Emscripten.EmscriptenModule {
     SetScrollY(scroll_y: number): void;
     GetScrollMaxX(): number;
     GetScrollMaxY(): number;
-    SetScrollHereX(center_x_ratio: number/* = 0.5f */): void;
-    SetScrollHereY(center_y_ratio: number/* = 0.5f */): void;
-    SetScrollFromPosX(pos_x: number, center_x_ratio: number/* = 0.5f */): void;
-    SetScrollFromPosY(pos_y: number, center_y_ratio: number/* = 0.5f */): void;
+    SetScrollHereX(center_x_ratio: number): void;
+    SetScrollHereY(center_y_ratio: number): void;
+    SetScrollFromPosX(pos_x: number, center_x_ratio: number): void;
+    SetScrollFromPosY(pos_y: number, center_y_ratio: number): void;
 
     // Parameters stacks (shared)
     // IMGUI_API void          PushFont(ImFont* font);                                         // use NULL as a shortcut to push default font
@@ -1251,9 +1251,9 @@ export interface Module extends Emscripten.EmscriptenModule {
     PushFont(font: reference_ImFont | null): void;
     PopFont(): void;
     PushStyleColor(idx: ImGuiCol, col: ImU32 | Readonly<interface_ImVec4>): void;
-    PopStyleColor(count: number/* = 1 */): void;
+    PopStyleColor(count: number): void;
     PushStyleVar(idx: ImGuiStyleVar, val: number | Readonly<interface_ImVec2>): void;
-    PopStyleVar(count: number/* = 1 */): void;
+    PopStyleVar(count: number): void;
     PushAllowKeyboardFocus(allow_keyboard_focus: boolean): void;
     PopAllowKeyboardFocus(): void;
     PushButtonRepeat(repeat: boolean): void;
@@ -1270,7 +1270,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     PopItemWidth(): void;
     SetNextItemWidth(item_width: number): void;
     CalcItemWidth(): number;
-    PushTextWrapPos(wrap_pos_x: number/* = 0.0f */): void;
+    PushTextWrapPos(wrap_pos_x: number): void;
     PopTextWrapPos(): void;
 
     // Style read access
@@ -1284,7 +1284,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     GetFont(): reference_ImFont;
     GetFontSize(): number;
     GetFontTexUvWhitePixel(out: interface_ImVec2): typeof out;
-    GetColorU32_A(idx: ImGuiCol, alpha_mul: number/* = 1.0f */): ImU32;
+    GetColorU32_A(idx: ImGuiCol, alpha_mul: number): ImU32;
     GetColorU32_B(col: Readonly<interface_ImVec4>): ImU32;
     GetColorU32_C(col: ImU32): ImU32;
     GetStyleColorVec4(idx: ImGuiCol): Readonly<reference_ImVec4>;
@@ -1320,12 +1320,12 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API float         GetFrameHeight();                                               // ~ FontSize + style.FramePadding.y * 2
     // IMGUI_API float         GetFrameHeightWithSpacing();                                    // ~ FontSize + style.FramePadding.y * 2 + style.ItemSpacing.y (distance in pixels between 2 consecutive lines of framed widgets)
     Separator(): void;
-    SameLine(pos_x: number/* = 0.0f */, spacing_w: number/* = -1.0f */): void;
+    SameLine(pos_x: number, spacing_w: number): void;
     NewLine(): void;
     Spacing(): void;
     Dummy(size: Readonly<interface_ImVec2>): void;
-    Indent(indent_w: number/* = 0.0f */): void;
-    Unindent(indent_w: number/* = 0.0f */): void;
+    Indent(indent_w: number): void;
+    Unindent(indent_w: number): void;
     BeginGroup(): void;
     EndGroup(): void;
     GetCursorPos(out: interface_ImVec2): typeof out;
@@ -1377,18 +1377,12 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API void          BulletText(const char* fmt, ...)                                IM_FMTARGS(1); // shortcut for Bullet()+Text()
     // IMGUI_API void          BulletTextV(const char* fmt, va_list args)                      IM_FMTLIST(1);
     TextUnformatted(text: string, /* text_end: string = NULL */): void;
-    Text(fmt: string/*, ...args: any[]*/): void;
-    Text(fmt: string/* , args: any[] */): void;
-    TextColored(col: Readonly<interface_ImVec4>, fmt: string/* , ...args: any[] */): void;
-    TextColoredV(col: Readonly<interface_ImVec4>, fmt: string/* , args: any[] */): void;
-    TextDisabled(fmt: string/* , ...args: any[] */): void;
-    TextDisabledV(fmt: string/* , args: any[] */): void;
-    TextWrapped(fmt: string/* , ...args: any[] */): void;
-    TextWrappedV(fmt: string/* , args: any[] */): void;
-    LabelText(label: string, fmt: string/* , ...args: any[] */): void;
-    LabelTextV(label: string, fmt: string/* , args: any[] */): void;
-    BulletText(fmt: string/* , ...args: any[] */): void;
-    BulletTextV(fmt: string/* , args: any[] */): void;
+    Text(fmt: string): void;
+    TextColored(col: Readonly<interface_ImVec4>, fmt: string): void;
+    TextDisabled(fmt: string): void;
+    TextWrapped(fmt: string): void;
+    LabelText(label: string, fmt: string): void;
+    BulletText(fmt: string): void;
 
     // Widgets: Main
     // - Most widgets return true when the value has been changed or when pressed/selected
@@ -1427,7 +1421,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API bool          Combo(const char* label, int* current_item, const char* const items[], int items_count, int popup_max_height_in_items = -1);
     // IMGUI_API bool          Combo(const char* label, int* current_item, const char* items_separated_by_zeros, int popup_max_height_in_items = -1);      // Separate items with \0 within a string, end item-list with \0\0. e.g. "One\0Two\0Three\0"
     // IMGUI_API bool          Combo(const char* label, int* current_item, bool(*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int popup_max_height_in_items = -1);
-    BeginCombo(label: string, preview_value: string | null, flags: ImGuiComboFlags/* = 0 */): boolean;
+    BeginCombo(label: string, preview_value: string | null, flags: ImGuiComboFlags): boolean;
     EndCombo(): void;
     Combo(label: string, current_item: ImScalar<number>, items_getter: (data: any, idx: number, out_text: [string]) => boolean, data: any, items_count: number, popup_max_height_in_items: number): boolean;
 
@@ -1454,17 +1448,17 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API bool          DragIntRange2(const char* label, int* v_current_min, int* v_current_max, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%d", const char* format_max = NULL, ImGuiSliderFlags flags = 0);
     // IMGUI_API bool          DragScalar(const char* label, ImGuiDataType data_type, void* p_data, float v_speed, const void* p_min = NULL, const void* p_max = NULL, const char* format = NULL, ImGuiSliderFlags flags = 0);
     // IMGUI_API bool          DragScalarN(const char* label, ImGuiDataType data_type, void* p_data, int components, float v_speed, const void* p_min = NULL, const void* p_max = NULL, const char* format = NULL, ImGuiSliderFlags flags = 0);
-    DragFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, format: string | null/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    DragFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    DragFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    DragFloat4(label: string, v: ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    DragFloatRange2(label: string, v_current_min: ImScalar<number>, v_current_max: ImScalar<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0.0f */, v_max: number/* = 0.0f */, format: string/* = "%.3f" */, format_max: string | null/* = NULL */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    DragInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    DragInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    DragInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    DragInt4(label: string, v: ImTuple4<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    DragIntRange2(label: string, v_current_min: ImScalar<number>, v_current_max: ImScalar<number>, v_speed: number/* = 1.0f */, v_min: number/* = 0 */, v_max: number/* = 0 */, format: string/* = "%.0f" */, format_max: string | null/* = NULL */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    DragScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min: number | null, v_max: number | null, format: string | null, flags: ImGuiSliderFlags/* = 0 */): boolean;
+    DragFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number, v_min: number, v_max: number, format: string | null, flags: ImGuiSliderFlags): boolean;
+    DragFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    DragFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_speed: number, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    DragFloat4(label: string, v: ImTuple4<number>, v_speed: number, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    DragFloatRange2(label: string, v_current_min: ImScalar<number>, v_current_max: ImScalar<number>, v_speed: number, v_min: number, v_max: number, format: string, format_max: string | null, flags: ImGuiSliderFlags): boolean;
+    DragInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    DragInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_speed: number, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    DragInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_speed: number, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    DragInt4(label: string, v: ImTuple4<number>, v_speed: number, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    DragIntRange2(label: string, v_current_min: ImScalar<number>, v_current_max: ImScalar<number>, v_speed: number, v_min: number, v_max: number, format: string, format_max: string | null, flags: ImGuiSliderFlags): boolean;
+    DragScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min: number | null, v_max: number | null, format: string | null, flags: ImGuiSliderFlags): boolean;
 
     // Widgets: Regular Sliders
     // - CTRL+Click on any slider to turn them into an input box. Manually input values aren't clamped and can go off-bounds.
@@ -1486,19 +1480,19 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API bool          VSliderFloat(const char* label, const ImVec2& size, float* v, float v_min, float v_max, const char* format = "%.3f", ImGuiSliderFlags flags = 0);
     // IMGUI_API bool          VSliderInt(const char* label, const ImVec2& size, int* v, int v_min, int v_max, const char* format = "%d", ImGuiSliderFlags flags = 0);
     // IMGUI_API bool          VSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const char* format = NULL, ImGuiSliderFlags flags = 0);
-    SliderFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    SliderFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    SliderFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    SliderFloat4(label: string, v: ImTuple4<number>, v_min: number, v_max: number, format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    SliderAngle(label: string, v_rad: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_degrees_min: number/* = -360.0f */, v_degrees_max: number/* = +360.0f */, format: string/* = "%.0f deg" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    SliderInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    SliderInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    SliderInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    SliderInt4(label: string, v: ImTuple4<number>, v_min: number, v_max: number, format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    SliderScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    VSliderFloat(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string/* = "%.3f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    VSliderInt(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string/* = "%.0f" */, flags: ImGuiSliderFlags/* = 0 */): boolean;
-    VSliderScalar(label: string, size: Readonly<interface_ImVec2>, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, flags: ImGuiSliderFlags/* = 0 */): boolean;
+    SliderFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    SliderFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    SliderFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    SliderFloat4(label: string, v: ImTuple4<number>, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    SliderAngle(label: string, v_rad: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_degrees_min: number, v_degrees_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    SliderInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    SliderInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    SliderInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    SliderInt4(label: string, v: ImTuple4<number>, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    SliderScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, flags: ImGuiSliderFlags): boolean;
+    VSliderFloat(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    VSliderInt(label: string, size: Readonly<interface_ImVec2>, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, v_min: number, v_max: number, format: string, flags: ImGuiSliderFlags): boolean;
+    VSliderScalar(label: string, size: Readonly<interface_ImVec2>, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number | null, v_max: number | null, format: string | null, flags: ImGuiSliderFlags): boolean;
 
     // Widgets: Input with Keyboard
     // - If you want to use InputText() with std::string or any custom dynamic string type, see misc/cpp/imgui_stdlib.h and comments in imgui_demo.cpp.
@@ -1517,18 +1511,18 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API bool          InputDouble(const char* label, double* v, double step = 0.0, double step_fast = 0.0, const char* format = "%.6f", ImGuiInputTextFlags flags = 0);
     // IMGUI_API bool          InputScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_step = NULL, const void* p_step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags flags = 0);
     // IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* p_data, int components, const void* p_step = NULL, const void* p_step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags flags = 0);
-    InputText(label: string, buf: [ string ], buf_size: number, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiInputTextCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
-    InputTextMultiline(label: string, buf: [ string ], buf_size: number, size: Readonly<interface_ImVec2>, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiInputTextCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
-    InputTextWithHint(label: string, hint: string, buf: [ string ], buf_size: number, flags: ImGuiInputTextFlags/* = 0 */, callback: ImGuiInputTextCallback | null/* = NULL */, user_data: any/* = NULL */): boolean;
-    InputFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number/* = 0.0f */, step_fast: number/* = 0.0f */, format: string/* = "%.3f"*/, flags: ImGuiInputTextFlags/* = 0 */): boolean;
-    InputFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, format: string/* = "%.3f"*/, flags: ImGuiInputTextFlags/* = 0 */): boolean;
-    InputFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, format: string/* = "%.3f"*/, flags: ImGuiInputTextFlags/* = 0 */): boolean;
-    InputFloat4(label: string, v: ImTuple4<number>, format: string/* = "%.3f"*/, flags: ImGuiInputTextFlags/* = 0 */): boolean;
-    InputInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number/* = 1 */, step_fast: number/* = 100 */, flags: ImGuiInputTextFlags/* = 0 */): boolean;
-    InputInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, flags: ImGuiInputTextFlags/* = 0 */): boolean;
-    InputInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, flags: ImGuiInputTextFlags/* = 0 */): boolean;
-    InputInt4(label: string, v: ImTuple4<number>, flags: ImGuiInputTextFlags/* = 0 */): boolean;
-    InputDouble(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number/* = 0.0f */, step_fast: number/* = 0.0f */, format: string/* = "%0.6f" */, flags: ImGuiInputTextFlags/* = 0 */): boolean;
+    InputText(label: string, buf: [ string ], buf_size: number, flags: ImGuiInputTextFlags, callback: ImGuiInputTextCallback | null, user_data: any): boolean;
+    InputTextMultiline(label: string, buf: [ string ], buf_size: number, size: Readonly<interface_ImVec2>, flags: ImGuiInputTextFlags, callback: ImGuiInputTextCallback | null, user_data: any): boolean;
+    InputTextWithHint(label: string, hint: string, buf: [ string ], buf_size: number, flags: ImGuiInputTextFlags, callback: ImGuiInputTextCallback | null, user_data: any): boolean;
+    InputFloat(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number, step_fast: number, format: string, flags: ImGuiInputTextFlags): boolean;
+    InputFloat2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, format: string, flags: ImGuiInputTextFlags): boolean;
+    InputFloat3(label: string, v: ImTuple3<number> | ImTuple4<number>, format: string, flags: ImGuiInputTextFlags): boolean;
+    InputFloat4(label: string, v: ImTuple4<number>, format: string, flags: ImGuiInputTextFlags): boolean;
+    InputInt(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number, step_fast: number, flags: ImGuiInputTextFlags): boolean;
+    InputInt2(label: string, v: ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, flags: ImGuiInputTextFlags): boolean;
+    InputInt3(label: string, v: ImTuple3<number> | ImTuple4<number>, flags: ImGuiInputTextFlags): boolean;
+    InputInt4(label: string, v: ImTuple4<number>, flags: ImGuiInputTextFlags): boolean;
+    InputDouble(label: string, v: ImScalar<number> | ImTuple2<number> | ImTuple3<number> | ImTuple4<number>, step: number, step_fast: number, format: string, flags: ImGuiInputTextFlags): boolean;
     InputScalar(label: string, data_type: ImGuiDataType, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, step: number | null, step_fast: number | null, format: string | null, flags: ImGuiInputTextFlags): boolean;
 
     // Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little color square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
@@ -1540,10 +1534,10 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API bool          ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags flags = 0, const float* ref_col = NULL);
     // IMGUI_API bool          ColorButton(const char* desc_id, const ImVec4& col, ImGuiColorEditFlags flags = 0, ImVec2 size = ImVec2(0, 0)); // display a color square/button, hover for details, return true when pressed.
     // IMGUI_API void          SetColorEditOptions(ImGuiColorEditFlags flags);                     // initialize current options (generally on application startup) if you want to select a default format, picker type, etc. User will be able to change many settings, unless you pass the _NoOptions flag to your calls.
-    ColorEdit3(label: string, col: ImTuple3<number> | ImTuple4<number>, flags: ImGuiColorEditFlags/* = 0 */): boolean;
-    ColorEdit4(label: string, col: ImTuple4<number>, flags: ImGuiColorEditFlags/* = 0 */): boolean;
-    ColorPicker3(label: string, col: ImTuple3<number> | ImTuple4<number>, flags: ImGuiColorEditFlags/* = 0 */): boolean;
-    ColorPicker4(label: string, col: ImTuple4<number>, flags: ImGuiColorEditFlags/* = 0 */, ref_col: ImTuple4<number> | null/* = NULL */): boolean;
+    ColorEdit3(label: string, col: ImTuple3<number> | ImTuple4<number>, flags: ImGuiColorEditFlags): boolean;
+    ColorEdit4(label: string, col: ImTuple4<number>, flags: ImGuiColorEditFlags): boolean;
+    ColorPicker3(label: string, col: ImTuple3<number> | ImTuple4<number>, flags: ImGuiColorEditFlags): boolean;
+    ColorPicker4(label: string, col: ImTuple4<number>, flags: ImGuiColorEditFlags, ref_col: ImTuple4<number> | null): boolean;
     ColorButton(desc_id: string, col: Readonly<interface_ImVec4>, flags: ImGuiColorEditFlags, size: Readonly<interface_ImVec2>): boolean;
     SetColorEditOptions(flags: ImGuiColorEditFlags): void;
 
@@ -1569,16 +1563,16 @@ export interface Module extends Emscripten.EmscriptenModule {
     TreeNode_A(label: string): boolean;
     TreeNode_B(str_id: string, fmt: string): boolean;
     TreeNode_C(ptr_id: number, fmt: string): boolean;
-    TreeNodeEx_A(label: string, flags: ImGuiTreeNodeFlags/* = 0 */): boolean;
-    TreeNodeEx_B(str_id: string, flags: ImGuiTreeNodeFlags/* = 0 */, fmt: string): boolean;
-    TreeNodeEx_C(ptr_id: number, flags: ImGuiTreeNodeFlags/* = 0 */, fmt: string): boolean;
+    TreeNodeEx_A(label: string, flags: ImGuiTreeNodeFlags): boolean;
+    TreeNodeEx_B(str_id: string, flags: ImGuiTreeNodeFlags, fmt: string): boolean;
+    TreeNodeEx_C(ptr_id: number, flags: ImGuiTreeNodeFlags, fmt: string): boolean;
     TreePush_A(str_id: string): void;
     TreePush_B(ptr_id: number): void;
     TreePop(): void;
     GetTreeNodeToLabelSpacing(): number;
-    CollapsingHeader_A(label: string, flags: ImGuiTreeNodeFlags/* = 0 */): boolean;
-    CollapsingHeader_B(label: string, p_open: ImScalar<boolean> | null, flags: ImGuiTreeNodeFlags/* = 0 */): boolean;
-    SetNextItemOpen(is_open: boolean, cond: ImGuiCond/* = 0 */): void;
+    CollapsingHeader_A(label: string, flags: ImGuiTreeNodeFlags): boolean;
+    CollapsingHeader_B(label: string, p_open: ImScalar<boolean> | null, flags: ImGuiTreeNodeFlags): boolean;
+    SetNextItemOpen(is_open: boolean, cond: ImGuiCond): void;
 
     // Widgets: Selectables
     // - A selectable highlights when hovered, and can display another color when selected.
@@ -1595,8 +1589,8 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API bool          ListBoxHeader(const char* label, const ImVec2& size = ImVec2(0, 0)); // use if you want to reimplement ListBox() will custom data or interactions. if the function return true, you can output elements then call ListBoxFooter() afterwards.
     // IMGUI_API bool          ListBoxHeader(const char* label, int items_count, int height_in_items = -1); // "
     // IMGUI_API void          ListBoxFooter();                                                    // terminate the scrolling region. only call ListBoxFooter() if ListBoxHeader() returned true!
-    ListBox_A(label: string, current_item: ImScalar<number>, items: string[], items_count: number, height_in_items: number/* = -1 */): boolean;
-    ListBox_B(label: string, current_item: ImScalar<number>, items_getter: any, data: any, items_count: number, height_in_items: number/* = -1 */): boolean;
+    ListBox_A(label: string, current_item: ImScalar<number>, items: string[], items_count: number, height_in_items: number): boolean;
+    ListBox_B(label: string, current_item: ImScalar<number>, items_getter: any, data: any, items_count: number, height_in_items: number): boolean;
     ListBoxHeader_A(label: string, size: Readonly<interface_ImVec2>): boolean;
     ListBoxHeader_B(label: string, items_count: number, height_in_items: number): boolean;
     ListBoxFooter(): void;
@@ -1618,7 +1612,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     Value_A(prefix: string, b: boolean): void;
     Value_B(prefix: string, v: number): void;
     Value_C(prefix: string, v: number): void;
-    Value_D(prefix: string, v: number, float_format: string | null/* = NULL */): void;
+    Value_D(prefix: string, v: number, float_format: string | null): void;
 
     // Widgets: Menus
     // - Use BeginMenuBar() on a window ImGuiWindowFlags_MenuBar to append to its menu bar.
@@ -1636,10 +1630,10 @@ export interface Module extends Emscripten.EmscriptenModule {
     EndMenuBar(): void;
     BeginMainMenuBar(): boolean;
     EndMainMenuBar(): void;
-    BeginMenu(label: string, enabled: boolean/* = true */): boolean;
+    BeginMenu(label: string, enabled: boolean): boolean;
     EndMenu(): void;
-    MenuItem_A(label: string, shortcut: string | null, selected: boolean, enabled: boolean/* = true */): boolean;
-    MenuItem_B(label: string, shortcut: string | null, p_selected: ImScalar<boolean>, enabled: boolean/* = true */): boolean;
+    MenuItem_A(label: string, shortcut: string | null, selected: boolean, enabled: boolean): boolean;
+    MenuItem_B(label: string, shortcut: string | null, p_selected: ImScalar<boolean>, enabled: boolean): boolean;
 
     // Tooltips
     // - Tooltip are windows following the mouse. They do not take focus away.
@@ -1665,8 +1659,8 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API bool          BeginPopup(const char* str_id, ImGuiWindowFlags flags = 0);                         // return true if the popup is open, and you can start outputting to it.
     // IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0); // return true if the modal is open, and you can start outputting to it.
     // IMGUI_API void          EndPopup();                                                                         // only call EndPopup() if BeginPopupXXX() returns true!
-    BeginPopup(str_id: string, flags: ImGuiWindowFlags/* = 0 */): boolean;
-    BeginPopupModal(name: string, p_open: ImScalar<boolean> | null/* = NULL */, flags: ImGuiWindowFlags/* = 0 */): boolean;
+    BeginPopup(str_id: string, flags: ImGuiWindowFlags): boolean;
+    BeginPopupModal(name: string, p_open: ImScalar<boolean> | null, flags: ImGuiWindowFlags): boolean;
     EndPopup(): void;
     // Popups: open/close functions
     //  - OpenPopup(): set popup state to open. ImGuiPopupFlags are available for opening options.
@@ -1677,8 +1671,8 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API void          OpenPopup(const char* str_id, ImGuiPopupFlags popup_flags = 0);                     // call to mark popup as open (don't call every frame!).
     // IMGUI_API void          OpenPopupOnItemClick(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);   // helper to open popup when clicked on last item. return true when just opened. (note: actually triggers on the mouse _released_ event to be consistent with popup behaviors)
     // IMGUI_API void          CloseCurrentPopup();                                                                // manually close the popup we have begin-ed into.
-    OpenPopup(str_id: string, popup_flags: ImGuiPopupFlags/* = 0 */): void;
-    OpenPopupOnItemClick(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): void;
+    OpenPopup(str_id: string, popup_flags: ImGuiPopupFlags): void;
+    OpenPopupOnItemClick(str_id: string | null, popup_flags: ImGuiPopupFlags): void;
     CloseCurrentPopup(): void;
     // Popups: open+begin combined functions helpers
     //  - Helpers to do OpenPopup+BeginPopup where the Open action is triggered by e.g. hovering an item and right-clicking.
@@ -1688,15 +1682,15 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);  // open+begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
     // IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);// open+begin popup when clicked on current window.
     // IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);  // open+begin popup when clicked in void (where there are no windows).
-    BeginPopupContextItem(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
-    BeginPopupContextWindow(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
-    BeginPopupContextVoid(str_id: string | null/* = NULL */, popup_flags: ImGuiPopupFlags/* = 1 */): boolean;
+    BeginPopupContextItem(str_id: string | null, popup_flags: ImGuiPopupFlags): boolean;
+    BeginPopupContextWindow(str_id: string | null, popup_flags: ImGuiPopupFlags): boolean;
+    BeginPopupContextVoid(str_id: string | null, popup_flags: ImGuiPopupFlags): boolean;
     // Popups: test function
     //  - IsPopupOpen(): return true if the popup is open at the current BeginPopup() level of the popup stack.
     //  - IsPopupOpen() with ImGuiPopupFlags_AnyPopupId: return true if any popup is open at the current BeginPopup() level of the popup stack.
     //  - IsPopupOpen() with ImGuiPopupFlags_AnyPopupId + ImGuiPopupFlags_AnyPopupLevel: return true if any popup is open.
     // IMGUI_API bool          IsPopupOpen(const char* str_id, ImGuiPopupFlags flags = 0);                         // return true if the popup is open.
-    IsPopupOpen(str_id: string, flags: ImGuiPopupFlags/* = 0 */): boolean;
+    IsPopupOpen(str_id: string, flags: ImGuiPopupFlags): boolean;
 
     // Tables
     // [BETA API] API may evolve slightly! If you use this, please update to the next version when it comes out!
@@ -1782,12 +1776,12 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API float         GetColumnOffset(int column_index = -1);                             // get position of column line (in pixels, from the left side of the contents region). pass -1 to use current column, otherwise 0..GetColumnsCount() inclusive. column 0 is typically 0.0f
     // IMGUI_API void          SetColumnOffset(int column_index, float offset_x);                  // set position of column line (in pixels, from the left side of the contents region). pass -1 to use current column
     // IMGUI_API int           GetColumnsCount();
-    Columns(count: number/* = 1 */, id: string | null/* = NULL */, border: boolean/* = true */): void;
+    Columns(count: number, id: string | null, border: boolean): void;
     NextColumn(): void;
     GetColumnIndex(): number;
-    GetColumnWidth(column_index: number/* = -1 */): number;
+    GetColumnWidth(column_index: number): number;
     SetColumnWidth(column_index: number, width: number): void;
-    GetColumnOffset(column_index: number/* = -1 */): number;
+    GetColumnOffset(column_index: number): number;
     SetColumnOffset(column_index: number, offset_x: number): void;
     GetColumnsCount(): number;
 
@@ -1813,9 +1807,9 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API void          LogFinish();                                                        // stop logging (close file, etc.)
     // IMGUI_API void          LogButtons();                                                       // helper to display buttons for logging to tty/file/clipboard
     // IMGUI_API void          LogText(const char* fmt, ...) IM_FMTARGS(1);                        // pass text data straight to log (without being displayed)
-    LogToTTY(max_depth: number/* = -1 */): void;
-    LogToFile(max_depth: number/* = -1 */, filename: string | null/* = NULL */): void;
-    LogToClipboard(max_depth: number/* = -1 */): void;
+    LogToTTY(max_depth: number): void;
+    LogToFile(max_depth: number, filename: string | null): void;
+    LogToClipboard(max_depth: number): void;
     LogFinish(): void;
     LogButtons(): void;
     LogText(fmt: string): void;
@@ -1829,11 +1823,11 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API const ImGuiPayload*   AcceptDragDropPayload(const char* type, ImGuiDragDropFlags flags = 0);          // accept contents of a given type. If ImGuiDragDropFlags_AcceptBeforeDelivery is set you can peek into the payload before the mouse button is released.
     // IMGUI_API void                  EndDragDropTarget();                                                            // only call EndDragDropTarget() if BeginDragDropTarget() returns true!
     // IMGUI_API const ImGuiPayload*   GetDragDropPayload();                                                           // peek directly into the current payload from anywhere. may return NULL. use ImGuiPayload::IsDataType() to test for the payload type.
-    BeginDragDropSource(flags: ImGuiDragDropFlags/* = 0 */): boolean;
-    SetDragDropPayload(type: string, data: any, size: number, cond: ImGuiCond/* = 0 */): boolean;
+    BeginDragDropSource(flags: ImGuiDragDropFlags): boolean;
+    SetDragDropPayload(type: string, data: any, size: number, cond: ImGuiCond): boolean;
     EndDragDropSource(): void;
     BeginDragDropTarget(): boolean;
-    AcceptDragDropPayload(type: string, flags: ImGuiDragDropFlags/* = 0 */): boolean; // reference_DragDropPayload | null; // TODO
+    AcceptDragDropPayload(type: string, flags: ImGuiDragDropFlags): boolean; // reference_DragDropPayload | null; // TODO
     EndDragDropTarget(): void;
     GetDragDropPayload(): null; // reference_DragDropPayload | null; // TODO
 
@@ -1849,7 +1843,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API void          SetItemDefaultFocus();                                              // make last item the default focused item of a window.
     // IMGUI_API void          SetKeyboardFocusHere(int offset = 0);                               // focus keyboard on the next widget. Use positive 'offset' to access sub components of a multiple component widget. Use -1 to access previous widget.
     SetItemDefaultFocus(): void;
-    SetKeyboardFocusHere(offset: number/* = 0 */): void;
+    SetKeyboardFocusHere(offset: number): void;
 
     // Item/Widgets Utilities
     // - Most of the functions are referring to the last/previous item we submitted.
@@ -1871,10 +1865,10 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API ImVec2        GetItemRectMax();                                                   // get lower-right bounding rectangle of the last item (screen space)
     // IMGUI_API ImVec2        GetItemRectSize();                                                  // get size of last item
     // IMGUI_API void          SetItemAllowOverlap();                                              // allow last item to be overlapped by a subsequent item. sometimes useful with invisible buttons, selectables, etc. to catch unused area.
-    IsItemHovered(flags: ImGuiHoveredFlags/* = 0 */): boolean;
+    IsItemHovered(flags: ImGuiHoveredFlags): boolean;
     IsItemActive(): boolean;
     IsItemFocused(): boolean;
-    IsItemClicked(mouse_button: ImGuiMouseButton/* = 0 */): boolean;
+    IsItemClicked(mouse_button: ImGuiMouseButton): boolean;
     IsItemVisible(): boolean;
     IsItemEdited(): boolean;
     IsItemActivated(): boolean;
@@ -1914,12 +1908,12 @@ export interface Module extends Emscripten.EmscriptenModule {
     // function GetStateStorage(): ImGuiStorage | null;
     GetStyleColorName(idx: ImGuiCol): string;
     CalcListClipping(items_count: number, items_height: number, out_items_display_start: ImScalar<number>, out_items_display_end: ImScalar<number>): void;
-    BeginChildFrame(id: ImGuiID, size: Readonly<interface_ImVec2>, flags: ImGuiWindowFlags/* = 0 */): boolean;
+    BeginChildFrame(id: ImGuiID, size: Readonly<interface_ImVec2>, flags: ImGuiWindowFlags): boolean;
     EndChildFrame(): void;
 
     // Text Utilities
     // IMGUI_API ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
-    CalcTextSize(text: string, hide_text_after_double_hash: boolean/* = false */, wrap_width: number/* = -1.0f */, out: interface_ImVec2): typeof out;
+    CalcTextSize(text: string, hide_text_after_double_hash: boolean, wrap_width: number, out: interface_ImVec2): typeof out;
 
     // Color Utilities
     // IMGUI_API ImVec4        ColorConvertU32ToFloat4(ImU32 in);
@@ -1942,10 +1936,10 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API void          CaptureKeyboardFromApp(bool want_capture_keyboard_value = true);    // attention: misleading name! manually override io.WantCaptureKeyboard flag next frame (said flag is entirely left for your application to handle). e.g. force capture keyboard when your widget is being hovered. This is equivalent to setting "io.WantCaptureKeyboard = want_capture_keyboard_value"; after the next NewFrame() call.
     GetKeyIndex(imgui_key: ImGuiKey): number;
     IsKeyDown(user_key_index: number): boolean;
-    IsKeyPressed(user_key_index: number, repeat: boolean/* = true */): boolean;
+    IsKeyPressed(user_key_index: number, repeat: boolean): boolean;
     IsKeyReleased(user_key_index: number): boolean;
     GetKeyPressedAmount(key_index: number, repeat_delay: number, rate: number): number;
-    CaptureKeyboardFromApp(capture: boolean/* = true */): void;
+    CaptureKeyboardFromApp(capture: boolean): void;
 
     // Inputs Utilities: Mouse
     // - To refer to a mouse button, you may use named enums in your code e.g. ImGuiMouseButton_Left, ImGuiMouseButton_Right.
@@ -1967,20 +1961,20 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API void          SetMouseCursor(ImGuiMouseCursor cursor_type);                       // set desired cursor type
     // IMGUI_API void          CaptureMouseFromApp(bool want_capture_mouse_value = true);          // attention: misleading name! manually override io.WantCaptureMouse flag next frame (said flag is entirely left for your application to handle). This is equivalent to setting "io.WantCaptureMouse = want_capture_mouse_value;" after the next NewFrame() call.
     IsMouseDown(button: ImGuiMouseButton): boolean;
-    IsMouseClicked(button: ImGuiMouseButton, repeat: boolean/* = false */): boolean;
+    IsMouseClicked(button: ImGuiMouseButton, repeat: boolean): boolean;
     IsMouseReleased(button: ImGuiMouseButton): boolean;
     IsMouseDoubleClicked(button: ImGuiMouseButton): boolean;
-    IsMouseHoveringRect(r_min: Readonly<interface_ImVec2>, r_max: Readonly<interface_ImVec2>, clip: boolean/* = true */): boolean;
-    IsMousePosValid(mouse_pos: Readonly<interface_ImVec2> | null/* = NULL */): boolean;
+    IsMouseHoveringRect(r_min: Readonly<interface_ImVec2>, r_max: Readonly<interface_ImVec2>, clip: boolean): boolean;
+    IsMousePosValid(mouse_pos: Readonly<interface_ImVec2> | null): boolean;
     IsAnyMouseDown(): boolean;
     GetMousePos(out: interface_ImVec2): typeof out;
     GetMousePosOnOpeningCurrentPopup(out: interface_ImVec2): typeof out;
-    IsMouseDragging(button: ImGuiMouseButton/* = 0 */, lock_threshold: number/* = -1.0f */): boolean;
-    GetMouseDragDelta(button: ImGuiMouseButton/* = 0 */, lock_threshold: number/* = -1.0f */, out: interface_ImVec2): typeof out;
-    ResetMouseDragDelta(button: ImGuiMouseButton/* = 0 */): void;
+    IsMouseDragging(button: ImGuiMouseButton, lock_threshold: number): boolean;
+    GetMouseDragDelta(button: ImGuiMouseButton, lock_threshold: number, out: interface_ImVec2): typeof out;
+    ResetMouseDragDelta(button: ImGuiMouseButton): void;
     GetMouseCursor(): ImGuiMouseCursor;
     SetMouseCursor(type: ImGuiMouseCursor): void;
-    CaptureMouseFromApp(capture: boolean/* = true */): void;
+    CaptureMouseFromApp(capture: boolean): void;
 
     // Clipboard Utilities
     // - Also see the LogToClipboard() function to capture GUI into clipboard, or easily output text data to the clipboard.
