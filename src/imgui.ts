@@ -2866,10 +2866,10 @@ export function Begin(name: string, open: Bind.ImScalar<boolean> | Bind.ImAccess
 }
 // IMGUI_API void          End();                                                                                                                      // finish appending to current window, pop it off the window stack.
 export function End(): void { bind.End(); }
-// IMGUI_API bool          BeginChild(const char* str_id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags extra_flags = 0);    // begin a scrolling region. size==0.0f: use remaining window size, size<0.0f: use remaining window size minus abs(size). size>0.0f: fixed size. each axis can use a different mode, e.g. ImVec2(0,400).
-// IMGUI_API bool          BeginChild(ImGuiID id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags extra_flags = 0);            // "
-export function BeginChild(id: string | Bind.ImGuiID, size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, border: boolean = false, extra_flags: ImGuiWindowFlags = 0): boolean {
-    return bind.BeginChild(id, size, border, extra_flags);
+// IMGUI_API bool          BeginChild(const char* str_id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags flags = 0);    // begin a scrolling region. size==0.0f: use remaining window size, size<0.0f: use remaining window size minus abs(size). size>0.0f: fixed size. each axis can use a different mode, e.g. ImVec2(0,400).
+// IMGUI_API bool          BeginChild(ImGuiID id, const ImVec2& size = ImVec2(0,0), bool border = false, ImGuiWindowFlags flags = 0);            // "
+export function BeginChild(id: string | Bind.ImGuiID, size: Readonly<Bind.interface_ImVec2> = ImVec2.ZERO, border: boolean = false, flags: ImGuiWindowFlags = 0): boolean {
+    return bind.BeginChild(id, size, border, flags);
 }
 // IMGUI_API void          EndChild();
 export function EndChild(): void { bind.EndChild(); }
@@ -3539,82 +3539,82 @@ export function InputTextMultiline<T>(label: string, buf: ImStringBuffer | Bind.
         return ret;
     }
 }
-// IMGUI_API bool          InputFloat(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+// IMGUI_API bool          InputFloat(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.3f", ImGuiInputTextFlags flags = 0);
+export function InputFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, format: string = "%.3f", flags: ImGuiInputTextFlags = 0): boolean {
     const _v = import_Scalar(v);
-    const ret = bind.InputFloat(label, _v, step, step_fast, format, extra_flags);
+    const ret = bind.InputFloat(label, _v, step, step_fast, format, flags);
     export_Scalar(_v, v);
     return ret;
 }
-// IMGUI_API bool          InputFloat2(const char* label, float v[2], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+// IMGUI_API bool          InputFloat2(const char* label, float v[2], const char* format = "%.3f", ImGuiInputTextFlags flags = 0);
+export function InputFloat2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, format: string = "%.3f", flags: ImGuiInputTextFlags = 0): boolean {
     const _v = import_Vector2(v);
-    const ret = bind.InputFloat2(label, _v, format, extra_flags);
+    const ret = bind.InputFloat2(label, _v, format, flags);
     export_Vector2(_v, v);
     return ret;
 }
-// IMGUI_API bool          InputFloat3(const char* label, float v[3], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+// IMGUI_API bool          InputFloat3(const char* label, float v[3], const char* format = "%.3f", ImGuiInputTextFlags flags = 0);
+export function InputFloat3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, format: string = "%.3f", flags: ImGuiInputTextFlags = 0): boolean {
     const _v = import_Vector3(v);
-    const ret = bind.InputFloat3(label, _v, format, extra_flags);
+    const ret = bind.InputFloat3(label, _v, format, flags);
     export_Vector3(_v, v);
     return ret;
 }
-// IMGUI_API bool          InputFloat4(const char* label, float v[4], const char* format = "%.3f", ImGuiInputTextFlags extra_flags = 0);
-export function InputFloat4(label: string, v: XYZW | Bind.ImTuple4<number>, format: string = "%.3f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+// IMGUI_API bool          InputFloat4(const char* label, float v[4], const char* format = "%.3f", ImGuiInputTextFlags flags = 0);
+export function InputFloat4(label: string, v: XYZW | Bind.ImTuple4<number>, format: string = "%.3f", flags: ImGuiInputTextFlags = 0): boolean {
     const _v = import_Vector4(v);
-    const ret = bind.InputFloat4(label, _v, format, extra_flags);
+    const ret = bind.InputFloat4(label, _v, format, flags);
     export_Vector4(_v, v);
     return ret;
 }
-// IMGUI_API bool          InputInt(const char* label, int* v, int step = 1, int step_fast = 100, ImGuiInputTextFlags extra_flags = 0);
-export function InputInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 1, step_fast: number = 100, extra_flags: ImGuiInputTextFlags = 0): boolean {
+// IMGUI_API bool          InputInt(const char* label, int* v, int step = 1, int step_fast = 100, ImGuiInputTextFlags flags = 0);
+export function InputInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 1, step_fast: number = 100, flags: ImGuiInputTextFlags = 0): boolean {
     const _v = import_Scalar(v);
-    const ret = bind.InputInt(label, _v, step, step_fast, extra_flags);
+    const ret = bind.InputInt(label, _v, step, step_fast, flags);
     export_Scalar(_v, v);
     return ret;
 }
-// IMGUI_API bool          InputInt2(const char* label, int v[2], ImGuiInputTextFlags extra_flags = 0);
-export function InputInt2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
+// IMGUI_API bool          InputInt2(const char* label, int v[2], ImGuiInputTextFlags flags = 0);
+export function InputInt2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, flags: ImGuiInputTextFlags = 0): boolean {
     const _v = import_Vector2(v);
-    const ret = bind.InputInt2(label, _v, extra_flags);
+    const ret = bind.InputInt2(label, _v, flags);
     export_Vector2(_v, v);
     return ret;
 }
-// IMGUI_API bool          InputInt3(const char* label, int v[3], ImGuiInputTextFlags extra_flags = 0);
-export function InputInt3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
+// IMGUI_API bool          InputInt3(const char* label, int v[3], ImGuiInputTextFlags flags = 0);
+export function InputInt3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, flags: ImGuiInputTextFlags = 0): boolean {
     const _v = import_Vector3(v);
-    const ret = bind.InputInt3(label, _v, extra_flags);
+    const ret = bind.InputInt3(label, _v, flags);
     export_Vector3(_v, v);
     return ret;
 }
-// IMGUI_API bool          InputInt4(const char* label, int v[4], ImGuiInputTextFlags extra_flags = 0);
-export function InputInt4(label: string, v: XYZW | Bind.ImTuple4<number>, extra_flags: ImGuiInputTextFlags = 0): boolean {
+// IMGUI_API bool          InputInt4(const char* label, int v[4], ImGuiInputTextFlags flags = 0);
+export function InputInt4(label: string, v: XYZW | Bind.ImTuple4<number>, flags: ImGuiInputTextFlags = 0): boolean {
     const _v = import_Vector4(v);
-    const ret = bind.InputInt4(label, _v, extra_flags);
+    const ret = bind.InputInt4(label, _v, flags);
     export_Vector4(_v, v);
     return ret;
 }
-// IMGUI_API bool          InputDouble(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.6f", ImGuiInputTextFlags extra_flags = 0);
-export function InputDouble(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, format: string = "%.6f", extra_flags: ImGuiInputTextFlags = 0): boolean {
+// IMGUI_API bool          InputDouble(const char* label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.6f", ImGuiInputTextFlags flags = 0);
+export function InputDouble(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step: number = 0.0, step_fast: number = 0.0, format: string = "%.6f", flags: ImGuiInputTextFlags = 0): boolean {
     const _v = import_Scalar(v);
-    const ret = bind.InputDouble(label, _v, step, step_fast, format, extra_flags);
+    const ret = bind.InputDouble(label, _v, step, step_fast, format, flags);
     export_Scalar(_v, v);
     return ret;
 }
-// IMGUI_API bool          InputScalar(const char* label, ImGuiDataType data_type, void* v, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
-// IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags extra_flags = 0);
-export function InputScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, step: number | null = null, step_fast: number | null = null, format: string | null = null, extra_flags: ImGuiInputTextFlags = 0): boolean {
-    if (v instanceof Int8Array) { return bind.InputScalar(label, ImGuiDataType.S8, v, step, step_fast, format, extra_flags); }
-    if (v instanceof Uint8Array) { return bind.InputScalar(label, ImGuiDataType.U8, v, step, step_fast, format, extra_flags); }
-    if (v instanceof Int16Array) { return bind.InputScalar(label, ImGuiDataType.S16, v, step, step_fast, format, extra_flags); }
-    if (v instanceof Uint16Array) { return bind.InputScalar(label, ImGuiDataType.U16, v, step, step_fast, format, extra_flags); }
-    if (v instanceof Int32Array) { return bind.InputScalar(label, ImGuiDataType.S32, v, step, step_fast, format, extra_flags); }
-    if (v instanceof Uint32Array) { return bind.InputScalar(label, ImGuiDataType.U32, v, step, step_fast, format, extra_flags); }
-    // if (v instanceof Int64Array) { return bind.InputScalar(label, ImGuiDataType.S64, v, step, step_fast, format, extra_flags); }
-    // if (v instanceof Uint64Array) { return bind.InputScalar(label, ImGuiDataType.U64, v, step, step_fast, format, extra_flags); }
-    if (v instanceof Float32Array) { return bind.InputScalar(label, ImGuiDataType.Float, v, step, step_fast, format, extra_flags); }
-    if (v instanceof Float64Array) { return bind.InputScalar(label, ImGuiDataType.Double, v, step, step_fast, format, extra_flags); }
+// IMGUI_API bool          InputScalar(const char* label, ImGuiDataType data_type, void* v, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags flags = 0);
+// IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* v, int components, const void* step = NULL, const void* step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags flags = 0);
+export function InputScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, step: number | null = null, step_fast: number | null = null, format: string | null = null, flags: ImGuiInputTextFlags = 0): boolean {
+    if (v instanceof Int8Array) { return bind.InputScalar(label, ImGuiDataType.S8, v, step, step_fast, format, flags); }
+    if (v instanceof Uint8Array) { return bind.InputScalar(label, ImGuiDataType.U8, v, step, step_fast, format, flags); }
+    if (v instanceof Int16Array) { return bind.InputScalar(label, ImGuiDataType.S16, v, step, step_fast, format, flags); }
+    if (v instanceof Uint16Array) { return bind.InputScalar(label, ImGuiDataType.U16, v, step, step_fast, format, flags); }
+    if (v instanceof Int32Array) { return bind.InputScalar(label, ImGuiDataType.S32, v, step, step_fast, format, flags); }
+    if (v instanceof Uint32Array) { return bind.InputScalar(label, ImGuiDataType.U32, v, step, step_fast, format, flags); }
+    // if (v instanceof Int64Array) { return bind.InputScalar(label, ImGuiDataType.S64, v, step, step_fast, format, flags); }
+    // if (v instanceof Uint64Array) { return bind.InputScalar(label, ImGuiDataType.U64, v, step, step_fast, format, flags); }
+    if (v instanceof Float32Array) { return bind.InputScalar(label, ImGuiDataType.Float, v, step, step_fast, format, flags); }
+    if (v instanceof Float64Array) { return bind.InputScalar(label, ImGuiDataType.Double, v, step, step_fast, format, flags); }
     throw new Error();
 }
 
@@ -4017,47 +4017,47 @@ export function MenuItem(label: string, ...args: any[]): boolean {
 
 // Popups
 // IMGUI_API bool          BeginPopup(const char* str_id);                                     // return true if the popup is open, and you can start outputting to it. only call EndPopup() if BeginPopup() returned true!
-export function BeginPopup(str_id: string): boolean { return bind.BeginPopup(str_id); }
-// IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags extra_flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
-export function BeginPopupModal(str_id: string = "", p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null = null, extra_flags: ImGuiWindowFlags = 0): boolean {
+export function BeginPopup(str_id: string, flags: ImGuiWindowFlags = 0): boolean { return bind.BeginPopup(str_id, flags); }
+// IMGUI_API bool          BeginPopupModal(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0);               // modal dialog (block interactions behind the modal window, can't close the modal window by clicking outside)
+export function BeginPopupModal(str_id: string = "", p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null = null, flags: ImGuiWindowFlags = 0): boolean {
     if (Array.isArray(p_open)) {
-        return bind.BeginPopupModal(str_id, p_open, extra_flags);
+        return bind.BeginPopupModal(str_id, p_open, flags);
     } else if (typeof(p_open) === "function") {
         const _p_open: Bind.ImScalar<boolean> = [ p_open() ];
-        const ret = bind.BeginPopupModal(str_id, _p_open, extra_flags);
+        const ret = bind.BeginPopupModal(str_id, _p_open, flags);
         p_open(_p_open[0]);
         return ret;
     } else {
-        return bind.BeginPopupModal(str_id, null, extra_flags);
+        return bind.BeginPopupModal(str_id, null, flags);
     }
 }
 // IMGUI_API void          EndPopup();
 export function EndPopup(): void { bind.EndPopup(); }
 
 // IMGUI_API void          OpenPopup(const char* str_id);                                      // call to mark popup as open (don't call every frame!). popups are closed when user click outside, or if CloseCurrentPopup() is called within a BeginPopup()/EndPopup() block. By default, Selectable()/MenuItem() are calling CloseCurrentPopup(). Popup identifiers are relative to the current ID-stack (so OpenPopup and BeginPopup needs to be at the same level).
-export function OpenPopup(str_id: string): void { bind.OpenPopup(str_id); }
-// IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, int mouse_button = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
-export function OpenPopupOnItemClick(str_id: string | null = null, mouse_button: number = 1): void {
-    bind.OpenPopupOnItemClick(str_id, mouse_button);
+export function OpenPopup(str_id: string, popup_flags: ImGuiPopupFlags = 9): void { bind.OpenPopup(str_id, popup_flags); }
+// IMGUI_API bool          OpenPopupOnItemClick(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);                                  // helper to open popup when clicked on last item. return true when just opened.
+export function OpenPopupOnItemClick(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): void {
+    bind.OpenPopupOnItemClick(str_id, popup_flags);
 }
 // IMGUI_API void          CloseCurrentPopup();                                                // close the popup we have begin-ed into. clicking on a MenuItem or Selectable automatically close the current popup.
 export function CloseCurrentPopup(): void { bind.CloseCurrentPopup(); }
 
-// IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
-export function BeginPopupContextItem(str_id: string | null = null, mouse_button: number = 1): boolean {
-    return bind.BeginPopupContextItem(str_id, mouse_button);
+// IMGUI_API bool          BeginPopupContextItem(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);                                 // helper to open and begin popup when clicked on last item. if you can pass a NULL str_id only if the previous item had an id. If you want to use that on a non-interactive item such as Text() you need to pass in an explicit ID here. read comments in .cpp!
+export function BeginPopupContextItem(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean {
+    return bind.BeginPopupContextItem(str_id, popup_flags);
 }
-// IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, int mouse_button = 1, bool also_over_items = true);  // helper to open and begin popup when clicked on current window.
-export function BeginPopupContextWindow(str_id: string | null = null, mouse_button: number = 1): boolean {
-    return bind.BeginPopupContextWindow(str_id, mouse_button);
+// IMGUI_API bool          BeginPopupContextWindow(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1, bool also_over_items = true);  // helper to open and begin popup when clicked on current window.
+export function BeginPopupContextWindow(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean {
+    return bind.BeginPopupContextWindow(str_id, popup_flags);
 }
-// IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, int mouse_button = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
-export function BeginPopupContextVoid(str_id: string | null = null, mouse_button: number = 1): boolean {
-    return bind.BeginPopupContextVoid(str_id, mouse_button);
+// IMGUI_API bool          BeginPopupContextVoid(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);                                 // helper to open and begin popup when clicked in void (where there are no imgui windows).
+export function BeginPopupContextVoid(str_id: string | null = null, popup_flags: ImGuiPopupFlags = 1): boolean {
+    return bind.BeginPopupContextVoid(str_id, popup_flags);
 }
 
 // IMGUI_API bool          IsPopupOpen(const char* str_id);                                    // return true if the popup is open
-export function IsPopupOpen(str_id: string): boolean { return bind.IsPopupOpen(str_id); }
+export function IsPopupOpen(str_id: string, flags: ImGuiPopupFlags = 0): boolean { return bind.IsPopupOpen(str_id, flags); }
 
 // Tables
 // IMGUI_API bool          BeginTable(const char* str_id, int column, ImGuiTableFlags flags = 0, const ImVec2& outer_size = ImVec2(0.0f, 0.0f), float inner_width = 0.0f);
@@ -4177,6 +4177,9 @@ export function AcceptDragDropPayload<T>(type: string, flags: ImGuiDragDropFlags
 export function EndDragDropTarget(): void {
     bind.EndDragDropTarget();
 }
+export function GetDragDropPayload<T>(): ImGuiPayload<T> | null {
+    return bind.GetDragDropPayload();
+}
 
 // Clipping
 // IMGUI_API void          PushClipRect(const ImVec2& clip_rect_min, const ImVec2& clip_rect_max, bool intersect_with_current_clip_rect);
@@ -4286,9 +4289,9 @@ export function CalcListClipping(items_count: number, items_height: number, out_
     return bind.CalcListClipping(items_count, items_height, out_items_display_start, out_items_display_end);
 }
 
-// IMGUI_API bool          BeginChildFrame(ImGuiID id, const ImVec2& size, ImGuiWindowFlags extra_flags = 0);    // helper to create a child window / scrolling region that looks like a normal widget frame
-export function BeginChildFrame(id: Bind.ImGuiID, size: Readonly<Bind.interface_ImVec2>, extra_flags: ImGuiWindowFlags = 0): boolean {
-    return bind.BeginChildFrame(id, size, extra_flags);
+// IMGUI_API bool          BeginChildFrame(ImGuiID id, const ImVec2& size, ImGuiWindowFlags flags = 0);    // helper to create a child window / scrolling region that looks like a normal widget frame
+export function BeginChildFrame(id: Bind.ImGuiID, size: Readonly<Bind.interface_ImVec2>, flags: ImGuiWindowFlags = 0): boolean {
+return bind.BeginChildFrame(id, size, flags);
 }
 // IMGUI_API void          EndChildFrame();
 export function EndChildFrame(): void { bind.EndChildFrame(); }
