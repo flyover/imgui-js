@@ -2905,7 +2905,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
 
     // IMGUI_API bool          BeginChildFrame(ImGuiID id, const ImVec2& size, ImGuiWindowFlags extra_flags = 0);    // helper to create a child window / scrolling region that looks like a normal widget frame
-    emscripten::function("BeginChildFrame", &ImGui::BeginChildFrame);
+    emscripten::function("BeginChildFrame", FUNCTION(bool, (emscripten::val id, emscripten::val size, ImGuiWindowFlags extra_flags), {
+        return ImGui::BeginChildFrame(id.as<ImGuiID>(), import_ImVec2(size), extra_flags);
+    }));
     // IMGUI_API void          EndChildFrame();
     emscripten::function("EndChildFrame", &ImGui::EndChildFrame);
 
