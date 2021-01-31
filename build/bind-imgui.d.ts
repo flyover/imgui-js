@@ -1068,7 +1068,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API void          DestroyContext(ImGuiContext* ctx = NULL);   // NULL = destroy current context
     // IMGUI_API ImGuiContext* GetCurrentContext();
     // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
-    CreateContext(): WrapImGuiContext;
+    CreateContext(shared_font_atlas: reference_ImFontAtlas | null): WrapImGuiContext;
     DestroyContext(ctx: WrapImGuiContext | null): void;
     GetCurrentContext(): WrapImGuiContext | null;
     SetCurrentContext(ctx: WrapImGuiContext | null): void;

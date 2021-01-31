@@ -172,7 +172,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     exports_1("IM_COL32", IM_COL32);
     exports_1("COL32", IM_COL32);
     function CreateContext(shared_font_atlas = null) {
-        const ctx = new ImGuiContext(bind.CreateContext());
+        const ctx = new ImGuiContext(bind.CreateContext(shared_font_atlas !== null ? shared_font_atlas.native : null));
         if (ImGuiContext.current_ctx === null) {
             ImGuiContext.current_ctx = ctx;
         }
@@ -4551,7 +4551,6 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             ImGuiContext = class ImGuiContext {
                 constructor(native) {
                     this.native = native;
-                    this.textures = [];
                 }
                 static getTexture(index) {
                     if (ImGuiContext.current_ctx === null) {
@@ -4566,25 +4565,26 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                     return ImGuiContext.current_ctx._setTexture(texture);
                 }
                 _getTexture(index) {
-                    return this.textures[index] || null;
+                    return ImGuiContext.textures[index] || null;
                 }
                 _setTexture(texture) {
-                    let index = this.textures.indexOf(texture);
+                    let index = ImGuiContext.textures.indexOf(texture);
                     if (index === -1) {
-                        for (let i = 0; i < this.textures.length; ++i) {
-                            if (this.textures[i] === null) {
-                                this.textures[i] = texture;
+                        for (let i = 0; i < ImGuiContext.textures.length; ++i) {
+                            if (ImGuiContext.textures[i] === null) {
+                                ImGuiContext.textures[i] = texture;
                                 return i;
                             }
                         }
-                        index = this.textures.length;
-                        this.textures.push(texture);
+                        index = ImGuiContext.textures.length;
+                        ImGuiContext.textures.push(texture);
                     }
                     return index;
                 }
             };
             exports_1("ImGuiContext", ImGuiContext);
             ImGuiContext.current_ctx = null;
+            ImGuiContext.textures = [];
             // Drag and Drop
             // - If you stop calling BeginDragDropSource() the payload is preserved however it won't have a preview tooltip (we currently display a fallback "..." tooltip as replacement)
             // IMGUI_API bool          BeginDragDropSource(ImGuiDragDropFlags flags = 0);                                      // call when the current item is active. If this return true, you can call SetDragDropPayload() + EndDragDropSource()

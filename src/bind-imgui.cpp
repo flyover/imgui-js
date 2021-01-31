@@ -153,7 +153,7 @@ public:
     emscripten::val _ImGui_SetAllocatorFunctions_user_data = emscripten::val::undefined();
 
 public:
-    WrapImGuiContext(ImFontAtlas* shared_font_atlas = NULL): ctx(ImGui::CreateContext()) {
+    WrapImGuiContext(ImFontAtlas* shared_font_atlas = NULL): ctx(ImGui::CreateContext(shared_font_atlas)) {
         ImGuiContext* prev_ctx = ImGui::GetCurrentContext();
         ImGui::SetCurrentContext(ctx);
         ImGuiIO& io = ImGui::GetIO();
@@ -1676,7 +1676,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          DestroyContext(ImGuiContext* ctx = NULL);   // NULL = destroy current context
     // IMGUI_API ImGuiContext* GetCurrentContext();
     // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
-    emscripten::function("CreateContext", FUNCTION(WrapImGuiContext*, (), { return WrapImGuiContext::CreateContext(); }), emscripten::allow_raw_pointers()); // TODO: shared font atlas
+    emscripten::function("CreateContext", FUNCTION(WrapImGuiContext*, (ImFontAtlas* shared_font_atlas), { return WrapImGuiContext::CreateContext(shared_font_atlas); }), emscripten::allow_raw_pointers()); // TODO: shared font atlas
     emscripten::function("DestroyContext", FUNCTION(void, (WrapImGuiContext* wrap), { WrapImGuiContext::DestroyContext(wrap); }), emscripten::allow_raw_pointers());
     emscripten::function("GetCurrentContext", FUNCTION(WrapImGuiContext*, (), { return WrapImGuiContext::GetCurrentContext(); }), emscripten::allow_raw_pointers());
     emscripten::function("SetCurrentContext", FUNCTION(void, (WrapImGuiContext* wrap), { WrapImGuiContext::SetCurrentContext(wrap); }), emscripten::allow_raw_pointers());

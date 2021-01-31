@@ -1259,7 +1259,7 @@ export declare class ImGuiContext {
     static current_ctx: ImGuiContext | null;
     static getTexture(index: number): ImTextureID | null;
     static setTexture(texture: ImTextureID | null): number;
-    private textures;
+    private static textures;
     constructor(native: Bind.WrapImGuiContext);
     private _getTexture;
     private _setTexture;

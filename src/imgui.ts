@@ -2712,28 +2712,28 @@ export class ImGuiContext {
         return ImGuiContext.current_ctx._setTexture(texture);
     }
 
-    private textures: Array<ImTextureID | null> = [];
+    private static textures: Array<ImTextureID | null> = [];
     constructor(public readonly native: Bind.WrapImGuiContext) {}
     private _getTexture(index: number): ImTextureID | null {
-        return this.textures[index] || null;
+        return ImGuiContext.textures[index] || null;
     }
     private _setTexture(texture: ImTextureID | null): number {
-        let index = this.textures.indexOf(texture);
+        let index = ImGuiContext.textures.indexOf(texture);
         if (index === -1) {
-            for (let i = 0; i < this.textures.length; ++i) {
-                if (this.textures[i] === null) {
-                    this.textures[i] = texture;
+            for (let i = 0; i < ImGuiContext.textures.length; ++i) {
+                if (ImGuiContext.textures[i] === null) {
+                    ImGuiContext.textures[i] = texture;
                     return i;
                 }
             }
-            index = this.textures.length;
-            this.textures.push(texture);
+            index = ImGuiContext.textures.length;
+            ImGuiContext.textures.push(texture);
         }
         return index;
     }
 }
 export function CreateContext(shared_font_atlas: ImFontAtlas | null = null): ImGuiContext | null {
-    const ctx: ImGuiContext = new ImGuiContext(bind.CreateContext());
+    const ctx: ImGuiContext = new ImGuiContext(bind.CreateContext(shared_font_atlas !== null ? shared_font_atlas.native : null));
     if (ImGuiContext.current_ctx === null) {
         ImGuiContext.current_ctx = ctx;
     }
