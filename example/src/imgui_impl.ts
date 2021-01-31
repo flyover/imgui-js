@@ -4,7 +4,7 @@ let clipboard_text: string = "";
 
 let canvas: HTMLCanvasElement | null = null;
 
-export let gl: WebGLRenderingContext | null = null;
+export let gl: WebGL2RenderingContext | WebGLRenderingContext | null = null;
 let g_ShaderHandle: WebGLProgram | null = null;
 let g_VertHandle: WebGLShader | null = null;
 let g_FragHandle: WebGLShader | null = null;
@@ -179,12 +179,15 @@ function canvas_on_wheel(event: WheelEvent): void  {
     }
 }
 
-export function Init(value: HTMLCanvasElement | WebGLRenderingContext | CanvasRenderingContext2D | null): void {
+export function Init(value: HTMLCanvasElement | WebGL2RenderingContext | WebGLRenderingContext | CanvasRenderingContext2D | null): void {
     const io = ImGui.GetIO();
 
     if (typeof(window) !== "undefined") {
-        io.BackendPlatformName = "imgui_impl_html5";
+        io.BackendPlatformName = "imgui_impl_browser";
         ImGui.LoadIniSettingsFromMemory(window.localStorage.getItem("imgui.ini") || "");
+    }
+    else {
+        io.BackendPlatformName = "imgui_impl_console";
     }
 
     if (typeof(navigator) !== "undefined") {
@@ -228,16 +231,22 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | CanvasRe
 
     if (typeof(window) !== "undefined") {
         if (value instanceof(HTMLCanvasElement)) {
-            value = value.getContext("webgl", { alpha: false }) || value.getContext("2d");
+            canvas = value;
+            value = canvas.getContext("webgl2", { alpha: false }) || canvas.getContext("webgl", { alpha: false }) || canvas.getContext("2d");
         }
-        if (value instanceof(WebGLRenderingContext)) {
-            io.BackendRendererName = "imgui_impl_webgl";
-            canvas = value.canvas as HTMLCanvasElement;
+        if (value instanceof(WebGL2RenderingContext)) {
+            io.BackendRendererName = "imgui_impl_webgl2";
+            canvas = canvas || value.canvas as HTMLCanvasElement;
             gl = value;
         }
-        if (value instanceof(CanvasRenderingContext2D)) {
-            io.BackendRendererName = "imgui_impl_ctx2d";
-            canvas = value.canvas;
+        else if (value instanceof(WebGLRenderingContext)) {
+            io.BackendRendererName = "imgui_impl_webgl";
+            canvas = canvas || value.canvas as HTMLCanvasElement;
+            gl = value;
+        }
+        else if (value instanceof(CanvasRenderingContext2D)) {
+            io.BackendRendererName = "imgui_impl_2d";
+            canvas = canvas || value.canvas;
             ctx = value;
         }
     }

@@ -139,8 +139,11 @@ System.register(["imgui-js"], function (exports_1, context_1) {
     function Init(value) {
         const io = ImGui.GetIO();
         if (typeof (window) !== "undefined") {
-            io.BackendPlatformName = "imgui_impl_html5";
+            io.BackendPlatformName = "imgui_impl_browser";
             ImGui.LoadIniSettingsFromMemory(window.localStorage.getItem("imgui.ini") || "");
+        }
+        else {
+            io.BackendPlatformName = "imgui_impl_console";
         }
         if (typeof (navigator) !== "undefined") {
             io.ConfigMacOSXBehaviors = navigator.platform.match(/Mac/) !== null;
@@ -179,16 +182,22 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         }
         if (typeof (window) !== "undefined") {
             if (value instanceof (HTMLCanvasElement)) {
-                value = value.getContext("webgl", { alpha: false }) || value.getContext("2d");
+                canvas = value;
+                value = canvas.getContext("webgl2", { alpha: false }) || canvas.getContext("webgl", { alpha: false }) || canvas.getContext("2d");
             }
-            if (value instanceof (WebGLRenderingContext)) {
-                io.BackendRendererName = "imgui_impl_webgl";
-                canvas = value.canvas;
+            if (value instanceof (WebGL2RenderingContext)) {
+                io.BackendRendererName = "imgui_impl_webgl2";
+                canvas = canvas || value.canvas;
                 exports_1("gl", gl = value);
             }
-            if (value instanceof (CanvasRenderingContext2D)) {
-                io.BackendRendererName = "imgui_impl_ctx2d";
-                canvas = value.canvas;
+            else if (value instanceof (WebGLRenderingContext)) {
+                io.BackendRendererName = "imgui_impl_webgl";
+                canvas = canvas || value.canvas;
+                exports_1("gl", gl = value);
+            }
+            else if (value instanceof (CanvasRenderingContext2D)) {
+                io.BackendRendererName = "imgui_impl_2d";
+                canvas = canvas || value.canvas;
                 exports_1("ctx", ctx = value);
             }
         }
