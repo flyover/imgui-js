@@ -234,17 +234,17 @@ export function Init(value: HTMLCanvasElement | WebGL2RenderingContext | WebGLRe
             canvas = value;
             value = canvas.getContext("webgl2", { alpha: false }) || canvas.getContext("webgl", { alpha: false }) || canvas.getContext("2d");
         }
-        if (value instanceof(WebGL2RenderingContext)) {
+        if (typeof WebGL2RenderingContext !== "undefined" && value instanceof(WebGL2RenderingContext)) {
             io.BackendRendererName = "imgui_impl_webgl2";
             canvas = canvas || value.canvas as HTMLCanvasElement;
             gl = value;
         }
-        else if (value instanceof(WebGLRenderingContext)) {
+        else if (typeof WebGLRenderingContext !== "undefined" && value instanceof(WebGLRenderingContext)) {
             io.BackendRendererName = "imgui_impl_webgl";
             canvas = canvas || value.canvas as HTMLCanvasElement;
             gl = value;
         }
-        else if (value instanceof(CanvasRenderingContext2D)) {
+        else if (typeof CanvasRenderingContext2D !== "undefined" && value instanceof(CanvasRenderingContext2D)) {
             io.BackendRendererName = "imgui_impl_2d";
             canvas = canvas || value.canvas;
             ctx = value;
