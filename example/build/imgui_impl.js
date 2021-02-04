@@ -348,6 +348,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 if (!gamepad) {
                     continue;
                 }
+                io.BackendFlags |= ImGui.BackendFlags.HasGamepad;
                 const buttons_count = gamepad.buttons.length;
                 const axes_count = gamepad.axes.length;
                 function MAP_BUTTON(NAV_NO, BUTTON_NO) {

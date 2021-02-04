@@ -387,6 +387,7 @@ export function NewFrame(time: number): void {
         for (let i = 0; i < gamepads.length; ++i) {
             const gamepad: Gamepad | null = gamepads[i];
             if (!gamepad) { continue; }
+            io.BackendFlags |= ImGui.BackendFlags.HasGamepad;
             const buttons_count: number = gamepad.buttons.length;
             const axes_count: number = gamepad.axes.length;
             function MAP_BUTTON(NAV_NO: number, BUTTON_NO: number): void {
