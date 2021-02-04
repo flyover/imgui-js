@@ -133,17 +133,20 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             col[0] = tuple[0];
             col[1] = tuple[1];
             col[2] = tuple[2];
+            col[3] = tuple[3];
             return;
         }
         if ("r" in col) {
             col.r = tuple[0];
             col.g = tuple[1];
             col.b = tuple[2];
+            col.a = tuple[3];
             return;
         }
         col.x = tuple[0];
         col.y = tuple[1];
         col.z = tuple[2];
+        col.w = tuple[3];
     }
     function IMGUI_CHECKVERSION() { return DebugCheckVersionAndDataLayout(IMGUI_VERSION, bind.ImGuiIOSize, bind.ImGuiStyleSize, bind.ImVec2Size, bind.ImVec4Size, bind.ImDrawVertSize, bind.ImDrawIdxSize); }
     exports_1("IMGUI_CHECKVERSION", IMGUI_CHECKVERSION);

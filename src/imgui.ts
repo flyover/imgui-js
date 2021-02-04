@@ -80,9 +80,9 @@ function import_Color4(col: RGBA | Bind.ImTuple4<number> | Bind.interface_ImVec4
 }
 
 function export_Color4(tuple: Bind.ImTuple4<number>, col: RGBA | Bind.ImTuple4<number> | Bind.interface_ImVec4 | RGBA): void {
-    if (Array.isArray(col)) { col[0] = tuple[0]; col[1] = tuple[1]; col[2] = tuple[2]; return; }
-    if ("r" in col) { col.r = tuple[0]; col.g = tuple[1]; col.b = tuple[2]; return; }
-    col.x = tuple[0]; col.y = tuple[1]; col.z = tuple[2];
+    if (Array.isArray(col)) { col[0] = tuple[0]; col[1] = tuple[1]; col[2] = tuple[2]; col[3] = tuple[3]; return; }
+    if ("r" in col) { col.r = tuple[0]; col.g = tuple[1]; col.b = tuple[2]; col.a = tuple[3]; return; }
+    col.x = tuple[0]; col.y = tuple[1]; col.z = tuple[2]; col.w = tuple[3];
 }
 
 import * as config from "./imconfig.js";

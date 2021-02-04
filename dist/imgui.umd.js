@@ -451,17 +451,20 @@
             col[0] = tuple[0];
             col[1] = tuple[1];
             col[2] = tuple[2];
+            col[3] = tuple[3];
             return;
         }
         if ("r" in col) {
             col.r = tuple[0];
             col.g = tuple[1];
             col.b = tuple[2];
+            col.a = tuple[3];
             return;
         }
         col.x = tuple[0];
         col.y = tuple[1];
         col.z = tuple[2];
+        col.w = tuple[3];
     }
     const IMGUI_VERSION = "1.80"; // bind.IMGUI_VERSION;
     const IMGUI_VERSION_NUM = 18000; // bind.IMGUI_VERSION_NUM;
