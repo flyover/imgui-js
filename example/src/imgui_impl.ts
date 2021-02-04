@@ -637,7 +637,7 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
                             quad = quad && (minmin.pos[1] === maxmin.pos[1]);
                             quad = quad && (minmax.pos[1] === maxmax.pos[1]);
                             if (quad) {
-                                if (minmin.uv[0] < 0.01 && minmin.uv[1] < 0.01) {
+                                if (minmin.uv[0] === maxmax.uv[0] || minmin.uv[1] === maxmax.uv[1]) {
                                     // one vertex color
                                     ctx.beginPath();
                                     ctx.rect(minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
@@ -645,10 +645,12 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
                                     ctx.fill();
                                 } else {
                                     // no vertex color
-                                    const image = draw_cmd.TextureId as HTMLCanvasElement;
-                                    ctx.drawImage(image,
-                                        minmin.uv[0] * image.width, minmin.uv[1] * image.height,
-                                        (maxmax.uv[0] - minmin.uv[0]) * image.width, (maxmax.uv[1] - minmin.uv[1]) * image.height,
+                                    const image = draw_cmd.TextureId as CanvasImageSource; // HACK
+                                    const width = image instanceof HTMLVideoElement ? image.videoWidth : image.width as number;
+                                    const height = image instanceof HTMLVideoElement ? image.videoHeight : image.height as number;
+                                    image && ctx.drawImage(image,
+                                        minmin.uv[0] * width, minmin.uv[1] * height,
+                                        (maxmax.uv[0] - minmin.uv[0]) * width, (maxmax.uv[1] - minmin.uv[1]) * height,
                                         minmin.pos[0], minmin.pos[1], 
                                         maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
                                     // ctx.beginPath();

@@ -322,6 +322,9 @@ let image_element: HTMLImageElement | null = null;
 let image_gl_texture: WebGLTexture | null = null;
 
 function StartUpImage(): void {
+    const image: HTMLImageElement = image_element = new Image();
+    image.crossOrigin = "anonymous";
+    
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
     if (gl) {
         const width: number = 256;
@@ -335,23 +338,32 @@ function StartUpImage(): void {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 
-        const image: HTMLImageElement = image_element = new Image();
-        image.crossOrigin = "anonymous";
         image.addEventListener("load", (event: Event) => {
             gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
         });
-        image.src = image_url;
     }
+
+    const ctx: CanvasRenderingContext2D | null = ImGui_Impl.ctx;
+    if (ctx) {
+        image_gl_texture = image_element; // HACK
+    }
+
+    image.src = image_url;
 }
 
 function CleanUpImage(): void {
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
     if (gl) {
         gl.deleteTexture(image_gl_texture); image_gl_texture = null;
-
-        image_element = null;
     }
+
+    const ctx: CanvasRenderingContext2D | null = ImGui_Impl.ctx;
+    if (ctx) {
+        image_gl_texture = null;
+    }
+
+    image_element = null;
 }
 
 const video_urls: string[] = [
@@ -380,14 +392,14 @@ let video_time: number = 0;
 let video_duration: number = 0;
 
 function StartUpVideo(): void {
+    video_element = document.createElement("video");
+    video_element.crossOrigin = "anonymous";
+    video_element.preload = "auto";
+    video_element.src = video_url;
+    video_element.load();
+
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
     if (gl) {
-        video_element = document.createElement("video");
-        video_element.crossOrigin = "anonymous";
-        video_element.preload = "auto";
-        video_element.src = video_url;
-        video_element.load();
-
         const width: number = 256;
         const height: number = 256;
         const pixels: Uint8Array = new Uint8Array(4 * width * height);
@@ -399,15 +411,25 @@ function StartUpVideo(): void {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
     }
+
+    const ctx: CanvasRenderingContext2D | null = ImGui_Impl.ctx;
+    if (ctx) {
+        video_gl_texture = video_element; // HACK
+    }
 }
 
 function CleanUpVideo(): void {
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
     if (gl) {
         gl.deleteTexture(video_gl_texture); video_gl_texture = null;
-
-        video_element = null;
     }
+
+    const ctx: CanvasRenderingContext2D | null = ImGui_Impl.ctx;
+    if (ctx) {
+        video_gl_texture = null;
+    }
+
+    video_element = null;
 }
 
 function UpdateVideo(): void {

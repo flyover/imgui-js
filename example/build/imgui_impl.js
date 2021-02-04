@@ -607,7 +607,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                                 quad = quad && (minmin.pos[1] === maxmin.pos[1]);
                                 quad = quad && (minmax.pos[1] === maxmax.pos[1]);
                                 if (quad) {
-                                    if (minmin.uv[0] < 0.01 && minmin.uv[1] < 0.01) {
+                                    if (minmin.uv[0] === maxmax.uv[0] || minmin.uv[1] === maxmax.uv[1]) {
                                         // one vertex color
                                         ctx.beginPath();
                                         ctx.rect(minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
@@ -616,8 +616,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                                     }
                                     else {
                                         // no vertex color
-                                        const image = draw_cmd.TextureId;
-                                        ctx.drawImage(image, minmin.uv[0] * image.width, minmin.uv[1] * image.height, (maxmax.uv[0] - minmin.uv[0]) * image.width, (maxmax.uv[1] - minmin.uv[1]) * image.height, minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
+                                        const image = draw_cmd.TextureId; // HACK
+                                        const width = image instanceof HTMLVideoElement ? image.videoWidth : image.width;
+                                        const height = image instanceof HTMLVideoElement ? image.videoHeight : image.height;
+                                        image && ctx.drawImage(image, minmin.uv[0] * width, minmin.uv[1] * height, (maxmax.uv[0] - minmin.uv[0]) * width, (maxmax.uv[1] - minmin.uv[1]) * height, minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
                                         // ctx.beginPath();
                                         // ctx.rect(minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
                                         // ctx.strokeStyle = "yellow";

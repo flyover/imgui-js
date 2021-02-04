@@ -288,6 +288,8 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         ImGui.End();
     }
     function StartUpImage() {
+        const image = image_element = new Image();
+        image.crossOrigin = "anonymous";
         const gl = ImGui_Impl.gl;
         if (gl) {
             const width = 256;
@@ -300,31 +302,37 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-            const image = image_element = new Image();
-            image.crossOrigin = "anonymous";
             image.addEventListener("load", (event) => {
                 gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
             });
-            image.src = image_url;
         }
+        const ctx = ImGui_Impl.ctx;
+        if (ctx) {
+            image_gl_texture = image_element; // HACK
+        }
+        image.src = image_url;
     }
     function CleanUpImage() {
         const gl = ImGui_Impl.gl;
         if (gl) {
             gl.deleteTexture(image_gl_texture);
             image_gl_texture = null;
-            image_element = null;
         }
+        const ctx = ImGui_Impl.ctx;
+        if (ctx) {
+            image_gl_texture = null;
+        }
+        image_element = null;
     }
     function StartUpVideo() {
+        video_element = document.createElement("video");
+        video_element.crossOrigin = "anonymous";
+        video_element.preload = "auto";
+        video_element.src = video_url;
+        video_element.load();
         const gl = ImGui_Impl.gl;
         if (gl) {
-            video_element = document.createElement("video");
-            video_element.crossOrigin = "anonymous";
-            video_element.preload = "auto";
-            video_element.src = video_url;
-            video_element.load();
             const width = 256;
             const height = 256;
             const pixels = new Uint8Array(4 * width * height);
@@ -336,14 +344,22 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
         }
+        const ctx = ImGui_Impl.ctx;
+        if (ctx) {
+            video_gl_texture = video_element; // HACK
+        }
     }
     function CleanUpVideo() {
         const gl = ImGui_Impl.gl;
         if (gl) {
             gl.deleteTexture(video_gl_texture);
             video_gl_texture = null;
-            video_element = null;
         }
+        const ctx = ImGui_Impl.ctx;
+        if (ctx) {
+            video_gl_texture = null;
+        }
+        video_element = null;
     }
     function UpdateVideo() {
         const gl = ImGui_Impl.gl;
