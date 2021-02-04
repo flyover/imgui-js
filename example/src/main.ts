@@ -5,6 +5,7 @@ import { MemoryEditor } from "./imgui_memory_editor.js";
 
 let font: ImGui.Font | null = null;
 
+// Our state
 let show_demo_window: boolean = true;
 let show_another_window: boolean = false;
 const clear_color: ImGui.Vec4 = new ImGui.Vec4(0.45, 0.55, 0.60, 1.00);
@@ -48,14 +49,14 @@ async function AddFontFromFileTTF(url: string, size_pixels: number, font_cfg: Im
 async function _init(): Promise<void> {
     console.log("Total allocated space (uordblks) @ _init:", ImGui.bind.mallinfo().uordblks);
 
-    // Setup Dear ImGui binding
+    // Setup Dear ImGui context
     ImGui.CHECKVERSION();
     ImGui.CreateContext();
-
     const io: ImGui.IO = ImGui.GetIO();
-    // io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;  // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGui.ConfigFlags.NavEnableGamepad;      // Enable Gamepad Controls
 
-    // Setup style
+    // Setup Dear ImGui style
     ImGui.StyleColorsDark();
     //ImGui.StyleColorsClassic();
 
@@ -64,7 +65,7 @@ async function _init(): Promise<void> {
     // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
     // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
     // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-    // - Read 'misc/fonts/README.txt' for more instructions and details.
+    // - Read 'docs/FONTS.md' for more instructions and details.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
     io.Fonts.AddFontDefault();
     font = await AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 16.0);
@@ -75,6 +76,9 @@ async function _init(): Promise<void> {
     // font = await AddFontFromFileTTF("https://raw.githubusercontent.com/googlei18n/noto-cjk/master/NotoSansJP-Regular.otf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
     ImGui.ASSERT(font !== null);
 
+    // Setup Platform/Renderer backends
+    // ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
+    // ImGui_ImplOpenGL3_Init(glsl_version);
     if (typeof(window) !== "undefined") {
         const output: HTMLElement = document.getElementById("output") || document.body;
         const canvas: HTMLCanvasElement = document.createElement("canvas");
@@ -322,8 +326,11 @@ let image_element: HTMLImageElement | null = null;
 let image_gl_texture: WebGLTexture | null = null;
 
 function StartUpImage(): void {
-    const image: HTMLImageElement = image_element = new Image();
-    image.crossOrigin = "anonymous";
+    if (typeof document !== "undefined") {
+        image_element = document.createElement("img");
+        image_element.crossOrigin = "anonymous";
+        image_element.src = image_url;
+    }
     
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
     if (gl) {
@@ -338,18 +345,20 @@ function StartUpImage(): void {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 
-        image.addEventListener("load", (event: Event) => {
-            gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-        });
+        if (image_element) {
+            image_element.addEventListener("load", (event: Event) => {
+                if (image_element) {
+                    gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image_element);
+                }
+            });
+        }
     }
 
     const ctx: CanvasRenderingContext2D | null = ImGui_Impl.ctx;
     if (ctx) {
         image_gl_texture = image_element; // HACK
     }
-
-    image.src = image_url;
 }
 
 function CleanUpImage(): void {
@@ -392,11 +401,13 @@ let video_time: number = 0;
 let video_duration: number = 0;
 
 function StartUpVideo(): void {
-    video_element = document.createElement("video");
-    video_element.crossOrigin = "anonymous";
-    video_element.preload = "auto";
-    video_element.src = video_url;
-    video_element.load();
+    if (typeof document !== "undefined") {
+        video_element = document.createElement("video");
+        video_element.crossOrigin = "anonymous";
+        video_element.preload = "auto";
+        video_element.src = video_url;
+        video_element.load();
+    }
 
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
     if (gl) {
