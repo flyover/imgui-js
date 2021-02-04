@@ -697,7 +697,7 @@ export class MemoryEditor
             // EndianessCopy(&int8, buf, size);
             // if (data_format === MemoryEditor.DataFormat.Dec) { ImSnprintf(out_buf, out_buf_size, "%hhd", int8); return; }
             // if (data_format === MemoryEditor.DataFormat.Hex) { ImSnprintf(out_buf, out_buf_size, "0x%02x", int8 & 0xFF); return; }
-            const int8 = new Uint16Array(buf.buffer);
+            const int8 = new Int8Array(buf.buffer);
             if (data_format === MemoryEditor.DataFormat.Dec) { out_buf.buffer = int8[0].toString(); return; }
             if (data_format === MemoryEditor.DataFormat.Hex) { out_buf.buffer = `0x${int8[0].toString(16).padStart(2, "0")}`; return; }
             break;
