@@ -521,6 +521,30 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
     const last_enable_depth_test: GLboolean | null = gl && gl.getParameter(gl.DEPTH_TEST) || null;
     const last_enable_scissor_test: GLboolean | null = gl && gl.getParameter(gl.SCISSOR_TEST) || null;
 
+    const last_attr0_enable    : GLboolean | null = gl && gl.getVertexAttrib(g_AttribLocationPosition, gl.VERTEX_ATTRIB_ARRAY_ENABLED) || null;
+    const last_attr0_buffer    : WebGLBuffer | null = gl && gl.getVertexAttrib(g_AttribLocationPosition, gl.VERTEX_ATTRIB_ARRAY_BUFFER_BINDING);
+    const last_attr0_size      : GLint | null = gl && gl.getVertexAttrib(g_AttribLocationPosition, gl.VERTEX_ATTRIB_ARRAY_SIZE);
+    const last_attr0_stride    : GLsizei | null = gl && gl.getVertexAttrib(g_AttribLocationPosition, gl.VERTEX_ATTRIB_ARRAY_STRIDE);
+    const last_attr0_type      : GLenum | null = gl && gl.getVertexAttrib(g_AttribLocationPosition, gl.VERTEX_ATTRIB_ARRAY_TYPE);
+    const last_attr0_normalized: GLboolean | null = gl && gl.getVertexAttrib(g_AttribLocationPosition, gl.VERTEX_ATTRIB_ARRAY_NORMALIZED);
+    const last_attr0_offset    : GLintptr | null = gl && gl.getVertexAttribOffset(g_AttribLocationPosition, gl.VERTEX_ATTRIB_ARRAY_POINTER);
+
+    const last_attr1_enable    : GLboolean | null = gl && gl.getVertexAttrib(g_AttribLocationUV, gl.VERTEX_ATTRIB_ARRAY_ENABLED) || null;
+    const last_attr1_buffer    : WebGLBuffer | null = gl && gl.getVertexAttrib(g_AttribLocationUV, gl.VERTEX_ATTRIB_ARRAY_BUFFER_BINDING);
+    const last_attr1_size      : GLint | null = gl && gl.getVertexAttrib(g_AttribLocationUV, gl.VERTEX_ATTRIB_ARRAY_SIZE);
+    const last_attr1_stride    : GLsizei | null = gl && gl.getVertexAttrib(g_AttribLocationUV, gl.VERTEX_ATTRIB_ARRAY_STRIDE);
+    const last_attr1_type      : GLenum | null = gl && gl.getVertexAttrib(g_AttribLocationUV, gl.VERTEX_ATTRIB_ARRAY_TYPE);
+    const last_attr1_normalized: GLboolean | null = gl && gl.getVertexAttrib(g_AttribLocationUV, gl.VERTEX_ATTRIB_ARRAY_NORMALIZED);
+    const last_attr1_offset    : WebGLBuffer | null = gl && gl.getVertexAttribOffset(g_AttribLocationUV, gl.VERTEX_ATTRIB_ARRAY_POINTER);
+
+    const last_attr2_enable    : GLboolean | null = gl && gl.getVertexAttrib(g_AttribLocationColor, gl.VERTEX_ATTRIB_ARRAY_ENABLED) || null;
+    const last_attr2_buffer    : WebGLBuffer | null = gl && gl.getVertexAttrib(g_AttribLocationColor, gl.VERTEX_ATTRIB_ARRAY_BUFFER_BINDING);
+    const last_attr2_size      : GLint | null = gl && gl.getVertexAttrib(g_AttribLocationColor, gl.VERTEX_ATTRIB_ARRAY_SIZE);
+    const last_attr2_stride    : GLsizei | null = gl && gl.getVertexAttrib(g_AttribLocationColor, gl.VERTEX_ATTRIB_ARRAY_STRIDE);
+    const last_attr2_type      : GLenum | null = gl && gl.getVertexAttrib(g_AttribLocationColor, gl.VERTEX_ATTRIB_ARRAY_TYPE);
+    const last_attr2_normalized: GLboolean | null = gl && gl.getVertexAttrib(g_AttribLocationColor, gl.VERTEX_ATTRIB_ARRAY_NORMALIZED);
+    const last_attr2_offset    : GLint | null = gl && gl.getVertexAttribOffset(g_AttribLocationColor, gl.VERTEX_ATTRIB_ARRAY_POINTER);
+
     // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, polygon fill
     gl && gl.enable(gl.BLEND);
     gl && gl.blendEquation(gl.FUNC_ADD);
@@ -684,9 +708,25 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
     gl && (last_program !== null) && gl.useProgram(last_program);
     gl && (last_texture !== null) && gl.bindTexture(gl.TEXTURE_2D, last_texture);
     gl && (last_active_texture !== null) && gl.activeTexture(last_active_texture);
-    gl && gl.disableVertexAttribArray(g_AttribLocationPosition);
-    gl && gl.disableVertexAttribArray(g_AttribLocationUV);
-    gl && gl.disableVertexAttribArray(g_AttribLocationColor);
+
+    gl && last_attr0_enable ? gl.enableVertexAttribArray(g_AttribLocationPosition) : gl?.disableVertexAttribArray(g_AttribLocationPosition);
+    if (last_attr0_buffer) {
+      gl && gl.bindBuffer(gl.ARRAY_BUFFER, last_attr0_buffer);
+      gl && gl.vertexAttribPointer(g_AttribLocationPosition, last_attr0_size, last_attr0_type, last_attr0_normalize, last_attr0_stride, last_attr0_offset);
+    }
+
+    gl && last_attr1_enable ? gl.enableVertexAttribArray(g_AttribLocationUV) : gl.disableVertexAttribArray(g_AttribLocationUV);
+    if (last_attr1_buffer) {
+      gl && gl.bindBuffer(gl.ARRAY_BUFFER, last_attr1_buffer);
+      gl && gl.vertexAttribPointer(g_AttribLocationUV, last_attr1_size, last_attr1_type, last_attr1_normalize, last_attr1_stride, last_attr1_offset);
+    }
+
+    gl && last_attr2_enable ? gl.enableVertexAttribArray(g_AttribLocationColor) : gl.disableVertexAttribArray(g_AttribLocationColor);
+    if (last_attr2_buffer) {
+      gl && gl.bindBuffer(gl.ARRAY_BUFFER, last_attr2_buffer);
+      gl && gl.vertexAttribPointer(g_AttribLocationColor, last_attr2_size, last_attr2_type, last_attr2_normalize, last_attr2_stride, last_attr2_offset);
+    }
+
     gl && (last_array_buffer !== null) && gl.bindBuffer(gl.ARRAY_BUFFER, last_array_buffer);
     gl && (last_element_array_buffer !== null) && gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
     gl && (last_blend_equation_rgb !== null && last_blend_equation_alpha !== null) && gl.blendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
