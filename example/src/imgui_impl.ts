@@ -501,12 +501,16 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
     }
     draw_data.ScaleClipRects(io.DisplayFramebufferScale);
 
+    const gl2: WebGL2RenderingContext | null = gl instanceof WebGL2RenderingContext && gl || null;
+    const gl_vao: OES_vertex_array_object | null = gl && gl.getExtension("OES_vertex_array_object") || null;
+
     // Backup GL state
     const last_active_texture: GLenum | null = gl && gl.getParameter(gl.ACTIVE_TEXTURE) || null;
     const last_program: WebGLProgram | null = gl && gl.getParameter(gl.CURRENT_PROGRAM) || null;
     const last_texture: WebGLTexture | null = gl && gl.getParameter(gl.TEXTURE_BINDING_2D) || null;
     const last_array_buffer: WebGLBuffer | null = gl && gl.getParameter(gl.ARRAY_BUFFER_BINDING) || null;
     const last_element_array_buffer: WebGLBuffer | null = gl && gl.getParameter(gl.ELEMENT_ARRAY_BUFFER_BINDING) || null;
+    const last_vertex_array_object: WebGLVertexArrayObject | WebGLVertexArrayObjectOES | null = gl2 && gl2.getParameter(gl2.VERTEX_ARRAY_BINDING) || gl && gl_vao && gl.getParameter(gl_vao.VERTEX_ARRAY_BINDING_OES) || null;
     // GLint last_polygon_mode[2]; glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
     const last_viewport: Int32Array | null = gl && gl.getParameter(gl.VIEWPORT) || null;
     const last_scissor_box: Int32Array | null = gl && gl.getParameter(gl.SCISSOR_BOX) || null;
@@ -520,6 +524,11 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
     const last_enable_cull_face: GLboolean | null = gl && gl.getParameter(gl.CULL_FACE) || null;
     const last_enable_depth_test: GLboolean | null = gl && gl.getParameter(gl.DEPTH_TEST) || null;
     const last_enable_scissor_test: GLboolean | null = gl && gl.getParameter(gl.SCISSOR_TEST) || null;
+
+    // Setup desired GL state
+    // Recreate the VAO every time (this is to easily allow multiple GL contexts to be rendered to. VAO are not shared among GL contexts)
+    // The renderer would actually work without any VAO bound, but then our VertexAttrib calls would overwrite the default one currently bound.
+    const vertex_array_object: WebGLVertexArrayObject | WebGLVertexArrayObjectOES | null = gl2 && gl2.createVertexArray() || gl_vao && gl_vao.createVertexArrayOES();
 
     // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, polygon fill
     gl && gl.enable(gl.BLEND);
@@ -546,6 +555,8 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
     gl && gl.useProgram(g_ShaderHandle);
     gl && gl.uniform1i(g_AttribLocationTex, 0);
     gl && g_AttribLocationProjMtx && gl.uniformMatrix4fv(g_AttribLocationProjMtx, false, ortho_projection);
+
+    gl2 && gl2.bindVertexArray(vertex_array_object) || gl_vao && gl_vao.bindVertexArrayOES(vertex_array_object);
 
     // Render command lists
     gl && gl.bindBuffer(gl.ARRAY_BUFFER, g_VboHandle);
@@ -680,13 +691,14 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
         });
     });
 
+    // Destroy the temporary VAO
+    gl2 && gl2.deleteVertexArray(vertex_array_object) || gl_vao && gl_vao.deleteVertexArrayOES(vertex_array_object);
+
     // Restore modified GL state
     gl && (last_program !== null) && gl.useProgram(last_program);
     gl && (last_texture !== null) && gl.bindTexture(gl.TEXTURE_2D, last_texture);
     gl && (last_active_texture !== null) && gl.activeTexture(last_active_texture);
-    gl && gl.disableVertexAttribArray(g_AttribLocationPosition);
-    gl && gl.disableVertexAttribArray(g_AttribLocationUV);
-    gl && gl.disableVertexAttribArray(g_AttribLocationColor);
+    gl2 && gl2.bindVertexArray(last_vertex_array_object) || gl_vao && gl_vao.bindVertexArrayOES(last_vertex_array_object);
     gl && (last_array_buffer !== null) && gl.bindBuffer(gl.ARRAY_BUFFER, last_array_buffer);
     gl && (last_element_array_buffer !== null) && gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
     gl && (last_blend_equation_rgb !== null && last_blend_equation_alpha !== null) && gl.blendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);

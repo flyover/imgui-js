@@ -493,12 +493,15 @@
             return;
         }
         draw_data.ScaleClipRects(io.DisplayFramebufferScale);
+        const gl2 = exports.gl instanceof WebGL2RenderingContext && exports.gl || null;
+        const gl_vao = exports.gl && exports.gl.getExtension("OES_vertex_array_object") || null;
         // Backup GL state
         const last_active_texture = exports.gl && exports.gl.getParameter(exports.gl.ACTIVE_TEXTURE) || null;
         const last_program = exports.gl && exports.gl.getParameter(exports.gl.CURRENT_PROGRAM) || null;
         const last_texture = exports.gl && exports.gl.getParameter(exports.gl.TEXTURE_BINDING_2D) || null;
         const last_array_buffer = exports.gl && exports.gl.getParameter(exports.gl.ARRAY_BUFFER_BINDING) || null;
         const last_element_array_buffer = exports.gl && exports.gl.getParameter(exports.gl.ELEMENT_ARRAY_BUFFER_BINDING) || null;
+        const last_vertex_array_object = gl2 && gl2.getParameter(gl2.VERTEX_ARRAY_BINDING) || exports.gl && gl_vao && exports.gl.getParameter(gl_vao.VERTEX_ARRAY_BINDING_OES) || null;
         // GLint last_polygon_mode[2]; glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
         const last_viewport = exports.gl && exports.gl.getParameter(exports.gl.VIEWPORT) || null;
         const last_scissor_box = exports.gl && exports.gl.getParameter(exports.gl.SCISSOR_BOX) || null;
@@ -512,6 +515,10 @@
         const last_enable_cull_face = exports.gl && exports.gl.getParameter(exports.gl.CULL_FACE) || null;
         const last_enable_depth_test = exports.gl && exports.gl.getParameter(exports.gl.DEPTH_TEST) || null;
         const last_enable_scissor_test = exports.gl && exports.gl.getParameter(exports.gl.SCISSOR_TEST) || null;
+        // Setup desired GL state
+        // Recreate the VAO every time (this is to easily allow multiple GL contexts to be rendered to. VAO are not shared among GL contexts)
+        // The renderer would actually work without any VAO bound, but then our VertexAttrib calls would overwrite the default one currently bound.
+        const vertex_array_object = gl2 && gl2.createVertexArray() || gl_vao && gl_vao.createVertexArrayOES();
         // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, polygon fill
         exports.gl && exports.gl.enable(exports.gl.BLEND);
         exports.gl && exports.gl.blendEquation(exports.gl.FUNC_ADD);
@@ -536,6 +543,7 @@
         exports.gl && exports.gl.useProgram(g_ShaderHandle);
         exports.gl && exports.gl.uniform1i(g_AttribLocationTex, 0);
         exports.gl && g_AttribLocationProjMtx && exports.gl.uniformMatrix4fv(g_AttribLocationProjMtx, false, ortho_projection);
+        gl2 && gl2.bindVertexArray(vertex_array_object) || gl_vao && gl_vao.bindVertexArrayOES(vertex_array_object);
         // Render command lists
         exports.gl && exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, g_VboHandle);
         exports.gl && exports.gl.enableVertexAttribArray(g_AttribLocationPosition);
@@ -672,13 +680,13 @@
                 idx_buffer_offset += draw_cmd.ElemCount * ImGui.DrawIdxSize;
             });
         });
+        // Destroy the temporary VAO
+        gl2 && gl2.deleteVertexArray(vertex_array_object) || gl_vao && gl_vao.deleteVertexArrayOES(vertex_array_object);
         // Restore modified GL state
         exports.gl && (last_program !== null) && exports.gl.useProgram(last_program);
         exports.gl && (last_texture !== null) && exports.gl.bindTexture(exports.gl.TEXTURE_2D, last_texture);
         exports.gl && (last_active_texture !== null) && exports.gl.activeTexture(last_active_texture);
-        exports.gl && exports.gl.disableVertexAttribArray(g_AttribLocationPosition);
-        exports.gl && exports.gl.disableVertexAttribArray(g_AttribLocationUV);
-        exports.gl && exports.gl.disableVertexAttribArray(g_AttribLocationColor);
+        gl2 && gl2.bindVertexArray(last_vertex_array_object) || gl_vao && gl_vao.bindVertexArrayOES(last_vertex_array_object);
         exports.gl && (last_array_buffer !== null) && exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, last_array_buffer);
         exports.gl && (last_element_array_buffer !== null) && exports.gl.bindBuffer(exports.gl.ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
         exports.gl && (last_blend_equation_rgb !== null && last_blend_equation_alpha !== null) && exports.gl.blendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
