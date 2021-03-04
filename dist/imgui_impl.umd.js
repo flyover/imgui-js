@@ -493,7 +493,7 @@
             return;
         }
         draw_data.ScaleClipRects(io.DisplayFramebufferScale);
-        const gl2 = exports.gl instanceof WebGL2RenderingContext && exports.gl || null;
+        const gl2 = typeof WebGL2RenderingContext !== "undefined" && exports.gl instanceof WebGL2RenderingContext && exports.gl || null;
         const gl_vao = exports.gl && exports.gl.getExtension("OES_vertex_array_object") || null;
         // Backup GL state
         const last_active_texture = exports.gl && exports.gl.getParameter(exports.gl.ACTIVE_TEXTURE) || null;

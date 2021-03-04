@@ -501,7 +501,7 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
     }
     draw_data.ScaleClipRects(io.DisplayFramebufferScale);
 
-    const gl2: WebGL2RenderingContext | null = gl instanceof WebGL2RenderingContext && gl || null;
+    const gl2: WebGL2RenderingContext | null = typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext && gl || null;
     const gl_vao: OES_vertex_array_object | null = gl && gl.getExtension("OES_vertex_array_object") || null;
 
     // Backup GL state

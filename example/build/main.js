@@ -465,6 +465,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             show_another_window = false;
             clear_color = new ImGui.Vec4(0.45, 0.55, 0.60, 1.00);
             memory_editor = new imgui_memory_editor_js_1.MemoryEditor();
+            memory_editor.Open = false;
             show_sandbox_window = false;
             show_gamepad_window = false;
             show_movie_window = false;

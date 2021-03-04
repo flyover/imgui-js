@@ -467,7 +467,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             return;
         }
         draw_data.ScaleClipRects(io.DisplayFramebufferScale);
-        const gl2 = gl instanceof WebGL2RenderingContext && gl || null;
+        const gl2 = typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext && gl || null;
         const gl_vao = gl && gl.getExtension("OES_vertex_array_object") || null;
         // Backup GL state
         const last_active_texture = gl && gl.getParameter(gl.ACTIVE_TEXTURE) || null;

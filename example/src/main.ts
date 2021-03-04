@@ -11,6 +11,7 @@ let show_another_window: boolean = false;
 const clear_color: ImGui.Vec4 = new ImGui.Vec4(0.45, 0.55, 0.60, 1.00);
 
 const memory_editor: MemoryEditor = new MemoryEditor();
+memory_editor.Open = false;
 
 let show_sandbox_window: boolean = false;
 let show_gamepad_window: boolean = false;
