@@ -87,6 +87,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                 canvas.style.bottom = "0px";
                 canvas.style.width = "100%";
                 canvas.style.height = "100%";
+                canvas.style.userSelect = "none";
                 ImGui_Impl.Init(canvas);
             }
             else {
