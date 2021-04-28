@@ -56,6 +56,7 @@ async function _init(): Promise<void> {
     const io: ImGui.IO = ImGui.GetIO();
     //io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;     // Enable Keyboard Controls
     //io.ConfigFlags |= ImGui.ConfigFlags.NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGui.ConfigFlags.DockingEnable;  // Enable Docking
 
     // Setup Dear ImGui style
     ImGui.StyleColorsDark();

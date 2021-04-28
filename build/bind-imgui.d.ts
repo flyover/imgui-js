@@ -63,6 +63,8 @@ type ImGuiTableColumnFlags = number;  // -> enum ImGuiTableColumnFlags_// Flags:
 type ImGuiTableRowFlags = number;     // -> enum ImGuiTableRowFlags_   // Flags: For TableNextRow()
 type ImGuiTreeNodeFlags = number;     // -> enum ImGuiTreeNodeFlags_   // Flags: for TreeNode(), TreeNodeEx(), CollapsingHeader()
 type ImGuiWindowFlags = number;       // -> enum ImGuiWindowFlags_     // Flags: for Begin(), BeginChild()
+type ImGuiViewportFlags = number;     // -> enum ImGuiViewportFlags_   // Flags: for ...
+type ImGuiDockNodeFlags = number;
 
 // Other types
 // #ifndef ImTextureID                 // ImTextureID [configurable type: override in imconfig.h with '#define ImTextureID xxx']
@@ -215,6 +217,49 @@ export class ImGuiListClipper extends Emscripten.EmscriptenClass {
     public End(): void;
     // IMGUI_API bool Step();                                              // Call until it returns false. The DisplayStart/DisplayEnd fields will be set and you can process/draw those items.
     public Step(): boolean;
+}
+
+/*
+export class ImGuiWindowClass extends Emscripten.EmscriptenClass {
+    public ClassId: number;
+    public TabItemFlagsOverrideSet: ImGuiTabItemFlags;
+    //public ItemsCount: number;
+
+    constructor();
+}
+*/
+
+
+export interface interface_ImGuiWindowClass {
+    ClassId: number;
+    TabItemFlagsOverrideSet: ImGuiTabItemFlags;
+    DockNodeFlagsOverrideSet: ImGuiDockNodeFlags;
+    DockNodeFlagsOverrideClear: ImGuiDockNodeFlags;
+    DockingAlwaysTabBar: boolean;
+    DockingAllowUnclassed: boolean;
+}
+
+export interface reference_ImGuiWindowClass extends Emscripten.EmscriptenClassReference, interface_ImGuiWindowClass {}
+
+
+export interface reference_ImGuiViewport extends Emscripten.EmscriptenClassReference {
+    // ImGuiID             ID;                     // Unique identifier for the viewport
+    ID: number;
+    // ImGuiViewportFlags  Flags;                  // See ImGuiViewportFlags_
+    Flags: number; // TODO: use enum?
+    // ImVec2              Pos;                    // Main Area: Position of the viewport (the imgui coordinates are the same as OS desktop/native coordinates)
+    Pos: reference_ImVec2;
+    // ImVec2              Size;                   // Main Area: Size of the viewport.
+    Size: reference_ImVec2;
+
+    // ImVec2              WorkPos;                // Work Area: Position of the viewport minus task bars, menus bars, status bars (>= Pos)
+    WorkPos: reference_ImVec2;
+    // ImVec2              WorkSize;               // Work Area: Size of the viewport minus task bars, menu bars, status bars (<= Size)
+    WorkSize: reference_ImVec2;
+    // float               DpiScale;               // 1.0f = 96 DPI = No extra scale.
+    DpiScale: number;
+    // ImGuiID             ParentViewportId;       // (Advanced) 0: no parent. Instruct the platform backend to setup a parent/child relationship between platform windows.
+    ParentViewportId: number;
 }
 
 export interface reference_ImGuiTableColumnSortSpecs extends Emscripten.EmscriptenClassReference {
@@ -586,8 +631,6 @@ export interface reference_ImFont extends Emscripten.EmscriptenClassReference {
     FontSize: number;
     // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
     Scale: number;
-    // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
-    readonly DisplayOffset: reference_ImVec2;
     // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
     IterateGlyphs(callback: (cfg: reference_ImFontGlyph) => void): void;
     // ImVector<float>             IndexAdvanceX;      //              // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).
@@ -684,10 +727,12 @@ export interface interface_ImFontConfig {
     GlyphMaxAdvanceX: number;
     // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
     MergeMode: boolean;
-    // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
-    RasterizerFlags: number;
-    // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
+    // unsigned int    FontBuilderFlags;       // 0        // Settings for custom font builder. THIS IS BUILDER IMPLEMENTATION DEPENDENT. Leave as zero if unsure.
+    FontBuilderFlags: number;
+    // float           RasterizerMultiply;     // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
     RasterizerMultiply: number;
+    // ImWchar         EllipsisChar;           // -1       // Explicitly specify unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
+    EllipsisChar: number;
 
     // [Internal]
     // char            Name[32];                               // Name (strictly to ease debugging)
@@ -895,6 +940,14 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     FontDefault: reference_ImFont | null;
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
     readonly DisplayFramebufferScale: reference_ImVec2;
+
+    // Docking options (when ImGuiConfigFlags_DockingEnable is set)
+    // bool        ConfigDockingNoSplit;           // = false          // Simplified docking mode: disable window splitting, so docking is limited to merging multiple windows together into tab-bars.
+    ConfigDockingNoSplit: boolean;
+    // bool        ConfigDockingAlwaysTabBar;      // = false          // [BETA] [FIXME: This currently creates regression with auto-sizing and general overhead] Make every single floating window display within a docking node.
+    ConfigDockingAlwaysTabBar: boolean;
+    // bool        ConfigDockingTransparentPayload;// = false          // [BETA] Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if rendering of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge.
+    ConfigDockingTransparentPayload: boolean;
 
     // Advanced/subtle behaviors
     // bool        MouseDrawCursor;                // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
@@ -1189,6 +1242,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     SetNextWindowCollapsed(collapsed: boolean, cond: ImGuiCond): void;
     SetNextWindowFocus(): void;
     SetNextWindowBgAlpha(alpha: number): void;
+    SetNextWindowViewport(viewport_id: ImGuiID): void;
     SetWindowPos(pos: Readonly<interface_ImVec2>, cond: ImGuiCond): void;
     SetWindowSize(size: Readonly<interface_ImVec2>, cond: ImGuiCond): void;
     SetWindowCollapsed(collapsed: boolean, cond: ImGuiCond): void;
@@ -1591,9 +1645,9 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API void          ListBoxFooter();                                                    // terminate the scrolling region. only call ListBoxFooter() if ListBoxHeader() returned true!
     ListBox_A(label: string, current_item: ImScalar<number>, items: string[], items_count: number, height_in_items: number): boolean;
     ListBox_B<T>(label: string, current_item: ImScalar<number>, items_getter: (data: T, idx: number, out_text: [string]) => boolean, data: T, items_count: number, height_in_items: number): boolean;
-    ListBoxHeader_A(label: string, size: Readonly<interface_ImVec2>): boolean;
-    ListBoxHeader_B(label: string, items_count: number, height_in_items: number): boolean;
-    ListBoxFooter(): void;
+    BeginListBox_A(label: string, size: Readonly<interface_ImVec2>): boolean;
+    BeginListBox_B(label: string, items_count: number, height_in_items: number): boolean;
+    EndListBox(): void;
 
     // Widgets: Data Plotting
     // IMGUI_API void          PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0), int stride = sizeof(float));
@@ -1798,6 +1852,28 @@ export interface Module extends Emscripten.EmscriptenModule {
     EndTabItem(): void;
     TabItemButton(label: string, flags: ImGuiTabItemFlags): boolean;
     SetTabItemClosed(tab_or_docked_window_label: string): void;
+
+    // Docking
+    // [BETA API] Enable with io.ConfigFlags |= ImGuiConfigFlags_DockingEnable.
+    // Note: You can use most Docking facilities without calling any API. You DO NOT need to call DockSpace() to use Docking!
+    // - Drag from window title bar or their tab to dock/undock. Hold SHIFT to disable docking.
+    // - Drag from window menu button (upper-left button) to undock an entire node (all windows).
+    // About DockSpace:
+    // - Use DockSpace() to create an explicit dock node _within_ an existing window. See Docking demo for details.
+    // - DockSpace() needs to be submitted _before_ any window they can host. If you use a dockspace, submit it early in your app.
+    // IMGUI_API void          DockSpace(ImGuiID id, const ImVec2& size = ImVec2(0, 0), ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+    DockSpace(id: ImGuiID, size: Readonly<interface_ImVec2>, flags: ImGuiDockNodeFlags, window_class: Readonly<interface_ImGuiWindowClass> | null): void;
+    // IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+    DockSpaceOverMainViewport(flags: ImGuiDockNodeFlags): ImGuiID;
+    DockSpaceOverViewportID(viewport_id: ImGuiID, flags: ImGuiDockNodeFlags): ImGuiID;
+    // IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
+    SetNextWindowDockID(dock_id: ImGuiID, cond: ImGuiCond): void;
+    // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
+    SetNextWindowClass(window_class: Readonly<interface_ImGuiWindowClass>): void;
+    // IMGUI_API ImGuiID       GetWindowDockID();
+    GetWindowDockID(): ImGuiID;
+    // IMGUI_API bool          IsWindowDocked();                                                   // is current window docked into another window?
+    IsWindowDocked(): boolean;
 
     // Logging/Capture
     // - All text output from the interface can be captured into tty/file/clipboard. By default, tree nodes are automatically opened during logging.
@@ -2006,4 +2082,17 @@ export interface Module extends Emscripten.EmscriptenModule {
     SetAllocatorFunctions(alloc_func: (sz: number, user_data: any) => number, free_func: (ptr: number, user_data: any) => void, user_data: any): void;
     MemAlloc(sz: number): any;
     MemFree(ptr: any): void;
+    GlyphRangeAlloc(glyph_ranges: Uint16Array): number;
+    GlyphRangeExport(glyph_ranges: number): Uint16Array;
+    // (Optional) Platform/OS interface for multi-viewport support
+    // Read comments around the ImGuiPlatformIO structure for more details.
+    // Note: You may use GetWindowViewport() to get the current viewport of the current window.
+    // IMGUI_API ImGuiPlatformIO&  GetPlatformIO();                                                // platform/renderer functions, for backend to setup + viewports list.
+    // IMGUI_API ImGuiViewport*    GetMainViewport();                                              // main viewport. same as GetPlatformIO().MainViewport == GetPlatformIO().Viewports[0].
+    GetMainViewport(): reference_ImGuiViewport;
+    // IMGUI_API void              UpdatePlatformWindows();                                        // call in main loop. will call CreateWindow/ResizeWindow/etc. platform functions for each secondary viewport, and DestroyWindow for each inactive viewport.
+    // IMGUI_API void              RenderPlatformWindowsDefault(void* platform_render_arg = NULL, void* renderer_render_arg = NULL); // call in main loop. will call RenderWindow/SwapBuffers platform functions for each secondary viewport which doesn't have the ImGuiViewportFlags_Minimized flag set. May be reimplemented by user for custom rendering needs.
+    // IMGUI_API void              DestroyPlatformWindows();                                       // call DestroyWindow platform functions for all viewports. call from backend Shutdown() if you need to close platform windows before imgui shutdown. otherwise will be called by DestroyContext().
+    // IMGUI_API ImGuiViewport*    FindViewportByID(ImGuiID id);                                   // this is a helper for backends.
+    // IMGUI_API ImGuiViewport*    FindViewportByPlatformHandle(void* platform_handle);            // this is a helper for backends. the type platform_handle is decided by the backend (e.g. HWND, MyWindow*, GLFWwindow* etc.)
 }

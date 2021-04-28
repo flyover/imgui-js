@@ -9,7 +9,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             step((generator = generator.apply(thisArg, _arguments || [])).next());
         });
     };
-    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, IMGUI_HAS_TABLE, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiSortDirection, ImGuiKey, ImGuiKeyModFlags, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiButtonFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseButton, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, IM_UNICODE_CODEPOINT_MAX, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiTableColumnSortSpecs, ImGuiTableSortSpecs, ImGuiListClipper, IM_DRAWLIST_TEX_LINES_WIDTH_MAX, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawCmdHeader, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasCustomRect, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
+    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, IMGUI_HAS_TABLE, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiViewportFlags, ImGuiDockNodeFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiSortDirection, ImGuiKey, ImGuiKeyModFlags, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiButtonFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseButton, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, IM_UNICODE_CODEPOINT_MAX, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, ImGuiWindowClass, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiTableColumnSortSpecs, ImGuiTableSortSpecs, ImGuiListClipper, ImGuiViewport, IM_DRAWLIST_TEX_LINES_WIDTH_MAX, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawCmdHeader, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasCustomRect, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
     var __moduleName = context_1 && context_1.id;
     function default_1(value) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -458,6 +458,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     exports_1("SetNextWindowFocus", SetNextWindowFocus);
     function SetNextWindowBgAlpha(alpha) { bind.SetNextWindowBgAlpha(alpha); }
     exports_1("SetNextWindowBgAlpha", SetNextWindowBgAlpha);
+    function SetNextWindowViewport(viewport_id) { bind.SetNextWindowViewport(viewport_id); }
+    exports_1("SetNextWindowViewport", SetNextWindowViewport);
     function SetWindowPos(name_or_pos, pos_or_cond = 0, cond = 0) {
         if (typeof (name_or_pos) === "string") {
             bind.SetWindowNamePos(name_or_pos, pos_or_cond, cond);
@@ -1537,20 +1539,20 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
         return ret;
     }
     exports_1("ListBox", ListBox);
-    function ListBoxHeader(label, ...args) {
+    function BeginListBox(label, ...args) {
         if (typeof (args[0]) === "object") {
             const size = args[0];
-            return bind.ListBoxHeader_A(label, size);
+            return bind.BeginListBox_A(label, size);
         }
         else {
             const items_count = args[0];
             const height_in_items = typeof (args[1]) === "number" ? args[1] : -1;
-            return bind.ListBoxHeader_B(label, items_count, height_in_items);
+            return bind.BeginListBox_B(label, items_count, height_in_items);
         }
     }
-    exports_1("ListBoxHeader", ListBoxHeader);
-    function ListBoxFooter() { bind.ListBoxFooter(); }
-    exports_1("ListBoxFooter", ListBoxFooter);
+    exports_1("BeginListBox", BeginListBox);
+    function EndListBox() { bind.EndListBox(); }
+    exports_1("EndListBox", EndListBox);
     function PlotLines(label, ...args) {
         if (Array.isArray(args[0])) {
             const values = args[0];
@@ -1903,6 +1905,38 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     exports_1("TabItemButton", TabItemButton);
     function SetTabItemClosed(tab_or_docked_window_label) { bind.SetTabItemClosed(tab_or_docked_window_label); }
     exports_1("SetTabItemClosed", SetTabItemClosed);
+    // Docking
+    // [BETA API] Enable with io.ConfigFlags |= ImGuiConfigFlags_DockingEnable.
+    // Note: You can use most Docking facilities without calling any API. You DO NOT need to call DockSpace() to use Docking!
+    // - Drag from window title bar or their tab to dock/undock. Hold SHIFT to disable docking.
+    // - Drag from window menu button (upper-left button) to undock an entire node (all windows).
+    // About DockSpace:
+    // - Use DockSpace() to create an explicit dock node _within_ an existing window. See Docking demo for details.
+    // - DockSpace() needs to be submitted _before_ any window they can host. If you use a dockspace, submit it early in your app.
+    // IMGUI_API void          DockSpace(ImGuiID id, const ImVec2& size = ImVec2(0, 0), ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+    function DockSpace(id, size = new ImVec2(0, 0), flags = 0, window_class = null) { bind.DockSpace(id, size, flags, window_class); }
+    exports_1("DockSpace", DockSpace);
+    // IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+    function DockSpaceOverMainViewport(flags = 0) {
+        return bind.DockSpaceOverMainViewport(flags);
+    }
+    exports_1("DockSpaceOverMainViewport", DockSpaceOverMainViewport);
+    function DockSpaceOverViewportID(viewport_id, flags = 0) {
+        return bind.DockSpaceOverViewportID(viewport_id, flags);
+    }
+    exports_1("DockSpaceOverViewportID", DockSpaceOverViewportID);
+    // IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
+    function SetNextWindowDockID(dock_id, cond = 0) { bind.SetNextWindowDockID(dock_id, cond); }
+    exports_1("SetNextWindowDockID", SetNextWindowDockID);
+    // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
+    function SetNextWindowClass(window_class) { bind.SetNextWindowClass(window_class); }
+    exports_1("SetNextWindowClass", SetNextWindowClass);
+    // IMGUI_API ImGuiID       GetWindowDockID();
+    function GetWindowDockID() { return bind.GetWindowDockID(); }
+    exports_1("GetWindowDockID", GetWindowDockID);
+    // IMGUI_API bool          IsWindowDocked();                                                   // is current window docked into another window?
+    function IsWindowDocked() { return bind.IsWindowDocked(); }
+    exports_1("IsWindowDocked", IsWindowDocked);
     // Logging/Capture
     // - All text output from the interface can be captured into tty/file/clipboard. By default, tree nodes are automatically opened during logging.
     // IMGUI_API void          LogToTTY(int auto_open_depth = -1);                                 // start logging to tty (stdout)
@@ -2199,6 +2233,20 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     exports_1("MemAlloc", MemAlloc);
     function MemFree(ptr) { bind.MemFree(ptr); }
     exports_1("MemFree", MemFree);
+    function GlyphRangeAlloc(glyph_ranges) { return bind.GlyphRangeAlloc(glyph_ranges); }
+    exports_1("GlyphRangeAlloc", GlyphRangeAlloc);
+    function GlyphRangeExport(glyph_ranges) { return bind.GlyphRangeExport(glyph_ranges); }
+    exports_1("GlyphRangeExport", GlyphRangeExport);
+    // (Optional) Platform/OS interface for multi-viewport support
+    // Read comments around the ImGuiPlatformIO structure for more details.
+    // Note: You may use GetWindowViewport() to get the current viewport of the current window.
+    // IMGUI_API ImGuiPlatformIO&  GetPlatformIO();                                                // platform/renderer functions, for backend to setup + viewports list.
+    // IMGUI_API ImGuiViewport*    GetMainViewport();                                              // main viewport. same as GetPlatformIO().MainViewport == GetPlatformIO().Viewports[0].
+    function GetMainViewport() {
+        const viewport = bind.GetMainViewport();
+        return (viewport === null) ? null : new ImGuiViewport(viewport);
+    }
+    exports_1("GetMainViewport", GetMainViewport);
     return {
         setters: [
             function (Bind_1) {
@@ -2245,6 +2293,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImGuiWindowFlags[ImGuiWindowFlags["NoNavInputs"] = 262144] = "NoNavInputs";
                 ImGuiWindowFlags[ImGuiWindowFlags["NoNavFocus"] = 524288] = "NoNavFocus";
                 ImGuiWindowFlags[ImGuiWindowFlags["UnsavedDocument"] = 1048576] = "UnsavedDocument";
+                ImGuiWindowFlags[ImGuiWindowFlags["NoDocking"] = 2097152] = "NoDocking";
                 ImGuiWindowFlags[ImGuiWindowFlags["NoNav"] = 786432] = "NoNav";
                 ImGuiWindowFlags[ImGuiWindowFlags["NoDecoration"] = 43] = "NoDecoration";
                 ImGuiWindowFlags[ImGuiWindowFlags["NoInputs"] = 786944] = "NoInputs";
@@ -2492,6 +2541,33 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             })(ImGuiHoveredFlags || (ImGuiHoveredFlags = {}));
             exports_1("ImGuiHoveredFlags", ImGuiHoveredFlags);
             exports_1("HoveredFlags", ImGuiHoveredFlags);
+            (function (ImGuiViewportFlags) {
+                ImGuiViewportFlags[ImGuiViewportFlags["None"] = 0] = "None";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoDecoration"] = 1] = "NoDecoration";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoTaskBarIcon"] = 2] = "NoTaskBarIcon";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoFocusOnAppearing"] = 4] = "NoFocusOnAppearing";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoFocusOnClick"] = 8] = "NoFocusOnClick";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoInputs"] = 16] = "NoInputs";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoRendererClear"] = 32] = "NoRendererClear";
+                ImGuiViewportFlags[ImGuiViewportFlags["TopMost"] = 64] = "TopMost";
+                ImGuiViewportFlags[ImGuiViewportFlags["Minimized"] = 128] = "Minimized";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoAutoMerge"] = 256] = "NoAutoMerge";
+                ImGuiViewportFlags[ImGuiViewportFlags["CanHostOtherWindows"] = 512] = "CanHostOtherWindows"; // Main viewport: can host multiple imgui windows (secondary viewports are associated to a single window).
+            })(ImGuiViewportFlags || (ImGuiViewportFlags = {}));
+            exports_1("ImGuiViewportFlags", ImGuiViewportFlags);
+            exports_1("ViewportFlags", ImGuiViewportFlags);
+            (function (ImGuiDockNodeFlags) {
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["None"] = 0] = "None";
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["KeepAliveOnly"] = 1] = "KeepAliveOnly";
+                //NoCentralNode              = 1 << 1,   // Shared       // Disable Central Node (the node which can stay empty)
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["NoDockingInCentralNode"] = 4] = "NoDockingInCentralNode";
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["PassthruCentralNode"] = 8] = "PassthruCentralNode";
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["NoSplit"] = 16] = "NoSplit";
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["NoResize"] = 32] = "NoResize";
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["AutoHideTabBar"] = 64] = "AutoHideTabBar"; // Shared/Local // Tab bar will automatically hide when there is a single window in the dock node.
+            })(ImGuiDockNodeFlags || (ImGuiDockNodeFlags = {}));
+            exports_1("ImGuiDockNodeFlags", ImGuiDockNodeFlags);
+            exports_1("DockNodeFlags", ImGuiDockNodeFlags);
             (function (ImGuiDragDropFlags) {
                 // BeginDragDropSource() flags
                 ImGuiDragDropFlags[ImGuiDragDropFlags["None"] = 0] = "None";
@@ -2618,6 +2694,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImGuiConfigFlags[ImGuiConfigFlags["NavNoCaptureKeyboard"] = 8] = "NavNoCaptureKeyboard";
                 ImGuiConfigFlags[ImGuiConfigFlags["NoMouse"] = 16] = "NoMouse";
                 ImGuiConfigFlags[ImGuiConfigFlags["NoMouseCursorChange"] = 32] = "NoMouseCursorChange";
+                // [BETA] Docking
+                ImGuiConfigFlags[ImGuiConfigFlags["DockingEnable"] = 64] = "DockingEnable";
                 ImGuiConfigFlags[ImGuiConfigFlags["IsSRGB"] = 1048576] = "IsSRGB";
                 ImGuiConfigFlags[ImGuiConfigFlags["IsTouchScreen"] = 2097152] = "IsTouchScreen"; // Application is using a touch screen instead of a mouse.
             })(ImGuiConfigFlags || (ImGuiConfigFlags = {}));
@@ -3124,6 +3202,17 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             ImGuiStorage = class ImGuiStorage {
             };
             exports_1("ImGuiStorage", ImGuiStorage);
+            ImGuiWindowClass = class ImGuiWindowClass {
+                constructor(ClassId = 0, TabItemFlagsOverrideSet = 0, DockNodeFlagsOverrideSet = 0, DockNodeFlagsOverrideClear = 0, DockingAlwaysTabBar = false, DockingAllowUnclassed = false) {
+                    this.ClassId = ClassId;
+                    this.TabItemFlagsOverrideSet = TabItemFlagsOverrideSet;
+                    this.DockNodeFlagsOverrideSet = DockNodeFlagsOverrideSet;
+                    this.DockNodeFlagsOverrideClear = DockNodeFlagsOverrideClear;
+                    this.DockingAlwaysTabBar = DockingAlwaysTabBar;
+                    this.DockingAllowUnclassed = DockingAllowUnclassed;
+                }
+            };
+            exports_1("ImGuiWindowClass", ImGuiWindowClass);
             // Helpers macros to generate 32-bits encoded colors
             exports_1("IM_COL32_R_SHIFT", IM_COL32_R_SHIFT = config.IMGUI_USE_BGRA_PACKED_COLOR ? 16 : 0);
             exports_1("IM_COL32_G_SHIFT", IM_COL32_G_SHIFT = 8);
@@ -3329,6 +3418,21 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             };
             exports_1("ImGuiListClipper", ImGuiListClipper);
             exports_1("ListClipper", ImGuiListClipper);
+            ImGuiViewport = class ImGuiViewport {
+                constructor(native) {
+                    this.native = native;
+                }
+                get ID() { return this.native.ID; }
+                get Flags() { return this.native.Flags; }
+                get Pos() { return this.native.Pos; }
+                get Size() { return this.native.Size; }
+                GetCenter() { return new ImVec2(this.native.Pos.x + this.native.Size.x * 0.5, this.native.Pos.y + this.native.Size.y * 0.5); }
+                GetWorkPos() { return this.native.WorkPos; }
+                GetWorkSize() { return this.native.WorkSize; }
+                get DpiScale() { return this.native.DpiScale; }
+            };
+            exports_1("ImGuiViewport", ImGuiViewport);
+            exports_1("Viewport", ImGuiViewport);
             //-----------------------------------------------------------------------------
             // Draw List
             // Hold a series of drawing commands. The user provides a renderer for ImDrawData which essentially contains an array of ImDrawList.
@@ -3679,11 +3783,11 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                     this.GlyphMaxAdvanceX = Number.MAX_VALUE;
                     // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
                     this.MergeMode = false;
-                    // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
-                    this.RasterizerFlags = 0;
+                    // unsigned int    FontBuilderFlags;           // 0        // Settings for custom font builder. THIS IS BUILDER IMPLEMENTATION DEPENDENT. Leave as zero if unsure.
+                    this.FontBuilderFlags = 0;
                     // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
                     this.RasterizerMultiply = 1.0;
-                    // ImWchar         EllipsisChar;           // -1       // Explicitly specify unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
+                    // ImWchar         EllipsisChar;               // -1       // Explicitly specify unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
                     this.EllipsisChar = -1;
                     // [Internal]
                     // char            Name[32];                               // Name (strictly to ease debugging)
@@ -3712,10 +3816,12 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 get OversampleV() { return this.internal.OversampleV; }
                 // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
                 get PixelSnapH() { return this.internal.PixelSnapH; }
+                set PixelSnapH(value) { this.internal.PixelSnapH = value; }
                 // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
                 get GlyphExtraSpacing() { return this.internal.GlyphExtraSpacing; }
                 // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
                 get GlyphOffset() { return this.internal.GlyphOffset; }
+                set GlyphOffset(value) { this.internal.GlyphOffset.x = value.x; this.internal.GlyphOffset.y = value.y; }
                 // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
                 get GlyphRanges() { return this.internal.GlyphRanges; }
                 // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
@@ -3724,10 +3830,13 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 get GlyphMaxAdvanceX() { return this.internal.GlyphMaxAdvanceX; }
                 // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
                 get MergeMode() { return this.internal.MergeMode; }
-                // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
-                get RasterizerFlags() { return this.internal.RasterizerFlags; }
+                set MergeMode(value) { this.internal.MergeMode = value; }
+                // unsigned int    FontBuilderFlags;       // 0        // Settings for custom font builder. THIS IS BUILDER IMPLEMENTATION DEPENDENT. Leave as zero if unsure.
+                get FontBuilderFlags() { return this.internal.FontBuilderFlags; }
                 // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
                 get RasterizerMultiply() { return this.internal.RasterizerMultiply; }
+                // ImWchar         EllipsisChar;               // -1       // Explicitly specify unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
+                get EllipsisChar() { return this.internal.EllipsisChar; }
                 // [Internal]
                 // char            Name[32];                               // Name (strictly to ease debugging)
                 get Name() { return this.internal.Name; }
@@ -4411,6 +4520,16 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
                 // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
                 get DisplayFramebufferScale() { return this.native.DisplayFramebufferScale; }
+                // Docking options (when ImGuiConfigFlags_DockingEnable is set)
+                // bool        ConfigDockingNoSplit;           // = false          // Simplified docking mode: disable window splitting, so docking is limited to merging multiple windows together into tab-bars.
+                get ConfigDockingNoSplit() { return this.native.ConfigDockingNoSplit; }
+                set ConfigDockingNoSplit(value) { this.native.ConfigDockingNoSplit = value; }
+                // bool        ConfigDockingAlwaysTabBar;      // = false          // [BETA] [FIXME: This currently creates regression with auto-sizing and general overhead] Make every single floating window display within a docking node.
+                get ConfigDockingAlwaysTabBar() { return this.native.ConfigDockingAlwaysTabBar; }
+                set ConfigDockingAlwaysTabBar(value) { this.native.ConfigDockingAlwaysTabBar = value; }
+                // bool        ConfigDockingTransparentPayload;// = false          // [BETA] Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if rendering of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge.
+                get ConfigDockingTransparentPayload() { return this.native.ConfigDockingTransparentPayload; }
+                set ConfigDockingTransparentPayload(value) { this.native.ConfigDockingTransparentPayload = value; }
                 // Miscellaneous configuration options
                 // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
                 get ConfigMacOSXBehaviors() { return this.native.ConfigMacOSXBehaviors; }
@@ -4588,6 +4707,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             exports_1("ImGuiContext", ImGuiContext);
             ImGuiContext.current_ctx = null;
             ImGuiContext.textures = [];
+            ;
             // Drag and Drop
             // - If you stop calling BeginDragDropSource() the payload is preserved however it won't have a preview tooltip (we currently display a fallback "..." tooltip as replacement)
             // IMGUI_API bool          BeginDragDropSource(ImGuiDragDropFlags flags = 0);                                      // call when the current item is active. If this return true, you can call SetDragDropPayload() + EndDragDropSource()

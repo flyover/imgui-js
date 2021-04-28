@@ -150,6 +150,7 @@ export enum ImGuiWindowFlags {
     NoNavInputs            = 1 << 18,  // No gamepad/keyboard navigation within the window
     NoNavFocus             = 1 << 19,  // No focusing toward this window with gamepad/keyboard navigation (e.g. skipped by CTRL+TAB)
     UnsavedDocument        = 1 << 20,  // Append '*' to title without affecting the ID, as a convenience to avoid using the ### operator. When used in a tab/docking context, tab is selected on closure and closure is deferred by one frame to allow code to cancel the closure (with a confirmation popup, etc.) without flicker.
+    NoDocking              = 1 << 21,  // Disable docking of this window
     NoNav                  = NoNavInputs | NoNavFocus,
     NoDecoration           = NoTitleBar | NoResize | NoScrollbar | NoCollapse,
     NoInputs               = NoMouseInputs | NoNavInputs | NoNavFocus,
@@ -418,6 +419,38 @@ export enum ImGuiHoveredFlags {
     RootAndChildWindows           = RootWindow | ChildWindows,
 }
 
+// Flags stored in ImGuiViewport::Flags, giving indications to the platform backends.
+// NOTE: This is probably not used when targeting the browser but may be needed for native via electron or whatnot
+export { ImGuiViewportFlags as ViewportFlags };
+export enum ImGuiViewportFlags {
+    None                     = 0,
+    NoDecoration             = 1 << 0,   // Platform Window: Disable platform decorations: title bar, borders, etc. (generally set all windows, but if ImGuiConfigFlags_ViewportsDecoration is set we only set this on popups/tooltips)
+    NoTaskBarIcon            = 1 << 1,   // Platform Window: Disable platform task bar icon (generally set on popups/tooltips, or all windows if ImGuiConfigFlags_ViewportsNoTaskBarIcon is set)
+    NoFocusOnAppearing       = 1 << 2,   // Platform Window: Don't take focus when created.
+    NoFocusOnClick           = 1 << 3,   // Platform Window: Don't take focus when clicked on.
+    NoInputs                 = 1 << 4,   // Platform Window: Make mouse pass through so we can drag this window while peaking behind it.
+    NoRendererClear          = 1 << 5,   // Platform Window: Renderer doesn't need to clear the framebuffer ahead (because we will fill it entirely).
+    TopMost                  = 1 << 6,   // Platform Window: Display on top (for tooltips only).
+    Minimized                = 1 << 7,   // Platform Window: Window is minimized, can skip render. When minimized we tend to avoid using the viewport pos/size for clipping window or testing if they are contained in the viewport.
+    NoAutoMerge              = 1 << 8,   // Platform Window: Avoid merging this window into another host window. This can only be set via ImGuiWindowClass viewport flags override (because we need to now ahead if we are going to create a viewport in the first place!).
+    CanHostOtherWindows      = 1 << 9    // Main viewport: can host multiple imgui windows (secondary viewports are associated to a single window).
+}
+
+// Flags for ImGui::DockSpace(), shared/inherited by child nodes.
+// (Some flags can be applied to individual nodes directly)
+// FIXME-DOCK: Also see ImGuiDockNodeFlagsPrivate_ which may involve using the WIP and internal DockBuilder api.
+export { ImGuiDockNodeFlags as DockNodeFlags };
+export enum ImGuiDockNodeFlags {
+    None                         = 0,
+    KeepAliveOnly                = 1 << 0,   // Shared       // Don't display the dockspace node but keep it alive. Windows docked into this dockspace node won't be undocked.
+    //NoCentralNode              = 1 << 1,   // Shared       // Disable Central Node (the node which can stay empty)
+    NoDockingInCentralNode       = 1 << 2,   // Shared       // Disable docking inside the Central Node, which will be always kept empty.
+    PassthruCentralNode          = 1 << 3,   // Shared       // Enable passthru dockspace: 1) DockSpace() will render a ImGuiCol_WindowBg background covering everything excepted the Central Node when empty. Meaning the host window should probably use SetNextWindowBgAlpha(0.0f) prior to Begin() when using this. 2) When Central Node is empty: let inputs pass-through + won't display a DockingEmptyBg background. See demo for details.
+    NoSplit                      = 1 << 4,   // Shared/Local // Disable splitting the node into smaller nodes. Useful e.g. when embedding dockspaces into a main root one (the root one may have splitting disabled to reduce confusion). Note: when turned off, existing splits will be preserved.
+    NoResize                     = 1 << 5,   // Shared/Local // Disable resizing node using the splitter/separators. Useful with programatically setup dockspaces.
+    AutoHideTabBar               = 1 << 6    // Shared/Local // Tab bar will automatically hide when there is a single window in the dock node.
+}
+
 // Flags for ImGui::BeginDragDropSource(), ImGui::AcceptDragDropPayload()
 export { ImGuiDragDropFlags as DragDropFlags };
 export enum ImGuiDragDropFlags {
@@ -561,6 +594,9 @@ export enum ImGuiConfigFlags
     NavNoCaptureKeyboard = 1 << 3,    // Do not set the io.WantCaptureKeyboard flag with io.NavActive is set.
     NoMouse              = 1 << 4,   // Instruct imgui to clear mouse position/buttons in NewFrame(). This allows ignoring the mouse information back-end
     NoMouseCursorChange  = 1 << 5,   // Instruct back-end to not alter mouse cursor shape and visibility.
+
+    // [BETA] Docking
+    DockingEnable        = 1 << 6,   // Docking enable flags.
 
     IsSRGB               = 1 << 20,  // Application is SRGB-aware.
     IsTouchScreen        = 1 << 21   // Application is using a touch screen instead of a mouse.
@@ -1155,6 +1191,19 @@ export class ImGuiStorage
     // IMGUI_API void      BuildSortByKey();
 }
 
+
+export { interface_ImGuiWindowClass } from "bind-imgui";
+export { reference_ImGuiWindowClass } from "bind-imgui";
+
+export class ImGuiWindowClass implements Bind.interface_ImGuiWindowClass {
+    constructor(public ClassId: number = 0,
+                public TabItemFlagsOverrideSet: ImGuiTabItemFlags = 0,
+                public DockNodeFlagsOverrideSet: ImGuiDockNodeFlags = 0,
+                public DockNodeFlagsOverrideClear: ImGuiDockNodeFlags = 0,
+                public DockingAlwaysTabBar: boolean = false,
+                public DockingAllowUnclassed: boolean = false) {}
+}
+
 // Data payload for Drag and Drop operations
 export { ImGuiPayload as Payload }
 export interface ImGuiPayload<T>
@@ -1415,6 +1464,24 @@ export class ImGuiListClipper
         }
         return busy;
     }
+}
+
+export { ImGuiViewport as Viewport }
+export class ImGuiViewport
+{
+    constructor(public readonly native: Bind.reference_ImGuiViewport) {}
+    get ID(): number { return this.native.ID; }
+    get Flags(): ImGuiViewportFlags { return this.native.Flags; }
+    get Pos(): Bind.interface_ImVec2 { return this.native.Pos; }
+    get Size(): Bind.interface_ImVec2 { return this.native.Size; }
+
+    GetCenter(): Bind.interface_ImVec2             { return new ImVec2(this.native.Pos.x + this.native.Size.x * 0.5, this.native.Pos.y + this.native.Size.y * 0.5); }
+    GetWorkPos(): Bind.interface_ImVec2 { return this.native.WorkPos; }
+    GetWorkSize(): Bind.interface_ImVec2 { return this.native.WorkSize; }
+    get DpiScale(): number { return this.native.DpiScale; }
+    // TODO: DrawData, ParentViewportId
+
+    // TODO: figure out what is readonly or not
 }
 
 //-----------------------------------------------------------------------------
@@ -1828,11 +1895,11 @@ export class script_ImFontConfig implements Bind.interface_ImFontConfig
     GlyphMaxAdvanceX: number = Number.MAX_VALUE;
     // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
     MergeMode: boolean = false;
-    // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
-    RasterizerFlags: number = 0;
+    // unsigned int    FontBuilderFlags;           // 0        // Settings for custom font builder. THIS IS BUILDER IMPLEMENTATION DEPENDENT. Leave as zero if unsure.
+    FontBuilderFlags: number = 0;
     // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
     RasterizerMultiply: number = 1.0;
-    // ImWchar         EllipsisChar;           // -1       // Explicitly specify unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
+    // ImWchar         EllipsisChar;               // -1       // Explicitly specify unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
     EllipsisChar: number = -1;
 
     // [Internal]
@@ -1862,10 +1929,12 @@ export class ImFontConfig {
     get OversampleV(): number { return this.internal.OversampleV; }
     // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
     get PixelSnapH(): boolean { return this.internal.PixelSnapH; }
+    set PixelSnapH(value: boolean) { this.internal.PixelSnapH = value; }
     // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
     get GlyphExtraSpacing(): ImVec2 { return this.internal.GlyphExtraSpacing; }
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
     get GlyphOffset(): ImVec2 { return this.internal.GlyphOffset; }
+    set GlyphOffset(value: ImVec2) { this.internal.GlyphOffset.x = value.x; this.internal.GlyphOffset.y = value.y; }
     // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
     get GlyphRanges(): number | null { return this.internal.GlyphRanges; }
     // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
@@ -1874,10 +1943,13 @@ export class ImFontConfig {
     get GlyphMaxAdvanceX(): number { return this.internal.GlyphMaxAdvanceX; }
     // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
     get MergeMode(): boolean { return this.internal.MergeMode; }
-    // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
-    get RasterizerFlags(): number { return this.internal.RasterizerFlags; }
+    set MergeMode(value: boolean) { this.internal.MergeMode = value; }
+    // unsigned int    FontBuilderFlags;       // 0        // Settings for custom font builder. THIS IS BUILDER IMPLEMENTATION DEPENDENT. Leave as zero if unsure.
+    get FontBuilderFlags(): number { return this.internal.FontBuilderFlags; }
     // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
     get RasterizerMultiply(): number { return this.internal.RasterizerMultiply; }
+    // ImWchar         EllipsisChar;               // -1       // Explicitly specify unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
+    get EllipsisChar(): number { return this.internal.EllipsisChar; }
 
     // [Internal]
     // char            Name[32];                               // Name (strictly to ease debugging)
@@ -2484,6 +2556,17 @@ export class ImGuiIO
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
     get DisplayFramebufferScale(): Bind.reference_ImVec2 { return this.native.DisplayFramebufferScale; }
 
+    // Docking options (when ImGuiConfigFlags_DockingEnable is set)
+    // bool        ConfigDockingNoSplit;           // = false          // Simplified docking mode: disable window splitting, so docking is limited to merging multiple windows together into tab-bars.
+    get ConfigDockingNoSplit(): boolean { return this.native.ConfigDockingNoSplit; }
+    set ConfigDockingNoSplit(value: boolean) { this.native.ConfigDockingNoSplit = value; }
+    // bool        ConfigDockingAlwaysTabBar;      // = false          // [BETA] [FIXME: This currently creates regression with auto-sizing and general overhead] Make every single floating window display within a docking node.
+    get ConfigDockingAlwaysTabBar(): boolean { return this.native.ConfigDockingAlwaysTabBar; }
+    set ConfigDockingAlwaysTabBar(value: boolean) { this.native.ConfigDockingAlwaysTabBar = value; }
+    // bool        ConfigDockingTransparentPayload;// = false          // [BETA] Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if rendering of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge.
+    get ConfigDockingTransparentPayload(): boolean { return this.native.ConfigDockingTransparentPayload; }
+    set ConfigDockingTransparentPayload(value: boolean) { this.native.ConfigDockingTransparentPayload = value; }
+
     // Miscellaneous configuration options
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
     get ConfigMacOSXBehaviors(): boolean { return this.native.ConfigMacOSXBehaviors; }
@@ -2969,6 +3052,7 @@ export function SetNextWindowContentSize(size: Readonly<Bind.interface_ImVec2>):
 export function SetNextWindowCollapsed(collapsed: boolean, cond: ImGuiCond = 0): void { bind.SetNextWindowCollapsed(collapsed, cond); }
 export function SetNextWindowFocus(): void { bind.SetNextWindowFocus(); }
 export function SetNextWindowBgAlpha(alpha: number): void { bind.SetNextWindowBgAlpha(alpha); }
+export function SetNextWindowViewport(viewport_id: number): void { bind.SetNextWindowViewport(viewport_id); }
 export function SetWindowPos(name_or_pos: string | Readonly<Bind.interface_ImVec2>, pos_or_cond: Readonly<Bind.interface_ImVec2> | ImGuiCond = 0, cond: ImGuiCond = 0): void {
     if (typeof(name_or_pos) === "string") {
         bind.SetWindowNamePos(name_or_pos, pos_or_cond as Readonly<Bind.interface_ImVec2>, cond);
@@ -3875,19 +3959,19 @@ export function ListBox<T>(label: string, current_item: Bind.ImAccess<number> | 
     if (!Array.isArray(current_item)) { current_item(_current_item[0]); }
     return ret;
 }
-export function ListBoxHeader(label: string, size: Readonly<Bind.interface_ImVec2>): boolean;
-export function ListBoxHeader(label: string, items_count: number, height_in_items?: number): boolean;
-export function ListBoxHeader(label: string, ...args: any[]): boolean {
+export function BeginListBox(label: string, size: Readonly<Bind.interface_ImVec2>): boolean;
+export function BeginListBox(label: string, items_count: number, height_in_items?: number): boolean;
+export function BeginListBox(label: string, ...args: any[]): boolean {
     if (typeof(args[0]) === "object") {
         const size: Readonly<Bind.interface_ImVec2> = args[0];
-        return bind.ListBoxHeader_A(label, size);
+        return bind.BeginListBox_A(label, size);
     } else {
         const items_count: number = args[0];
         const height_in_items: number = typeof(args[1]) === "number" ? args[1] : -1;
-        return bind.ListBoxHeader_B(label, items_count, height_in_items);
+        return bind.BeginListBox_B(label, items_count, height_in_items);
     }
 }
-export function ListBoxFooter(): void { bind.ListBoxFooter(); }
+export function EndListBox(): void { bind.EndListBox(); }
 
 // Widgets: Data Plotting
 // IMGUI_API void          PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0), int stride = sizeof(float));
@@ -4205,6 +4289,32 @@ export function EndTabItem(): void { bind.EndTabItem(); }
 export function TabItemButton(label: string, flags: ImGuiTabItemFlags = 0): boolean { return bind.TabItemButton(label, flags); }
 export function SetTabItemClosed(tab_or_docked_window_label: string): void { bind.SetTabItemClosed(tab_or_docked_window_label); }
 
+// Docking
+// [BETA API] Enable with io.ConfigFlags |= ImGuiConfigFlags_DockingEnable.
+// Note: You can use most Docking facilities without calling any API. You DO NOT need to call DockSpace() to use Docking!
+// - Drag from window title bar or their tab to dock/undock. Hold SHIFT to disable docking.
+// - Drag from window menu button (upper-left button) to undock an entire node (all windows).
+// About DockSpace:
+// - Use DockSpace() to create an explicit dock node _within_ an existing window. See Docking demo for details.
+// - DockSpace() needs to be submitted _before_ any window they can host. If you use a dockspace, submit it early in your app.
+// IMGUI_API void          DockSpace(ImGuiID id, const ImVec2& size = ImVec2(0, 0), ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+export function DockSpace(id: number, size: Readonly<Bind.interface_ImVec2> = new ImVec2(0, 0), flags: ImGuiDockNodeFlags = 0, window_class: Readonly<Bind.interface_ImGuiWindowClass> | null = null): void { bind.DockSpace(id, size, flags, window_class) };
+// IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+export function DockSpaceOverMainViewport(flags: ImGuiDockNodeFlags = 0): Bind.ImGuiID {
+    return bind.DockSpaceOverMainViewport(flags);
+}
+export function DockSpaceOverViewportID(viewport_id: Bind.ImGuiID, flags: ImGuiDockNodeFlags = 0): Bind.ImGuiID {
+    return bind.DockSpaceOverViewportID(viewport_id, flags);
+}
+// IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
+export function SetNextWindowDockID(dock_id: Bind.ImGuiID, cond: ImGuiCond = 0): void { bind.SetNextWindowDockID(dock_id, cond); }
+// IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
+export function SetNextWindowClass(window_class: Readonly<Bind.interface_ImGuiWindowClass>): void { bind.SetNextWindowClass(window_class); }
+// IMGUI_API ImGuiID       GetWindowDockID();
+export function GetWindowDockID(): Bind.ImGuiID { return bind.GetWindowDockID(); }
+// IMGUI_API bool          IsWindowDocked();                                                   // is current window docked into another window?
+export function IsWindowDocked(): boolean { return bind.IsWindowDocked(); }
+
 // Logging/Capture
 // - All text output from the interface can be captured into tty/file/clipboard. By default, tree nodes are automatically opened during logging.
 // IMGUI_API void          LogToTTY(int auto_open_depth = -1);                                 // start logging to tty (stdout)
@@ -4459,3 +4569,20 @@ export function SetAllocatorFunctions(alloc_func: (sz: number, user_data: any) =
 }
 export function MemAlloc(sz: number): void { bind.MemAlloc(sz); }
 export function MemFree(ptr: any): void { bind.MemFree(ptr); }
+export function GlyphRangeAlloc(glyph_ranges: Uint16Array): number { return bind.GlyphRangeAlloc(glyph_ranges); }
+export function GlyphRangeExport(glyph_ranges: number): Uint16Array { return bind.GlyphRangeExport(glyph_ranges); }
+
+// (Optional) Platform/OS interface for multi-viewport support
+// Read comments around the ImGuiPlatformIO structure for more details.
+// Note: You may use GetWindowViewport() to get the current viewport of the current window.
+// IMGUI_API ImGuiPlatformIO&  GetPlatformIO();                                                // platform/renderer functions, for backend to setup + viewports list.
+// IMGUI_API ImGuiViewport*    GetMainViewport();                                              // main viewport. same as GetPlatformIO().MainViewport == GetPlatformIO().Viewports[0].
+export function GetMainViewport(): ImGuiViewport | null {
+    const viewport: Bind.reference_ImGuiViewport | null = bind.GetMainViewport();
+    return (viewport === null) ? null : new ImGuiViewport(viewport);
+}
+// IMGUI_API void              UpdatePlatformWindows();                                        // call in main loop. will call CreateWindow/ResizeWindow/etc. platform functions for each secondary viewport, and DestroyWindow for each inactive viewport.
+// IMGUI_API void              RenderPlatformWindowsDefault(void* platform_render_arg = NULL, void* renderer_render_arg = NULL); // call in main loop. will call RenderWindow/SwapBuffers platform functions for each secondary viewport which doesn't have the ImGuiViewportFlags_Minimized flag set. May be reimplemented by user for custom rendering needs.
+// IMGUI_API void              DestroyPlatformWindows();                                       // call DestroyWindow platform functions for all viewports. call from backend Shutdown() if you need to close platform windows before imgui shutdown. otherwise will be called by DestroyContext().
+// IMGUI_API ImGuiViewport*    FindViewportByID(ImGuiID id);                                   // this is a helper for backends.
+// IMGUI_API ImGuiViewport*    FindViewportByPlatformHandle(void* platform_handle);            // this is a helper for backends. the type platform_handle is decided by the backend (e.g. HWND, MyWindow*, GLFWwindow* etc.)

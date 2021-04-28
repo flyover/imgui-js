@@ -4,6 +4,28 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ImGui_Memory_Editor = {}, global.ImGui));
 }(this, (function (exports, ImGui) { 'use strict';
 
+    function _interopNamespace(e) {
+        if (e && e.__esModule) return e;
+        var n = Object.create(null);
+        if (e) {
+            Object.keys(e).forEach(function (k) {
+                if (k !== 'default') {
+                    var d = Object.getOwnPropertyDescriptor(e, k);
+                    Object.defineProperty(n, k, d.get ? d : {
+                        enumerable: true,
+                        get: function () {
+                            return e[k];
+                        }
+                    });
+                }
+            });
+        }
+        n['default'] = e;
+        return Object.freeze(n);
+    }
+
+    var ImGui__namespace = /*#__PURE__*/_interopNamespace(ImGui);
+
     // Mini memory editor for Dear ImGui (to embed in your game/tools)
     // #include <stdio.h>      // sprintf, scanf
     // #include <stdint.h>     // uint8_t, etc.
@@ -20,8 +42,8 @@
     // #endif
     class MemoryEditor {
         constructor() {
-            this.DataInputBuf = new ImGui.StringBuffer(32); /*char[32]*/
-            this.AddrInputBuf = new ImGui.StringBuffer(32); /*char[32]*/
+            this.DataInputBuf = new ImGui__namespace.StringBuffer(32); /*char[32]*/
+            this.AddrInputBuf = new ImGui__namespace.StringBuffer(32); /*char[32]*/
             // Settings
             this.Open = true;
             this.ReadOnly = false;
@@ -34,7 +56,7 @@
             this.OptUpperCaseHex = true;
             this.OptMidColsCount = 8;
             this.OptAddrDigitsCount = 0;
-            this.HighlightColor = ImGui.COL32(255, 255, 255, 50);
+            this.HighlightColor = ImGui__namespace.COL32(255, 255, 255, 50);
             this.ReadFn = null;
             this.WriteFn = null;
             this.HighlightFn = null;
@@ -47,7 +69,7 @@
             this.GotoAddr = -1;
             this.HighlightMin = this.HighlightMax = -1;
             this.PreviewEndianess = 0;
-            this.PreviewDataType = ImGui.DataType.S32;
+            this.PreviewDataType = ImGui__namespace.DataType.S32;
         }
         ;
         ;
@@ -57,13 +79,13 @@
             this.HighlightMax = addr_max;
         }
         CalcSizes(s, mem_size, base_display_addr) {
-            const style = ImGui.GetStyle();
+            const style = ImGui__namespace.GetStyle();
             s.AddrDigitsCount = this.OptAddrDigitsCount;
             if (s.AddrDigitsCount === 0)
                 for (let /*size_t*/ n = base_display_addr + mem_size - 1; n > 0; n >>= 4)
                     s.AddrDigitsCount++;
-            s.LineHeight = ImGui.GetTextLineHeight();
-            s.GlyphWidth = ImGui.CalcTextSize("F").x + 1; // We assume the font is mono-space
+            s.LineHeight = ImGui__namespace.GetTextLineHeight();
+            s.GlyphWidth = ImGui__namespace.CalcTextSize("F").x + 1; // We assume the font is mono-space
             s.HexCellWidth = Math.floor /*(float)(int)*/(s.GlyphWidth * 2.5); // "FF " we include trailing space in the width to easily catch clicks everywhere
             s.SpacingBetweenMidCols = Math.floor /*(float)(int)*/(s.HexCellWidth * 0.25); // Every OptMidColsCount columns we add a bit of extra spacing
             s.PosHexStart = (s.AddrDigitsCount + 2) * s.GlyphWidth;
@@ -81,18 +103,18 @@
         DrawWindow(title, mem_data, mem_size = mem_data.byteLength, base_display_addr = 0x0000) {
             const s = new MemoryEditor.Sizes();
             this.CalcSizes(s, mem_size, base_display_addr);
-            ImGui.SetNextWindowSizeConstraints(new ImGui.Vec2(0.0, 0.0), new ImGui.Vec2(s.WindowWidth, Number.MAX_VALUE));
+            ImGui__namespace.SetNextWindowSizeConstraints(new ImGui__namespace.Vec2(0.0, 0.0), new ImGui__namespace.Vec2(s.WindowWidth, Number.MAX_VALUE));
             this.Open = true;
-            if (ImGui.Begin(title, (_ = this.Open) => this.Open = _, ImGui.WindowFlags.NoScrollbar)) {
-                if (ImGui.IsWindowHovered(ImGui.HoveredFlags.RootAndChildWindows) && ImGui.IsMouseReleased(ImGui.MouseButton.Right))
-                    ImGui.OpenPopup("context");
+            if (ImGui__namespace.Begin(title, (_ = this.Open) => this.Open = _, ImGui__namespace.WindowFlags.NoScrollbar)) {
+                if (ImGui__namespace.IsWindowHovered(ImGui__namespace.HoveredFlags.RootAndChildWindows) && ImGui__namespace.IsMouseReleased(ImGui__namespace.MouseButton.Right))
+                    ImGui__namespace.OpenPopup("context");
                 this.DrawContents(mem_data, mem_size, base_display_addr);
                 if (this.ContentsWidthChanged) {
                     this.CalcSizes(s, mem_size, base_display_addr);
-                    ImGui.SetWindowSize(new ImGui.Vec2(s.WindowWidth, ImGui.GetWindowSize().y));
+                    ImGui__namespace.SetWindowSize(new ImGui__namespace.Vec2(s.WindowWidth, ImGui__namespace.GetWindowSize().y));
                 }
             }
-            ImGui.End();
+            ImGui__namespace.End();
         }
         // Memory Editor contents only
         // void DrawContents(void* mem_data_void, size_t mem_size, size_t base_display_addr = 0x0000)
@@ -102,23 +124,23 @@
             // ImU8* mem_data = (ImU8*)mem_data_void;
             const s = new MemoryEditor.Sizes();
             this.CalcSizes(s, mem_size, base_display_addr);
-            const style = ImGui.GetStyle();
+            const style = ImGui__namespace.GetStyle();
             // We begin into our scrolling region with the 'ImGui.WindowFlags.NoMove' in order to prevent click from moving the window.
             // This is used as a facility since our main click detection code doesn't assign an ActiveId so the click would normally be caught as a window-move.
             const height_separator = style.ItemSpacing.y;
             let footer_height = 0;
             if (this.OptShowOptions)
-                footer_height += height_separator + ImGui.GetFrameHeightWithSpacing() * 1;
+                footer_height += height_separator + ImGui__namespace.GetFrameHeightWithSpacing() * 1;
             if (this.OptShowDataPreview)
-                footer_height += height_separator + ImGui.GetFrameHeightWithSpacing() * 1 + ImGui.GetTextLineHeightWithSpacing() * 3;
-            ImGui.BeginChild("##scrolling", new ImGui.Vec2(0, -footer_height), false, ImGui.WindowFlags.NoMove | ImGui.WindowFlags.NoNav);
-            const draw_list = ImGui.GetWindowDrawList();
-            ImGui.PushStyleVar(ImGui.StyleVar.FramePadding, new ImGui.Vec2(0, 0));
-            ImGui.PushStyleVar(ImGui.StyleVar.ItemSpacing, new ImGui.Vec2(0, 0));
+                footer_height += height_separator + ImGui__namespace.GetFrameHeightWithSpacing() * 1 + ImGui__namespace.GetTextLineHeightWithSpacing() * 3;
+            ImGui__namespace.BeginChild("##scrolling", new ImGui__namespace.Vec2(0, -footer_height), false, ImGui__namespace.WindowFlags.NoMove | ImGui__namespace.WindowFlags.NoNav);
+            const draw_list = ImGui__namespace.GetWindowDrawList();
+            ImGui__namespace.PushStyleVar(ImGui__namespace.StyleVar.FramePadding, new ImGui__namespace.Vec2(0, 0));
+            ImGui__namespace.PushStyleVar(ImGui__namespace.StyleVar.ItemSpacing, new ImGui__namespace.Vec2(0, 0));
             // We are not really using the clipper API correctly here, because we rely on visible_start_addr/visible_end_addr for our scrolling function.
             const line_total_count = 0 | /*(int)*/ ((mem_size + this.Cols - 1) / this.Cols);
             // ImGuiListClipper clipper;
-            const clipper = new ImGui.ListClipper();
+            const clipper = new ImGui__namespace.ListClipper();
             clipper.Begin(line_total_count, s.LineHeight);
             clipper.Step();
             const visible_start_addr = clipper.DisplayStart * this.Cols;
@@ -133,19 +155,19 @@
             let data_editing_addr_next = -1;
             if (this.DataEditingAddr !== -1) {
                 // Move cursor but only apply on next frame so scrolling with be synchronized (because currently we can't change the scrolling while the window is being rendered)
-                if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGui.Key.UpArrow)) && this.DataEditingAddr >= this.Cols) {
+                if (ImGui__namespace.IsKeyPressed(ImGui__namespace.GetKeyIndex(ImGui__namespace.Key.UpArrow)) && this.DataEditingAddr >= this.Cols) {
                     data_editing_addr_next = this.DataEditingAddr - this.Cols;
                     this.DataEditingTakeFocus = true;
                 }
-                else if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGui.Key.DownArrow)) && this.DataEditingAddr < mem_size - this.Cols) {
+                else if (ImGui__namespace.IsKeyPressed(ImGui__namespace.GetKeyIndex(ImGui__namespace.Key.DownArrow)) && this.DataEditingAddr < mem_size - this.Cols) {
                     data_editing_addr_next = this.DataEditingAddr + this.Cols;
                     this.DataEditingTakeFocus = true;
                 }
-                else if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGui.Key.LeftArrow)) && this.DataEditingAddr > 0) {
+                else if (ImGui__namespace.IsKeyPressed(ImGui__namespace.GetKeyIndex(ImGui__namespace.Key.LeftArrow)) && this.DataEditingAddr > 0) {
                     data_editing_addr_next = this.DataEditingAddr - 1;
                     this.DataEditingTakeFocus = true;
                 }
-                else if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGui.Key.RightArrow)) && this.DataEditingAddr < mem_size - 1) {
+                else if (ImGui__namespace.IsKeyPressed(ImGui__namespace.GetKeyIndex(ImGui__namespace.Key.RightArrow)) && this.DataEditingAddr < mem_size - 1) {
                     data_editing_addr_next = this.DataEditingAddr + 1;
                     this.DataEditingTakeFocus = true;
                 }
@@ -155,14 +177,14 @@
                 const scroll_offset = ( /*(int)*/(data_editing_addr_next / this.Cols) - /*(int)*/ (data_editing_addr_backup / this.Cols));
                 const scroll_desired = (scroll_offset < 0 && data_editing_addr_next < visible_start_addr + this.Cols * 2) || (scroll_offset > 0 && data_editing_addr_next > visible_end_addr - this.Cols * 2);
                 if (scroll_desired)
-                    ImGui.SetScrollY(ImGui.GetScrollY() + scroll_offset * s.LineHeight);
+                    ImGui__namespace.SetScrollY(ImGui__namespace.GetScrollY() + scroll_offset * s.LineHeight);
             }
             // Draw vertical separator
-            const window_pos = ImGui.GetWindowPos();
+            const window_pos = ImGui__namespace.GetWindowPos();
             if (this.OptShowAscii)
-                draw_list.AddLine(new ImGui.Vec2(window_pos.x + s.PosAsciiStart - s.GlyphWidth, window_pos.y), new ImGui.Vec2(window_pos.x + s.PosAsciiStart - s.GlyphWidth, window_pos.y + 9999), ImGui.GetColorU32(ImGui.Col.Border));
-            const color_text = ImGui.GetColorU32(ImGui.Col.Text);
-            const color_disabled = this.OptGreyOutZeroes ? ImGui.GetColorU32(ImGui.Col.TextDisabled) : color_text;
+                draw_list.AddLine(new ImGui__namespace.Vec2(window_pos.x + s.PosAsciiStart - s.GlyphWidth, window_pos.y), new ImGui__namespace.Vec2(window_pos.x + s.PosAsciiStart - s.GlyphWidth, window_pos.y + 9999), ImGui__namespace.GetColorU32(ImGui__namespace.Col.Border));
+            const color_text = ImGui__namespace.GetColorU32(ImGui__namespace.Col.Text);
+            const color_disabled = this.OptGreyOutZeroes ? ImGui__namespace.GetColorU32(ImGui__namespace.Col.TextDisabled) : color_text;
             // const char* format_address = this.OptUpperCaseHex ? "%0*" _PRISizeT "X: " : "%0*" _PRISizeT "x: ";
             const format_address = (n, a) => {
                 let s = a.toString(16).padStart(n, "0");
@@ -195,19 +217,19 @@
              {
                 let addr = (line_i * this.Cols);
                 // ImGui.Text(format_address, s.AddrDigitsCount, base_display_addr + addr);
-                ImGui.Text(format_address(s.AddrDigitsCount, base_display_addr + addr));
+                ImGui__namespace.Text(format_address(s.AddrDigitsCount, base_display_addr + addr));
                 // Draw Hexadecimal
                 for (let /*int*/ n = 0; n < this.Cols && addr < mem_size; n++, addr++) {
                     let byte_pos_x = s.PosHexStart + s.HexCellWidth * n;
                     if (this.OptMidColsCount > 0)
                         byte_pos_x += /*(float)*/ (n / this.OptMidColsCount) * s.SpacingBetweenMidCols;
-                    ImGui.SameLine(byte_pos_x);
+                    ImGui__namespace.SameLine(byte_pos_x);
                     // Draw highlight
                     const is_highlight_from_user_range = (addr >= this.HighlightMin && addr < this.HighlightMax);
                     const is_highlight_from_user_func = (this.HighlightFn !== null && this.HighlightFn(mem_data, addr));
                     const is_highlight_from_preview = (addr >= this.DataPreviewAddr && addr < this.DataPreviewAddr + preview_data_type_size);
                     if (is_highlight_from_user_range || is_highlight_from_user_func || is_highlight_from_preview) {
-                        const pos = ImGui.GetCursorScreenPos();
+                        const pos = ImGui__namespace.GetCursorScreenPos();
                         let highlight_width = s.GlyphWidth * 2;
                         const is_next_byte_highlighted = (addr + 1 < mem_size) && ((this.HighlightMax !== -1 && addr + 1 < this.HighlightMax) || (this.HighlightFn !== null && this.HighlightFn(mem_data, addr + 1)));
                         if (is_next_byte_highlighted || (n + 1 === this.Cols)) {
@@ -215,30 +237,30 @@
                             if (this.OptMidColsCount > 0 && n > 0 && (n + 1) < this.Cols && ((n + 1) % this.OptMidColsCount) === 0)
                                 highlight_width += s.SpacingBetweenMidCols;
                         }
-                        draw_list.AddRectFilled(pos, new ImGui.Vec2(pos.x + highlight_width, pos.y + s.LineHeight), this.HighlightColor);
+                        draw_list.AddRectFilled(pos, new ImGui__namespace.Vec2(pos.x + highlight_width, pos.y + s.LineHeight), this.HighlightColor);
                     }
                     if (this.DataEditingAddr === addr) {
                         // Display text input on current byte
                         let data_write = false;
-                        ImGui.PushID(/*(void*)*/ addr);
+                        ImGui__namespace.PushID(/*(void*)*/ addr);
                         if (this.DataEditingTakeFocus) {
-                            ImGui.SetKeyboardFocusHere();
-                            ImGui.CaptureKeyboardFromApp(true);
+                            ImGui__namespace.SetKeyboardFocusHere();
+                            ImGui__namespace.CaptureKeyboardFromApp(true);
                             // sprintf(AddrInputBuf, format_data, s.AddrDigitsCount, base_display_addr + addr);
                             this.AddrInputBuf.buffer = format_data(s.AddrDigitsCount, base_display_addr + addr);
                             // sprintf(DataInputBuf, format_byte, ReadFn ? ReadFn(mem_data, addr) : mem_data[addr]);
                             this.DataInputBuf.buffer = format_byte(this.ReadFn ? this.ReadFn(mem_data, addr) : new Uint8Array(mem_data)[addr]);
                         }
-                        ImGui.PushItemWidth(s.GlyphWidth * 2);
+                        ImGui__namespace.PushItemWidth(s.GlyphWidth * 2);
                         class UserData {
                             constructor() {
-                                this.CurrentBufOverwrite = new ImGui.StringBuffer(3); // Input
+                                this.CurrentBufOverwrite = new ImGui__namespace.StringBuffer(3); // Input
                                 this.CursorPos = 0; // Output
                             }
                             // FIXME: We should have a way to retrieve the text edit cursor position more easily in the API, this is rather tedious. This is such a ugly mess we may be better off not using InputText() at all here.
                             static Callback(data) {
                                 const user_data = data.UserData;
-                                ImGui.ASSERT(user_data !== null);
+                                ImGui__namespace.ASSERT(user_data !== null);
                                 if (!data.HasSelection())
                                     user_data.CursorPos = data.CursorPos;
                                 if (data.SelectionStart === 0 && data.SelectionEnd === data.BufTextLen) {
@@ -256,13 +278,13 @@
                         user_data.CursorPos = -1;
                         // sprintf(user_data.CurrentBufOverwrite, format_byte, ReadFn ? ReadFn(mem_data, addr) : mem_data[addr]);
                         user_data.CurrentBufOverwrite.buffer = format_byte(this.ReadFn ? this.ReadFn(mem_data, addr) : new Uint8Array(mem_data)[addr]);
-                        const flags = ImGui.InputTextFlags.CharsHexadecimal | ImGui.InputTextFlags.EnterReturnsTrue | ImGui.InputTextFlags.AutoSelectAll | ImGui.InputTextFlags.NoHorizontalScroll | ImGui.InputTextFlags.AlwaysInsertMode | ImGui.InputTextFlags.CallbackAlways;
-                        if (ImGui.InputText("##data", this.DataInputBuf, 32, flags, UserData.Callback, user_data))
+                        const flags = ImGui__namespace.InputTextFlags.CharsHexadecimal | ImGui__namespace.InputTextFlags.EnterReturnsTrue | ImGui__namespace.InputTextFlags.AutoSelectAll | ImGui__namespace.InputTextFlags.NoHorizontalScroll | ImGui__namespace.InputTextFlags.AlwaysInsertMode | ImGui__namespace.InputTextFlags.CallbackAlways;
+                        if (ImGui__namespace.InputText("##data", this.DataInputBuf, 32, flags, UserData.Callback, user_data))
                             data_write = data_next = true;
-                        else if (!this.DataEditingTakeFocus && !ImGui.IsItemActive())
+                        else if (!this.DataEditingTakeFocus && !ImGui__namespace.IsItemActive())
                             this.DataEditingAddr = data_editing_addr_next = -1;
                         this.DataEditingTakeFocus = false;
-                        ImGui.PopItemWidth();
+                        ImGui__namespace.PopItemWidth();
                         if (user_data.CursorPos >= 2)
                             data_write = data_next = true;
                         if (data_editing_addr_next !== -1)
@@ -277,7 +299,7 @@
                                 // mem_data[addr] = (ImU8)data_input_value;
                                 new Uint8Array(mem_data)[addr] = data_input_value;
                         }
-                        ImGui.PopID();
+                        ImGui__namespace.PopID();
                     }
                     else {
                         // NB: The trailing space is not visible but ensure there's no gap that the mouse cannot click on.
@@ -286,21 +308,21 @@
                         if (this.OptShowHexII) {
                             if ((b >= 32 && b < 128))
                                 // ImGui.Text(".%c ", b);
-                                ImGui.Text(`.${String.fromCharCode(b)} `);
+                                ImGui__namespace.Text(`.${String.fromCharCode(b)} `);
                             else if (b === 0xFF && this.OptGreyOutZeroes)
-                                ImGui.TextDisabled("## ");
+                                ImGui__namespace.TextDisabled("## ");
                             else if (b === 0x00)
-                                ImGui.Text("   ");
+                                ImGui__namespace.Text("   ");
                             else
-                                ImGui.Text(format_byte_space(b));
+                                ImGui__namespace.Text(format_byte_space(b));
                         }
                         else {
                             if (b === 0 && this.OptGreyOutZeroes)
-                                ImGui.TextDisabled("00 ");
+                                ImGui__namespace.TextDisabled("00 ");
                             else
-                                ImGui.Text(format_byte_space(b));
+                                ImGui__namespace.Text(format_byte_space(b));
                         }
-                        if (!this.ReadOnly && ImGui.IsItemHovered() && ImGui.IsMouseClicked(0)) {
+                        if (!this.ReadOnly && ImGui__namespace.IsItemHovered() && ImGui__namespace.IsMouseClicked(0)) {
                             this.DataEditingTakeFocus = true;
                             data_editing_addr_next = addr;
                         }
@@ -308,19 +330,19 @@
                 }
                 if (this.OptShowAscii) {
                     // Draw ASCII values
-                    ImGui.SameLine(s.PosAsciiStart);
-                    const pos = ImGui.GetCursorScreenPos();
+                    ImGui__namespace.SameLine(s.PosAsciiStart);
+                    const pos = ImGui__namespace.GetCursorScreenPos();
                     addr = line_i * this.Cols;
-                    ImGui.PushID(line_i);
-                    if (ImGui.InvisibleButton("ascii", new ImGui.Vec2(s.PosAsciiEnd - s.PosAsciiStart, s.LineHeight))) {
-                        this.DataEditingAddr = this.DataPreviewAddr = addr + ((ImGui.GetIO().MousePos.x - pos.x) / s.GlyphWidth);
+                    ImGui__namespace.PushID(line_i);
+                    if (ImGui__namespace.InvisibleButton("ascii", new ImGui__namespace.Vec2(s.PosAsciiEnd - s.PosAsciiStart, s.LineHeight))) {
+                        this.DataEditingAddr = this.DataPreviewAddr = addr + ((ImGui__namespace.GetIO().MousePos.x - pos.x) / s.GlyphWidth);
                         this.DataEditingTakeFocus = true;
                     }
-                    ImGui.PopID();
+                    ImGui__namespace.PopID();
                     for (let /*int*/ n = 0; n < this.Cols && addr < mem_size; n++, addr++) {
                         if (addr === this.DataEditingAddr) {
-                            draw_list.AddRectFilled(pos, new ImGui.Vec2(pos.x + s.GlyphWidth, pos.y + s.LineHeight), ImGui.GetColorU32(ImGui.Col.FrameBg));
-                            draw_list.AddRectFilled(pos, new ImGui.Vec2(pos.x + s.GlyphWidth, pos.y + s.LineHeight), ImGui.GetColorU32(ImGui.Col.TextSelectedBg));
+                            draw_list.AddRectFilled(pos, new ImGui__namespace.Vec2(pos.x + s.GlyphWidth, pos.y + s.LineHeight), ImGui__namespace.GetColorU32(ImGui__namespace.Col.FrameBg));
+                            draw_list.AddRectFilled(pos, new ImGui__namespace.Vec2(pos.x + s.GlyphWidth, pos.y + s.LineHeight), ImGui__namespace.GetColorU32(ImGui__namespace.Col.TextSelectedBg));
                         }
                         // unsigned char c = ReadFn ? ReadFn(mem_data, addr) : mem_data[addr];
                         const c = this.ReadFn ? this.ReadFn(mem_data, addr) : new Uint8Array(mem_data)[addr];
@@ -332,10 +354,10 @@
                     }
                 }
             }
-            ImGui.ASSERT(clipper.Step() === false);
+            ImGui__namespace.ASSERT(clipper.Step() === false);
             clipper.End();
-            ImGui.PopStyleVar(2);
-            ImGui.EndChild();
+            ImGui__namespace.PopStyleVar(2);
+            ImGui__namespace.EndChild();
             if (data_next && this.DataEditingAddr < mem_size) {
                 this.DataEditingAddr = this.DataPreviewAddr = this.DataEditingAddr + 1;
                 this.DataEditingTakeFocus = true;
@@ -345,19 +367,19 @@
             }
             const lock_show_data_preview = this.OptShowDataPreview;
             if (this.OptShowOptions) {
-                ImGui.Separator();
+                ImGui__namespace.Separator();
                 this.DrawOptionsLine(s, mem_data, mem_size, base_display_addr);
             }
             if (lock_show_data_preview) {
-                ImGui.Separator();
+                ImGui__namespace.Separator();
                 this.DrawPreviewLine(s, mem_data, mem_size, base_display_addr);
             }
             // Notify the main window of our ideal child content size (FIXME: we are missing an API to get the contents size from the child)
-            ImGui.SetCursorPosX(s.WindowWidth);
+            ImGui__namespace.SetCursorPosX(s.WindowWidth);
         }
         DrawOptionsLine(s, mem_data, mem_size, base_display_addr) {
             // IM_UNUSED(mem_data);
-            const style = ImGui.GetStyle();
+            const style = ImGui__namespace.GetStyle();
             // const char* format_range = OptUpperCaseHex ? "Range %0*" _PRISizeT "X..%0*" _PRISizeT "X" : "Range %0*" _PRISizeT "x..%0*" _PRISizeT "x";
             const format_range = (n_min, a_min, n_max, a_max) => {
                 let s_min = a_min.toString(16).padStart(n_min, "0");
@@ -369,31 +391,31 @@
                 return `Range ${s_min}..${s_max}`;
             };
             // Options menu
-            if (ImGui.Button("Options"))
-                ImGui.OpenPopup("context");
-            if (ImGui.BeginPopup("context")) {
-                ImGui.PushItemWidth(56);
-                if (ImGui.DragInt("##cols", (_ = this.Cols) => this.Cols = _, 0.2, 4, 32, "%d cols")) {
+            if (ImGui__namespace.Button("Options"))
+                ImGui__namespace.OpenPopup("context");
+            if (ImGui__namespace.BeginPopup("context")) {
+                ImGui__namespace.PushItemWidth(56);
+                if (ImGui__namespace.DragInt("##cols", (_ = this.Cols) => this.Cols = _, 0.2, 4, 32, "%d cols")) {
                     this.ContentsWidthChanged = true;
                     if (this.Cols < 1)
                         this.Cols = 1;
                 }
-                ImGui.PopItemWidth();
-                ImGui.Checkbox("Show Data Preview", (_ = this.OptShowDataPreview) => this.OptShowDataPreview = _);
-                ImGui.Checkbox("Show HexII", (_ = this.OptShowHexII) => this.OptShowHexII = _);
-                if (ImGui.Checkbox("Show Ascii", (_ = this.OptShowAscii) => this.OptShowAscii = _)) {
+                ImGui__namespace.PopItemWidth();
+                ImGui__namespace.Checkbox("Show Data Preview", (_ = this.OptShowDataPreview) => this.OptShowDataPreview = _);
+                ImGui__namespace.Checkbox("Show HexII", (_ = this.OptShowHexII) => this.OptShowHexII = _);
+                if (ImGui__namespace.Checkbox("Show Ascii", (_ = this.OptShowAscii) => this.OptShowAscii = _)) {
                     this.ContentsWidthChanged = true;
                 }
-                ImGui.Checkbox("Grey out zeroes", (_ = this.OptGreyOutZeroes) => this.OptGreyOutZeroes = _);
-                ImGui.Checkbox("Uppercase Hex", (_ = this.OptUpperCaseHex) => this.OptUpperCaseHex = _);
-                ImGui.EndPopup();
+                ImGui__namespace.Checkbox("Grey out zeroes", (_ = this.OptGreyOutZeroes) => this.OptGreyOutZeroes = _);
+                ImGui__namespace.Checkbox("Uppercase Hex", (_ = this.OptUpperCaseHex) => this.OptUpperCaseHex = _);
+                ImGui__namespace.EndPopup();
             }
-            ImGui.SameLine();
+            ImGui__namespace.SameLine();
             // ImGui.Text(format_range, s.AddrDigitsCount, base_display_addr, s.AddrDigitsCount, base_display_addr + mem_size - 1);
-            ImGui.Text(format_range(s.AddrDigitsCount, base_display_addr, s.AddrDigitsCount, base_display_addr + mem_size - 1));
-            ImGui.SameLine();
-            ImGui.PushItemWidth((s.AddrDigitsCount + 1) * s.GlyphWidth + style.FramePadding.x * 2.0);
-            if (ImGui.InputText("##addr", this.AddrInputBuf, 32, ImGui.InputTextFlags.CharsHexadecimal | ImGui.InputTextFlags.EnterReturnsTrue)) {
+            ImGui__namespace.Text(format_range(s.AddrDigitsCount, base_display_addr, s.AddrDigitsCount, base_display_addr + mem_size - 1));
+            ImGui__namespace.SameLine();
+            ImGui__namespace.PushItemWidth((s.AddrDigitsCount + 1) * s.GlyphWidth + style.FramePadding.x * 2.0);
+            if (ImGui__namespace.InputText("##addr", this.AddrInputBuf, 32, ImGui__namespace.InputTextFlags.CharsHexadecimal | ImGui__namespace.InputTextFlags.EnterReturnsTrue)) {
                 // size_t goto_addr;
                 let goto_addr;
                 // if (sscanf(AddrInputBuf, "%" _PRISizeT "X", &goto_addr) === 1)
@@ -402,12 +424,12 @@
                     this.HighlightMin = this.HighlightMax = -1;
                 }
             }
-            ImGui.PopItemWidth();
+            ImGui__namespace.PopItemWidth();
             if (this.GotoAddr !== -1) {
                 if (this.GotoAddr < mem_size) {
-                    ImGui.BeginChild("##scrolling");
-                    ImGui.SetScrollFromPosY(ImGui.GetCursorStartPos().y + (this.GotoAddr / this.Cols) * ImGui.GetTextLineHeight());
-                    ImGui.EndChild();
+                    ImGui__namespace.BeginChild("##scrolling");
+                    ImGui__namespace.SetScrollFromPosY(ImGui__namespace.GetCursorStartPos().y + (this.GotoAddr / this.Cols) * ImGui__namespace.GetTextLineHeight());
+                    ImGui__namespace.EndChild();
                     this.DataEditingAddr = this.DataPreviewAddr = this.GotoAddr;
                     this.DataEditingTakeFocus = true;
                 }
@@ -418,57 +440,57 @@
         DrawPreviewLine(s, mem_data, mem_size, base_display_addr) {
             // IM_UNUSED(base_display_addr);
             // ImU8* mem_data = (ImU8*)mem_data_void;
-            const style = ImGui.GetStyle();
-            ImGui.AlignTextToFramePadding();
-            ImGui.Text("Preview as:");
-            ImGui.SameLine();
-            ImGui.PushItemWidth((s.GlyphWidth * 10.0) + style.FramePadding.x * 2.0 + style.ItemInnerSpacing.x);
-            if (ImGui.BeginCombo("##combo_type", this.DataTypeGetDesc(this.PreviewDataType), ImGui.ComboFlags.HeightLargest)) {
-                for (let /*int*/ n = 0; n < ImGui.DataType.COUNT; n++)
-                    if (ImGui.Selectable(this.DataTypeGetDesc(n), this.PreviewDataType === n))
+            const style = ImGui__namespace.GetStyle();
+            ImGui__namespace.AlignTextToFramePadding();
+            ImGui__namespace.Text("Preview as:");
+            ImGui__namespace.SameLine();
+            ImGui__namespace.PushItemWidth((s.GlyphWidth * 10.0) + style.FramePadding.x * 2.0 + style.ItemInnerSpacing.x);
+            if (ImGui__namespace.BeginCombo("##combo_type", this.DataTypeGetDesc(this.PreviewDataType), ImGui__namespace.ComboFlags.HeightLargest)) {
+                for (let /*int*/ n = 0; n < ImGui__namespace.DataType.COUNT; n++)
+                    if (ImGui__namespace.Selectable(this.DataTypeGetDesc(n), this.PreviewDataType === n))
                         this.PreviewDataType = n;
-                ImGui.EndCombo();
+                ImGui__namespace.EndCombo();
             }
-            ImGui.PopItemWidth();
-            ImGui.SameLine();
-            ImGui.PushItemWidth((s.GlyphWidth * 6.0) + style.FramePadding.x * 2.0 + style.ItemInnerSpacing.x);
-            ImGui.Combo("##combo_endianess", (_ = this.PreviewEndianess) => this.PreviewEndianess = _, "LE\0BE\0\0");
-            ImGui.PopItemWidth();
+            ImGui__namespace.PopItemWidth();
+            ImGui__namespace.SameLine();
+            ImGui__namespace.PushItemWidth((s.GlyphWidth * 6.0) + style.FramePadding.x * 2.0 + style.ItemInnerSpacing.x);
+            ImGui__namespace.Combo("##combo_endianess", (_ = this.PreviewEndianess) => this.PreviewEndianess = _, "LE\0BE\0\0");
+            ImGui__namespace.PopItemWidth();
             // char buf[128] = "";
-            const buf = new ImGui.StringBuffer(128);
+            const buf = new ImGui__namespace.StringBuffer(128);
             const x = s.GlyphWidth * 6.0;
             const has_value = this.DataPreviewAddr !== -1;
             if (has_value)
-                this.DrawPreviewData(this.DataPreviewAddr, mem_data, mem_size, this.PreviewDataType, MemoryEditor.DataFormat.Dec, buf, ImGui.ARRAYSIZE(buf));
-            ImGui.Text("Dec");
-            ImGui.SameLine(x);
-            ImGui.TextUnformatted(has_value ? buf.buffer : "N/A");
+                this.DrawPreviewData(this.DataPreviewAddr, mem_data, mem_size, this.PreviewDataType, MemoryEditor.DataFormat.Dec, buf, ImGui__namespace.ARRAYSIZE(buf));
+            ImGui__namespace.Text("Dec");
+            ImGui__namespace.SameLine(x);
+            ImGui__namespace.TextUnformatted(has_value ? buf.buffer : "N/A");
             if (has_value)
-                this.DrawPreviewData(this.DataPreviewAddr, mem_data, mem_size, this.PreviewDataType, MemoryEditor.DataFormat.Hex, buf, ImGui.ARRAYSIZE(buf));
-            ImGui.Text("Hex");
-            ImGui.SameLine(x);
-            ImGui.TextUnformatted(has_value ? buf.buffer : "N/A");
+                this.DrawPreviewData(this.DataPreviewAddr, mem_data, mem_size, this.PreviewDataType, MemoryEditor.DataFormat.Hex, buf, ImGui__namespace.ARRAYSIZE(buf));
+            ImGui__namespace.Text("Hex");
+            ImGui__namespace.SameLine(x);
+            ImGui__namespace.TextUnformatted(has_value ? buf.buffer : "N/A");
             if (has_value)
-                this.DrawPreviewData(this.DataPreviewAddr, mem_data, mem_size, this.PreviewDataType, MemoryEditor.DataFormat.Bin, buf, ImGui.ARRAYSIZE(buf));
+                this.DrawPreviewData(this.DataPreviewAddr, mem_data, mem_size, this.PreviewDataType, MemoryEditor.DataFormat.Bin, buf, ImGui__namespace.ARRAYSIZE(buf));
             // buf[ImGui.ARRAYSIZE(buf) - 1] = 0;
-            ImGui.Text("Bin");
-            ImGui.SameLine(x);
-            ImGui.TextUnformatted(has_value ? buf.buffer : "N/A");
+            ImGui__namespace.Text("Bin");
+            ImGui__namespace.SameLine(x);
+            ImGui__namespace.TextUnformatted(has_value ? buf.buffer : "N/A");
         }
         // Utilities for Data Preview
         DataTypeGetDesc(data_type) {
             const descs = ["Int8", "Uint8", "Int16", "Uint16", "Int32", "Uint32", "Int64", "Uint64", "Float", "Double"];
-            ImGui.ASSERT(data_type >= 0 && data_type < ImGui.DataType.COUNT);
+            ImGui__namespace.ASSERT(data_type >= 0 && data_type < ImGui__namespace.DataType.COUNT);
             return descs[data_type];
         }
         DataTypeGetSize(data_type) {
             const sizes = [1, 1, 2, 2, 4, 4, 8, 8, /*sizeof(float)*/ 4, /*sizeof(double)*/ 8];
-            ImGui.ASSERT(data_type >= 0 && data_type < ImGui.DataType.COUNT);
+            ImGui__namespace.ASSERT(data_type >= 0 && data_type < ImGui__namespace.DataType.COUNT);
             return sizes[data_type];
         }
         DataFormatGetDesc(data_format) {
             const descs = ["Bin", "Dec", "Hex"];
-            ImGui.ASSERT(data_format >= 0 && data_format < MemoryEditor.DataFormat.COUNT);
+            ImGui__namespace.ASSERT(data_format >= 0 && data_format < MemoryEditor.DataFormat.COUNT);
             return descs[data_format];
         }
         IsBigEndian() {
@@ -560,7 +582,7 @@
             // out_buf[0] = 0;
             out_buf.buffer = "";
             switch (data_type) {
-                case ImGui.DataType.S8:
+                case ImGui__namespace.DataType.S8:
                     {
                         // int8_t int8 = 0;
                         // EndianessCopy(&int8, buf, size);
@@ -577,7 +599,7 @@
                         }
                         break;
                     }
-                case ImGui.DataType.U8:
+                case ImGui__namespace.DataType.U8:
                     {
                         // uint8_t uint8 = 0;
                         // EndianessCopy(&uint8, buf, size);
@@ -594,7 +616,7 @@
                         }
                         break;
                     }
-                case ImGui.DataType.S16:
+                case ImGui__namespace.DataType.S16:
                     {
                         // int16_t int16 = 0;
                         // EndianessCopy(&int16, buf, size);
@@ -611,7 +633,7 @@
                         }
                         break;
                     }
-                case ImGui.DataType.U16:
+                case ImGui__namespace.DataType.U16:
                     {
                         // uint16_t uint16 = 0;
                         // EndianessCopy(&uint16, buf, size);
@@ -628,7 +650,7 @@
                         }
                         break;
                     }
-                case ImGui.DataType.S32:
+                case ImGui__namespace.DataType.S32:
                     {
                         // int32_t int32 = 0;
                         // EndianessCopy(&int32, buf, size);
@@ -645,7 +667,7 @@
                         }
                         break;
                     }
-                case ImGui.DataType.U32:
+                case ImGui__namespace.DataType.U32:
                     {
                         // uint32_t uint32 = 0;
                         // EndianessCopy(&uint32, buf, size);
@@ -662,7 +684,7 @@
                         }
                         break;
                     }
-                case ImGui.DataType.S64:
+                case ImGui__namespace.DataType.S64:
                     {
                         // int64_t int64 = 0;
                         // EndianessCopy(&int64, buf, size);
@@ -679,7 +701,7 @@
                         }
                         break;
                     }
-                case ImGui.DataType.U64:
+                case ImGui__namespace.DataType.U64:
                     {
                         // uint64_t uint64 = 0;
                         // EndianessCopy(&uint64, buf, size);
@@ -696,7 +718,7 @@
                         }
                         break;
                     }
-                case ImGui.DataType.Float:
+                case ImGui__namespace.DataType.Float:
                     {
                         // float float32 = 0.0f;
                         // EndianessCopy(&float32, buf, size);
@@ -713,7 +735,7 @@
                         }
                         break;
                     }
-                case ImGui.DataType.Double:
+                case ImGui__namespace.DataType.Double:
                     {
                         // double float64 = 0.0;
                         // EndianessCopy(&float64, buf, size);
@@ -730,7 +752,7 @@
                         }
                         break;
                     }
-                case ImGui.DataType.COUNT:
+                case ImGui__namespace.DataType.COUNT:
                     break;
             } // Switch
             // ImGui.ASSERT(0); // Shouldn't reach
