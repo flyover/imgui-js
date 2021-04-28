@@ -54,6 +54,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             const io = ImGui.GetIO();
             //io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;     // Enable Keyboard Controls
             //io.ConfigFlags |= ImGui.ConfigFlags.NavEnableGamepad;      // Enable Gamepad Controls
+            io.ConfigFlags |= ImGui.ConfigFlags.DockingEnable; // Enable Docking
             // Setup Dear ImGui style
             ImGui.StyleColorsDark();
             //ImGui.StyleColorsClassic();
