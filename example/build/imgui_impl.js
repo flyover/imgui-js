@@ -25,9 +25,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
     }
     function window_on_resize() {
         if (canvas !== null) {
-            const devicePixelRatio = window.devicePixelRatio || 1;
-            canvas.width = Math.floor(canvas.scrollWidth * devicePixelRatio);
-            canvas.height = Math.floor(canvas.scrollHeight * devicePixelRatio);
+            canvas.width = canvas.scrollWidth;
+            canvas.height = canvas.scrollHeight;
         }
     }
     function window_on_gamepadconnected(event /* GamepadEvent */) {
