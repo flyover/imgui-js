@@ -283,7 +283,7 @@ function ShowSandboxWindow(title: string, p_open: ImGui.Access<boolean> | null =
     ImGui.PopItemWidth();
     try {
         eval(source);
-    } catch (e) {
+    } catch (e: any) {
         ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 0.0, 1.0), "error: ");
         ImGui.SameLine();
         ImGui.Text(e.message);

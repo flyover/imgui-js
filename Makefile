@@ -41,27 +41,28 @@ BIND_IMGUI_OUTPUT_JS = build/bind-imgui.js
 # FLAGS += -s SAFE_HEAP=1
 
 FLAGS += -Os
-FLAGS += -s NO_FILESYSTEM=1
-# FLAGS += -s WASM=1
-FLAGS += -s MODULARIZE=1
-# FLAGS += -s EXPORT_NAME=\"ImGui\"
-FLAGS += -s EXPORT_BINDINGS=1
-# FLAGS += -s EXPORT_ALL=1
-# FLAGS += -s MEM_INIT_METHOD=0
-# FLAGS += --memory-init-file 0
-FLAGS += -s SINGLE_FILE=1
-# FLAGS += -s BINARYEN_ASYNC_COMPILATION=0
-# FLAGS += -s BINARYEN_METHOD=\"native-wasm,asmjs\"
-# FLAGS += -s BINARYEN_METHOD=\"interpret-asm2wasm,asmjs\"
-# FLAGS += -s BINARYEN_TRAP_MODE=\"clamp\"
-# FLAGS += -s TOTAL_MEMORY=4194304
-# FLAGS += -s ALLOW_MEMORY_GROWTH=1
-FLAGS += -s EMBIND_STD_STRING_IS_UTF8=1
 
 FLAGS += -D "IM_ASSERT(EXPR)=((void)(EXPR))"
 
 FLAGS += -D IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 FLAGS += -D IMGUI_DISABLE_DEMO_WINDOWS
+
+BIND_FLAGS += -s NO_FILESYSTEM=1
+# BIND_FLAGS += -s WASM=1
+BIND_FLAGS += -s MODULARIZE=1
+# BIND_FLAGS += -s EXPORT_NAME=\"ImGui\"
+BIND_FLAGS += -s EXPORT_BINDINGS=1
+# BIND_FLAGS += -s EXPORT_ALL=1
+# BIND_FLAGS += -s MEM_INIT_METHOD=0
+# BIND_FLAGS += --memory-init-file 0
+BIND_FLAGS += -s SINGLE_FILE=1
+# BIND_FLAGS += -s BINARYEN_ASYNC_COMPILATION=0
+# BIND_FLAGS += -s BINARYEN_METHOD=\"native-wasm,asmjs\"
+# BIND_FLAGS += -s BINARYEN_METHOD=\"interpret-asm2wasm,asmjs\"
+# BIND_FLAGS += -s BINARYEN_TRAP_MODE=\"clamp\"
+# BIND_FLAGS += -s TOTAL_MEMORY=4194304
+# BIND_FLAGS += -s ALLOW_MEMORY_GROWTH=1
+BIND_FLAGS += -s EMBIND_STD_STRING_IS_UTF8=1
 
 build-bind-imgui: build/emscripten.d.ts build/bind-imgui.d.ts build/bind-imgui.js
 
@@ -85,11 +86,11 @@ build/bind-imgui.d.ts: src/bind-imgui.d.ts
 
 build/bind-imgui.bc: src/bind-imgui.cpp $(IMGUI_SOURCE_HXX)
 	mkdir -p ${@D}
-	emcc $(FLAGS) -I $(IMGUI_PATH) -c --bind $< -o $@
+	emcc $(FLAGS) -I $(IMGUI_PATH) -c $< -o $@
 
 build/bind-imgui.js: $(IMGUI_OUTPUT_BC) $(BIND_IMGUI_OUTPUT_BC)
 	mkdir -p ${@D}
-	emcc $(FLAGS) -I $(IMGUI_PATH) --bind $^ -o $@
+	emcc $(FLAGS) $(BIND_FLAGS) -I $(IMGUI_PATH) --bind $^ -o $@
 
 # imgui
 

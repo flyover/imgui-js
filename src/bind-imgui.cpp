@@ -2086,7 +2086,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
             if (0 <= idx && idx < ctx->_ImGui_Combo_items_count) {
                 ctx->_ImGui_Combo_text = "";
                 emscripten::val _out_text = emscripten::val::array();
-                _out_text[0] = emscripten::val(ctx->_ImGui_Combo_text);
+                _out_text.set(0, emscripten::val(ctx->_ImGui_Combo_text));
                 emscripten::val ret = ctx->_ImGui_Combo_items_getter(ctx->_ImGui_Combo_data, emscripten::val(idx), _out_text);
                 ctx->_ImGui_Combo_text = _out_text[0].as<std::string>();
                 *out_text = ctx->_ImGui_Combo_text.c_str();
@@ -2491,7 +2491,7 @@ EMSCRIPTEN_BINDINGS(ImGui) {
             if (0 <= idx && idx <= ctx->_ImGui_ListBox_B_items_count) {
                 ctx->_ImGui_ListBox_B_text = "";
                 emscripten::val _out_text = emscripten::val::array();
-                _out_text[0] = emscripten::val(ctx->_ImGui_ListBox_B_text);
+                _out_text.set(0, emscripten::val(ctx->_ImGui_ListBox_B_text));
                 emscripten::val ret = ctx->_ImGui_ListBox_B_items_getter(ctx->_ImGui_ListBox_B_data, emscripten::val(idx), _out_text);
                 ctx->_ImGui_ListBox_B_text = _out_text[0].as<std::string>();
                 *out_text = ctx->_ImGui_ListBox_B_text.c_str();
