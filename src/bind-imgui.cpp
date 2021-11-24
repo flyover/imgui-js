@@ -50,6 +50,12 @@ void ImGui::ShowFontSelector(const char*) {}
 #define CLASS_METHOD(CLASS, METHOD) \
     .function(#METHOD, &CLASS::METHOD)
 
+EMSCRIPTEN_BINDINGS(version) {
+    emscripten::constant("__EMSCRIPTEN_major__", __EMSCRIPTEN_major__);
+    emscripten::constant("__EMSCRIPTEN_minor__", __EMSCRIPTEN_minor__);
+    emscripten::constant("__EMSCRIPTEN_tiny__", __EMSCRIPTEN_tiny__);
+}
+
 #include <malloc.h>
 
 emscripten::val get_mallinfo() {

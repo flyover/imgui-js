@@ -1041,6 +1041,10 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
 
 export interface Module extends Emscripten.EmscriptenModule {
 
+    __EMSCRIPTEN_major__: number;
+    __EMSCRIPTEN_minor__: number;
+    __EMSCRIPTEN_tiny__: number;
+
     mallinfo(): mallinfo;
 
     IMGUI_VERSION: string;

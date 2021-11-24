@@ -47,6 +47,8 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
     }
     function _init() {
         return __awaiter(this, void 0, void 0, function* () {
+            const EMSCRIPTEN_VERSION = `${ImGui.bind.__EMSCRIPTEN_major__}.${ImGui.bind.__EMSCRIPTEN_minor__}.${ImGui.bind.__EMSCRIPTEN_tiny__}`;
+            console.log("Emscripten Version", EMSCRIPTEN_VERSION);
             console.log("Total allocated space (uordblks) @ _init:", ImGui.bind.mallinfo().uordblks);
             // Setup Dear ImGui context
             ImGui.CHECKVERSION();

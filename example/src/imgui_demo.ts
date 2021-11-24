@@ -5564,6 +5564,7 @@ function /*ImGui.*/ShowAboutWindow(p_open: ImGui.Access<boolean>): void
         }
 
         ImGui.Text(`Dear ImGui ${ImGui.VERSION} (${ImGui.VERSION_NUM})`);
+        ImGui.Text(`Emscripten ${ImGui.bind.__EMSCRIPTEN_major__}.${ImGui.bind.__EMSCRIPTEN_minor__}.${ImGui.bind.__EMSCRIPTEN_tiny__}`);
         ImGui.Separator();
         // ImGui.Text("sizeof(size_t): %d, sizeof(ImDrawIdx): %d, sizeof(ImDrawVert): %d", (int)sizeof(size_t), (int)sizeof(ImDrawIdx), (int)sizeof(ImDrawVert));
         ImGui.Text(`ImGui.DrawIdxSize: ${ImGui.DrawIdxSize}, ImGui.DrawVertSize: ${ImGui.DrawVertSize}`);

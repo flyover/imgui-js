@@ -48,6 +48,9 @@ async function AddFontFromFileTTF(url: string, size_pixels: number, font_cfg: Im
 }
 
 async function _init(): Promise<void> {
+    const EMSCRIPTEN_VERSION = `${ImGui.bind.__EMSCRIPTEN_major__}.${ImGui.bind.__EMSCRIPTEN_minor__}.${ImGui.bind.__EMSCRIPTEN_tiny__}`;
+    console.log("Emscripten Version", EMSCRIPTEN_VERSION);
+
     console.log("Total allocated space (uordblks) @ _init:", ImGui.bind.mallinfo().uordblks);
 
     // Setup Dear ImGui context
