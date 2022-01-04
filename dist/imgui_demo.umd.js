@@ -2,7 +2,7 @@
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('imgui-js')) :
     typeof define === 'function' && define.amd ? define(['exports', 'imgui-js'], factory) :
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ImGui_Demo = {}, global.ImGui));
-}(this, (function (exports, ImGui) { 'use strict';
+})(this, (function (exports, ImGui) { 'use strict';
 
     function _interopNamespace(e) {
         if (e && e.__esModule) return e;
@@ -13,20 +13,18 @@
                     var d = Object.getOwnPropertyDescriptor(e, k);
                     Object.defineProperty(n, k, d.get ? d : {
                         enumerable: true,
-                        get: function () {
-                            return e[k];
-                        }
+                        get: function () { return e[k]; }
                     });
                 }
             });
         }
-        n['default'] = e;
+        n["default"] = e;
         return Object.freeze(n);
     }
 
     var ImGui__namespace = /*#__PURE__*/_interopNamespace(ImGui);
 
-    // dear imgui, v1.80
+    // dear imgui, v1.86
     // #ifndef IMGUI_DISABLE
     // System includes
     // #include <ctype.h>          // toupper
@@ -153,6 +151,7 @@
             ImGui__namespace.EndTooltip();
         }
     }
+    let GImGuiDemoMarkerCallback = null;
     // Helper to display basic user controls.
     function ShowUserGuide() {
         const io = ImGui__namespace.GetIO();
@@ -161,6 +160,7 @@
             "(double-click to auto fit window to its contents).");
         ImGui__namespace.BulletText("CTRL+Click on a slider or drag box to input value as text.");
         ImGui__namespace.BulletText("TAB/SHIFT+TAB to cycle through keyboard editable fields.");
+        ImGui__namespace.BulletText("CTRL+Tab to select a window.");
         if (io.FontAllowUserScaling)
             ImGui__namespace.BulletText("CTRL+Mouse Wheel to zoom window contents.");
         ImGui__namespace.BulletText("While inputing text:\n");
@@ -179,7 +179,6 @@
         ImGui__namespace.BulletText("Return to input text into a widget.");
         ImGui__namespace.BulletText("Escape to deactivate a widget, close popup, exit child window.");
         ImGui__namespace.BulletText("Alt to jump to the menu layer of a window.");
-        ImGui__namespace.BulletText("CTRL+Tab to select a window.");
         ImGui__namespace.Unindent();
     }
     //-----------------------------------------------------------------------------
@@ -220,6 +219,7 @@
         const show_app_auto_resize = STATIC(UNIQUE("show_app_auto_resize#2852aedd"), false);
         const show_app_constrained_resize = STATIC(UNIQUE("show_app_constrained_resize#17933c5a"), false);
         const show_app_simple_overlay = STATIC(UNIQUE("show_app_simple_overlay#6a9175fc"), false);
+        const show_app_fullscreen = STATIC(UNIQUE("show_app_fullscreen#6a9175fc"), false);
         const show_app_window_titles = STATIC(UNIQUE("show_app_window_titles#d283f989"), false);
         const show_app_custom_rendering = STATIC(UNIQUE("show_app_custom_rendering#7338d302"), false);
         if (show_app_main_menu_bar.value)
@@ -242,16 +242,22 @@
             ShowExampleAppConstrainedResize(show_app_constrained_resize.access);
         if (show_app_simple_overlay.value)
             ShowExampleAppSimpleOverlay(show_app_simple_overlay.access);
+        if (show_app_fullscreen.value)
+            ShowExampleAppFullscreen(show_app_fullscreen.access);
         if (show_app_window_titles.value)
             ShowExampleAppWindowTitles(show_app_window_titles.access);
         if (show_app_custom_rendering.value)
             ShowExampleAppCustomRendering(show_app_custom_rendering.access);
         // Dear ImGui Apps (accessible from the "Tools" menu)
         const show_app_metrics = STATIC(UNIQUE("show_app_metrics#d0dce1b4"), false);
+        const show_app_stack_tool = STATIC(UNIQUE("show_app_stack_tool#d0dce1b4"), false);
         const show_app_style_editor = STATIC(UNIQUE("show_app_style_editor#d0a84f54"), false);
         const show_app_about = STATIC(UNIQUE("show_app_about#75d624f8"), false);
         if (show_app_metrics.value) {
             ImGui__namespace.ShowMetricsWindow(show_app_metrics.access);
+        }
+        if (show_app_stack_tool.value) {
+            ImGui__namespace.ShowStackToolWindow(show_app_stack_tool.access);
         }
         if (show_app_about.value) { /*ImGui.*/
             ShowAboutWindow(show_app_about.access);
@@ -272,6 +278,7 @@
         const no_nav = STATIC(UNIQUE("no_nav#7b730e8e"), false);
         const no_background = STATIC(UNIQUE("no_background#c3c9a254"), false);
         const no_bring_to_front = STATIC(UNIQUE("no_bring_to_front#006124fc"), false);
+        const unsaved_document = STATIC(UNIQUE("unsaved_document#006124fc"), false);
         let window_flags = 0;
         if (no_titlebar.value)
             window_flags |= ImGui__namespace.WindowFlags.NoTitleBar;
@@ -291,11 +298,14 @@
             window_flags |= ImGui__namespace.WindowFlags.NoBackground;
         if (no_bring_to_front.value)
             window_flags |= ImGui__namespace.WindowFlags.NoBringToFrontOnFocus;
+        if (unsaved_document.value)
+            window_flags |= ImGui__namespace.WindowFlags.UnsavedDocument;
         if (no_close.value)
             p_open = null; // Don't pass our ImGui.Access<boolean> to Begin
         // We specify a default position/size in case there's no data in the .ini file.
         // We only do it to make the demo applications a little more welcoming, but typically this isn't required.
-        ImGui__namespace.SetNextWindowPos(new ImGui__namespace.Vec2(650, 20), ImGui__namespace.Cond.FirstUseEver);
+        const main_viewport = ImGui__namespace.GetMainViewport();
+        ImGui__namespace.SetNextWindowPos(new ImGui__namespace.Vec2(main_viewport.WorkPos.x + 650, main_viewport.WorkPos.y + 20), ImGui__namespace.Cond.FirstUseEver);
         ImGui__namespace.SetNextWindowSize(new ImGui__namespace.Vec2(550, 680), ImGui__namespace.Cond.FirstUseEver);
         // Main body of the Demo window starts here.
         if (!ImGui__namespace.Begin("Dear ImGui Demo", p_open, window_flags)) {
@@ -324,13 +334,18 @@
                 ImGui__namespace.MenuItem("Auto-resizing window", null, show_app_auto_resize.access);
                 ImGui__namespace.MenuItem("Constrained-resizing window", null, show_app_constrained_resize.access);
                 ImGui__namespace.MenuItem("Simple overlay", null, show_app_simple_overlay.access);
+                ImGui__namespace.MenuItem("Fullscreen window", null, show_app_fullscreen.access);
                 ImGui__namespace.MenuItem("Manipulating window titles", null, show_app_window_titles.access);
                 ImGui__namespace.MenuItem("Custom rendering", null, show_app_custom_rendering.access);
                 ImGui__namespace.MenuItem("Documents", null, show_app_documents.access);
                 ImGui__namespace.EndMenu();
             }
+            //if (ImGui.MenuItem("MenuItem")) {} // You can also use MenuItem() inside a menu bar!
             if (ImGui__namespace.BeginMenu("Tools")) {
+                // #ifndef IMGUI_DISABLE_METRICS_WINDOW
                 ImGui__namespace.MenuItem("Metrics/Debugger", null, show_app_metrics.access);
+                ImGui__namespace.MenuItem("Stack Tool", null, show_app_stack_tool.access);
+                // #endif
                 ImGui__namespace.MenuItem("Style Editor", null, show_app_style_editor.access);
                 ImGui__namespace.MenuItem("About Dear ImGui", null, show_app_about.access);
                 ImGui__namespace.EndMenu();
@@ -401,7 +416,7 @@
             }
             if (ImGui__namespace.TreeNode("Backend Flags")) {
                 HelpMarker("Those flags are set by the backends (imgui_impl_xxx files) to specify their capabilities.\n" +
-                    "Here we expose then as read-only fields to avoid breaking interactions with your backend.");
+                    "Here we expose them as read-only fields to avoid breaking interactions with your backend.");
                 // Make a local copy to avoid modifying actual backend flags.
                 let backend_flags = io.BackendFlags;
                 ImGui__namespace.CheckboxFlags("io.BackendFlags: HasGamepad", (_ = backend_flags) => backend_flags = _, ImGui__namespace.BackendFlags.HasGamepad);
@@ -453,6 +468,8 @@
                 ImGui__namespace.Checkbox("No background", no_background.access);
                 ImGui__namespace.TableNextColumn();
                 ImGui__namespace.Checkbox("No bring to front", no_bring_to_front.access);
+                ImGui__namespace.TableNextColumn();
+                ImGui__namespace.Checkbox("Unsaved document", unsaved_document.access);
                 ImGui__namespace.EndTable();
             }
         }
@@ -470,6 +487,9 @@
     function ShowDemoWindowWidgets() {
         if (!ImGui__namespace.CollapsingHeader("Widgets"))
             return;
+        const disable_all = STATIC(UNIQUE("disable_all#5b278903"), false); // The Checkbox for that is inside the "Disabled" section at the bottom
+        if (disable_all.value)
+            ImGui__namespace.BeginDisabled();
         if (ImGui__namespace.TreeNode("Basic")) {
             const clicked = STATIC(UNIQUE("clicked#5b278903"), 0);
             if (ImGui__namespace.Button("Button"))
@@ -486,7 +506,6 @@
             ImGui__namespace.RadioButton("radio b", e.access, 1);
             ImGui__namespace.SameLine();
             ImGui__namespace.RadioButton("radio c", e.access, 2);
-            // Color buttons, demonstrate using PushID() to add unique identifier in the ID stack, and changing style.
             for (let i = 0; i < 7; i++) {
                 if (i > 0)
                     ImGui__namespace.SameLine();
@@ -504,7 +523,6 @@
             ImGui__namespace.AlignTextToFramePadding();
             ImGui__namespace.Text("Hold to repeat:");
             ImGui__namespace.SameLine();
-            // Arrow buttons with Repeater
             const counter = STATIC(UNIQUE("counter#26102dc6"), 0);
             const spacing = ImGui__namespace.GetStyle().ItemInnerSpacing.x;
             ImGui__namespace.PushButtonRepeat(true);
@@ -533,18 +551,13 @@
             ImGui__namespace.Separator();
             ImGui__namespace.LabelText("label", "Value");
             {
-                // Using the _simplified_ one-liner Combo() api here
-                // See "Combo" section for examples of how to use the more complete BeginCombo()/EndCombo() api.
                 const items = ["AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIIIIII", "JJJJ", "KKKKKKK"];
                 const item_current = STATIC(UNIQUE("item_current#adb3af01"), 0);
                 ImGui__namespace.Combo("combo", item_current.access, items, ImGui__namespace.ARRAYSIZE(items));
                 ImGui__namespace.SameLine();
-                HelpMarker("Refer to the \"Combo\" section below for an explanation of the full BeginCombo/EndCombo API, " +
-                    "and demonstration of various flags.\n");
+                HelpMarker("Using the simplified one-liner Combo API here.\nRefer to the \"Combo\" section below for an explanation of how to use the more flexible and general BeginCombo/EndCombo API.");
             }
             {
-                // To wire InputText() with std::string or any other custom string type,
-                // see the "Text Input > Resize Callback" section of this demo, and the misc/cpp/imgui_stdlib.h file.
                 const str0 = STATIC(UNIQUE("str0#16cfd787"), new ImGui__namespace.StringBuffer(128, "Hello, world!"));
                 ImGui__namespace.InputText("input text", str0.value, ImGui__namespace.ARRAYSIZE(str0.value));
                 ImGui__namespace.SameLine();
@@ -604,9 +617,6 @@
                 ImGui__namespace.SliderFloat("slider float (log)", f2.access, -10.0, 10.0, "%.4f", ImGui__namespace.SliderFlags.Logarithmic);
                 const angle = STATIC(UNIQUE("angle#5c327a64"), 0.0);
                 ImGui__namespace.SliderAngle("slider angle", angle.access);
-                // Using the format string to display a name instead of an integer.
-                // Here we completely omit '%d' from the format string, so it'll only display a name.
-                // This technique can also be used with DragInt().
                 let Element;
                 (function (Element) {
                     Element[Element["Fire"] = 0] = "Fire";
@@ -634,21 +644,14 @@
                 ImGui__namespace.ColorEdit4("color 2", col2.value);
             }
             {
-                // List box
                 const items = ["Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon"];
                 const item_current = STATIC(UNIQUE("item_current#2c2f8c94"), 1);
-                ImGui__namespace.ListBox("listbox\n(single select)", item_current.access, items, ImGui__namespace.ARRAYSIZE(items), 4);
-                //const listbox_item_current2 = STATIC<int>(UNIQUE("listbox_item_current2#9364c67f"), 2);
-                //ImGui.SetNextItemWidth(-1);
-                //ImGui.ListBox("##listbox2", &listbox_item_current2, listbox_items, ImGui.ARRAYSIZE(listbox_items), 4);
+                ImGui__namespace.ListBox("listbox", item_current.access, items, ImGui__namespace.IM_ARRAYSIZE(items), 4);
+                ImGui__namespace.SameLine();
+                HelpMarker("Using the simplified one-liner ListBox API here.\nRefer to the \"List boxes\" section below for an explanation of how to use the more flexible and general BeginListBox/EndListBox API.");
             }
             ImGui__namespace.TreePop();
         }
-        // Testing ImGui.OnceUponAFrame helper.
-        //static ImGui.OnceUponAFrame once;
-        //for (let i = 0; i < 5; i++)
-        //    if (once)
-        //        ImGui.Text("This will be displayed only once.");
         if (ImGui__namespace.TreeNode("Trees")) {
             if (ImGui__namespace.TreeNode("Basic trees")) {
                 for (let i = 0; i < 5; i++) {
@@ -690,6 +693,7 @@
                 let node_clicked = -1;
                 for (let i = 0; i < 6; i++) {
                     // Disable the default "open on single-click behavior" + set Selected flag according to our selection.
+                    // To alter selection we use IsItemClicked() && !IsItemToggledOpen(), so clicking on an arrow doesn't alter selection.
                     let node_flags = base_flags.value;
                     const is_selected = (selection_mask.value & (1 << i)) !== 0;
                     if (is_selected)
@@ -697,7 +701,7 @@
                     if (i < 3) {
                         // this.Items 0..2 are Tree Node
                         const node_open = ImGui__namespace.TreeNodeEx(/*(void*)(intptr_t)*/ i, node_flags, `Selectable Node ${i}`);
-                        if (ImGui__namespace.IsItemClicked())
+                        if (ImGui__namespace.IsItemClicked() && !ImGui__namespace.IsItemToggledOpen())
                             node_clicked = i;
                         if (test_drag_and_drop.value && ImGui__namespace.BeginDragDropSource()) {
                             ImGui__namespace.SetDragDropPayload("_TREENODE", null, 0);
@@ -715,7 +719,7 @@
                         // use BulletText() or advance the cursor by GetTreeNodeToLabelSpacing() and call Text().
                         node_flags |= ImGui__namespace.TreeNodeFlags.Leaf | ImGui__namespace.TreeNodeFlags.NoTreePushOnOpen; // ImGui.TreeNodeFlags.Bullet
                         ImGui__namespace.TreeNodeEx(/*(void*)(intptr_t)*/ i, node_flags, `Selectable Leaf ${i}`);
-                        if (ImGui__namespace.IsItemClicked())
+                        if (ImGui__namespace.IsItemClicked() && !ImGui__namespace.IsItemToggledOpen())
                             node_clicked = i;
                         if (test_drag_and_drop.value && ImGui__namespace.BeginDragDropSource()) {
                             ImGui__namespace.SetDragDropPayload("_TREENODE", null, 0);
@@ -817,7 +821,7 @@
                 // Note that characters values are preserved even by InputText() if the font cannot be displayed,
                 // so you can safely copy & paste garbled characters into another application.
                 ImGui__namespace.TextWrapped("CJK text will only appears if the font was loaded with the appropriate CJK character ranges. " +
-                    "Call io.Font.AddFontFromFileTTF() manually to load extra character ranges. " +
+                    "Call io.Fonts.AddFontFromFileTTF() manually to load extra character ranges. " +
                     "Read docs/FONTS.md for details.");
                 // ImGui.Text("Hiragana: \xe3\x81\x8b\xe3\x81\x8d\xe3\x81\x8f\xe3\x81\x91\xe3\x81\x93 (kakikukeko)"); // Normally we would use u8"blah blah" with the proper characters directly in the string.
                 // か \xe3\x81\x8b U+304B &#12363;
@@ -929,9 +933,9 @@
             // (your selection data could be an index, a pointer to the object, an id for the object, a flag intrusively
             // stored in the object itself, etc.)
             const items = ["AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO"];
-            const item_current_idx = STATIC(UNIQUE("item_current_idx#ad5a498a"), 0); // Here our selection data is an index.
-            const combo_label = items[item_current_idx.value]; // Label to preview before opening the combo (technically it could be anything)
-            if (ImGui__namespace.BeginCombo("combo 1", combo_label, flags.value)) {
+            const item_current_idx = STATIC(UNIQUE("item_current_idx#ad5a498a"), 0); // Here we store our selection data as an index.
+            const combo_preview_value = items[item_current_idx.value]; // Pass in the preview value visible before opening the combo (it could be anything)
+            if (ImGui__namespace.BeginCombo("combo 1", combo_preview_value, flags.value)) {
                 for (let n = 0; n < ImGui__namespace.ARRAYSIZE(items); n++) {
                     const is_selected = (item_current_idx.value === n);
                     if (ImGui__namespace.Selectable(items[n], is_selected))
@@ -943,9 +947,11 @@
                 ImGui__namespace.EndCombo();
             }
             // Simplified one-liner Combo() API, using values packed in a single constant string
+            // This is a convenience for when the selection set is small and known at compile-time.
             const item_current_2 = STATIC(UNIQUE("item_current_2#fd1baaff"), 0);
             ImGui__namespace.Combo("combo 2 (one-liner)", item_current_2.access, "aaaa\0bbbb\0cccc\0dddd\0eeee\0\0");
             // Simplified one-liner Combo() using an array of string
+            // This is not very useful (may obsolete): prefer using BeginCombo()/EndCombo() for full control.
             const item_current_3 = STATIC(UNIQUE("item_current_3#0e138d1f"), -1); // If the selection isn't within 0..count, Combo won't display a preview
             ImGui__namespace.Combo("combo 3 (array)", item_current_3.access, items, ImGui__namespace.ARRAYSIZE(items));
             // Simplified one-liner Combo() using an accessor function
@@ -957,18 +963,44 @@
             ImGui__namespace.Combo("combo 4 (function)", item_current_4.access, Funcs.ItemGetter, items, ImGui__namespace.ARRAYSIZE(items));
             ImGui__namespace.TreePop();
         }
+        if (ImGui__namespace.TreeNode("List boxes")) {
+            // Using the generic BeginListBox() API, you have full control over how to display the combo contents.
+            // (your selection data could be an index, a pointer to the object, an id for the object, a flag intrusively
+            // stored in the object itself, etc.)
+            const items = ["AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO"];
+            const item_current_idx = STATIC(UNIQUE("item_current_idx#ad5a498b"), 0); // Here we store our selection data as an index.
+            if (ImGui__namespace.BeginListBox("listbox 1")) {
+                for (let n = 0; n < ImGui__namespace.IM_ARRAYSIZE(items); n++) {
+                    const is_selected = (item_current_idx.value === n);
+                    if (ImGui__namespace.Selectable(items[n], is_selected))
+                        item_current_idx.value = n;
+                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                    if (is_selected)
+                        ImGui__namespace.SetItemDefaultFocus();
+                }
+                ImGui__namespace.EndListBox();
+            }
+            // Custom size: use all width, 5 items tall
+            ImGui__namespace.Text("Full-width:");
+            if (ImGui__namespace.BeginListBox("##listbox 2", new ImGui__namespace.Vec2(-FLT_MIN, 5 * ImGui__namespace.GetTextLineHeightWithSpacing()))) {
+                for (let n = 0; n < ImGui__namespace.IM_ARRAYSIZE(items); n++) {
+                    const is_selected = (item_current_idx.value === n);
+                    if (ImGui__namespace.Selectable(items[n], is_selected))
+                        item_current_idx.value = n;
+                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                    if (is_selected)
+                        ImGui__namespace.SetItemDefaultFocus();
+                }
+                ImGui__namespace.EndListBox();
+            }
+            ImGui__namespace.TreePop();
+        }
         if (ImGui__namespace.TreeNode("Selectables")) {
-            // Selectable() has 2 overloads:
-            // - The one taking "boolean selected" as a read-only selection information.
-            //   When Selectable() has been clicked it returns true and you can alter selection state accordingly.
-            // - The one taking "boolean* p_selected" as a read-write selection information (convenient in some cases)
-            // The earlier is more flexible, as in real application your selection may be stored in many different ways
-            // and not necessarily inside a boolean value (e.g. in flags within objects, as an external list, etc).
             if (ImGui__namespace.TreeNode("Basic")) {
                 const selection = STATIC_ARRAY(5, UNIQUE("selection#f8a5b65d"), [false, true, false, false, false]);
                 ImGui__namespace.Selectable("1. I am selectable", selection.access(0));
                 ImGui__namespace.Selectable("2. I am selectable", selection.access(1));
-                ImGui__namespace.Text("3. I am not selectable");
+                ImGui__namespace.Text("(I am not selectable)");
                 ImGui__namespace.Selectable("4. I am selectable", selection.access(3));
                 if (ImGui__namespace.Selectable("5. I am double clickable", selection.value[4], ImGui__namespace.SelectableFlags.AllowDoubleClick))
                     if (ImGui__namespace.IsMouseDoubleClicked(0))
@@ -1014,7 +1046,7 @@
             }
             if (ImGui__namespace.TreeNode("In columns")) {
                 const selected = STATIC_ARRAY(10, UNIQUE("selected#7f38a195"), []);
-                if (ImGui__namespace.BeginTable("split1", 3, ImGui__namespace.TableFlags.Resizable | ImGui__namespace.TableFlags.NoSavedSettings)) {
+                if (ImGui__namespace.BeginTable("split1", 3, ImGui__namespace.TableFlags.Resizable | ImGui__namespace.TableFlags.NoSavedSettings | ImGui__namespace.TableFlags.Borders)) {
                     for (let i = 0; i < 10; i++) {
                         const label = `Item ${i}`;
                         ImGui__namespace.TableNextColumn();
@@ -1022,8 +1054,8 @@
                     }
                     ImGui__namespace.EndTable();
                 }
-                ImGui__namespace.Separator();
-                if (ImGui__namespace.BeginTable("split2", 3, ImGui__namespace.TableFlags.Resizable | ImGui__namespace.TableFlags.NoSavedSettings)) {
+                ImGui__namespace.Spacing();
+                if (ImGui__namespace.BeginTable("split2", 3, ImGui__namespace.TableFlags.Resizable | ImGui__namespace.TableFlags.NoSavedSettings | ImGui__namespace.TableFlags.Borders)) {
                     for (let i = 0; i < 10; i++) {
                         const label = `Item ${i}`;
                         ImGui__namespace.TableNextRow();
@@ -1093,8 +1125,6 @@
             }
             ImGui__namespace.TreePop();
         }
-        // To wire InputText() with std::string or any other custom string type,
-        // see the "Text Input > Resize Callback" section of this demo, and the misc/cpp/imgui_stdlib.h file.
         if (ImGui__namespace.TreeNode("Text Input")) {
             if (ImGui__namespace.TreeNode("Multi-line Text Input")) {
                 // Note: we are using a fixed-sized buffer for simplicity here. See ImGui.InputTextFlags.CallbackResize
@@ -1238,7 +1268,6 @@
             }
             ImGui__namespace.TreePop();
         }
-        // Tabs
         if (ImGui__namespace.TreeNode("Tabs")) {
             if (ImGui__namespace.TreeNode("Basic")) {
                 const tab_bar_flags = ImGui__namespace.TabBarFlags.None;
@@ -1352,15 +1381,12 @@
             }
             ImGui__namespace.TreePop();
         }
-        // Plot/Graph widgets are not very good.
-        // Consider writing your own, or using a third-party one, see:
-        // - ImPlot https://github.com/epezent/implot
-        // - others https://github.com/ocornut/imgui/wiki/Useful-Widgets
-        if (ImGui__namespace.TreeNode("Plots Widgets")) {
+        if (ImGui__namespace.TreeNode("Plotting")) {
             const animate = STATIC(UNIQUE("animate#44f8c3eb"), true);
             ImGui__namespace.Checkbox("Animate", animate.access);
             const arr = STATIC(UNIQUE("arr#8a33185e"), [0.6, 0.1, 1.0, 0.5, 0.92, 0.1, 0.2]);
             ImGui__namespace.PlotLines("Frame Times", arr.value, ImGui__namespace.ARRAYSIZE(arr.value));
+            ImGui__namespace.PlotHistogram("Histogram", arr.value, ImGui__namespace.IM_ARRAYSIZE(arr.value), 0, null, 0.0, 1.0, new ImGui__namespace.Vec2(0, 80.0));
             // Fill an array of contiguous float values to plot
             // Tip: If your float aren't contiguous but part of a structure, you can pass a pointer to your first float
             // and the sizeof() of your structure in the "stride" parameter.
@@ -1387,7 +1413,6 @@
                 const overlay = `avg ${average.toFixed(6)}`;
                 ImGui__namespace.PlotLines("Lines", values.value, ImGui__namespace.ARRAYSIZE(values.value), values_offset.value, overlay, -1.0, 1.0, new ImGui__namespace.Vec2(0, 80.0));
             }
-            ImGui__namespace.PlotHistogram("Histogram", arr.value, ImGui__namespace.ARRAYSIZE(arr.value), 0, null, 0.0, 1.0, new ImGui__namespace.Vec2(0, 80.0));
             // Use functions to generate output
             // FIXME: This is rather awkward because current plot API only pass in indices.
             // We probably want an API passing floats and user provide sample rate/count.
@@ -1398,7 +1423,7 @@
             const func_type = STATIC(UNIQUE("func_type#6d381c70"), 0);
             const display_count = STATIC(UNIQUE("display_count#4040de5d"), 70);
             ImGui__namespace.Separator();
-            ImGui__namespace.SetNextItemWidth(100);
+            ImGui__namespace.SetNextItemWidth(ImGui__namespace.GetFontSize() * 8);
             ImGui__namespace.Combo("func", func_type.access, "Sin\0Saw\0");
             ImGui__namespace.SameLine();
             ImGui__namespace.SliderInt("Sample count", display_count.access, 1, 400);
@@ -1406,7 +1431,6 @@
             ImGui__namespace.PlotLines("Lines", func, null, display_count.value, 0, null, -1.0, 1.0, new ImGui__namespace.Vec2(0, 80));
             ImGui__namespace.PlotHistogram("Histogram", func, null, display_count.value, 0, null, -1.0, 1.0, new ImGui__namespace.Vec2(0, 80));
             ImGui__namespace.Separator();
-            // Animate a simple progress bar
             const progress = STATIC(UNIQUE("progress#b9037fad"), 0.0);
             const progress_dir = STATIC(UNIQUE("progress_dir#15b6a4b8"), 1.0);
             if (animate) {
@@ -1734,8 +1758,6 @@
             ImGui__namespace.SliderScalar("slider u8 reverse", /*ImGui.DataType.U8, */ u8_v.value, u8_max, u8_min, "%u");
             ImGui__namespace.SliderScalar("slider s32 reverse", /*ImGui.DataType.S32,*/ s32_v.value, s32_fifty, s32_zero, "%d");
             ImGui__namespace.SliderScalar("slider u32 reverse", /*ImGui.DataType.U32,*/ u32_v.value, u32_fifty, u32_zero, "%u");
-            // ImGui.SliderScalar("slider s64 reverse",   /*ImGui.DataType.S64,*/  s64_v.value, s64_fifty, s64_zero, "%I64d");
-            // ImGui.SliderScalar("slider u64 reverse",   /*ImGui.DataType.U64,*/  u64_v.value, u64_fifty, u64_zero, "%I64u ms");
             const inputs_step = STATIC(UNIQUE("inputs_step#fa9045ed"), true);
             ImGui__namespace.Text("Inputs");
             ImGui__namespace.Checkbox("Show step buttons", inputs_step.access);
@@ -1939,21 +1961,25 @@
             }
             ImGui__namespace.TreePop();
         }
-        if (ImGui__namespace.TreeNode("Querying Status (Edited/Active/Focused/Hovered etc.)")) {
+        if (ImGui__namespace.TreeNode("Querying Item Status (Edited/Active/Hovered etc.)")) {
             // Select an item type
             const item_names = [
-                "Text", "Button", "Button (w/ repeat)", "Checkbox", "SliderFloat", "InputText", "InputFloat",
-                "InputFloat3", "ColorEdit4", "MenuItem", "TreeNode", "TreeNode (w/ double-click)", "Combo", "ListBox"
+                "Text", "Button", "Button (w/ repeat)", "Checkbox", "SliderFloat", "InputText", "InputTextMultiline", "InputFloat",
+                "InputFloat3", "ColorEdit4", "Selectable", "MenuItem", "TreeNode", "TreeNode (w/ double-click)", "Combo", "ListBox"
             ];
-            const item_type = STATIC(UNIQUE("item_type#b38b2976"), 1);
+            const item_type = STATIC(UNIQUE("item_type#b38b2976"), 4);
+            const item_disabled = STATIC(UNIQUE("item_disabled#b38b2976"), false);
             ImGui__namespace.Combo("Item Type", item_type.access, item_names, ImGui__namespace.ARRAYSIZE(item_names), ImGui__namespace.ARRAYSIZE(item_names));
             ImGui__namespace.SameLine();
             HelpMarker("Testing how various types of items are interacting with the IsItemXXX functions. Note that the boolean return value of most ImGui function is generally equivalent to calling ImGui.IsItemHovered().");
+            ImGui__namespace.Checkbox("Item Disabled", item_disabled.access);
             // Submit selected item item so we can query their status in the code following it.
             let ret = false;
             const b = STATIC(UNIQUE("b#477b9cc2"), false);
             const col4f = STATIC(UNIQUE("col4f#f57415e8"), [1.0, 0.5, 0.0, 1.0]);
             const str = STATIC(UNIQUE("str#092e5277"), new ImGui__namespace.StringBuffer(16, ""));
+            if (item_disabled.value)
+                ImGui__namespace.BeginDisabled(true);
             if (item_type.value === 0) {
                 ImGui__namespace.Text("ITEM: Text");
             } // Testing text items with no identifier/interaction
@@ -1975,31 +2001,37 @@
                 ret = ImGui__namespace.InputText("ITEM: InputText", str.value, ImGui__namespace.ARRAYSIZE(str.value));
             } // Testing input text (which handles tabbing)
             if (item_type.value === 6) {
+                ret = ImGui__namespace.InputTextMultiline("ITEM: InputTextMultiline", str.value, ImGui__namespace.IM_ARRAYSIZE(str.value));
+            } // Testing input text (which uses a child window)
+            if (item_type.value === 7) {
                 ret = ImGui__namespace.InputFloat("ITEM: InputFloat", col4f.value, 1.0);
             } // Testing +/- buttons on scalar input
-            if (item_type.value === 7) {
+            if (item_type.value === 8) {
                 ret = ImGui__namespace.InputFloat3("ITEM: InputFloat3", col4f.value);
             } // Testing multi-component items (IsItemXXX flags are reported merged)
-            if (item_type.value === 8) {
+            if (item_type.value === 9) {
                 ret = ImGui__namespace.ColorEdit4("ITEM: ColorEdit4", col4f.value);
             } // Testing multi-component items (IsItemXXX flags are reported merged)
-            if (item_type.value === 9) {
-                ret = ImGui__namespace.MenuItem("ITEM: MenuItem");
-            } // Testing menu item (they use ImGui.ButtonFlags.PressedOnRelease button policy)
             if (item_type.value === 10) {
+                ret = ImGui__namespace.Selectable("ITEM: Selectable");
+            } // Testing selectable item
+            if (item_type.value === 11) {
+                ret = ImGui__namespace.MenuItem("ITEM: MenuItem");
+            } // Testing menu item (they use ImGuiButtonFlags_PressedOnRelease button policy)
+            if (item_type.value === 12) {
                 ret = ImGui__namespace.TreeNode("ITEM: TreeNode");
                 if (ret)
                     ImGui__namespace.TreePop();
             } // Testing tree node
-            if (item_type.value === 11) {
-                ret = ImGui__namespace.TreeNodeEx("ITEM: TreeNode w/ ImGui.TreeNodeFlags.OpenOnDoubleClick", ImGui__namespace.TreeNodeFlags.OpenOnDoubleClick | ImGui__namespace.TreeNodeFlags.NoTreePushOnOpen);
-            } // Testing tree node with ImGui.ButtonFlags.PressedOnDoubleClick button policy.
-            if (item_type.value === 12) {
+            if (item_type.value === 13) {
+                ret = ImGui__namespace.TreeNodeEx("ITEM: TreeNode w/ ImGuiTreeNodeFlags_OpenOnDoubleClick", ImGui__namespace.TreeNodeFlags.OpenOnDoubleClick | ImGui__namespace.TreeNodeFlags.NoTreePushOnOpen);
+            } // Testing tree node with ImGuiButtonFlags_PressedOnDoubleClick button policy.
+            if (item_type.value === 14) {
                 const items = ["Apple", "Banana", "Cherry", "Kiwi"];
                 const current = STATIC(UNIQUE("current#447f243a"), 1);
                 ret = ImGui__namespace.Combo("ITEM: Combo", current.access, items, ImGui__namespace.ARRAYSIZE(items));
             }
-            if (item_type.value === 13) {
+            if (item_type.value === 15) {
                 const items = ["Apple", "Banana", "Cherry", "Kiwi"];
                 const current = STATIC(UNIQUE("current#d92b6d9b"), 1);
                 ret = ImGui__namespace.ListBox("ITEM: ListBox", current.access, items, ImGui__namespace.ARRAYSIZE(items), ImGui__namespace.ARRAYSIZE(items));
@@ -2014,6 +2046,7 @@
                 `IsItemHovered(_AllowWhenBlockedByPopup) = ${ImGui__namespace.IsItemHovered(ImGui__namespace.HoveredFlags.AllowWhenBlockedByPopup)}\n` +
                 `IsItemHovered(_AllowWhenBlockedByActiveItem) = ${ImGui__namespace.IsItemHovered(ImGui__namespace.HoveredFlags.AllowWhenBlockedByActiveItem)}\n` +
                 `IsItemHovered(_AllowWhenOverlapped) = ${ImGui__namespace.IsItemHovered(ImGui__namespace.HoveredFlags.AllowWhenOverlapped)}\n` +
+                `IsItemHovered(_AllowWhenDisabled) = ${ImGui__namespace.IsItemHovered(ImGui__namespace.HoveredFlags.AllowWhenDisabled)}\n` +
                 `IsItemHovered(_RectOnly) = ${ImGui__namespace.IsItemHovered(ImGui__namespace.HoveredFlags.RectOnly)}\n` +
                 `IsItemActive() = ${ImGui__namespace.IsItemActive()}\n` +
                 `IsItemEdited() = ${ImGui__namespace.IsItemEdited()}\n` +
@@ -2026,26 +2059,39 @@
                 `GetItemRectMin() = (${ImGui__namespace.GetItemRectMin().x.toFixed(1)}, ${ImGui__namespace.GetItemRectMin().y.toFixed(1)})\n` +
                 `GetItemRectMax() = (${ImGui__namespace.GetItemRectMax().x.toFixed(1)}, ${ImGui__namespace.GetItemRectMax().y.toFixed(1)})\n` +
                 `GetItemRectSize() = (${ImGui__namespace.GetItemRectSize().x.toFixed(1)}, ${ImGui__namespace.GetItemRectSize().y.toFixed(1)})`);
+            if (item_disabled.value)
+                ImGui__namespace.EndDisabled();
+            const buf = new ImGui__namespace.ImStringBuffer(1, ""); // char buf[1] = "";
+            ImGui__namespace.InputText("unused", buf, ImGui__namespace.IM_ARRAYSIZE(buf), ImGui__namespace.InputTextFlags.ReadOnly);
+            ImGui__namespace.SameLine();
+            HelpMarker("This widget is only here to be able to tab-out of the widgets above and see e.g. Deactivated() status.");
+            ImGui__namespace.TreePop();
+        }
+        if (ImGui__namespace.TreeNode("Querying Window Status (Focused/Hovered etc.)")) {
             const embed_all_inside_a_child_window = STATIC(UNIQUE("embed_all_inside_a_child_window#4a40e4ac"), false);
-            ImGui__namespace.Checkbox("Embed everything inside a child window (for additional testing)", embed_all_inside_a_child_window.access);
+            ImGui__namespace.Checkbox("Embed everything inside a child window for testing _RootWindow flag.", embed_all_inside_a_child_window.access);
             if (embed_all_inside_a_child_window.value)
                 ImGui__namespace.BeginChild("outer_child", new ImGui__namespace.Vec2(0, ImGui__namespace.GetFontSize() * 20.0), true);
             // Testing IsWindowFocused() function with its various flags.
-            // Note that the ImGui.FocusedFlags.XXX flags can be combined.
             ImGui__namespace.BulletText(`IsWindowFocused() = ${ImGui__namespace.IsWindowFocused()}\n` +
                 `IsWindowFocused(_ChildWindows) = ${ImGui__namespace.IsWindowFocused(ImGui__namespace.FocusedFlags.ChildWindows)}\n` +
+                `IsWindowFocused(_ChildWindows|_NoPopupHierarchy) = ${ImGui__namespace.IsWindowFocused(ImGui__namespace.FocusedFlags.ChildWindows | ImGui__namespace.FocusedFlags.NoPopupHierarchy)}\n` +
                 `IsWindowFocused(_ChildWindows|_RootWindow) = ${ImGui__namespace.IsWindowFocused(ImGui__namespace.FocusedFlags.ChildWindows | ImGui__namespace.FocusedFlags.RootWindow)}\n` +
+                `IsWindowFocused(_ChildWindows|_RootWindow|_NoPopupHierarchy) = ${ImGui__namespace.IsWindowFocused(ImGui__namespace.FocusedFlags.ChildWindows | ImGui__namespace.FocusedFlags.RootWindow | ImGui__namespace.FocusedFlags.NoPopupHierarchy)}\n` +
                 `IsWindowFocused(_RootWindow) = ${ImGui__namespace.IsWindowFocused(ImGui__namespace.FocusedFlags.RootWindow)}\n` +
+                `IsWindowFocused(_RootWindow|_NoPopupHierarchy) = ${ImGui__namespace.IsWindowFocused(ImGui__namespace.FocusedFlags.RootWindow | ImGui__namespace.FocusedFlags.NoPopupHierarchy)}\n` +
                 `IsWindowFocused(_AnyWindow) = ${ImGui__namespace.IsWindowFocused(ImGui__namespace.FocusedFlags.AnyWindow)}\n`);
             // Testing IsWindowHovered() function with its various flags.
-            // Note that the ImGui.HoveredFlags.XXX flags can be combined.
             ImGui__namespace.BulletText(`IsWindowHovered() = ${ImGui__namespace.IsWindowHovered()}\n` +
                 `IsWindowHovered(_AllowWhenBlockedByPopup) = ${ImGui__namespace.IsWindowHovered(ImGui__namespace.HoveredFlags.AllowWhenBlockedByPopup)}\n` +
                 `IsWindowHovered(_AllowWhenBlockedByActiveItem) = ${ImGui__namespace.IsWindowHovered(ImGui__namespace.HoveredFlags.AllowWhenBlockedByActiveItem)}\n` +
                 `IsWindowHovered(_ChildWindows) = ${ImGui__namespace.IsWindowHovered(ImGui__namespace.HoveredFlags.ChildWindows)}\n` +
+                `IsWindowHovered(_ChildWindows|_NoPopupHierarchy) = ${ImGui__namespace.IsWindowHovered(ImGui__namespace.HoveredFlags.ChildWindows | ImGui__namespace.HoveredFlags.NoPopupHierarchy)}\n` +
                 `IsWindowHovered(_ChildWindows|_RootWindow) = ${ImGui__namespace.IsWindowHovered(ImGui__namespace.HoveredFlags.ChildWindows | ImGui__namespace.HoveredFlags.RootWindow)}\n` +
-                `IsWindowHovered(_ChildWindows|_AllowWhenBlockedByPopup) = ${ImGui__namespace.IsWindowHovered(ImGui__namespace.HoveredFlags.ChildWindows | ImGui__namespace.HoveredFlags.AllowWhenBlockedByPopup)}\n` +
+                `IsWindowHovered(_ChildWindows|_RootWindow|_NoPopupHierarchy) = ${ImGui__namespace.IsWindowHovered(ImGui__namespace.HoveredFlags.ChildWindows | ImGui__namespace.HoveredFlags.RootWindow | ImGui__namespace.HoveredFlags.NoPopupHierarchy)}\n` +
                 `IsWindowHovered(_RootWindow) = ${ImGui__namespace.IsWindowHovered(ImGui__namespace.HoveredFlags.RootWindow)}\n` +
+                `IsWindowHovered(_RootWindow|_NoPopupHierarchy) = ${ImGui__namespace.IsWindowHovered(ImGui__namespace.HoveredFlags.RootWindow | ImGui__namespace.HoveredFlags.NoPopupHierarchy)}\n` +
+                `IsWindowHovered(_ChildWindows|_AllowWhenBlockedByPopup) = ${ImGui__namespace.IsWindowHovered(ImGui__namespace.HoveredFlags.ChildWindows | ImGui__namespace.HoveredFlags.AllowWhenBlockedByPopup)}\n` +
                 `IsWindowHovered(_AnyWindow) = ${ImGui__namespace.IsWindowHovered(ImGui__namespace.HoveredFlags.AnyWindow)}\n`);
             ImGui__namespace.BeginChild("child", new ImGui__namespace.Vec2(0, 50), true);
             ImGui__namespace.Text("This is another child window for testing the _ChildWindows flag.");
@@ -2073,6 +2119,16 @@
             }
             ImGui__namespace.TreePop();
         }
+        // Demonstrate BeginDisabled/EndDisabled using a checkbox located at the bottom of the section (which is a bit odd:
+        // logically we'd have this checkbox at the top of the section, but we don't want this feature to steal that space)
+        if (disable_all.value)
+            ImGui__namespace.EndDisabled();
+        if (ImGui__namespace.TreeNode("Disable block")) {
+            ImGui__namespace.Checkbox("Disable entire section above", disable_all.access);
+            ImGui__namespace.SameLine();
+            HelpMarker("Demonstrate using BeginDisabled()/EndDisabled() across this section.");
+            ImGui__namespace.TreePop();
+        }
     }
     function ShowDemoWindowLayout() {
         if (!ImGui__namespace.CollapsingHeader("Layout & Scrolling"))
@@ -2088,7 +2144,7 @@
                 let window_flags = ImGui__namespace.WindowFlags.HorizontalScrollbar;
                 if (disable_mouse_wheel.value)
                     window_flags |= ImGui__namespace.WindowFlags.NoScrollWithMouse;
-                ImGui__namespace.BeginChild("ChildL", new ImGui__namespace.Vec2(ImGui__namespace.GetWindowContentRegionWidth() * 0.5, 260), false, window_flags);
+                ImGui__namespace.BeginChild("ChildL", new ImGui__namespace.Vec2(ImGui__namespace.GetContentRegionAvail().x * 0.5, 260), false, window_flags);
                 for (let i = 0; i < 100; i++)
                     ImGui__namespace.Text(`${i.toString().padStart(4, "0")}: scrollable region`);
                 ImGui__namespace.EndChild();
@@ -2128,10 +2184,10 @@
             //   You can also call SetNextWindowPos() to position the child window. The parent window will effectively
             //   layout from this position.
             // - Using ImGui.GetItemRectMin/Max() to query the "item" state (because the child window is an item from
-            //   the POV of the parent window). See 'Demo.Querying Status (Active/Focused/Hovered etc.)' for details.
+            //   the POV of the parent window). See 'Demo->Querying Status (Edited/Active/Hovered etc.)' for details.
             {
                 const offset_x = STATIC(UNIQUE("offset_x#22c5d833"), 0);
-                ImGui__namespace.SetNextItemWidth(100);
+                ImGui__namespace.SetNextItemWidth(ImGui__namespace.GetFontSize() * 8);
                 ImGui__namespace.DragInt("Offset X", offset_x.access, 1.0, -1000, 1000);
                 ImGui__namespace.SetCursorPosX(ImGui__namespace.GetCursorPosX() + offset_x.value);
                 ImGui__namespace.PushStyleColor(ImGui__namespace.Col.ChildBg, ImGui__namespace.COL32(255, 0, 0, 100));
@@ -2149,13 +2205,13 @@
             ImGui__namespace.TreePop();
         }
         if (ImGui__namespace.TreeNode("Widgets Width")) {
+            const f = STATIC(UNIQUE("f#04b29875"), 0.0);
+            const show_indented_items = STATIC(UNIQUE("show_indented_items#271a3fbb"), true);
+            ImGui__namespace.Checkbox("Show indented items", show_indented_items.access);
             // Use SetNextItemWidth() to set the width of a single upcoming item.
             // Use PushItemWidth()/PopItemWidth() to set the width of a group of items.
             // In real code use you'll probably want to choose width values that are proportional to your font size
             // e.g. Using '20.0 * GetFontSize()' as width instead of '200.0', etc.
-            const f = STATIC(UNIQUE("f#04b29875"), 0.0);
-            const show_indented_items = STATIC(UNIQUE("show_indented_items#271a3fbb"), true);
-            ImGui__namespace.Checkbox("Show indented items", show_indented_items.access);
             ImGui__namespace.Text("SetNextItemWidth/PushItemWidth(100)");
             ImGui__namespace.SameLine();
             HelpMarker("Fixed width.");
@@ -2217,7 +2273,6 @@
         }
         if (ImGui__namespace.TreeNode("Basic Horizontal Layout")) {
             ImGui__namespace.TextWrapped("(Use ImGui.SameLine() to keep adding items to the right of the preceding item)");
-            // Text
             ImGui__namespace.Text("Two items: Hello");
             ImGui__namespace.SameLine();
             ImGui__namespace.TextColored(new ImGui__namespace.Vec4(1, 1, 0, 1), "Sailor");
@@ -2240,7 +2295,6 @@
             ImGui__namespace.SmallButton("Like this one");
             ImGui__namespace.SameLine();
             ImGui__namespace.Text("can fit within a text block.");
-            // Aligned to arbitrary position. Easy/cheap column.
             ImGui__namespace.Text("Aligned");
             ImGui__namespace.SameLine(150);
             ImGui__namespace.Text("x=150");
@@ -2251,7 +2305,6 @@
             ImGui__namespace.SmallButton("x=150");
             ImGui__namespace.SameLine(300);
             ImGui__namespace.SmallButton("x=300");
-            // Checkbox
             const c1 = STATIC(UNIQUE("c1#8e79c0fc"), false), c2 = STATIC(UNIQUE("c2#aad8e12c"), false), c3 = STATIC(UNIQUE("c3#40deaa13"), false), c4 = STATIC(UNIQUE("c4#67e03dba"), false);
             ImGui__namespace.Checkbox("My", c1.access);
             ImGui__namespace.SameLine();
@@ -2285,16 +2338,13 @@
                 //if (ImGui.IsItemHovered()) ImGui.SetTooltip("ListBox %d hovered", i);
             }
             ImGui__namespace.PopItemWidth();
-            // Dummy
             const button_sz = new ImGui__namespace.Vec2(40, 40);
             ImGui__namespace.Button("A", button_sz);
             ImGui__namespace.SameLine();
             ImGui__namespace.Dummy(button_sz);
             ImGui__namespace.SameLine();
             ImGui__namespace.Button("B", button_sz);
-            // Manually wrapping
-            // (we should eventually provide this as an automatic layout feature, but for now you can do it manually)
-            ImGui__namespace.Text("Manually wrapping:");
+            ImGui__namespace.Text("Manual wrapping:");
             const style = ImGui__namespace.GetStyle();
             let buttons_count = 20;
             const window_visible_x2 = ImGui__namespace.GetWindowPos().x + ImGui__namespace.GetWindowContentRegionMax().x;
@@ -2341,10 +2391,10 @@
             ImGui__namespace.SameLine();
             ImGui__namespace.Button("LEVERAGE\nBUZZWORD", size);
             ImGui__namespace.SameLine();
-            if (ImGui__namespace.ListBoxHeader("List", size)) {
+            if (ImGui__namespace.BeginListBox("List", size)) {
                 ImGui__namespace.Selectable("Selected", true);
                 ImGui__namespace.Selectable("Not Selected", false);
-                ImGui__namespace.ListBoxFooter();
+                ImGui__namespace.EndListBox();
             }
             ImGui__namespace.TreePop();
         }
@@ -2465,7 +2515,6 @@
             ImGui__namespace.TreePop();
         }
         if (ImGui__namespace.TreeNode("Scrolling")) {
-            // Vertical scroll functions
             HelpMarker("Use SetScrollHereY() or SetScrollFromPosY() to scroll to a given vertical position.");
             const track_item = STATIC(UNIQUE("track_item#9096c532"), 50);
             const enable_track = STATIC(UNIQUE("enable_track#979b83c3"), true);
@@ -2533,7 +2582,6 @@
                 ImGui__namespace.EndGroup();
             }
             ImGui__namespace.PopID();
-            // Horizontal scroll functions
             ImGui__namespace.Spacing();
             HelpMarker("Use SetScrollHereX() or SetScrollFromPosX() to scroll to a given horizontal position.\n\n" +
                 "Because the clipping rectangle of most window hides half worth of WindowPadding on the " +
@@ -2552,6 +2600,8 @@
                 if (child_is_visible) // Avoid calling SetScrollHereY when running with culled items
                  {
                     for (let item = 0; item < 100; item++) {
+                        if (item > 0)
+                            ImGui__namespace.SameLine();
                         if (enable_track.value && item === track_item.value) {
                             ImGui__namespace.TextColored(new ImGui__namespace.Vec4(1, 1, 0, 1), `Item ${item}`);
                             ImGui__namespace.SetScrollHereX(i * 0.25); // 0.0:left, 0.5:center, 1.0:right
@@ -2559,7 +2609,6 @@
                         else {
                             ImGui__namespace.Text(`Item ${item}`);
                         }
-                        ImGui__namespace.SameLine();
                     }
                 }
                 const scroll_x = ImGui__namespace.GetScrollX();
@@ -2571,7 +2620,6 @@
                 ImGui__namespace.Spacing();
             }
             ImGui__namespace.PopID();
-            // Miscellaneous Horizontal Scrolling Demo
             HelpMarker("Horizontal scrolling for a window is enabled via the ImGui.WindowFlags.HorizontalScrollbar flag.\n\n" +
                 "You may want to also explicitly specify content width by using SetNextWindowContentWidth() before Begin().");
             const lines = STATIC(UNIQUE("lines#a00837f9"), 7);
@@ -2777,21 +2825,6 @@
     function ShowDemoWindowPopups() {
         if (!ImGui__namespace.CollapsingHeader("Popups & Modal windows"))
             return;
-        // The properties of popups windows are:
-        // - They block normal mouse hovering detection outside them. (*)
-        // - Unless modal, they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
-        // - Their visibility state (~boolean) is held internally by Dear ImGui instead of being held by the programmer as
-        //   we are used to with regular Begin() calls. User can manipulate the visibility state by calling OpenPopup().
-        // (*) One can use IsItemHovered(ImGui.HoveredFlags.AllowWhenBlockedByPopup) to bypass it and detect hovering even
-        //     when normally blocked by a popup.
-        // Those three properties are connected. The library needs to hold their visibility state BECAUSE it can close
-        // popups at any time.
-        // Typical use for regular windows:
-        //   const my_tool_is_active: boolean = false; if (ImGui.Button("Open")) my_tool_is_active = true; [...] if (my_tool_is_active) Begin("My Tool", &my_tool_is_active) { [...] } End();
-        // Typical use for popups:
-        //   if (ImGui.Button("Open")) ImGui.OpenPopup("MyPopup"); if (ImGui.BeginPopup("MyPopup") { [...] EndPopup(); }
-        // With popups we have to go through a library call (here OpenPopup) to manipulate the visibility state.
-        // This may be a bit confusing at first but it should quickly make sense. Follow on the examples below.
         if (ImGui__namespace.TreeNode("Popups")) {
             ImGui__namespace.TextWrapped("When a popup is active, it inhibits interacting with windows that are behind the popup. " +
                 "Clicking outside the popup closes it.");
@@ -2846,53 +2879,100 @@
                 ImGui__namespace.EndPopup();
             }
             // Call the more complete ShowExampleMenuFile which we use in various places of this demo
-            if (ImGui__namespace.Button("File Menu.."))
+            if (ImGui__namespace.Button("With a menu.."))
                 ImGui__namespace.OpenPopup("my_file_popup");
-            if (ImGui__namespace.BeginPopup("my_file_popup")) {
-                ShowExampleMenuFile();
+            if (ImGui__namespace.BeginPopup("my_file_popup", ImGui__namespace.WindowFlags.MenuBar)) {
+                if (ImGui__namespace.BeginMenuBar()) {
+                    if (ImGui__namespace.BeginMenu("File")) {
+                        ShowExampleMenuFile();
+                        ImGui__namespace.EndMenu();
+                    }
+                    if (ImGui__namespace.BeginMenu("Edit")) {
+                        ImGui__namespace.MenuItem("Dummy");
+                        ImGui__namespace.EndMenu();
+                    }
+                    ImGui__namespace.EndMenuBar();
+                }
+                ImGui__namespace.Text("Hello from popup!");
+                ImGui__namespace.Button("This is a dummy button..");
                 ImGui__namespace.EndPopup();
             }
             ImGui__namespace.TreePop();
         }
         if (ImGui__namespace.TreeNode("Context menus")) {
+            HelpMarker("\"Context\" functions are simple helpers to associate a Popup to a given Item or Window identifier.");
             // BeginPopupContextItem() is a helper to provide common/simple popup behavior of essentially doing:
-            //    if (IsItemHovered() && IsMouseReleased(ImGui.MouseButton.Right))
-            //       OpenPopup(id);
-            //    return BeginPopup(id);
-            // For more advanced uses you may want to replicate and customize this code.
-            // See details in BeginPopupContextItem().
-            const value = STATIC(UNIQUE("value#779ba8c7"), 0.5);
-            ImGui__namespace.Text(`Value = ${value.value.toFixed(3)} (<-- right-click here)`);
-            if (ImGui__namespace.BeginPopupContextItem("item context menu")) {
-                if (ImGui__namespace.Selectable("Set to zero"))
-                    value.value = 0.0;
-                if (ImGui__namespace.Selectable("Set to PI"))
-                    value.value = 3.1415;
-                ImGui__namespace.SetNextItemWidth(-1);
-                ImGui__namespace.DragFloat("##Value", value.access, 0.1, 0.0, 0.0);
-                ImGui__namespace.EndPopup();
+            //     if (id == 0)
+            //         id = GetItemID(); // Use last item id
+            //     if (IsItemHovered() && IsMouseReleased(ImGuiMouseButton_Right))
+            //         OpenPopup(id);
+            //     return BeginPopup(id);
+            // For advanced advanced uses you may want to replicate and customize this code.
+            // See more details in BeginPopupContextItem().
+            // Example 1
+            // When used after an item that has an ID (e.g. Button), we can skip providing an ID to BeginPopupContextItem(),
+            // and BeginPopupContextItem() will use the last item ID as the popup ID.
+            {
+                const names = ["Label1", "Label2", "Label3", "Label4", "Label5"];
+                for (let n = 0; n < 5; n++) {
+                    ImGui__namespace.Selectable(names[n]);
+                    if (ImGui__namespace.BeginPopupContextItem()) // <-- use last item id as popup id
+                     {
+                        ImGui__namespace.Text(`This a popup for "${names[n]}"!`); // ImGui.Text("This a popup for \"%s\"!", names[n]);
+                        if (ImGui__namespace.Button("Close"))
+                            ImGui__namespace.CloseCurrentPopup();
+                        ImGui__namespace.EndPopup();
+                    }
+                    if (ImGui__namespace.IsItemHovered())
+                        ImGui__namespace.SetTooltip("Right-click to open popup");
+                }
             }
-            // We can also use OpenPopupOnItemClick() which is the same as BeginPopupContextItem() but without the
-            // Begin() call. So here we will make it that clicking on the text field with the right mouse button (1)
-            // will toggle the visibility of the popup above.
-            ImGui__namespace.Text("(You can also right-click me to open the same popup as above.)");
-            ImGui__namespace.OpenPopupOnItemClick("item context menu", 1);
-            // When used after an item that has an ID (e.g.Button), we can skip providing an ID to BeginPopupContextItem().
-            // BeginPopupContextItem() will use the last item ID as the popup ID.
-            // In addition here, we want to include your editable label inside the button label.
-            // We use the ### operator to override the ID (read FAQ about ID for details)
-            const name = STATIC(UNIQUE("name#c8522cc0"), new ImGui__namespace.StringBuffer(32, "Label1"));
-            const buf = `Button: ${name.value}###Button`;
-            ImGui__namespace.Button(buf);
-            if (ImGui__namespace.BeginPopupContextItem()) {
-                ImGui__namespace.Text("Edit name:");
-                ImGui__namespace.InputText("##edit", name.value, ImGui__namespace.ARRAYSIZE(name.value));
-                if (ImGui__namespace.Button("Close"))
-                    ImGui__namespace.CloseCurrentPopup();
-                ImGui__namespace.EndPopup();
+            // Example 2
+            // Popup on a Text() element which doesn't have an identifier: we need to provide an identifier to BeginPopupContextItem().
+            // Using an explicit identifier is also convenient if you want to activate the popups from different locations.
+            {
+                HelpMarker("Text() elements don't have stable identifiers so we need to provide one.");
+                const value = STATIC(UNIQUE("value#779ba8c7"), 0.5); // static float value = 0.5;
+                ImGui__namespace.Text(`Value = ${value.value} <-- (1) right-click this value`); // ImGui.Text("Value = %.3f <-- (1) right-click this value", value);
+                if (ImGui__namespace.BeginPopupContextItem("my popup")) {
+                    if (ImGui__namespace.Selectable("Set to zero"))
+                        value.value = 0.0;
+                    if (ImGui__namespace.Selectable("Set to PI"))
+                        value.value = 3.1415;
+                    ImGui__namespace.SetNextItemWidth(-FLT_MIN);
+                    ImGui__namespace.DragFloat("##Value", value.access, 0.1, 0.0, 0.0);
+                    ImGui__namespace.EndPopup();
+                }
+                // We can also use OpenPopupOnItemClick() to toggle the visibility of a given popup.
+                // Here we make it that right-clicking this other text element opens the same popup as above.
+                // The popup itself will be submitted by the code above.
+                ImGui__namespace.Text("(2) Or right-click this text");
+                ImGui__namespace.OpenPopupOnItemClick("my popup", ImGui__namespace.PopupFlags.MouseButtonRight);
+                // Back to square one: manually open the same popup.
+                if (ImGui__namespace.Button("(3) Or click this button"))
+                    ImGui__namespace.OpenPopup("my popup");
             }
-            ImGui__namespace.SameLine();
-            ImGui__namespace.Text("(<-- right-click here)");
+            // Example 3
+            // When using BeginPopupContextItem() with an implicit identifier (NULL == use last item ID),
+            // we need to make sure your item identifier is stable.
+            // In this example we showcase altering the item label while preserving its identifier, using the ### operator (see FAQ).
+            {
+                HelpMarker("Showcase using a popup ID linked to item ID, with the item having a changing label + stable ID using the ### operator.");
+                const name = STATIC(UNIQUE("name#c8522cc0"), new ImGui__namespace.StringBuffer(32, "Label1")); // static char name[32] = "Label1";
+                const buf = `Button: ${name.value}###Button`;
+                // char buf[64];
+                // sprintf(buf, "Button: %s###Button", name); // ### operator override ID ignoring the preceding label
+                ImGui__namespace.Button(buf);
+                if (ImGui__namespace.BeginPopupContextItem()) {
+                    ImGui__namespace.Text("Edit name:");
+                    ImGui__namespace.InputText("##edit", name.value, ImGui__namespace.IM_ARRAYSIZE(name.value));
+                    if (ImGui__namespace.Button("Close"))
+                        ImGui__namespace.CloseCurrentPopup();
+                    ImGui__namespace.EndPopup();
+                }
+                ImGui__namespace.SameLine();
+                ImGui__namespace.Text("(<-- right-click here)");
+            }
             ImGui__namespace.TreePop();
         }
         if (ImGui__namespace.TreeNode("Modals")) {
@@ -2900,7 +2980,7 @@
             if (ImGui__namespace.Button("Delete.."))
                 ImGui__namespace.OpenPopup("Delete?");
             // Always center this window when appearing
-            const center = new ImGui__namespace.Vec2(ImGui__namespace.GetIO().DisplaySize.x * 0.5, ImGui__namespace.GetIO().DisplaySize.y * 0.5);
+            const center = ImGui__namespace.GetMainViewport().GetCenter();
             ImGui__namespace.SetNextWindowPos(center, ImGui__namespace.Cond.Appearing, new ImGui__namespace.Vec2(0.5, 0.5));
             if (ImGui__namespace.BeginPopupModal("Delete?", null, ImGui__namespace.WindowFlags.AlwaysAutoResize)) {
                 ImGui__namespace.Text("All those beautiful files will be deleted.\nThis operation cannot be undone!\n\n");
@@ -3096,6 +3176,9 @@
         }
     }
     function EditTableColumnsFlags(p_flags) {
+        ImGui__namespace.CheckboxFlags("_Disabled", p_flags, ImGui__namespace.TableColumnFlags.Disabled);
+        ImGui__namespace.SameLine();
+        HelpMarker("Master disable flag (also hide from context menu)");
         ImGui__namespace.CheckboxFlags("_DefaultHide", p_flags, ImGui__namespace.TableColumnFlags.DefaultHide);
         ImGui__namespace.CheckboxFlags("_DefaultSort", p_flags, ImGui__namespace.TableColumnFlags.DefaultSort);
         if (ImGui__namespace.CheckboxFlags("_WidthStretch", p_flags, ImGui__namespace.TableColumnFlags.WidthStretch))
@@ -3109,6 +3192,7 @@
         ImGui__namespace.CheckboxFlags("_NoSort", p_flags, ImGui__namespace.TableColumnFlags.NoSort);
         ImGui__namespace.CheckboxFlags("_NoSortAscending", p_flags, ImGui__namespace.TableColumnFlags.NoSortAscending);
         ImGui__namespace.CheckboxFlags("_NoSortDescending", p_flags, ImGui__namespace.TableColumnFlags.NoSortDescending);
+        ImGui__namespace.CheckboxFlags("_NoHeaderLabel", p_flags, ImGui__namespace.TableColumnFlags.NoHeaderLabel);
         ImGui__namespace.CheckboxFlags("_NoHeaderWidth", p_flags, ImGui__namespace.TableColumnFlags.NoHeaderWidth);
         ImGui__namespace.CheckboxFlags("_PreferSortAscending", p_flags, ImGui__namespace.TableColumnFlags.PreferSortAscending);
         ImGui__namespace.CheckboxFlags("_PreferSortDescending", p_flags, ImGui__namespace.TableColumnFlags.PreferSortDescending);
@@ -3126,7 +3210,6 @@
         ImGui__namespace.CheckboxFlags("_IsHovered", flags, ImGui__namespace.TableColumnFlags.IsHovered);
     }
     function ShowDemoWindowTables() {
-        //ImGui.SetNextItemOpen(true, ImGui.Cond.Once);
         if (!ImGui__namespace.CollapsingHeader("Tables & Columns"))
             return;
         // Using those as a base value to create width/height that are factor of the size of our font
@@ -3837,7 +3920,7 @@
                 ImGui__namespace.TableSetupColumn("A1");
                 ImGui__namespace.TableHeadersRow();
                 ImGui__namespace.TableNextColumn();
-                ImGui__namespace.Text("A0 Cell 0");
+                ImGui__namespace.Text("A0 Row 0");
                 {
                     const rows_height = TEXT_BASE_HEIGHT * 2;
                     if (ImGui__namespace.BeginTable("table_nested2", 2, ImGui__namespace.TableFlags.Borders | ImGui__namespace.TableFlags.Resizable | ImGui__namespace.TableFlags.Reorderable | ImGui__namespace.TableFlags.Hideable)) {
@@ -3846,23 +3929,23 @@
                         ImGui__namespace.TableHeadersRow();
                         ImGui__namespace.TableNextRow(ImGui__namespace.TableRowFlags.None, rows_height);
                         ImGui__namespace.TableNextColumn();
-                        ImGui__namespace.Text("B0 Cell 0");
+                        ImGui__namespace.Text("B0 Row 0");
                         ImGui__namespace.TableNextColumn();
-                        ImGui__namespace.Text("B0 Cell 1");
+                        ImGui__namespace.Text("B1 Row 0");
                         ImGui__namespace.TableNextRow(ImGui__namespace.TableRowFlags.None, rows_height);
                         ImGui__namespace.TableNextColumn();
-                        ImGui__namespace.Text("B1 Cell 0");
+                        ImGui__namespace.Text("B0 Row 1");
                         ImGui__namespace.TableNextColumn();
-                        ImGui__namespace.Text("B1 Cell 1");
+                        ImGui__namespace.Text("B1 Row 1");
                         ImGui__namespace.EndTable();
                     }
                 }
                 ImGui__namespace.TableNextColumn();
-                ImGui__namespace.Text("A0 Cell 1");
+                ImGui__namespace.Text("A1 Row 0");
                 ImGui__namespace.TableNextColumn();
-                ImGui__namespace.Text("A1 Cell 0");
+                ImGui__namespace.Text("A0 Row 1");
                 ImGui__namespace.TableNextColumn();
-                ImGui__namespace.Text("A1 Cell 1");
+                ImGui__namespace.Text("A1 Row 1");
                 ImGui__namespace.EndTable();
             }
             ImGui__namespace.TreePop();
@@ -4307,6 +4390,9 @@
             }
             ImGui__namespace.TreePop();
         }
+        // In this example we'll expose most table flags and settings.
+        // For specific flags and settings refer to the corresponding section for more detailed explanation.
+        // This section is mostly useful to experiment with combining certain flags or settings with each others.
         //ImGui.SetNextItemOpen(true, ImGui.Cond.Once); // [DEBUG]
         if (open_action !== -1)
             ImGui__namespace.SetNextItemOpen(open_action !== 0);
@@ -4442,7 +4528,7 @@
                 ImGui__namespace.Spacing();
                 ImGui__namespace.TreePop();
             }
-            // Recreate/reset item list if we changed the number of items
+            // Update item list if we changed the number of items
             const items = STATIC(UNIQUE("items#5b077f64"), new ImGui__namespace.Vector());
             const selection = STATIC(UNIQUE("selection#01260bec"), new ImGui__namespace.Vector());
             const items_need_sort = STATIC(UNIQUE("items_need_sort#d49bf4fa"), false);
@@ -4461,6 +4547,7 @@
             const parent_draw_list_draw_cmd_count = parent_draw_list.IdxBuffer.length; // parent_draw_list.CmdBuffer.Size;
             const table_scroll_cur = new ImGui__namespace.Vec2(), table_scroll_max = new ImGui__namespace.Vec2(); // For debug display
             let table_draw_list = null; // "
+            // Submit table
             const inner_width_to_use = (flags.value & ImGui__namespace.TableFlags.ScrollX) ? inner_width_with_scroll.value : 0.0;
             if (ImGui__namespace.BeginTable("table_advanced", 6, flags.value, outer_size_enabled.value ? outer_size_value.value : new ImGui__namespace.Vec2(0, 0), inner_width_to_use)) {
                 // Declare columns
@@ -4513,8 +4600,8 @@
                         const item_is_selected = selection.value.contains(item.ID);
                         ImGui__namespace.PushID(item.ID);
                         ImGui__namespace.TableNextRow(ImGui__namespace.TableRowFlags.None, row_min_height.value);
-                        ImGui__namespace.TableNextColumn();
                         // For the demo purpose we can select among different type of items submitted in the first column
+                        ImGui__namespace.TableSetColumnIndex(0);
                         const label = `${item.ID.toString().padStart(4, "0")}`;
                         if (contents_type.value === ContentsType.Text)
                             ImGui__namespace.TextUnformatted(label);
@@ -4539,13 +4626,13 @@
                                 }
                             }
                         }
-                        if (ImGui__namespace.TableNextColumn())
+                        if (ImGui__namespace.TableSetColumnIndex(1))
                             ImGui__namespace.TextUnformatted(item.Name);
                         // Here we demonstrate marking our data set as needing to be sorted again if we modified a quantity,
                         // and we are currently sorting on the column showing the Quantity.
                         // To avoid triggering a sort while holding the button, we only trigger it when the button has been released.
                         // You will probably need a more advanced system in your code if you want to automatically sort when a specific entry changes.
-                        if (ImGui__namespace.TableNextColumn()) {
+                        if (ImGui__namespace.TableSetColumnIndex(2)) {
                             if (ImGui__namespace.SmallButton("Chop")) {
                                 item.Quantity += 1;
                             }
@@ -4560,14 +4647,14 @@
                                 items_need_sort.value = true;
                             }
                         }
-                        if (ImGui__namespace.TableNextColumn())
+                        if (ImGui__namespace.TableSetColumnIndex(3))
                             ImGui__namespace.Text(`${item.Quantity}`);
-                        ImGui__namespace.TableNextColumn();
+                        ImGui__namespace.TableSetColumnIndex(4);
                         if (show_wrapped_text.value)
                             ImGui__namespace.TextWrapped("Lorem ipsum dolor sit amet");
                         else
                             ImGui__namespace.Text("Lorem ipsum dolor sit amet");
-                        if (ImGui__namespace.TableNextColumn())
+                        if (ImGui__namespace.TableSetColumnIndex(5))
                             ImGui__namespace.Text("1234");
                         ImGui__namespace.PopID();
                     }
@@ -4605,7 +4692,6 @@
         HelpMarker("Columns() is an old API! Prefer using the more flexible and powerful BeginTable() API!");
         if (!open)
             return;
-        // Basic columns
         if (ImGui__namespace.TreeNode("Basic")) {
             ImGui__namespace.Text("Without border:");
             ImGui__namespace.Columns(3, "mycolumns3", false); // 3-ways, no border
@@ -4682,7 +4768,6 @@
                 ImGui__namespace.Separator();
             ImGui__namespace.TreePop();
         }
-        // Create multiple items in a same cell before switching to next column
         if (ImGui__namespace.TreeNode("Mixed items")) {
             ImGui__namespace.Columns(3, "mixed");
             ImGui__namespace.Separator();
@@ -4716,7 +4801,6 @@
             ImGui__namespace.Separator();
             ImGui__namespace.TreePop();
         }
-        // Word wrapping
         if (ImGui__namespace.TreeNode("Word-wrapping")) {
             ImGui__namespace.Columns(2, "word-wrapping");
             ImGui__namespace.Separator();
@@ -4800,45 +4884,44 @@
             const io = ImGui__namespace.GetIO();
             // Display ImGui.IO output flags
             ImGui__namespace.Text(`WantCaptureMouse: ${io.WantCaptureMouse}`);
+            ImGui__namespace.Text(`WantCaptureMouseUnlessPopupClose: ${io.WantCaptureMouseUnlessPopupClose}`);
             ImGui__namespace.Text(`WantCaptureKeyboard: ${io.WantCaptureKeyboard}`);
             ImGui__namespace.Text(`WantTextInput: ${io.WantTextInput}`);
             ImGui__namespace.Text(`WantSetMousePos: ${io.WantSetMousePos}`);
             ImGui__namespace.Text(`NavActive: ${io.NavActive}, NavVisible: ${io.NavVisible}`);
-            // Display Keyboard/Mouse state
-            if (ImGui__namespace.TreeNode("Keyboard, Mouse & Navigation State")) {
+            if (ImGui__namespace.TreeNode("Mouse State")) {
                 if (ImGui__namespace.IsMousePosValid())
                     ImGui__namespace.Text(`Mouse pos: (${io.MousePos.x}, ${io.MousePos.y})`);
                 else
                     ImGui__namespace.Text("Mouse pos: <INVALID>");
                 ImGui__namespace.Text(`Mouse delta: (${io.MouseDelta.x}, ${io.MouseDelta.y})`);
+                const count = ImGui__namespace.ARRAYSIZE(io.MouseDown);
                 ImGui__namespace.Text("Mouse down:");
-                for (let i = 0; i < ImGui__namespace.ARRAYSIZE(io.MouseDown); i++)
-                    if (io.MouseDownDuration[i] >= 0.0) {
+                for (let i = 0; i < count; i++)
+                    if (ImGui__namespace.IsMouseDown(i)) {
                         ImGui__namespace.SameLine();
                         ImGui__namespace.Text(`b${i} (${io.MouseDownDuration[i].toFixed(2)} secs)`);
                     }
                 ImGui__namespace.Text("Mouse clicked:");
-                for (let i = 0; i < ImGui__namespace.ARRAYSIZE(io.MouseDown); i++)
+                for (let i = 0; i < count; i++)
                     if (ImGui__namespace.IsMouseClicked(i)) {
                         ImGui__namespace.SameLine();
-                        ImGui__namespace.Text(`b${i}`);
-                    }
-                ImGui__namespace.Text("Mouse dblclick:");
-                for (let i = 0; i < ImGui__namespace.ARRAYSIZE(io.MouseDown); i++)
-                    if (ImGui__namespace.IsMouseDoubleClicked(i)) {
-                        ImGui__namespace.SameLine();
-                        ImGui__namespace.Text(`b${i}`);
+                        ImGui__namespace.Text(`b${i} (${ImGui__namespace.GetMouseClickedCount(i)})`);
                     }
                 ImGui__namespace.Text("Mouse released:");
-                for (let i = 0; i < ImGui__namespace.ARRAYSIZE(io.MouseDown); i++)
+                for (let i = 0; i < count; i++)
                     if (ImGui__namespace.IsMouseReleased(i)) {
                         ImGui__namespace.SameLine();
                         ImGui__namespace.Text(`b${i}`);
                     }
                 ImGui__namespace.Text(`Mouse wheel: ${io.MouseWheel.toFixed(1)}`);
+                // ImGui.Text("Pen Pressure: %.1f", io.PenPressure); // Note: currently unused
+                ImGui__namespace.TreePop();
+            }
+            if (ImGui__namespace.TreeNode("Keyboard & Navigation State")) {
                 ImGui__namespace.Text("Keys down:");
                 for (let i = 0; i < ImGui__namespace.ARRAYSIZE(io.KeysDown); i++)
-                    if (io.KeysDownDuration[i] >= 0.0) {
+                    if (ImGui__namespace.IsKeyDown(i)) {
                         ImGui__namespace.SameLine();
                         ImGui__namespace.Text(`${i} (0x${i.toString(16).toUpperCase()}) (${io.KeysDownDuration[i].toFixed(2)} secs)`);
                     }
@@ -4861,19 +4944,13 @@
                 for (let i = 0; i < ImGui__namespace.ARRAYSIZE(io.NavInputs); i++)
                     if (io.NavInputs[i] > 0.0) {
                         ImGui__namespace.SameLine();
-                        ImGui__namespace.Text(`[${i}] ${io.NavInputs[i].toFixed(2)}`);
+                        ImGui__namespace.Text(`[${i}] ${io.NavInputs[i].toFixed(2)} (${io.NavInputsDownDuration[i].toFixed(2)} secs)`);
                     }
                 ImGui__namespace.Text("NavInputs pressed:");
                 for (let i = 0; i < ImGui__namespace.ARRAYSIZE(io.NavInputs); i++)
                     if (io.NavInputsDownDuration[i] === 0.0) {
                         ImGui__namespace.SameLine();
                         ImGui__namespace.Text(`[${i}]`);
-                    }
-                ImGui__namespace.Text("NavInputs duration:");
-                for (let i = 0; i < ImGui__namespace.ARRAYSIZE(io.NavInputs); i++)
-                    if (io.NavInputsDownDuration[i] >= 0.0) {
-                        ImGui__namespace.SameLine();
-                        ImGui__namespace.Text("[${i}] ${io.NavInputsDownDuration[i].toFixed(2)}");
                     }
                 ImGui__namespace.Button("Hovering me sets the\nkeyboard capture flag");
                 if (ImGui__namespace.IsItemHovered())
@@ -4892,7 +4969,8 @@
                 ImGui__namespace.InputText("3", buf.value, ImGui__namespace.ARRAYSIZE(buf.value));
                 ImGui__namespace.PushAllowKeyboardFocus(false);
                 ImGui__namespace.InputText("4 (tab skip)", buf.value, ImGui__namespace.ARRAYSIZE(buf.value));
-                //ImGui.SameLine(); HelpMarker("Use ImGui.PushAllowKeyboardFocus(boolean) to disable tabbing through certain widgets.");
+                ImGui__namespace.SameLine();
+                HelpMarker("Item won't be cycled through when using TAB or Shift+Tab.");
                 ImGui__namespace.PopAllowKeyboardFocus();
                 ImGui__namespace.InputText("5", buf.value, ImGui__namespace.ARRAYSIZE(buf.value));
                 ImGui__namespace.TreePop();
@@ -4921,6 +4999,8 @@
                 ImGui__namespace.InputText("3 (tab skip)", buf.value, ImGui__namespace.ARRAYSIZE(buf.value));
                 if (ImGui__namespace.IsItemActive())
                     has_focus = 3;
+                ImGui__namespace.SameLine();
+                HelpMarker("Item won't be cycled through when using TAB or Shift+Tab.");
                 ImGui__namespace.PopAllowKeyboardFocus();
                 if (has_focus)
                     ImGui__namespace.Text(`Item with focus: ${has_focus}`);
@@ -5016,6 +5096,7 @@
                 ImGui__namespace.LogText("```\n"); // Back quotes will make text appears without formatting when pasting on GitHub
             }
             ImGui__namespace.Text(`Dear ImGui ${ImGui__namespace.VERSION} (${ImGui__namespace.VERSION_NUM})`);
+            ImGui__namespace.Text(`Emscripten ${ImGui__namespace.bind.__EMSCRIPTEN_major__}.${ImGui__namespace.bind.__EMSCRIPTEN_minor__}.${ImGui__namespace.bind.__EMSCRIPTEN_tiny__}`);
             ImGui__namespace.Separator();
             // ImGui.Text("sizeof(size_t): %d, sizeof(ImDrawIdx): %d, sizeof(ImDrawVert): %d", (int)sizeof(size_t), (int)sizeof(ImDrawIdx), (int)sizeof(ImDrawVert));
             ImGui__namespace.Text(`ImGui.DrawIdxSize: ${ImGui__namespace.DrawIdxSize}, ImGui.DrawVertSize: ${ImGui__namespace.DrawVertSize}`);
@@ -5140,30 +5221,26 @@
     //-----------------------------------------------------------------------------
     // [SECTION] Style Editor / ShowStyleEditor()
     //-----------------------------------------------------------------------------
-    // - ShowStyleSelector()
     // - ShowFontSelector()
+    // - ShowStyleSelector()
     // - ShowStyleEditor()
     //-----------------------------------------------------------------------------
-    // Demo helper function to select among default colors. See ShowStyleEditor() for more advanced options.
-    // Here we use the simplified Combo() api that packs items into a single literal string.
-    // Useful for quick combo boxes where the choices are known locally.
-    function ShowStyleSelector(label) {
-        const style_idx = STATIC(UNIQUE("style_idx#8531ae65"), -1);
-        if (ImGui__namespace.Combo(label, style_idx.access, "Dark\0Light\0Classic\0")) {
-            switch (style_idx.value) {
-                case 0:
-                    ImGui__namespace.StyleColorsDark();
-                    break;
-                case 1:
-                    ImGui__namespace.StyleColorsLight();
-                    break;
-                case 2:
-                    ImGui__namespace.StyleColorsClassic();
-                    break;
-            }
-            return true;
+    // Forward declare ShowFontAtlas() which isn't worth putting in public API yet
+    // namespace ImGui { IMGUI_API void ShowFontAtlas(ImFontAtlas* atlas); }
+    function ShowFontAtlas(atlas) {
+        ImGui__namespace.PushItemWidth(120);
+        for (let i = 0; i < atlas.Fonts.Size; i++) {
+            const font = atlas.Fonts[i];
+            ImGui__namespace.PushID(font.native.$$.ptr);
+            NodeFont(font);
+            ImGui__namespace.PopID();
         }
-        return false;
+        if (ImGui__namespace.TreeNode("Atlas texture", `Atlas texture (${atlas.TexWidth}x${atlas.TexHeight} pixels)`)) {
+            const tint_col = new ImGui__namespace.Vec4(1.0, 1.0, 1.0, 1.0);
+            const border_col = new ImGui__namespace.Vec4(1.0, 1.0, 1.0, 0.5);
+            ImGui__namespace.Image(atlas.TexID, new ImGui__namespace.Vec2(atlas.TexWidth, atlas.TexHeight), new ImGui__namespace.Vec2(0, 0), new ImGui__namespace.Vec2(1, 1), tint_col, border_col);
+            ImGui__namespace.TreePop();
+        }
     }
     // Demo helper function to select among loaded fonts.
     // Here we use the regular BeginCombo()/EndCombo() api which is more the more flexible one.
@@ -5265,6 +5342,27 @@
             ImGui__namespace.TreePop();
         }
         ImGui__namespace.TreePop();
+    }
+    // Demo helper function to select among default colors. See ShowStyleEditor() for more advanced options.
+    // Here we use the simplified Combo() api that packs items into a single literal string.
+    // Useful for quick combo boxes where the choices are known locally.
+    function ShowStyleSelector(label) {
+        const style_idx = STATIC(UNIQUE("style_idx#8531ae65"), -1);
+        if (ImGui__namespace.Combo(label, style_idx.access, "Dark\0Light\0Classic\0")) {
+            switch (style_idx.value) {
+                case 0:
+                    ImGui__namespace.StyleColorsDark();
+                    break;
+                case 1:
+                    ImGui__namespace.StyleColorsLight();
+                    break;
+                case 2:
+                    ImGui__namespace.StyleColorsClassic();
+                    break;
+            }
+            return true;
+        }
+        return false;
     }
     function ShowStyleEditor(ref = null) {
         // You can pass in a reference ImGui.Style structure to compare to, revert to and save to
@@ -5433,19 +5531,7 @@
                 const io = ImGui__namespace.GetIO();
                 const atlas = io.Fonts;
                 HelpMarker("Read FAQ and docs/FONTS.md for details on font loading.");
-                ImGui__namespace.PushItemWidth(120);
-                for (let i = 0; i < atlas.Fonts.Size; i++) {
-                    const font = atlas.Fonts[i];
-                    ImGui__namespace.PushID(font.native.$$.ptr);
-                    NodeFont(font);
-                    ImGui__namespace.PopID();
-                }
-                if (ImGui__namespace.TreeNode("Atlas texture", `Atlas texture (${atlas.TexWidth}x${atlas.TexHeight} pixels)`)) {
-                    const tint_col = new ImGui__namespace.Vec4(1.0, 1.0, 1.0, 1.0);
-                    const border_col = new ImGui__namespace.Vec4(1.0, 1.0, 1.0, 0.5);
-                    ImGui__namespace.Image(atlas.TexID, new ImGui__namespace.Vec2(atlas.TexWidth, atlas.TexHeight), new ImGui__namespace.Vec2(0, 0), new ImGui__namespace.Vec2(1, 1), tint_col, border_col);
-                    ImGui__namespace.TreePop();
-                }
+                /*ImGui.*/ ShowFontAtlas(atlas);
                 // Post-baking font scaling. Note that this is NOT the nice way of scaling fonts, read below.
                 // (we enforce hard clamping manually as by default DragFloat/SliderFloat allows CTRL+Click text to get out of bounds).
                 const MIN_SCALE = 0.3;
@@ -5455,6 +5541,7 @@
                     "rebuild the font atlas, and call style.ScaleAllSizes() on a reference ImGui.Style structure.\n" +
                     "Using those settings here will give you poor quality results.");
                 const window_scale = STATIC(UNIQUE("window_scale#23b8388b"), 1.0);
+                ImGui__namespace.PushItemWidth(ImGui__namespace.GetFontSize() * 8);
                 if (ImGui__namespace.DragFloat("window scale", window_scale.access, 0.005, MIN_SCALE, MAX_SCALE, "%.2f", ImGui__namespace.SliderFlags.AlwaysClamp)) // Scale only this window
                     ImGui__namespace.SetWindowFontScale(window_scale.value);
                 ImGui__namespace.DragFloat("global scale", (_ = io.FontGlobalScale) => io.FontGlobalScale = _, 0.005, MIN_SCALE, MAX_SCALE, "%.2f", ImGui__namespace.SliderFlags.AlwaysClamp); // Scale everything
@@ -5469,30 +5556,47 @@
                 ImGui__namespace.SameLine();
                 HelpMarker("Faster lines using texture data. Require backend to render with bilinear filtering (not point/nearest filtering).");
                 ImGui__namespace.Checkbox("Anti-aliased fill", (_ = style.AntiAliasedFill) => style.AntiAliasedFill = _);
-                ImGui__namespace.PushItemWidth(100);
+                ImGui__namespace.PushItemWidth(ImGui__namespace.GetFontSize() * 8);
                 ImGui__namespace.DragFloat("Curve Tessellation Tolerance", (_ = style.CurveTessellationTol) => style.CurveTessellationTol = _, 0.02, 0.10, 10.0, "%.2f");
                 if (style.CurveTessellationTol < 0.10)
                     style.CurveTessellationTol = 0.10;
                 // When editing the "Circle Segment Max Error" value, draw a preview of its effect on auto-tessellated circles.
-                ImGui__namespace.DragFloat("Circle Segment Max Error", (_ = style.CircleSegmentMaxError) => style.CircleSegmentMaxError = _, 0.01, 0.10, 10.0, "%.2f");
+                ImGui__namespace.DragFloat("Circle Tessellation Max Error", (_ = style.CircleTessellationMaxError) => style.CircleTessellationMaxError = _, 0.005, 0.10, 5.0, "%.2f", ImGui__namespace.SliderFlags.AlwaysClamp);
                 if (ImGui__namespace.IsItemActive()) {
                     ImGui__namespace.SetNextWindowPos(ImGui__namespace.GetCursorScreenPos());
                     ImGui__namespace.BeginTooltip();
-                    const p = ImGui__namespace.GetCursorScreenPos();
+                    ImGui__namespace.TextUnformatted("(R = radius, N = number of segments)");
+                    ImGui__namespace.Spacing();
                     const draw_list = ImGui__namespace.GetWindowDrawList();
-                    const RAD_MIN = 10.0, RAD_MAX = 80.0;
-                    let off_x = 10.0;
-                    for (let n = 0; n < 7; n++) {
-                        const rad = RAD_MIN + (RAD_MAX - RAD_MIN) * n / (7.0 - 1.0);
-                        draw_list.AddCircle(new ImGui__namespace.Vec2(p.x + off_x + rad, p.y + RAD_MAX), rad, ImGui__namespace.GetColorU32(ImGui__namespace.Col.Text), 0);
-                        off_x += 10.0 + rad * 2.0;
+                    const min_widget_width = ImGui__namespace.CalcTextSize("N: MMM\nR: MMM").x;
+                    for (let n = 0; n < 8; n++) {
+                        const RAD_MIN = 5.0;
+                        const RAD_MAX = 70.0;
+                        const rad = RAD_MIN + (RAD_MAX - RAD_MIN) * n / (8.0 - 1.0);
+                        ImGui__namespace.BeginGroup();
+                        ImGui__namespace.Text(`R: ${rad}\nN: ${draw_list._CalcCircleAutoSegmentCount(rad)}`);
+                        const canvas_width = IM_MAX(min_widget_width, rad * 2.0);
+                        const offset_x = Math.floor(canvas_width * 0.5);
+                        const offset_y = Math.floor(RAD_MAX);
+                        const p1 = ImGui__namespace.GetCursorScreenPos();
+                        draw_list.AddCircle(new ImGui__namespace.Vec2(p1.x + offset_x, p1.y + offset_y), rad, ImGui__namespace.GetColorU32(ImGui__namespace.Col.Text));
+                        ImGui__namespace.Dummy(new ImGui__namespace.Vec2(canvas_width, RAD_MAX * 2));
+                        /*
+                        const ImVec2 p2 = ImGui::GetCursorScreenPos();
+                        draw_list->AddCircleFilled(ImVec2(p2.x + offset_x, p2.y + offset_y), rad, ImGui::GetColorU32(ImGuiCol_Text));
+                        ImGui::Dummy(ImVec2(canvas_width, RAD_MAX * 2));
+                        */
+                        ImGui__namespace.EndGroup();
+                        ImGui__namespace.SameLine();
                     }
-                    ImGui__namespace.Dummy(new ImGui__namespace.Vec2(off_x, RAD_MAX * 2.0));
                     ImGui__namespace.EndTooltip();
                 }
                 ImGui__namespace.SameLine();
                 HelpMarker("When drawing circle primitives with \"num_segments === 0\" tesselation will be calculated automatically.");
                 ImGui__namespace.DragFloat("Global Alpha", (_ = style.Alpha) => style.Alpha = _, 0.005, 0.20, 1.0, "%.2f"); // Not exposing zero here so user doesn't "lose" the UI (zero alpha clips all widgets). But application code could have a toggle to switch between zero and non-zero.
+                ImGui__namespace.DragFloat("Disabled Alpha", (_ = style.DisabledAlpha) => style.DisabledAlpha = _, 0.005, 0.0, 1.0, "%.2f");
+                ImGui__namespace.SameLine();
+                HelpMarker("Additional alpha multiplier for disabled items (multiply over current value of Alpha).");
                 ImGui__namespace.PopItemWidth();
                 ImGui__namespace.EndTabItem();
             }
@@ -6072,6 +6176,7 @@
             {
                 ImGui__namespace.BeginChild("left pane", new ImGui__namespace.Vec2(150, 0), true);
                 for (let i = 0; i < 100; i++) {
+                    // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
                     const label = `MyObject ${i}`;
                     if (ImGui__namespace.Selectable(label, selected.value === i))
                         selected.value = i;
@@ -6305,20 +6410,27 @@
         ImGui__namespace.End();
     }
     //-----------------------------------------------------------------------------
-    // [SECTION] Example App: Simple Overlay / ShowExampleAppSimpleOverlay()
+    // [SECTION] Example App: Simple overlay / ShowExampleAppSimpleOverlay()
     //-----------------------------------------------------------------------------
     // Demonstrate creating a simple static window with no decoration
     // + a context-menu to choose which corner of the screen to use.
     function ShowExampleAppSimpleOverlay(p_open) {
-        const DISTANCE = 10.0;
         const corner = STATIC(UNIQUE("corner#63044b6f"), 0);
         const io = ImGui__namespace.GetIO();
         let window_flags = ImGui__namespace.WindowFlags.NoDecoration | ImGui__namespace.WindowFlags.AlwaysAutoResize | ImGui__namespace.WindowFlags.NoSavedSettings | ImGui__namespace.WindowFlags.NoFocusOnAppearing | ImGui__namespace.WindowFlags.NoNav;
         if (corner.value !== -1) {
-            window_flags |= ImGui__namespace.WindowFlags.NoMove;
-            const window_pos = new ImGui__namespace.Vec2((corner.value & 1) ? io.DisplaySize.x - DISTANCE : DISTANCE, (corner.value & 2) ? io.DisplaySize.y - DISTANCE : DISTANCE);
-            const window_pos_pivot = new ImGui__namespace.Vec2((corner.value & 1) ? 1.0 : 0.0, (corner.value & 2) ? 1.0 : 0.0);
+            const PAD = 10.0;
+            const viewport = ImGui__namespace.GetMainViewport();
+            const work_pos = viewport.WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
+            const work_size = viewport.WorkSize;
+            const window_pos = new ImGui__namespace.Vec2();
+            const window_pos_pivot = new ImGui__namespace.Vec2();
+            window_pos.x = (corner.value & 1) ? (work_pos.x + work_size.x - PAD) : (work_pos.x + PAD);
+            window_pos.y = (corner.value & 2) ? (work_pos.y + work_size.y - PAD) : (work_pos.y + PAD);
+            window_pos_pivot.x = (corner.value & 1) ? 1.0 : 0.0;
+            window_pos_pivot.y = (corner.value & 2) ? 1.0 : 0.0;
             ImGui__namespace.SetNextWindowPos(window_pos, ImGui__namespace.Cond.Always, window_pos_pivot);
+            window_flags |= ImGui__namespace.WindowFlags.NoMove;
         }
         ImGui__namespace.SetNextWindowBgAlpha(0.35); // Transparent background
         if (ImGui__namespace.Begin("Example: Simple overlay", p_open, window_flags)) {
@@ -6347,26 +6459,56 @@
         ImGui__namespace.End();
     }
     //-----------------------------------------------------------------------------
+    // [SECTION] Example App: Fullscreen window / ShowExampleAppFullscreen()
+    //-----------------------------------------------------------------------------
+    // Demonstrate creating a window covering the entire screen/viewport
+    function ShowExampleAppFullscreen(p_open) {
+        const use_work_area = STATIC(UNIQUE("use_work_area#63044b6f"), true);
+        const flags = STATIC(UNIQUE("flags#63044b6f"), ImGui__namespace.WindowFlags.NoDecoration | ImGui__namespace.WindowFlags.NoMove | ImGui__namespace.WindowFlags.NoResize | ImGui__namespace.WindowFlags.NoSavedSettings);
+        // We demonstrate using the full viewport area or the work area (without menu-bars, task-bars etc.)
+        // Based on your use case you may want one of the other.
+        const viewport = ImGui__namespace.GetMainViewport();
+        ImGui__namespace.SetNextWindowPos(use_work_area.value ? viewport.WorkPos : viewport.Pos);
+        ImGui__namespace.SetNextWindowSize(use_work_area.value ? viewport.WorkSize : viewport.Size);
+        if (ImGui__namespace.Begin("Example: Fullscreen window", p_open, flags.value)) {
+            ImGui__namespace.Checkbox("Use work area instead of main area", use_work_area.access);
+            ImGui__namespace.SameLine();
+            HelpMarker("Main Area = entire viewport,\nWork Area = entire viewport minus sections used by the main menu bars, task bars etc.\n\nEnable the main-menu bar in Examples menu to see the difference.");
+            ImGui__namespace.CheckboxFlags("ImGui.WindowFlags.NoBackground", flags.access, ImGui__namespace.WindowFlags.NoBackground);
+            ImGui__namespace.CheckboxFlags("ImGui.WindowFlags.NoDecoration", flags.access, ImGui__namespace.WindowFlags.NoDecoration);
+            ImGui__namespace.Indent();
+            ImGui__namespace.CheckboxFlags("ImGui.WindowFlags.NoTitleBar", flags.access, ImGui__namespace.WindowFlags.NoTitleBar);
+            ImGui__namespace.CheckboxFlags("ImGui.WindowFlags.NoCollapse", flags.access, ImGui__namespace.WindowFlags.NoCollapse);
+            ImGui__namespace.CheckboxFlags("ImGui.WindowFlags.NoScrollbar", flags.access, ImGui__namespace.WindowFlags.NoScrollbar);
+            ImGui__namespace.Unindent();
+            if (p_open && ImGui__namespace.Button("Close this window"))
+                p_open(false); // *p_open = false;
+        }
+        ImGui__namespace.End();
+    }
+    //-----------------------------------------------------------------------------
     // [SECTION] Example App: Manipulating Window Titles / ShowExampleAppWindowTitles()
     //-----------------------------------------------------------------------------
     // Demonstrate using "##" and "###" in identifiers to manipulate ID generation.
     // This apply to all regular items as well.
     // Read FAQ section "How can I have multiple widgets with the same label?" for details.
     function ShowExampleAppWindowTitles(p_open) {
+        const viewport = ImGui__namespace.GetMainViewport();
+        const base_pos = viewport.Pos;
         // By default, Windows are uniquely identified by their title.
         // You can use the "##" and "###" markers to manipulate the display/ID.
         // Using "##" to display same title but have unique identifier.
-        ImGui__namespace.SetNextWindowPos(new ImGui__namespace.Vec2(100, 100), ImGui__namespace.Cond.FirstUseEver);
+        ImGui__namespace.SetNextWindowPos(new ImGui__namespace.Vec2(base_pos.x + 100, base_pos.y + 100), ImGui__namespace.Cond.FirstUseEver);
         ImGui__namespace.Begin("Same title as another window##1");
         ImGui__namespace.Text("This is window 1.\nMy title is the same as window 2, but my identifier is unique.");
         ImGui__namespace.End();
-        ImGui__namespace.SetNextWindowPos(new ImGui__namespace.Vec2(100, 200), ImGui__namespace.Cond.FirstUseEver);
+        ImGui__namespace.SetNextWindowPos(new ImGui__namespace.Vec2(base_pos.x + 100, base_pos.y + 200), ImGui__namespace.Cond.FirstUseEver);
         ImGui__namespace.Begin("Same title as another window##2");
         ImGui__namespace.Text("This is window 2.\nMy title is the same as window 1, but my identifier is unique.");
         ImGui__namespace.End();
         // Using "###" to display a changing title but keep a static identifier "AnimatedTitle"
         const buf = `Animated title ${"|/-\\"[Math.floor /*(int)*/(ImGui__namespace.GetTime() / 0.25) & 3]} ${ImGui__namespace.GetFrameCount()}###AnimatedTitle`;
-        ImGui__namespace.SetNextWindowPos(new ImGui__namespace.Vec2(100, 300), ImGui__namespace.Cond.FirstUseEver);
+        ImGui__namespace.SetNextWindowPos(new ImGui__namespace.Vec2(base_pos.x + 100, base_pos.y + 300), ImGui__namespace.Cond.FirstUseEver);
         ImGui__namespace.Begin(buf);
         ImGui__namespace.Text("This window has a changing title.");
         ImGui__namespace.End();
@@ -6419,7 +6561,7 @@
                 const curve_segments_override = STATIC(UNIQUE("curve_segments_override#4bc9456e"), false);
                 const curve_segments_override_v = STATIC(UNIQUE("curve_segments_override_v#c0102a7a"), 8);
                 const colf = STATIC(UNIQUE("colf#379f26e6"), new ImGui__namespace.Vec4(1.0, 1.0, 0.4, 1.0));
-                ImGui__namespace.DragFloat("Size", sz.access, 0.2, 2.0, 72.0, "%.0f");
+                ImGui__namespace.DragFloat("Size", sz.access, 0.2, 2.0, 100.0, "%.0f");
                 ImGui__namespace.DragFloat("Thickness", thickness.access, 0.05, 1.0, 8.0, "%.02f");
                 ImGui__namespace.SliderInt("N-gon sides", ngon_sides.access, 3, 12);
                 ImGui__namespace.Checkbox("##circlesegmentoverride", circle_segments_override.access);
@@ -6436,9 +6578,8 @@
                 const p = ImGui__namespace.GetCursorScreenPos();
                 const col = new ImGui__namespace.Color(colf.value).toImU32();
                 const spacing = 10.0;
-                const corners_none = 0;
-                const corners_all = ImGui__namespace.DrawCornerFlags.All;
-                const corners_tl_br = ImGui__namespace.DrawCornerFlags.TopLeft | ImGui__namespace.DrawCornerFlags.BotRight;
+                const corners_tl_br = ImGui__namespace.DrawFlags.RoundCornersTopLeft | ImGui__namespace.DrawFlags.RoundCornersBottomRight;
+                const rounding = sz.value / 5.0;
                 const circle_segments = circle_segments_override.value ? circle_segments_override_v.value : 0;
                 const curve_segments = curve_segments_override.value ? curve_segments_override_v.value : 0;
                 let x = p.x + 4.0;
@@ -6450,11 +6591,11 @@
                     x += sz.value + spacing; // N-gon
                     draw_list.AddCircle(new ImGui__namespace.Vec2(x + sz.value * 0.5, y + sz.value * 0.5), sz.value * 0.5, col, circle_segments, th);
                     x += sz.value + spacing; // Circle
-                    draw_list.AddRect(new ImGui__namespace.Vec2(x, y), new ImGui__namespace.Vec2(x + sz.value, y + sz.value), col, 0.0, corners_none, th);
+                    draw_list.AddRect(new ImGui__namespace.Vec2(x, y), new ImGui__namespace.Vec2(x + sz.value, y + sz.value), col, 0.0, ImGui__namespace.DrawFlags.None, th);
                     x += sz.value + spacing; // Square
-                    draw_list.AddRect(new ImGui__namespace.Vec2(x, y), new ImGui__namespace.Vec2(x + sz.value, y + sz.value), col, 10.0, corners_all, th);
+                    draw_list.AddRect(new ImGui__namespace.Vec2(x, y), new ImGui__namespace.Vec2(x + sz.value, y + sz.value), col, rounding, ImGui__namespace.DrawFlags.None, th);
                     x += sz.value + spacing; // Square with all rounded corners
-                    draw_list.AddRect(new ImGui__namespace.Vec2(x, y), new ImGui__namespace.Vec2(x + sz.value, y + sz.value), col, 10.0, corners_tl_br, th);
+                    draw_list.AddRect(new ImGui__namespace.Vec2(x, y), new ImGui__namespace.Vec2(x + sz.value, y + sz.value), col, rounding, corners_tl_br, th);
                     x += sz.value + spacing; // Square with two rounded corners
                     draw_list.AddTriangle(new ImGui__namespace.Vec2(x + sz.value * 0.5, y), new ImGui__namespace.Vec2(x + sz.value, y + sz.value - 0.5), new ImGui__namespace.Vec2(x, y + sz.value - 0.5), col, th);
                     x += sz.value + spacing; // Triangle
@@ -6724,6 +6865,15 @@
             ImGui__namespace.PopID();
         }
         ImGui__namespace.Separator();
+        // About the ImGuiWindowFlags_UnsavedDocument / ImGuiTabItemFlags_UnsavedDocument flags.
+        // They have multiple effects:
+        // - Display a dot next to the title.
+        // - Tab is selected when clicking the X close button.
+        // - Closure is not assumed (will wait for user to stop submitting the tab).
+        //   Otherwise closure is assumed when pressing the X, so if you keep submitting the tab may reappear at end of tab bar.
+        //   We need to assume closure by default otherwise waiting for "lack of submission" on the next frame would leave an empty
+        //   hole for one-frame, both in the tab-bar and in tab-contents when closing a tab/window.
+        //   The rarely used SetTabItemClosed() function is a way to notify of programmatic closure to avoid the one-frame hole.
         // Submit Tab Bar and Tabs
         {
             const tab_bar_flags = (opt_fitting_flags.value) | (opt_reorderable.value ? ImGui__namespace.TabBarFlags.Reorderable : 0);
@@ -6781,16 +6931,17 @@
             else {
                 if (!ImGui__namespace.IsPopupOpen("Save?"))
                     ImGui__namespace.OpenPopup("Save?");
-                if (ImGui__namespace.BeginPopupModal("Save?")) {
+                if (ImGui__namespace.BeginPopupModal("Save?", null, ImGui__namespace.WindowFlags.AlwaysAutoResize)) {
                     ImGui__namespace.Text("Save change to the following items?");
-                    ImGui__namespace.SetNextItemWidth(-1.0);
-                    if (ImGui__namespace.ListBoxHeader("##", close_queue_unsaved_documents, 6)) {
+                    const item_height = ImGui__namespace.GetTextLineHeightWithSpacing();
+                    if (ImGui__namespace.BeginChildFrame(ImGui__namespace.GetID("frame"), new ImGui__namespace.Vec2(-FLT_MIN, 6.25 * item_height))) {
                         for (let n = 0; n < close_queue.value.Size; n++)
                             if (close_queue.value[n].Dirty)
                                 ImGui__namespace.Text(`${close_queue.value[n].Name}`);
-                        ImGui__namespace.ListBoxFooter();
+                        ImGui__namespace.EndChildFrame();
                     }
-                    if (ImGui__namespace.Button("Yes", new ImGui__namespace.Vec2(80, 0))) {
+                    const button_size = new ImGui__namespace.Vec2(ImGui__namespace.GetFontSize() * 7.0, 0.0);
+                    if (ImGui__namespace.Button("Yes", button_size)) {
                         for (let n = 0; n < close_queue.value.Size; n++) {
                             if (close_queue.value[n].Dirty)
                                 close_queue.value[n].DoSave();
@@ -6800,14 +6951,14 @@
                         ImGui__namespace.CloseCurrentPopup();
                     }
                     ImGui__namespace.SameLine();
-                    if (ImGui__namespace.Button("No", new ImGui__namespace.Vec2(80, 0))) {
+                    if (ImGui__namespace.Button("No", button_size)) {
                         for (let n = 0; n < close_queue.value.Size; n++)
                             close_queue.value[n].DoForceClose();
                         close_queue.value.clear();
                         ImGui__namespace.CloseCurrentPopup();
                     }
                     ImGui__namespace.SameLine();
-                    if (ImGui__namespace.Button("Cancel", new ImGui__namespace.Vec2(80, 0))) {
+                    if (ImGui__namespace.Button("Cancel", button_size)) {
                         close_queue.value.clear();
                         ImGui__namespace.CloseCurrentPopup();
                     }
@@ -6826,8 +6977,9 @@
     // #endif
     // #endif // #ifndef IMGUI_DISABLE
 
+    exports.GImGuiDemoMarkerCallback = GImGuiDemoMarkerCallback;
     exports.ShowDemoWindow = ShowDemoWindow;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));

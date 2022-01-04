@@ -40,7 +40,7 @@ type ImGuiMouseCursor = number;       // -> enum ImGuiMouseCursor_     // Enum: 
 type ImGuiSortDirection = number;     // -> enum ImGuiSortDirection_   // Enum: A sorting direction (ascending or descending)
 type ImGuiStyleVar = number;          // -> enum ImGuiStyleVar_        // Enum: A variable identifier for styling
 type ImGuiTableBgTarget = number;     // -> enum ImGuiTableBgTarget_   // Enum: A color target for TableSetBgColor()
-type ImDrawCornerFlags = number;      // -> enum ImDrawCornerFlags_    // Flags: for ImDrawList::AddRect(), AddRectFilled() etc.
+type ImDrawFlags = number;            // -> enum ImDrawFlags_          // Flags: for ImDrawList::AddRect(), AddRectFilled() etc.
 type ImDrawListFlags = number;        // -> enum ImDrawListFlags_      // Flags: for ImDrawList
 type ImFontAtlasFlags = number;       // -> enum ImFontAtlasFlags_     // Flags: for ImFontAtlas build
 type ImGuiBackendFlags = number;      // -> enum ImGuiBackendFlags_    // Flags: for io.BackendFlags
@@ -63,6 +63,7 @@ type ImGuiTableColumnFlags = number;  // -> enum ImGuiTableColumnFlags_// Flags:
 type ImGuiTableRowFlags = number;     // -> enum ImGuiTableRowFlags_   // Flags: For TableNextRow()
 type ImGuiTreeNodeFlags = number;     // -> enum ImGuiTreeNodeFlags_   // Flags: for TreeNode(), TreeNodeEx(), CollapsingHeader()
 type ImGuiWindowFlags = number;       // -> enum ImGuiWindowFlags_     // Flags: for Begin(), BeginChild()
+type ImGuiViewportFlags = number;     // -> enum ImGuiViewportFlags_   // Flags: for ImGuiViewport
 
 // Other types
 // #ifndef ImTextureID                 // ImTextureID [configurable type: override in imconfig.h with '#define ImTextureID xxx']
@@ -198,8 +199,8 @@ export class ImGuiListClipper extends Emscripten.EmscriptenClass {
     public DisplayEnd: number;
 
     public ItemsCount: number;
-    public StepNo: number;
-    public ItemsFrozen: number;
+    // public StepNo: number;
+    // public ItemsFrozen: number;
     public ItemsHeight: number;
     public StartPosY: number;
 
@@ -244,6 +245,7 @@ export interface reference_ImGuiTableSortSpecs extends Emscripten.EmscriptenClas
 // During the frame, prefer using ImGui::PushStyleVar(ImGuiStyleVar_XXXX)/PopStyleVar() to alter the main style values, and ImGui::PushStyleColor(ImGuiCol_XXX)/PopStyleColor() for colors.
 export interface interface_ImGuiStyle {
     // float       Alpha;                      // Global alpha applies to everything in Dear ImGui.
+    // float       DisabledAlpha;              //
     // ImVec2      WindowPadding;              // Padding within a window.
     // float       WindowRounding;             // Radius of window corners rounding. Set to 0.0f to have rectangular windows. Large values tend to lead to variety of artifacts and are not recommended.
     // float       WindowBorderSize;           // Thickness of border around windows. Generally set to 0.0f or 1.0f. (Other values are not well tested and more CPU/GPU costly).
@@ -281,10 +283,11 @@ export interface interface_ImGuiStyle {
     // bool        AntiAliasedLinesUseTex;     // Enable anti-aliased lines/borders using textures where possible. Require backend to render with bilinear filtering. Latched at the beginning of the frame (copied to ImDrawList).
     // bool        AntiAliasedFill;            // Enable anti-aliased edges around filled shapes (rounded rectangles, circles, etc.). Disable if you are really tight on CPU/GPU. Latched at the beginning of the frame (copied to ImDrawList).
     // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
-    // float       CircleSegmentMaxError;      // Maximum error (in pixels) allowed when using AddCircle()/AddCircleFilled() or drawing rounded corner rectangles with no explicit segment count specified. Decrease for higher quality but more geometry.
+    // float       CircleTessellationMaxError;      // Maximum error (in pixels) allowed when using AddCircle()/AddCircleFilled() or drawing rounded corner rectangles with no explicit segment count specified. Decrease for higher quality but more geometry.
     // ImVec4      Colors[ImGuiCol_COUNT];
 
     Alpha: number;
+    DisabledAlpha: number;
     readonly WindowPadding: interface_ImVec2;
     WindowRounding: number;
     WindowBorderSize: number;
@@ -322,7 +325,7 @@ export interface interface_ImGuiStyle {
     AntiAliasedLinesUseTex: boolean;
     AntiAliasedFill: boolean;
     CurveTessellationTol: number;
-    CircleSegmentMaxError: number;
+    CircleTessellationMaxError: number;
     _getAt_Colors(idx: number): interface_ImVec4;
     _setAt_Colors(idx: number, value: Readonly<interface_ImVec4>): boolean;
 
@@ -333,6 +336,7 @@ export interface interface_ImGuiStyle {
 
 export class ImGuiStyle extends Emscripten.EmscriptenClass implements interface_ImGuiStyle {
     Alpha: number;
+    DisabledAlpha: number;
     readonly WindowPadding: reference_ImVec2;
     WindowRounding: number;
     WindowBorderSize: number;
@@ -370,7 +374,7 @@ export class ImGuiStyle extends Emscripten.EmscriptenClass implements interface_
     AntiAliasedLinesUseTex: boolean;
     AntiAliasedFill: boolean;
     CurveTessellationTol: number;
-    CircleSegmentMaxError: number;
+    CircleTessellationMaxError: number;
     _getAt_Colors(idx: number): reference_ImVec4;
     _setAt_Colors(idx: number, value: Readonly<interface_ImVec4>): boolean;
 
@@ -448,10 +452,10 @@ export interface reference_ImDrawList extends Emscripten.EmscriptenClassReferenc
     // Primitives
     // IMGUI_API void  AddLine(const ImVec2& a, const ImVec2& b, ImU32 col, float thickness = 1.0f);
     AddLine(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32, thickness: number): void;
-    // IMGUI_API void  AddRect(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All, float thickness = 1.0f);   // a: upper-left, b: lower-right, rounding_corners_flags: 4-bits corresponding to which corner to round
-    AddRect(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, rounding_corners_flags: ImDrawCornerFlags, thickness: number): void;
-    // IMGUI_API void  AddRectFilled(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);                     // a: upper-left, b: lower-right
-    AddRectFilled(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, rounding_corners_flags: ImDrawCornerFlags): void;
+    // IMGUI_API void  AddRect(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int rounding_corners_flags = ImDrawFlags_None, float thickness = 1.0f);   // a: upper-left, b: lower-right, rounding_corners_flags: 4-bits corresponding to which corner to round
+    AddRect(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, rounding_corners_flags: ImDrawFlags, thickness: number): void;
+    // IMGUI_API void  AddRectFilled(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int rounding_corners_flags = ImDrawFlags_None);                     // a: upper-left, b: lower-right
+    AddRectFilled(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, rounding_corners_flags: ImDrawFlags): void;
     // IMGUI_API void  AddRectFilledMultiColor(const ImVec2& a, const ImVec2& b, ImU32 col_upr_left, ImU32 col_upr_right, ImU32 col_bot_right, ImU32 col_bot_left);
     AddRectFilledMultiColor(a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, col_upr_left: ImU32, col_upr_right: ImU32, col_bot_right: ImU32, col_bot_left: ImU32): void;
     // IMGUI_API void  AddQuad(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, ImU32 col, float thickness = 1.0f);
@@ -478,10 +482,10 @@ export interface reference_ImDrawList extends Emscripten.EmscriptenClassReferenc
     AddImage(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32): void;
     // IMGUI_API void  AddImageQuad(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, const ImVec2& uv_a = ImVec2(0,0), const ImVec2& uv_b = ImVec2(1,0), const ImVec2& uv_c = ImVec2(1,1), const ImVec2& uv_d = ImVec2(0,1), ImU32 col = 0xFFFFFFFF);
     AddImageQuad(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, c: Readonly<interface_ImVec2>, d: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, uv_c: Readonly<interface_ImVec2>, uv_d: Readonly<interface_ImVec2>, col: ImU32): void;
-    // IMGUI_API void  AddImageRounded(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col, float rounding, int rounding_corners = ImDrawCornerFlags_All);
-    AddImageRounded(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, rounding_corners: ImDrawCornerFlags): void;
+    // IMGUI_API void  AddImageRounded(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col, float rounding, int flags = ImDrawFlags_None);
+    AddImageRounded(user_texture_id: ImTextureID, a: Readonly<interface_ImVec2>, b: Readonly<interface_ImVec2>, uv_a: Readonly<interface_ImVec2>, uv_b: Readonly<interface_ImVec2>, col: ImU32, rounding: number, flags: ImDrawFlags): void;
     // IMGUI_API void  AddPolyline(const ImVec2* points, const int num_points, ImU32 col, bool closed, float thickness);
-    AddPolyline(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32, closed: boolean, thickness: number): void;
+    AddPolyline(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32, flags: ImDrawFlags, thickness: number): void;
     // IMGUI_API void  AddConvexPolyFilled(const ImVec2* points, const int num_points, ImU32 col);
     AddConvexPolyFilled(points: Readonly<interface_ImVec2>[], num_points: number, col: ImU32): void;
     // IMGUI_API void  AddBezierCubic(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
@@ -498,7 +502,7 @@ export interface reference_ImDrawList extends Emscripten.EmscriptenClassReferenc
     // inline    void  PathFillConvex(ImU32 col)                                   { AddConvexPolyFilled(_Path.Data, _Path.Size, col); PathClear(); }
     PathFillConvex(col: ImU32): void;
     // inline    void  PathStroke(ImU32 col, bool closed, float thickness = 1.0f)  { AddPolyline(_Path.Data, _Path.Size, col, closed, thickness); PathClear(); }
-    PathStroke(col: ImU32, closed: boolean, thickness: number): void;
+    PathStroke(col: ImU32, flags: ImDrawFlags, thickness: number): void;
     // IMGUI_API void  PathArcTo(const ImVec2& centre, float radius, float a_min, float a_max, int num_segments = 10);
     PathArcTo(centre: Readonly<interface_ImVec2>, radius: number, a_min: number, a_max: number, num_segments: number): void;
     // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
@@ -506,8 +510,8 @@ export interface reference_ImDrawList extends Emscripten.EmscriptenClassReferenc
     // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
     PathBezierCubicCurveTo(p1: Readonly<interface_ImVec2>, p2: Readonly<interface_ImVec2>, p3: Readonly<interface_ImVec2>, num_segments: number): void;
     PathBezierQuadraticCurveTo(p2: Readonly<interface_ImVec2>, p3: Readonly<interface_ImVec2>, num_segments: number): void;
-    // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
-    PathRect(rect_min: Readonly<interface_ImVec2>, rect_max: Readonly<interface_ImVec2>, rounding: number, rounding_corners_flags: ImDrawCornerFlags): void;
+    // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int flags = ImDrawFlags_None);
+    PathRect(rect_min: Readonly<interface_ImVec2>, rect_max: Readonly<interface_ImVec2>, rounding: number, flags: ImDrawFlags): void;
 
     // Channels
     // - Use to simulate layers. By switching channels to can render out-of-order (e.g. submit foreground primitives before background primitives)
@@ -550,6 +554,9 @@ export interface reference_ImDrawList extends Emscripten.EmscriptenClassReferenc
     UpdateClipRect(): void;
     // IMGUI_API void  UpdateTextureID();
     UpdateTextureID(): void;
+
+    // IMGUI_API int   _CalcCircleAutoSegmentCount(float radius) const;
+    _CalcCircleAutoSegmentCount(radius: number): number;
 }
 
 export interface reference_ImDrawData extends Emscripten.EmscriptenClassReference {
@@ -602,6 +609,7 @@ export interface reference_ImFont extends Emscripten.EmscriptenClassReference {
     // ImWchar                     FallbackChar;       // = '?'        // Replacement glyph if one isn't found. Only set via SetFallbackChar()
     FallbackChar: number;
     EllipsisChar: number;
+    DotChar: number;
     
     // Members: Cold ~18/26 bytes
     // short                       ConfigDataCount;    // ~ 1          // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
@@ -629,7 +637,7 @@ export interface reference_ImFont extends Emscripten.EmscriptenClassReference {
     // IMGUI_API const ImFontGlyph*FindGlyphNoFallback(ImWchar c) const;
     FindGlyphNoFallback(c: number): Readonly<reference_ImFontGlyph> | null;
     // IMGUI_API void              SetFallbackChar(ImWchar c);
-    SetFallbackChar(c: number): void;
+    // SetFallbackChar(c: number): void;
     // float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
     GetCharAdvance(c: number): number;
     // bool                        IsLoaded() const                    { return ContainerAtlas != NULL; }
@@ -684,8 +692,8 @@ export interface interface_ImFontConfig {
     GlyphMaxAdvanceX: number;
     // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
     MergeMode: boolean;
-    // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
-    RasterizerFlags: number;
+    // unsigned int    FontBuilderFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
+    FontBuilderFlags: number;
     // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
     RasterizerMultiply: number;
 
@@ -701,9 +709,10 @@ export interface interface_ImFontConfig {
 export interface reference_ImFontConfig extends Emscripten.EmscriptenClassReference, interface_ImFontConfig {}
 
 export interface interface_ImFontGlyph {
+    Colored: boolean;
+    Visible: boolean;
     // ImWchar         Codepoint;          // 0x0000..0xFFFF
     Codepoint: number;
-    Visible: boolean;
     // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
     AdvanceX: number;
     // float           X0, Y0, X1, Y1;     // Glyph corners
@@ -848,6 +857,25 @@ export interface reference_ImFontAtlas extends Emscripten.EmscriptenClassReferen
     // ImVector<CustomRect>        CustomRects;        // Rectangles for packing custom texture data into the atlas.
     // ImVector<ImFontConfig>      ConfigData;         // Internal data
     // int                         CustomRectIds[1];   // Identifiers of custom texture rectangle used by ImFontAtlas/ImDrawList
+}
+
+export interface reference_ImGuiViewport extends Emscripten.EmscriptenClassReference {
+    // ImGuiViewportFlags  Flags;                  // See ImGuiViewportFlags_
+    Flags: ImGuiViewportFlags;
+    // ImVec2              Pos;                    // Main Area: Position of the viewport (Dear ImGui coordinates are the same as OS desktop/native coordinates)
+    readonly Pos: interface_ImVec2;
+    // ImVec2              Size;                   // Main Area: Size of the viewport.
+    readonly Size: interface_ImVec2;
+    // ImVec2              WorkPos;                // Work Area: Position of the viewport minus task bars, menus bars, status bars (>= Pos)
+    readonly WorkPos: interface_ImVec2;
+    // ImVec2              WorkSize;               // Work Area: Size of the viewport minus task bars, menu bars, status bars (<= Size)
+    readonly WorkSize: interface_ImVec2;
+
+    // ImGuiViewport()     { memset(this, 0, sizeof(*this)); }
+
+    // Helpers
+    // ImVec2              GetCenter() const       { return ImVec2(Pos.x + Size.x * 0.5f, Pos.y + Size.y * 0.5f); }
+    // ImVec2              GetWorkCenter() const   { return ImVec2(WorkPos.x + WorkSize.x * 0.5f, WorkPos.y + WorkSize.y * 0.5f); }
 }
 
 export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
@@ -1015,6 +1043,7 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // [Internal] ImGui will maintain those fields. Forward compatibility not guaranteed!
     //------------------------------------------------------------------
 
+    WantCaptureMouseUnlessPopupClose: boolean;
     // ImVec2      MousePosPrev;               // Previous mouse position temporary storage (nb: not for public use, set to MousePos in NewFrame())
     // ImVec2      MouseClickedPos[5];         // Position at time of clicking
     _getAt_MouseClickedPos(index: number): Readonly<reference_ImVec2>;
@@ -1094,6 +1123,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     // Demo, Debug, Information
     // IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create Demo window. demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
     // IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // create Metrics/Debugger window. display Dear ImGui internals: windows, draw commands, various internal state, etc.
+    // IMGUI_API void          ShowStackToolWindow(bool* p_open = NULL);   // create Stack Tool window. hover items with mouse to query information about the source of their unique ID.
     // IMGUI_API void          ShowAboutWindow(bool* p_open = NULL);       // create About window. display Dear ImGui version, credits and build/system information.
     // IMGUI_API void          ShowStyleEditor(ImGuiStyle* ref = NULL);    // add style editor block (not a window). you can pass in a reference ImGuiStyle structure to compare to, revert to and save to (else it uses the default style)
     // IMGUI_API bool          ShowStyleSelector(const char* label);       // add style selector block (not a window), essentially a combo listing the default styles.
@@ -1102,6 +1132,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API const char*   GetVersion();                               // get the compiled version string e.g. "1.80 WIP" (essentially the value for IMGUI_VERSION from the compiled version of imgui.cpp)
     ShowDemoWindow(p_open: ImScalar<boolean> | null): void;
     ShowMetricsWindow(p_open: ImScalar<boolean> | null): void;
+    ShowStackToolWindow(p_open: ImScalar<boolean> | null): void;
     ShowAboutWindow(p_open: ImScalar<boolean> | null): void;
     ShowStyleEditor(ref: ImGuiStyle | null): void;
     ShowStyleSelector(label: string): boolean;
@@ -1215,7 +1246,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     GetContentRegionMax(out: interface_ImVec2): typeof out;
     GetWindowContentRegionMin(out: interface_ImVec2): typeof out;
     GetWindowContentRegionMax(out: interface_ImVec2): typeof out;
-    GetWindowContentRegionWidth(): number;
+    // GetWindowContentRegionWidth(): number;
 
     // Windows Scrolling
     // IMGUI_API float         GetScrollX();                                                   // get scrolling amount [0 .. GetScrollMaxX()]
@@ -1588,16 +1619,14 @@ export interface Module extends Emscripten.EmscriptenModule {
 
     // Widgets: List Boxes
     // - FIXME: To be consistent with all the newer API, ListBoxHeader/ListBoxFooter should in reality be called BeginListBox/EndListBox. Will rename them.
+    // IMGUI_API bool          BeginListBox(const char* label, const ImVec2& size = ImVec2(0, 0)); // open a framed scrolling region
+    // IMGUI_API void          EndListBox();                                                       // only call EndListBox() if BeginListBox() returned true!
     // IMGUI_API bool          ListBox(const char* label, int* current_item, const char* const items[], int items_count, int height_in_items = -1);
     // IMGUI_API bool          ListBox(const char* label, int* current_item, bool (*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int height_in_items = -1);
-    // IMGUI_API bool          ListBoxHeader(const char* label, const ImVec2& size = ImVec2(0, 0)); // use if you want to reimplement ListBox() will custom data or interactions. if the function return true, you can output elements then call ListBoxFooter() afterwards.
-    // IMGUI_API bool          ListBoxHeader(const char* label, int items_count, int height_in_items = -1); // "
-    // IMGUI_API void          ListBoxFooter();                                                    // terminate the scrolling region. only call ListBoxFooter() if ListBoxHeader() returned true!
+    BeginListBox(label: string, size: Readonly<interface_ImVec2>): boolean;
+    EndListBox(): void;
     ListBox_A(label: string, current_item: ImScalar<number>, items: string[], items_count: number, height_in_items: number): boolean;
     ListBox_B<T>(label: string, current_item: ImScalar<number>, items_getter: (data: T, idx: number, out_text: [string]) => boolean, data: T, items_count: number, height_in_items: number): boolean;
-    ListBoxHeader_A(label: string, size: Readonly<interface_ImVec2>): boolean;
-    ListBoxHeader_B(label: string, items_count: number, height_in_items: number): boolean;
-    ListBoxFooter(): void;
 
     // Widgets: Data Plotting
     // IMGUI_API void          PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0), int stride = sizeof(float));
@@ -1762,12 +1791,14 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API int                   TableGetRowIndex();                         // return current row index.
     // IMGUI_API const char*           TableGetColumnName(int column_n = -1);      // return "" if column didn't have a name declared by TableSetupColumn(). Pass -1 to use current column.
     // IMGUI_API ImGuiTableColumnFlags TableGetColumnFlags(int column_n = -1);     // return column flags so you can query their Enabled/Visible/Sorted/Hovered status flags. Pass -1 to use current column.
+    // IMGUI_API void                  TableSetColumnEnabled(int column_n, bool v);// change user accessible enabled/disabled state of a column. Set to false to hide the column. User can use the context menu to change this themselves (right-click in headers, or right-click in columns body with ImGuiTableFlags_ContextMenuInBody)
     // IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);  // change the color of a cell, row, or column. See ImGuiTableBgTarget_ flags for details.
     TableGetColumnCount(): number;
     TableGetColumnIndex(): number;
     TableGetRowIndex(): number;
     TableGetColumnName(column_n: number): string;
     TableGetColumnFlags(column_n: number): ImGuiTableColumnFlags;
+    TableSetColumnEnabled(column_n: number, v: boolean): void;
     TableSetBgColor(target: ImGuiTableBgTarget, color: ImU32, column_n: number): void;
 
     // Legacy Columns API (2020: prefer using Tables!)
@@ -1835,6 +1866,15 @@ export interface Module extends Emscripten.EmscriptenModule {
     EndDragDropTarget(): void;
     GetDragDropPayload(): null; // reference_DragDropPayload | null; // TODO
 
+    // Disabling [BETA API]
+    // - Disable all user interactions and dim items visuals (applying style.DisabledAlpha over current colors)
+    // - Those can be nested but it cannot be used to enable an already disabled section (a single BeginDisabled(true) in the stack is enough to keep everything disabled)
+    // - BeginDisabled(false) essentially does nothing useful but is provided to facilitate use of boolean expressions. If you can avoid calling BeginDisabled(False)/EndDisabled() best to avoid it.
+    // IMGUI_API void          BeginDisabled(bool disabled = true);
+    // IMGUI_API void          EndDisabled();
+    BeginDisabled(disabled: boolean): void;
+    EndDisabled(): void;
+
     // Clipping
     // - Mouse hovering is affected by ImGui::PushClipRect() calls, unlike direct calls to ImDrawList::PushClipRect() which are render only.
     // IMGUI_API void          PushClipRect(const ImVec2& clip_rect_min, const ImVec2& clip_rect_max, bool intersect_with_current_clip_rect);
@@ -1887,6 +1927,14 @@ export interface Module extends Emscripten.EmscriptenModule {
     GetItemRectSize(out: interface_ImVec2): typeof out;
     SetItemAllowOverlap(): void;
 
+
+    // Viewports
+    // - Currently represents the Platform Window created by the application which is hosting our Dear ImGui windows.
+    // - In 'docking' branch with multi-viewport enabled, we extend this concept to have multiple active viewports.
+    // - In the future we will extend this concept further to also represent Platform Monitor and support a "no main platform window" operation mode.
+    // IMGUI_API ImGuiViewport* GetMainViewport();                                                 // return primary/default viewport. This can never be NULL.
+    GetMainViewport(): reference_ImGuiViewport;
+
     // Miscellaneous Utilities
     // IMGUI_API bool          IsRectVisible(const ImVec2& size);                                  // test if rectangle (of given size, starting from cursor position) is visible / not clipped.
     // IMGUI_API bool          IsRectVisible(const ImVec2& rect_min, const ImVec2& rect_max);      // test if rectangle (in screen space) is visible / not clipped. to perform coarse clipping on user's side.
@@ -1911,7 +1959,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     // function SetStateStorage(tree: ImGuiStorage | null): void;
     // function GetStateStorage(): ImGuiStorage | null;
     GetStyleColorName(idx: ImGuiCol): string;
-    CalcListClipping(items_count: number, items_height: number, out_items_display_start: ImScalar<number>, out_items_display_end: ImScalar<number>): void;
+    // CalcListClipping(items_count: number, items_height: number, out_items_display_start: ImScalar<number>, out_items_display_end: ImScalar<number>): void;
     BeginChildFrame(id: ImGuiID, size: Readonly<interface_ImVec2>, flags: ImGuiWindowFlags): boolean;
     EndChildFrame(): void;
 
@@ -1953,6 +2001,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     // IMGUI_API bool          IsMouseClicked(ImGuiMouseButton button, bool repeat = false);       // did mouse button clicked? (went from !Down to Down)
     // IMGUI_API bool          IsMouseReleased(ImGuiMouseButton button);                           // did mouse button released? (went from Down to !Down)
     // IMGUI_API bool          IsMouseDoubleClicked(ImGuiMouseButton button);                      // did mouse button double-clicked? (note that a double-click will also report IsMouseClicked() == true)
+    // IMGUI_API int           GetMouseClickedCount(ImGuiMouseButton button);                      // return the number of successive mouse-clicks at the time where a click happen (otherwise 0).
     // IMGUI_API bool          IsMouseHoveringRect(const ImVec2& r_min, const ImVec2& r_max, bool clip = true);// is mouse hovering given bounding rect (in screen space). clipped by current clipping settings, but disregarding of other consideration of focus/window ordering/popup-block.
     // IMGUI_API bool          IsMousePosValid(const ImVec2* mouse_pos = NULL);                    // by convention we use (-FLT_MAX,-FLT_MAX) to denote that there is no mouse available
     // IMGUI_API bool          IsAnyMouseDown();                                                   // is any mouse button held?
@@ -1968,6 +2017,7 @@ export interface Module extends Emscripten.EmscriptenModule {
     IsMouseClicked(button: ImGuiMouseButton, repeat: boolean): boolean;
     IsMouseReleased(button: ImGuiMouseButton): boolean;
     IsMouseDoubleClicked(button: ImGuiMouseButton): boolean;
+    GetMouseClickedCount(button: ImGuiMouseButton): number;
     IsMouseHoveringRect(r_min: Readonly<interface_ImVec2>, r_max: Readonly<interface_ImVec2>, clip: boolean): boolean;
     IsMousePosValid(mouse_pos: Readonly<interface_ImVec2> | null): boolean;
     IsAnyMouseDown(): boolean;

@@ -101,7 +101,7 @@ export declare enum ImGuiInputTextFlags {
     AllowTabInput = 1024,
     CtrlEnterForNewLine = 2048,
     NoHorizontalScroll = 4096,
-    AlwaysInsertMode = 8192,
+    AlwaysOverwrite = 8192,
     ReadOnly = 16384,
     Password = 32768,
     NoUndoRedo = 65536,
@@ -233,29 +233,31 @@ export declare enum ImGuiTableFlags {
 export { ImGuiTableColumnFlags as TableColumnFlags };
 export declare enum ImGuiTableColumnFlags {
     None = 0,
-    DefaultHide = 1,
-    DefaultSort = 2,
-    WidthStretch = 4,
-    WidthFixed = 8,
-    NoResize = 16,
-    NoReorder = 32,
-    NoHide = 64,
-    NoClip = 128,
-    NoSort = 256,
-    NoSortAscending = 512,
-    NoSortDescending = 1024,
-    NoHeaderWidth = 2048,
-    PreferSortAscending = 4096,
-    PreferSortDescending = 8192,
-    IndentEnable = 16384,
-    IndentDisable = 32768,
-    IsEnabled = 1048576,
-    IsVisible = 2097152,
-    IsSorted = 4194304,
-    IsHovered = 8388608,
-    WidthMask_ = 12,
-    IndentMask_ = 49152,
-    StatusMask_ = 15728640,
+    Disabled = 1,
+    DefaultHide = 2,
+    DefaultSort = 4,
+    WidthStretch = 8,
+    WidthFixed = 16,
+    NoResize = 32,
+    NoReorder = 64,
+    NoHide = 128,
+    NoClip = 256,
+    NoSort = 512,
+    NoSortAscending = 1024,
+    NoSortDescending = 2048,
+    NoHeaderLabel = 4096,
+    NoHeaderWidth = 8192,
+    PreferSortAscending = 16384,
+    PreferSortDescending = 32768,
+    IndentEnable = 65536,
+    IndentDisable = 131072,
+    IsEnabled = 16777216,
+    IsVisible = 33554432,
+    IsSorted = 67108864,
+    IsHovered = 134217728,
+    WidthMask_ = 24,
+    IndentMask_ = 196608,
+    StatusMask_ = 251658240,
     NoDirectResize_ = 1073741824
 }
 export { ImGuiTableRowFlags as TableRowFlags };
@@ -276,6 +278,7 @@ export declare enum ImGuiFocusedFlags {
     ChildWindows = 1,
     RootWindow = 2,
     AnyWindow = 4,
+    NoPopupHierarchy = 8,
     RootAndChildWindows = 3
 }
 export { ImGuiHoveredFlags as HoveredFlags };
@@ -284,11 +287,12 @@ export declare enum ImGuiHoveredFlags {
     ChildWindows = 1,
     RootWindow = 2,
     AnyWindow = 4,
-    AllowWhenBlockedByPopup = 8,
-    AllowWhenBlockedByActiveItem = 32,
-    AllowWhenOverlapped = 64,
-    AllowWhenDisabled = 128,
-    RectOnly = 104,
+    NoPopupHierarchy = 8,
+    AllowWhenBlockedByPopup = 32,
+    AllowWhenBlockedByActiveItem = 128,
+    AllowWhenOverlapped = 256,
+    AllowWhenDisabled = 512,
+    RectOnly = 416,
     RootAndChildWindows = 3
 }
 export { ImGuiDragDropFlags as DragDropFlags };
@@ -388,12 +392,11 @@ export declare enum ImGuiNavInput {
     FocusNext = 13,
     TweakSlow = 14,
     TweakFast = 15,
-    KeyMenu_ = 16,
-    KeyLeft_ = 17,
-    KeyRight_ = 18,
-    KeyUp_ = 19,
-    KeyDown_ = 20,
-    COUNT = 21,
+    KeyLeft_ = 16,
+    KeyRight_ = 17,
+    KeyUp_ = 18,
+    KeyDown_ = 19,
+    COUNT = 20,
     InternalStart_ = 16
 }
 export { ImGuiConfigFlags as ConfigFlags };
@@ -468,30 +471,31 @@ export declare enum ImGuiCol {
 export { ImGuiStyleVar as StyleVar };
 export declare enum ImGuiStyleVar {
     Alpha = 0,
-    WindowPadding = 1,
-    WindowRounding = 2,
-    WindowBorderSize = 3,
-    WindowMinSize = 4,
-    WindowTitleAlign = 5,
-    ChildRounding = 6,
-    ChildBorderSize = 7,
-    PopupRounding = 8,
-    PopupBorderSize = 9,
-    FramePadding = 10,
-    FrameRounding = 11,
-    FrameBorderSize = 12,
-    ItemSpacing = 13,
-    ItemInnerSpacing = 14,
-    IndentSpacing = 15,
-    CellPadding = 16,
-    ScrollbarSize = 17,
-    ScrollbarRounding = 18,
-    GrabMinSize = 19,
-    GrabRounding = 20,
-    TabRounding = 21,
-    ButtonTextAlign = 22,
-    SelectableTextAlign = 23,
-    COUNT = 24
+    DisabledAlpha = 1,
+    WindowPadding = 2,
+    WindowRounding = 3,
+    WindowBorderSize = 4,
+    WindowMinSize = 5,
+    WindowTitleAlign = 6,
+    ChildRounding = 7,
+    ChildBorderSize = 8,
+    PopupRounding = 9,
+    PopupBorderSize = 10,
+    FramePadding = 11,
+    FrameRounding = 12,
+    FrameBorderSize = 13,
+    ItemSpacing = 14,
+    ItemInnerSpacing = 15,
+    IndentSpacing = 16,
+    CellPadding = 17,
+    ScrollbarSize = 18,
+    ScrollbarRounding = 19,
+    GrabMinSize = 20,
+    GrabRounding = 21,
+    TabRounding = 22,
+    ButtonTextAlign = 23,
+    SelectableTextAlign = 24,
+    COUNT = 25
 }
 export { ImGuiBackendFlags as BackendFlags };
 export declare enum ImGuiBackendFlags {
@@ -536,11 +540,11 @@ export declare enum ImGuiColorEditFlags {
     PickerHueWheel = 67108864,
     InputRGB = 134217728,
     InputHSV = 268435456,
-    _OptionsDefault = 177209344,
-    _DisplayMask = 7340032,
-    _DataTypeMask = 25165824,
-    _PickerMask = 100663296,
-    _InputMask = 402653184
+    DefaultOptions_ = 177209344,
+    DisplayMask_ = 7340032,
+    DataTypeMask_ = 25165824,
+    PickerMask_ = 100663296,
+    InputMask_ = 402653184
 }
 export { ImGuiSliderFlags as SliderFlags };
 export declare enum ImGuiSliderFlags {
@@ -580,18 +584,22 @@ export declare enum ImGuiCond {
     FirstUseEver = 4,
     Appearing = 8
 }
-export { ImDrawCornerFlags as DrawCornerFlags };
-export declare enum ImDrawCornerFlags {
+export { ImDrawFlags as DrawFlags };
+export declare enum ImDrawFlags {
     None = 0,
-    TopLeft = 1,
-    TopRight = 2,
-    BotLeft = 4,
-    BotRight = 8,
-    Top = 3,
-    Bot = 12,
-    Left = 5,
-    Right = 10,
-    All = 15
+    Closed = 1,
+    RoundCornersTopLeft = 16,
+    RoundCornersTopRight = 32,
+    RoundCornersBottomLeft = 64,
+    RoundCornersBottomRight = 128,
+    RoundCornersNone = 256,
+    RoundCornersTop = 48,
+    RoundCornersBottom = 192,
+    RoundCornersLeft = 80,
+    RoundCornersRight = 160,
+    RoundCornersAll = 240,
+    RoundCornersDefault_ = 240,
+    RoundCornersMask_ = 496
 }
 export { ImDrawListFlags as wListFlags };
 export declare enum ImDrawListFlags {
@@ -776,8 +784,6 @@ export declare class ImGuiListClipper {
     get DisplayStart(): number;
     get DisplayEnd(): number;
     get ItemsCount(): number;
-    get StepNo(): number;
-    get ItemsFrozen(): number;
     get ItemsHeight(): number;
     get StartPosY(): number;
     delete(): void;
@@ -844,8 +850,8 @@ export declare class ImDrawList {
     GetClipRectMin(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
     GetClipRectMax(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
     AddLine(a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, thickness?: number): void;
-    AddRect(a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, rounding?: number, rounding_corners_flags?: ImDrawCornerFlags, thickness?: number): void;
-    AddRectFilled(a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, rounding?: number, rounding_corners_flags?: ImDrawCornerFlags): void;
+    AddRect(a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, rounding?: number, flags?: ImDrawFlags, thickness?: number): void;
+    AddRectFilled(a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, rounding?: number, flags?: ImDrawFlags): void;
     AddRectFilledMultiColor(a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, col_upr_left: Bind.ImU32, col_upr_right: Bind.ImU32, col_bot_right: Bind.ImU32, col_bot_left: Bind.ImU32): void;
     AddQuad(a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, c: Readonly<Bind.interface_ImVec2>, d: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, thickness?: number): void;
     AddQuadFilled(a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, c: Readonly<Bind.interface_ImVec2>, d: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32): void;
@@ -857,23 +863,23 @@ export declare class ImDrawList {
     AddNgonFilled(centre: Readonly<Bind.interface_ImVec2>, radius: number, col: Bind.ImU32, num_segments: number): void;
     AddText(pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, text_begin: string, text_end?: number | null): void;
     AddText(font: ImFont, font_size: number, pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, text_begin: string, text_end?: number | null, wrap_width?: number, cpu_fine_clip_rect?: Readonly<Bind.interface_ImVec4> | null): void;
-    AddPolyline(points: Array<Readonly<Bind.interface_ImVec2>>, num_points: number, col: Bind.ImU32, closed: boolean, thickness: number): void;
+    AddPolyline(points: Array<Readonly<Bind.interface_ImVec2>>, num_points: number, col: Bind.ImU32, flags: ImDrawFlags, thickness: number): void;
     AddConvexPolyFilled(points: Array<Readonly<Bind.interface_ImVec2>>, num_points: number, col: Bind.ImU32): void;
     AddBezierCubic(p1: Readonly<Bind.interface_ImVec2>, p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, p4: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, thickness?: number, num_segments?: number): void;
     AddBezierQuadratic(p1: Readonly<Bind.interface_ImVec2>, p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, thickness?: number, num_segments?: number): void;
     AddImage(user_texture_id: ImTextureID | null, a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, uv_a?: Readonly<Bind.interface_ImVec2>, uv_b?: Readonly<Bind.interface_ImVec2>, col?: Bind.ImU32): void;
     AddImageQuad(user_texture_id: ImTextureID | null, a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, c: Readonly<Bind.interface_ImVec2>, d: Readonly<Bind.interface_ImVec2>, uv_a?: Readonly<Bind.interface_ImVec2>, uv_b?: Readonly<Bind.interface_ImVec2>, uv_c?: Readonly<Bind.interface_ImVec2>, uv_d?: Readonly<Bind.interface_ImVec2>, col?: Bind.ImU32): void;
-    AddImageRounded(user_texture_id: ImTextureID | null, a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, uv_a: Readonly<Bind.interface_ImVec2>, uv_b: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, rounding: number, rounding_corners?: ImDrawCornerFlags): void;
+    AddImageRounded(user_texture_id: ImTextureID | null, a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, uv_a: Readonly<Bind.interface_ImVec2>, uv_b: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, rounding: number, flags?: ImDrawFlags): void;
     PathClear(): void;
     PathLineTo(pos: Readonly<Bind.interface_ImVec2>): void;
     PathLineToMergeDuplicate(pos: Readonly<Bind.interface_ImVec2>): void;
     PathFillConvex(col: Bind.ImU32): void;
-    PathStroke(col: Bind.ImU32, closed: boolean, thickness?: number): void;
+    PathStroke(col: Bind.ImU32, flags: ImDrawFlags, thickness?: number): void;
     PathArcTo(centre: Readonly<Bind.interface_ImVec2>, radius: number, a_min: number, a_max: number, num_segments?: number): void;
     PathArcToFast(centre: Readonly<Bind.interface_ImVec2>, radius: number, a_min_of_12: number, a_max_of_12: number): void;
     PathBezierCubicCurveTo(p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, p4: Readonly<Bind.interface_ImVec2>, num_segments?: number): void;
     PathBezierQuadraticCurveTo(p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, num_segments?: number): void;
-    PathRect(rect_min: Readonly<Bind.interface_ImVec2>, rect_max: Readonly<Bind.interface_ImVec2>, rounding?: number, rounding_corners_flags?: ImDrawCornerFlags): void;
+    PathRect(rect_min: Readonly<Bind.interface_ImVec2>, rect_max: Readonly<Bind.interface_ImVec2>, rounding?: number, flags?: ImDrawFlags): void;
     ChannelsSplit(channels_count: number): void;
     ChannelsMerge(): void;
     ChannelsSetCurrent(channel_index: number): void;
@@ -887,6 +893,7 @@ export declare class ImDrawList {
     PrimWriteVtx(pos: Readonly<Bind.interface_ImVec2>, uv: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32): void;
     PrimWriteIdx(idx: ImDrawIdx): void;
     PrimVtx(pos: Readonly<Bind.interface_ImVec2>, uv: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32): void;
+    _CalcCircleAutoSegmentCount(radius: number): number;
 }
 export { ImDrawData as DrawData };
 export declare class ImDrawData {
@@ -917,9 +924,10 @@ export declare class script_ImFontConfig implements Bind.interface_ImFontConfig 
     GlyphMinAdvanceX: number;
     GlyphMaxAdvanceX: number;
     MergeMode: boolean;
-    RasterizerFlags: number;
+    FontBuilderFlags: number;
     RasterizerMultiply: number;
     EllipsisChar: number;
+    DotChar: number;
     Name: string;
     DstFont: Bind.reference_ImFont | null;
 }
@@ -940,15 +948,16 @@ export declare class ImFontConfig {
     get GlyphMinAdvanceX(): number;
     get GlyphMaxAdvanceX(): number;
     get MergeMode(): boolean;
-    get RasterizerFlags(): number;
+    get FontBuilderFlags(): number;
     get RasterizerMultiply(): number;
     get Name(): string;
     set Name(value: string);
     get DstFont(): ImFont | null;
 }
 export declare class script_ImFontGlyph implements Bind.interface_ImFontGlyph {
-    Codepoint: number;
+    Colored: boolean;
     Visible: boolean;
+    Codepoint: number;
     AdvanceX: number;
     X0: number;
     Y0: number;
@@ -963,8 +972,9 @@ export { ImFontGlyph as FontGlyph };
 export declare class ImFontGlyph implements Bind.interface_ImFontGlyph {
     readonly internal: Bind.interface_ImFontGlyph;
     constructor(internal?: Bind.interface_ImFontGlyph);
-    get Codepoint(): number;
+    get Colored(): boolean;
     get Visible(): boolean;
+    get Codepoint(): number;
     get AdvanceX(): number;
     get X0(): number;
     get Y0(): number;
@@ -1046,6 +1056,7 @@ export declare class ImFont {
     get FallbackAdvanceX(): number;
     get FallbackChar(): number;
     get EllipsisChar(): number;
+    get DotChar(): number;
     get ConfigDataCount(): number;
     get ConfigData(): ImFontConfig[];
     get ContainerAtlas(): ImFontAtlas | null;
@@ -1056,7 +1067,6 @@ export declare class ImFont {
     BuildLookupTable(): void;
     FindGlyph(c: number): Readonly<ImFontGlyph> | null;
     FindGlyphNoFallback(c: number): ImFontGlyph | null;
-    SetFallbackChar(c: number): void;
     GetCharAdvance(c: number): number;
     IsLoaded(): boolean;
     GetDebugName(): string;
@@ -1066,12 +1076,33 @@ export declare class ImFont {
     RenderText(draw_list: ImDrawList, size: number, pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, clip_rect: Readonly<Bind.interface_ImVec4>, text_begin: string, text_end?: number | null, wrap_width?: number, cpu_fine_clip?: boolean): void;
     IsGlyphRangeUnused(c_begin: number, c_last: number): boolean;
 }
+export { ImGuiViewportFlags as ViewportFlags };
+export declare enum ImGuiViewportFlags {
+    None = 0,
+    IsPlatformWindow = 1,
+    IsPlatformMonitor = 2,
+    OwnedByApp = 4
+}
+export { ImGuiViewport as Viewport };
+export declare class ImGuiViewport {
+    readonly native: Bind.reference_ImGuiViewport;
+    constructor(native: Bind.reference_ImGuiViewport);
+    get Flags(): ImGuiViewportFlags;
+    get Pos(): Bind.interface_ImVec2;
+    get Size(): Bind.interface_ImVec2;
+    get WorkPos(): Bind.interface_ImVec2;
+    get WorkSize(): Bind.interface_ImVec2;
+    GetCenter(): ImVec2;
+    GetWorkCenter(): ImVec2;
+}
 export { ImGuiStyle as Style };
 export declare class ImGuiStyle {
     readonly internal: Bind.interface_ImGuiStyle;
     constructor(internal?: Bind.interface_ImGuiStyle);
     get Alpha(): number;
     set Alpha(value: number);
+    get DisabledAlpha(): number;
+    set DisabledAlpha(value: number);
     get WindowPadding(): Bind.interface_ImVec2;
     get WindowRounding(): number;
     set WindowRounding(value: number);
@@ -1134,8 +1165,8 @@ export declare class ImGuiStyle {
     set AntiAliasedFill(value: boolean);
     get CurveTessellationTol(): number;
     set CurveTessellationTol(value: number);
-    get CircleSegmentMaxError(): number;
-    set CircleSegmentMaxError(value: number);
+    get CircleTessellationMaxError(): number;
+    set CircleTessellationMaxError(value: number);
     Colors: Bind.interface_ImVec4[];
     Copy(other: Readonly<ImGuiStyle>): this;
     ScaleAllSizes(scale_factor: number): void;
@@ -1249,6 +1280,8 @@ export declare class ImGuiIO {
     get MetricsActiveWindows(): number;
     get MetricsActiveAllocations(): number;
     get MouseDelta(): Readonly<Bind.reference_ImVec2>;
+    get WantCaptureMouseUnlessPopupClose(): boolean;
+    set WantCaptureMouseUnlessPopupClose(value: boolean);
     MouseClickedPos: Array<Readonly<Bind.reference_ImVec2>>;
     MouseDownDuration: number[];
     KeysDownDuration: number[];
@@ -1276,6 +1309,7 @@ export declare function Render(): void;
 export declare function GetDrawData(): ImDrawData | null;
 export declare function ShowDemoWindow(p_open?: Bind.ImScalar<boolean> | null): void;
 export declare function ShowMetricsWindow(p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null): void;
+export declare function ShowStackToolWindow(p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null): void;
 export declare function ShowAboutWindow(p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null): void;
 export declare function ShowStyleEditor(ref?: ImGuiStyle | null): void;
 export declare function ShowStyleSelector(label: string): boolean;
@@ -1315,7 +1349,6 @@ export declare function GetContentRegionAvail(out?: Bind.interface_ImVec2): Bind
 export declare function GetContentRegionMax(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function GetWindowContentRegionMin(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function GetWindowContentRegionMax(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
-export declare function GetWindowContentRegionWidth(): number;
 export declare function GetScrollX(): number;
 export declare function GetScrollY(): number;
 export declare function SetScrollX(scroll_x: number): void;
@@ -1410,7 +1443,7 @@ export declare function DragInt2(label: string, v: XY | XYZ | XYZW | Bind.ImTupl
 export declare function DragInt3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string, flags?: ImGuiSliderFlags): boolean;
 export declare function DragInt4(label: string, v: XYZW | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string, flags?: ImGuiSliderFlags): boolean;
 export declare function DragIntRange2(label: string, v_current_min: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_current_max: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string, format_max?: string | null, flags?: ImGuiSliderFlags): boolean;
-export declare function DragScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min?: number | null, v_max?: number | null, format?: string | null, flags?: ImGuiSliderFlags): boolean;
+export declare function DragScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_speed?: number, v_min?: number | null, v_max?: number | null, format?: string | null, flags?: ImGuiSliderFlags): boolean;
 export declare function SliderFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
 export declare function SliderFloat2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec2, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
 export declare function SliderFloat3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
@@ -1459,12 +1492,11 @@ export declare function CollapsingHeader(label: string, p_open: Bind.ImScalar<bo
 export declare function SetNextItemOpen(is_open: boolean, cond?: ImGuiCond): void;
 export declare function Selectable(label: string, selected?: boolean, flags?: ImGuiSelectableFlags, size?: Readonly<Bind.interface_ImVec2>): boolean;
 export declare function Selectable(label: string, p_selected: Bind.ImScalar<boolean> | Bind.ImAccess<boolean>, flags?: ImGuiSelectableFlags, size?: Readonly<Bind.interface_ImVec2>): boolean;
+export declare function BeginListBox(label: string, size?: Readonly<Bind.interface_ImVec2>): boolean;
+export declare function EndListBox(): void;
 export declare type ListBoxItemGetter<T> = (data: T, idx: number, out_text: [string]) => boolean;
 export declare function ListBox(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items: string[], items_count?: number, height_in_items?: number): boolean;
 export declare function ListBox<T>(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ListBoxItemGetter<T>, data: T, items_count: number, height_in_items?: number): boolean;
-export declare function ListBoxHeader(label: string, size: Readonly<Bind.interface_ImVec2>): boolean;
-export declare function ListBoxHeader(label: string, items_count: number, height_in_items?: number): boolean;
-export declare function ListBoxFooter(): void;
 export declare type PlotLinesValueGetter<T> = (data: T, idx: number) => number;
 export declare function PlotLines(label: string, values: ArrayLike<number>, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>, stride?: number): void;
 export declare function PlotLines<T>(label: string, values_getter: PlotLinesValueGetter<T>, data: T, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
@@ -1501,7 +1533,7 @@ export declare function EndTable(): void;
 export declare function TableNextRow(row_flags?: ImGuiTableRowFlags, min_row_height?: number): void;
 export declare function TableNextColumn(): boolean;
 export declare function TableSetColumnIndex(column_n: number): boolean;
-export declare function TableSetupColumn(label: string, flags?: ImGuiTableColumnFlags, init_width_or_weight?: number, user_id?: Bind.ImU32): void;
+export declare function TableSetupColumn(label: string, flags?: ImGuiTableColumnFlags, init_width_or_weight?: number, user_id?: Bind.ImGuiID): void;
 export declare function TableSetupScrollFreeze(cols: number, rows: number): void;
 export declare function TableHeadersRow(): void;
 export declare function TableHeader(label: string): void;
@@ -1511,6 +1543,7 @@ export declare function TableGetColumnIndex(): number;
 export declare function TableGetRowIndex(): number;
 export declare function TableGetColumnName(column_n?: number): string;
 export declare function TableGetColumnFlags(column_n?: number): ImGuiTableColumnFlags;
+export declare function TableSetColumnEnabled(column_n: number, v: boolean): void;
 export declare function TableSetBgColor(target: ImGuiTableBgTarget, color: Bind.ImU32, column_n?: number): void;
 export declare function Columns(count?: number, id?: string | null, border?: boolean): void;
 export declare function NextColumn(): void;
@@ -1539,6 +1572,8 @@ export declare function BeginDragDropTarget(): boolean;
 export declare function AcceptDragDropPayload<T>(type: string, flags?: ImGuiDragDropFlags): ImGuiPayload<T> | null;
 export declare function EndDragDropTarget(): void;
 export declare function GetDragDropPayload<T>(): ImGuiPayload<T> | null;
+export declare function BeginDisabled(disabled?: boolean): void;
+export declare function EndDisabled(): void;
 export declare function PushClipRect(clip_rect_min: Readonly<Bind.interface_ImVec2>, clip_rect_max: Readonly<Bind.interface_ImVec2>, intersect_with_current_clip_rect: boolean): void;
 export declare function PopClipRect(): void;
 export declare function SetItemDefaultFocus(): void;
@@ -1560,6 +1595,7 @@ export declare function GetItemRectMin(out?: Bind.interface_ImVec2): Bind.interf
 export declare function GetItemRectMax(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function GetItemRectSize(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function SetItemAllowOverlap(): void;
+export declare function GetMainViewport(): ImGuiViewport;
 export declare function IsRectVisible(size: Readonly<Bind.interface_ImVec2>): boolean;
 export declare function IsRectVisible(rect_min: Readonly<Bind.interface_ImVec2>, rect_max: Readonly<Bind.interface_ImVec2>): boolean;
 export declare function GetTime(): number;
@@ -1568,7 +1604,6 @@ export declare function GetBackgroundDrawList(): ImDrawList;
 export declare function GetForegroundDrawList(): ImDrawList;
 export declare function GetDrawListSharedData(): ImDrawListSharedData;
 export declare function GetStyleColorName(idx: ImGuiCol): string;
-export declare function CalcListClipping(items_count: number, items_height: number, out_items_display_start: Bind.ImScalar<number>, out_items_display_end: Bind.ImScalar<number>): void;
 export declare function BeginChildFrame(id: ImGuiID, size: Readonly<Bind.interface_ImVec2>, flags?: ImGuiWindowFlags): boolean;
 export declare function EndChildFrame(): void;
 export declare function CalcTextSize(text: string, text_end?: number | null, hide_text_after_double_hash?: boolean, wrap_width?: number, out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
@@ -1585,6 +1620,7 @@ export declare function CaptureKeyboardFromApp(capture?: boolean): void;
 export declare function IsMouseDown(button: number): boolean;
 export declare function IsMouseClicked(button: number, repeat?: boolean): boolean;
 export declare function IsMouseDoubleClicked(button: number): boolean;
+export declare function GetMouseClickedCount(button: number): number;
 export declare function IsMouseReleased(button: number): boolean;
 export declare function IsMouseHoveringRect(r_min: Readonly<Bind.interface_ImVec2>, r_max: Readonly<Bind.interface_ImVec2>, clip?: boolean): boolean;
 export declare function IsMousePosValid(mouse_pos?: Readonly<Bind.interface_ImVec2> | null): boolean;

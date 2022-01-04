@@ -2,7 +2,7 @@
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('imgui-js')) :
     typeof define === 'function' && define.amd ? define(['exports', 'imgui-js'], factory) :
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ImGui_Memory_Editor = {}, global.ImGui));
-}(this, (function (exports, ImGui) { 'use strict';
+})(this, (function (exports, ImGui) { 'use strict';
 
     function _interopNamespace(e) {
         if (e && e.__esModule) return e;
@@ -13,14 +13,12 @@
                     var d = Object.getOwnPropertyDescriptor(e, k);
                     Object.defineProperty(n, k, d.get ? d : {
                         enumerable: true,
-                        get: function () {
-                            return e[k];
-                        }
+                        get: function () { return e[k]; }
                     });
                 }
             });
         }
-        n['default'] = e;
+        n["default"] = e;
         return Object.freeze(n);
     }
 
@@ -278,7 +276,7 @@
                         user_data.CursorPos = -1;
                         // sprintf(user_data.CurrentBufOverwrite, format_byte, ReadFn ? ReadFn(mem_data, addr) : mem_data[addr]);
                         user_data.CurrentBufOverwrite.buffer = format_byte(this.ReadFn ? this.ReadFn(mem_data, addr) : new Uint8Array(mem_data)[addr]);
-                        const flags = ImGui__namespace.InputTextFlags.CharsHexadecimal | ImGui__namespace.InputTextFlags.EnterReturnsTrue | ImGui__namespace.InputTextFlags.AutoSelectAll | ImGui__namespace.InputTextFlags.NoHorizontalScroll | ImGui__namespace.InputTextFlags.AlwaysInsertMode | ImGui__namespace.InputTextFlags.CallbackAlways;
+                        const flags = ImGui__namespace.InputTextFlags.CharsHexadecimal | ImGui__namespace.InputTextFlags.EnterReturnsTrue | ImGui__namespace.InputTextFlags.AutoSelectAll | ImGui__namespace.InputTextFlags.NoHorizontalScroll | ImGui__namespace.InputTextFlags.AlwaysOverwrite | ImGui__namespace.InputTextFlags.CallbackAlways;
                         if (ImGui__namespace.InputText("##data", this.DataInputBuf, 32, flags, UserData.Callback, user_data))
                             data_write = data_next = true;
                         else if (!this.DataEditingTakeFocus && !ImGui__namespace.IsItemActive())
@@ -792,4 +790,4 @@
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));

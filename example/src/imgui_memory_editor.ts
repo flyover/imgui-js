@@ -349,7 +349,7 @@ export class MemoryEditor
                     user_data.CursorPos = -1;
                     // sprintf(user_data.CurrentBufOverwrite, format_byte, ReadFn ? ReadFn(mem_data, addr) : mem_data[addr]);
                     user_data.CurrentBufOverwrite.buffer = format_byte(this.ReadFn ? this.ReadFn(mem_data, addr) : new Uint8Array(mem_data)[addr]);
-                    const flags: ImGui.InputTextFlags = ImGui.InputTextFlags.CharsHexadecimal | ImGui.InputTextFlags.EnterReturnsTrue | ImGui.InputTextFlags.AutoSelectAll | ImGui.InputTextFlags.NoHorizontalScroll | ImGui.InputTextFlags.AlwaysInsertMode | ImGui.InputTextFlags.CallbackAlways;
+                    const flags: ImGui.InputTextFlags = ImGui.InputTextFlags.CharsHexadecimal | ImGui.InputTextFlags.EnterReturnsTrue | ImGui.InputTextFlags.AutoSelectAll | ImGui.InputTextFlags.NoHorizontalScroll | ImGui.InputTextFlags.AlwaysOverwrite | ImGui.InputTextFlags.CallbackAlways;
                     if (ImGui.InputText("##data", this.DataInputBuf, 32, flags, UserData.Callback, user_data))
                         data_write = data_next = true;
                     else if (!this.DataEditingTakeFocus && !ImGui.IsItemActive())

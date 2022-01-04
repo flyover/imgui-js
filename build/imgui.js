@@ -9,7 +9,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             step((generator = generator.apply(thisArg, _arguments || [])).next());
         });
     };
-    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, IMGUI_HAS_TABLE, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiSortDirection, ImGuiKey, ImGuiKeyModFlags, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiButtonFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseButton, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, IM_UNICODE_CODEPOINT_MAX, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiTableColumnSortSpecs, ImGuiTableSortSpecs, ImGuiListClipper, IM_DRAWLIST_TEX_LINES_WIDTH_MAX, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawCmdHeader, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasCustomRect, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
+    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, IMGUI_HAS_TABLE, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiSortDirection, ImGuiKey, ImGuiKeyModFlags, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiButtonFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseButton, ImGuiMouseCursor, ImGuiCond, ImDrawFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, IM_UNICODE_CODEPOINT_MAX, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiTableColumnSortSpecs, ImGuiTableSortSpecs, ImGuiListClipper, IM_DRAWLIST_TEX_LINES_WIDTH_MAX, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawCmdHeader, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasCustomRect, ImFontAtlasFlags, ImFontAtlas, ImFont, ImGuiViewportFlags, ImGuiViewport, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
     var __moduleName = context_1 && context_1.id;
     function default_1(value) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -225,6 +225,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     // Demo, Debug, Information
     // IMGUI_API void          ShowDemoWindow(bool* p_open = NULL);        // create Demo window. demonstrate most ImGui features. call this to learn about the library! try to make it always available in your application!
     // IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // create Metrics/Debugger window. display Dear ImGui internals: windows, draw commands, various internal state, etc.
+    // IMGUI_API void          ShowStackToolWindow(bool* p_open = NULL);   // create Stack Tool window. hover items with mouse to query information about the source of their unique ID.
     // IMGUI_API void          ShowAboutWindow(bool* p_open = NULL);       // create About window. display Dear ImGui version, credits and build/system information.
     // IMGUI_API void          ShowStyleEditor(ImGuiStyle* ref = NULL);    // add style editor block (not a window). you can pass in a reference ImGuiStyle structure to compare to, revert to and save to (else it uses the default style)
     // IMGUI_API bool          ShowStyleSelector(const char* label);       // add style selector block (not a window), essentially a combo listing the default styles.
@@ -247,6 +248,20 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
         }
     }
     exports_1("ShowMetricsWindow", ShowMetricsWindow);
+    function ShowStackToolWindow(p_open = null) {
+        if (p_open === null) {
+            bind.ShowStackToolWindow(null);
+        }
+        else if (Array.isArray(p_open)) {
+            bind.ShowStackToolWindow(p_open);
+        }
+        else {
+            const ref_open = [p_open()];
+            bind.ShowStackToolWindow(ref_open);
+            p_open(ref_open[0]);
+        }
+    }
+    exports_1("ShowStackToolWindow", ShowStackToolWindow);
     function ShowAboutWindow(p_open = null) {
         if (p_open === null) {
             bind.ShowAboutWindow(null);
@@ -513,8 +528,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     exports_1("GetWindowContentRegionMin", GetWindowContentRegionMin);
     function GetWindowContentRegionMax(out = new ImVec2()) { return bind.GetWindowContentRegionMax(out); }
     exports_1("GetWindowContentRegionMax", GetWindowContentRegionMax);
-    function GetWindowContentRegionWidth() { return bind.GetWindowContentRegionWidth(); }
-    exports_1("GetWindowContentRegionWidth", GetWindowContentRegionWidth);
+    // export function GetWindowContentRegionWidth(): number { return bind.GetWindowContentRegionWidth(); }
     // Windows Scrolling
     // IMGUI_API float         GetScrollX();                                                   // get scrolling amount [0 .. GetScrollMaxX()]
     // IMGUI_API float         GetScrollY();                                                   // get scrolling amount [0 .. GetScrollMaxY()]
@@ -989,7 +1003,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
         return ret;
     }
     exports_1("DragIntRange2", DragIntRange2);
-    function DragScalar(label, v, v_speed, v_min = null, v_max = null, format = null, flags = 0) {
+    function DragScalar(label, v, v_speed = 1.0, v_min = null, v_max = null, format = null, flags = 0) {
         if (v instanceof Int8Array) {
             return bind.DragScalar(label, ImGuiDataType.S8, v, v_speed, v_min, v_max, format, flags);
         }
@@ -1515,6 +1529,18 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
         }
     }
     exports_1("Selectable", Selectable);
+    // Widgets: List Boxes
+    // - FIXME: To be consistent with all the newer API, ListBoxHeader/ListBoxFooter should in reality be called BeginListBox/EndListBox. Will rename them.
+    // IMGUI_API bool          BeginListBox(const char* label, const ImVec2& size = ImVec2(0, 0)); // open a framed scrolling region
+    // IMGUI_API void          EndListBox();                                                       // only call EndListBox() if BeginListBox() returned true!
+    // IMGUI_API bool          ListBox(const char* label, int* current_item, const char* const items[], int items_count, int height_in_items = -1);
+    // IMGUI_API bool          ListBox(const char* label, int* current_item, bool (*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int height_in_items = -1);
+    function BeginListBox(label, size = new ImVec2(0, 0)) {
+        return bind.BeginListBox(label, size);
+    }
+    exports_1("BeginListBox", BeginListBox);
+    function EndListBox() { bind.EndListBox(); }
+    exports_1("EndListBox", EndListBox);
     function ListBox(label, current_item, ...args) {
         let ret = false;
         const _current_item = Array.isArray(current_item) ? current_item : [current_item()];
@@ -1537,20 +1563,6 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
         return ret;
     }
     exports_1("ListBox", ListBox);
-    function ListBoxHeader(label, ...args) {
-        if (typeof (args[0]) === "object") {
-            const size = args[0];
-            return bind.ListBoxHeader_A(label, size);
-        }
-        else {
-            const items_count = args[0];
-            const height_in_items = typeof (args[1]) === "number" ? args[1] : -1;
-            return bind.ListBoxHeader_B(label, items_count, height_in_items);
-        }
-    }
-    exports_1("ListBoxHeader", ListBoxHeader);
-    function ListBoxFooter() { bind.ListBoxFooter(); }
-    exports_1("ListBoxFooter", ListBoxFooter);
     function PlotLines(label, ...args) {
         if (Array.isArray(args[0])) {
             const values = args[0];
@@ -1832,6 +1844,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     // IMGUI_API int                   TableGetRowIndex();                         // return current row index.
     // IMGUI_API const char*           TableGetColumnName(int column_n = -1);      // return "" if column didn't have a name declared by TableSetupColumn(). Pass -1 to use current column.
     // IMGUI_API ImGuiTableColumnFlags TableGetColumnFlags(int column_n = -1);     // return column flags so you can query their Enabled/Visible/Sorted/Hovered status flags. Pass -1 to use current column.
+    // IMGUI_API void                  TableSetColumnEnabled(int column_n, bool v);// change user accessible enabled/disabled state of a column. Set to false to hide the column. User can use the context menu to change this themselves (right-click in headers, or right-click in columns body with ImGuiTableFlags_ContextMenuInBody)
     // IMGUI_API void                  TableSetBgColor(ImGuiTableBgTarget target, ImU32 color, int column_n = -1);  // change the color of a cell, row, or column. See ImGuiTableBgTarget_ flags for details.
     function TableGetColumnCount() { return bind.TableGetColumnCount(); }
     exports_1("TableGetColumnCount", TableGetColumnCount);
@@ -1843,6 +1856,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     exports_1("TableGetColumnName", TableGetColumnName);
     function TableGetColumnFlags(column_n = -1) { return bind.TableGetColumnFlags(column_n); }
     exports_1("TableGetColumnFlags", TableGetColumnFlags);
+    function TableSetColumnEnabled(column_n, v) { bind.TableSetColumnEnabled(column_n, v); }
+    exports_1("TableSetColumnEnabled", TableSetColumnEnabled);
     function TableSetBgColor(target, color, column_n = -1) { bind.TableSetBgColor(target, color, column_n); }
     exports_1("TableSetBgColor", TableSetBgColor);
     // Legacy Columns API (2020: prefer using Tables!)
@@ -1953,6 +1968,16 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
         return bind.GetDragDropPayload();
     }
     exports_1("GetDragDropPayload", GetDragDropPayload);
+    // Disabling [BETA API]
+    // - Disable all user interactions and dim items visuals (applying style.DisabledAlpha over current colors)
+    // - Those can be nested but it cannot be used to enable an already disabled section (a single BeginDisabled(true) in the stack is enough to keep everything disabled)
+    // - BeginDisabled(false) essentially does nothing useful but is provided to facilitate use of boolean expressions. If you can avoid calling BeginDisabled(False)/EndDisabled() best to avoid it.
+    // IMGUI_API void          BeginDisabled(bool disabled = true);
+    // IMGUI_API void          EndDisabled();
+    function BeginDisabled(disabled = true) { bind.BeginDisabled(disabled); }
+    exports_1("BeginDisabled", BeginDisabled);
+    function EndDisabled() { bind.EndDisabled(); }
+    exports_1("EndDisabled", EndDisabled);
     // Clipping
     // - Mouse hovering is affected by ImGui::PushClipRect() calls, unlike direct calls to ImDrawList::PushClipRect() which are render only.
     // IMGUI_API void          PushClipRect(const ImVec2& clip_rect_min, const ImVec2& clip_rect_max, bool intersect_with_current_clip_rect);
@@ -2027,6 +2052,13 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     exports_1("GetItemRectSize", GetItemRectSize);
     function SetItemAllowOverlap() { bind.SetItemAllowOverlap(); }
     exports_1("SetItemAllowOverlap", SetItemAllowOverlap);
+    // Viewports
+    // - Currently represents the Platform Window created by the application which is hosting our Dear ImGui windows.
+    // - In 'docking' branch with multi-viewport enabled, we extend this concept to have multiple active viewports.
+    // - In the future we will extend this concept further to also represent Platform Monitor and support a "no main platform window" operation mode.
+    // IMGUI_API ImGuiViewport* GetMainViewport();                                                 // return primary/default viewport. This can never be NULL.
+    function GetMainViewport() { return new ImGuiViewport(bind.GetMainViewport()); }
+    exports_1("GetMainViewport", GetMainViewport);
     function IsRectVisible(...args) {
         if (args.length === 1) {
             const size = args[0];
@@ -2059,10 +2091,9 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     exports_1("GetStyleColorName", GetStyleColorName);
     // IMGUI_API void          SetStateStorage(ImGuiStorage* tree);
     // IMGUI_API ImGuiStorage* GetStateStorage();
-    function CalcListClipping(items_count, items_height, out_items_display_start, out_items_display_end) {
-        return bind.CalcListClipping(items_count, items_height, out_items_display_start, out_items_display_end);
-    }
-    exports_1("CalcListClipping", CalcListClipping);
+    // export function CalcListClipping(items_count: number, items_height: number, out_items_display_start: Bind.ImScalar<number>, out_items_display_end: Bind.ImScalar<number>): void {
+    //     return bind.CalcListClipping(items_count, items_height, out_items_display_start, out_items_display_end);
+    // }
     function BeginChildFrame(id, size, flags = 0) { return bind.BeginChildFrame(id, size, flags); }
     exports_1("BeginChildFrame", BeginChildFrame);
     function EndChildFrame() { bind.EndChildFrame(); }
@@ -2115,6 +2146,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     // IMGUI_API bool          IsMouseClicked(ImGuiMouseButton button, bool repeat = false);       // did mouse button clicked? (went from !Down to Down)
     // IMGUI_API bool          IsMouseReleased(ImGuiMouseButton button);                           // did mouse button released? (went from Down to !Down)
     // IMGUI_API bool          IsMouseDoubleClicked(ImGuiMouseButton button);                      // did mouse button double-clicked? (note that a double-click will also report IsMouseClicked() == true)
+    // IMGUI_API int           GetMouseClickedCount(ImGuiMouseButton button);                      // return the number of successive mouse-clicks at the time where a click happen (otherwise 0).
     // IMGUI_API bool          IsMouseHoveringRect(const ImVec2& r_min, const ImVec2& r_max, bool clip = true);// is mouse hovering given bounding rect (in screen space). clipped by current clipping settings, but disregarding of other consideration of focus/window ordering/popup-block.
     // IMGUI_API bool          IsMousePosValid(const ImVec2* mouse_pos = NULL);                    // by convention we use (-FLT_MAX,-FLT_MAX) to denote that there is no mouse available
     // IMGUI_API bool          IsAnyMouseDown();                                                   // is any mouse button held?
@@ -2132,6 +2164,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     exports_1("IsMouseClicked", IsMouseClicked);
     function IsMouseDoubleClicked(button) { return bind.IsMouseDoubleClicked(button); }
     exports_1("IsMouseDoubleClicked", IsMouseDoubleClicked);
+    function GetMouseClickedCount(button) { return bind.GetMouseClickedCount(button); }
+    exports_1("GetMouseClickedCount", GetMouseClickedCount);
     function IsMouseReleased(button) { return bind.IsMouseReleased(button); }
     exports_1("IsMouseReleased", IsMouseReleased);
     function IsMouseHoveringRect(r_min, r_max, clip = true) { return bind.IsMouseHoveringRect(r_min, r_max, clip); }
@@ -2210,9 +2244,9 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
         ],
         execute: function () {
             exports_1("Bind", Bind);
-            exports_1("IMGUI_VERSION", IMGUI_VERSION = "1.80"); // bind.IMGUI_VERSION;
+            exports_1("IMGUI_VERSION", IMGUI_VERSION = "1.86"); // bind.IMGUI_VERSION;
             exports_1("VERSION", IMGUI_VERSION);
-            exports_1("IMGUI_VERSION_NUM", IMGUI_VERSION_NUM = 18000); // bind.IMGUI_VERSION_NUM;
+            exports_1("IMGUI_VERSION_NUM", IMGUI_VERSION_NUM = 18600); // bind.IMGUI_VERSION_NUM;
             exports_1("VERSION_NUM", IMGUI_VERSION_NUM);
             exports_1("IMGUI_HAS_TABLE", IMGUI_HAS_TABLE = true);
             ImStringBuffer = class ImStringBuffer {
@@ -2273,7 +2307,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImGuiInputTextFlags[ImGuiInputTextFlags["AllowTabInput"] = 1024] = "AllowTabInput";
                 ImGuiInputTextFlags[ImGuiInputTextFlags["CtrlEnterForNewLine"] = 2048] = "CtrlEnterForNewLine";
                 ImGuiInputTextFlags[ImGuiInputTextFlags["NoHorizontalScroll"] = 4096] = "NoHorizontalScroll";
-                ImGuiInputTextFlags[ImGuiInputTextFlags["AlwaysInsertMode"] = 8192] = "AlwaysInsertMode";
+                ImGuiInputTextFlags[ImGuiInputTextFlags["AlwaysOverwrite"] = 8192] = "AlwaysOverwrite";
                 ImGuiInputTextFlags[ImGuiInputTextFlags["ReadOnly"] = 16384] = "ReadOnly";
                 ImGuiInputTextFlags[ImGuiInputTextFlags["Password"] = 32768] = "Password";
                 ImGuiInputTextFlags[ImGuiInputTextFlags["NoUndoRedo"] = 65536] = "NoUndoRedo";
@@ -2425,31 +2459,33 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             (function (ImGuiTableColumnFlags) {
                 // Input configuration flags
                 ImGuiTableColumnFlags[ImGuiTableColumnFlags["None"] = 0] = "None";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["DefaultHide"] = 1] = "DefaultHide";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["DefaultSort"] = 2] = "DefaultSort";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["WidthStretch"] = 4] = "WidthStretch";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["WidthFixed"] = 8] = "WidthFixed";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoResize"] = 16] = "NoResize";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoReorder"] = 32] = "NoReorder";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoHide"] = 64] = "NoHide";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoClip"] = 128] = "NoClip";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoSort"] = 256] = "NoSort";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoSortAscending"] = 512] = "NoSortAscending";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoSortDescending"] = 1024] = "NoSortDescending";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoHeaderWidth"] = 2048] = "NoHeaderWidth";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["PreferSortAscending"] = 4096] = "PreferSortAscending";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["PreferSortDescending"] = 8192] = "PreferSortDescending";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IndentEnable"] = 16384] = "IndentEnable";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IndentDisable"] = 32768] = "IndentDisable";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["Disabled"] = 1] = "Disabled";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["DefaultHide"] = 2] = "DefaultHide";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["DefaultSort"] = 4] = "DefaultSort";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["WidthStretch"] = 8] = "WidthStretch";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["WidthFixed"] = 16] = "WidthFixed";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoResize"] = 32] = "NoResize";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoReorder"] = 64] = "NoReorder";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoHide"] = 128] = "NoHide";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoClip"] = 256] = "NoClip";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoSort"] = 512] = "NoSort";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoSortAscending"] = 1024] = "NoSortAscending";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoSortDescending"] = 2048] = "NoSortDescending";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoHeaderLabel"] = 4096] = "NoHeaderLabel";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoHeaderWidth"] = 8192] = "NoHeaderWidth";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["PreferSortAscending"] = 16384] = "PreferSortAscending";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["PreferSortDescending"] = 32768] = "PreferSortDescending";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IndentEnable"] = 65536] = "IndentEnable";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IndentDisable"] = 131072] = "IndentDisable";
                 // Output status flags, read-only via TableGetColumnFlags()
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IsEnabled"] = 1048576] = "IsEnabled";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IsVisible"] = 2097152] = "IsVisible";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IsSorted"] = 4194304] = "IsSorted";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IsHovered"] = 8388608] = "IsHovered";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IsEnabled"] = 16777216] = "IsEnabled";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IsVisible"] = 33554432] = "IsVisible";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IsSorted"] = 67108864] = "IsSorted";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IsHovered"] = 134217728] = "IsHovered";
                 // [Internal] Combinations and masks
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["WidthMask_"] = 12] = "WidthMask_";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IndentMask_"] = 49152] = "IndentMask_";
-                ImGuiTableColumnFlags[ImGuiTableColumnFlags["StatusMask_"] = 15728640] = "StatusMask_";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["WidthMask_"] = 24] = "WidthMask_";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["IndentMask_"] = 196608] = "IndentMask_";
+                ImGuiTableColumnFlags[ImGuiTableColumnFlags["StatusMask_"] = 251658240] = "StatusMask_";
                 ImGuiTableColumnFlags[ImGuiTableColumnFlags["NoDirectResize_"] = 1073741824] = "NoDirectResize_"; // [Internal] Disable user resizing this column directly (it may however we resized indirectly from its left edge)
             })(ImGuiTableColumnFlags || (ImGuiTableColumnFlags = {}));
             exports_1("ImGuiTableColumnFlags", ImGuiTableColumnFlags);
@@ -2473,6 +2509,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImGuiFocusedFlags[ImGuiFocusedFlags["ChildWindows"] = 1] = "ChildWindows";
                 ImGuiFocusedFlags[ImGuiFocusedFlags["RootWindow"] = 2] = "RootWindow";
                 ImGuiFocusedFlags[ImGuiFocusedFlags["AnyWindow"] = 4] = "AnyWindow";
+                ImGuiFocusedFlags[ImGuiFocusedFlags["NoPopupHierarchy"] = 8] = "NoPopupHierarchy";
+                //DockHierarchy               = 1 << 4,   // Consider docking hierarchy (treat dockspace host as parent of docked window) (when used with _ChildWindows or _RootWindow)
                 ImGuiFocusedFlags[ImGuiFocusedFlags["RootAndChildWindows"] = 3] = "RootAndChildWindows";
             })(ImGuiFocusedFlags || (ImGuiFocusedFlags = {}));
             exports_1("ImGuiFocusedFlags", ImGuiFocusedFlags);
@@ -2482,12 +2520,14 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImGuiHoveredFlags[ImGuiHoveredFlags["ChildWindows"] = 1] = "ChildWindows";
                 ImGuiHoveredFlags[ImGuiHoveredFlags["RootWindow"] = 2] = "RootWindow";
                 ImGuiHoveredFlags[ImGuiHoveredFlags["AnyWindow"] = 4] = "AnyWindow";
-                ImGuiHoveredFlags[ImGuiHoveredFlags["AllowWhenBlockedByPopup"] = 8] = "AllowWhenBlockedByPopup";
-                //AllowWhenBlockedByModal     = 1 << 4,   // Return true even if a modal popup window is normally blocking access to this item/window. FIXME-TODO: Unavailable yet.
-                ImGuiHoveredFlags[ImGuiHoveredFlags["AllowWhenBlockedByActiveItem"] = 32] = "AllowWhenBlockedByActiveItem";
-                ImGuiHoveredFlags[ImGuiHoveredFlags["AllowWhenOverlapped"] = 64] = "AllowWhenOverlapped";
-                ImGuiHoveredFlags[ImGuiHoveredFlags["AllowWhenDisabled"] = 128] = "AllowWhenDisabled";
-                ImGuiHoveredFlags[ImGuiHoveredFlags["RectOnly"] = 104] = "RectOnly";
+                ImGuiHoveredFlags[ImGuiHoveredFlags["NoPopupHierarchy"] = 8] = "NoPopupHierarchy";
+                //DockHierarchy               = 1 << 4,   // IsWindowHovered() only: Consider docking hierarchy (treat dockspace host as parent of docked window) (when used with _ChildWindows or _RootWindow)
+                ImGuiHoveredFlags[ImGuiHoveredFlags["AllowWhenBlockedByPopup"] = 32] = "AllowWhenBlockedByPopup";
+                //AllowWhenBlockedByModal     = 1 << 6,   // Return true even if a modal popup window is normally blocking access to this item/window. FIXME-TODO: Unavailable yet.
+                ImGuiHoveredFlags[ImGuiHoveredFlags["AllowWhenBlockedByActiveItem"] = 128] = "AllowWhenBlockedByActiveItem";
+                ImGuiHoveredFlags[ImGuiHoveredFlags["AllowWhenOverlapped"] = 256] = "AllowWhenOverlapped";
+                ImGuiHoveredFlags[ImGuiHoveredFlags["AllowWhenDisabled"] = 512] = "AllowWhenDisabled";
+                ImGuiHoveredFlags[ImGuiHoveredFlags["RectOnly"] = 416] = "RectOnly";
                 ImGuiHoveredFlags[ImGuiHoveredFlags["RootAndChildWindows"] = 3] = "RootAndChildWindows";
             })(ImGuiHoveredFlags || (ImGuiHoveredFlags = {}));
             exports_1("ImGuiHoveredFlags", ImGuiHoveredFlags);
@@ -2600,12 +2640,11 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImGuiNavInput[ImGuiNavInput["TweakFast"] = 15] = "TweakFast";
                 // [Internal] Don't use directly! This is used internally to differentiate keyboard from gamepad inputs for behaviors that require to differentiate them.
                 // Keyboard behavior that have no corresponding gamepad mapping (e.g. CTRL+TAB) may be directly reading from io.KeyDown[] instead of io.NavInputs[].
-                ImGuiNavInput[ImGuiNavInput["KeyMenu_"] = 16] = "KeyMenu_";
-                ImGuiNavInput[ImGuiNavInput["KeyLeft_"] = 17] = "KeyLeft_";
-                ImGuiNavInput[ImGuiNavInput["KeyRight_"] = 18] = "KeyRight_";
-                ImGuiNavInput[ImGuiNavInput["KeyUp_"] = 19] = "KeyUp_";
-                ImGuiNavInput[ImGuiNavInput["KeyDown_"] = 20] = "KeyDown_";
-                ImGuiNavInput[ImGuiNavInput["COUNT"] = 21] = "COUNT";
+                ImGuiNavInput[ImGuiNavInput["KeyLeft_"] = 16] = "KeyLeft_";
+                ImGuiNavInput[ImGuiNavInput["KeyRight_"] = 17] = "KeyRight_";
+                ImGuiNavInput[ImGuiNavInput["KeyUp_"] = 18] = "KeyUp_";
+                ImGuiNavInput[ImGuiNavInput["KeyDown_"] = 19] = "KeyDown_";
+                ImGuiNavInput[ImGuiNavInput["COUNT"] = 20] = "COUNT";
                 ImGuiNavInput[ImGuiNavInput["InternalStart_"] = 16] = "InternalStart_";
             })(ImGuiNavInput || (ImGuiNavInput = {}));
             exports_1("ImGuiNavInput", ImGuiNavInput);
@@ -2684,30 +2723,31 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             (function (ImGuiStyleVar) {
                 // Enum name --------------------- // Member in ImGuiStyle structure (see ImGuiStyle for descriptions)
                 ImGuiStyleVar[ImGuiStyleVar["Alpha"] = 0] = "Alpha";
-                ImGuiStyleVar[ImGuiStyleVar["WindowPadding"] = 1] = "WindowPadding";
-                ImGuiStyleVar[ImGuiStyleVar["WindowRounding"] = 2] = "WindowRounding";
-                ImGuiStyleVar[ImGuiStyleVar["WindowBorderSize"] = 3] = "WindowBorderSize";
-                ImGuiStyleVar[ImGuiStyleVar["WindowMinSize"] = 4] = "WindowMinSize";
-                ImGuiStyleVar[ImGuiStyleVar["WindowTitleAlign"] = 5] = "WindowTitleAlign";
-                ImGuiStyleVar[ImGuiStyleVar["ChildRounding"] = 6] = "ChildRounding";
-                ImGuiStyleVar[ImGuiStyleVar["ChildBorderSize"] = 7] = "ChildBorderSize";
-                ImGuiStyleVar[ImGuiStyleVar["PopupRounding"] = 8] = "PopupRounding";
-                ImGuiStyleVar[ImGuiStyleVar["PopupBorderSize"] = 9] = "PopupBorderSize";
-                ImGuiStyleVar[ImGuiStyleVar["FramePadding"] = 10] = "FramePadding";
-                ImGuiStyleVar[ImGuiStyleVar["FrameRounding"] = 11] = "FrameRounding";
-                ImGuiStyleVar[ImGuiStyleVar["FrameBorderSize"] = 12] = "FrameBorderSize";
-                ImGuiStyleVar[ImGuiStyleVar["ItemSpacing"] = 13] = "ItemSpacing";
-                ImGuiStyleVar[ImGuiStyleVar["ItemInnerSpacing"] = 14] = "ItemInnerSpacing";
-                ImGuiStyleVar[ImGuiStyleVar["IndentSpacing"] = 15] = "IndentSpacing";
-                ImGuiStyleVar[ImGuiStyleVar["CellPadding"] = 16] = "CellPadding";
-                ImGuiStyleVar[ImGuiStyleVar["ScrollbarSize"] = 17] = "ScrollbarSize";
-                ImGuiStyleVar[ImGuiStyleVar["ScrollbarRounding"] = 18] = "ScrollbarRounding";
-                ImGuiStyleVar[ImGuiStyleVar["GrabMinSize"] = 19] = "GrabMinSize";
-                ImGuiStyleVar[ImGuiStyleVar["GrabRounding"] = 20] = "GrabRounding";
-                ImGuiStyleVar[ImGuiStyleVar["TabRounding"] = 21] = "TabRounding";
-                ImGuiStyleVar[ImGuiStyleVar["ButtonTextAlign"] = 22] = "ButtonTextAlign";
-                ImGuiStyleVar[ImGuiStyleVar["SelectableTextAlign"] = 23] = "SelectableTextAlign";
-                ImGuiStyleVar[ImGuiStyleVar["COUNT"] = 24] = "COUNT";
+                ImGuiStyleVar[ImGuiStyleVar["DisabledAlpha"] = 1] = "DisabledAlpha";
+                ImGuiStyleVar[ImGuiStyleVar["WindowPadding"] = 2] = "WindowPadding";
+                ImGuiStyleVar[ImGuiStyleVar["WindowRounding"] = 3] = "WindowRounding";
+                ImGuiStyleVar[ImGuiStyleVar["WindowBorderSize"] = 4] = "WindowBorderSize";
+                ImGuiStyleVar[ImGuiStyleVar["WindowMinSize"] = 5] = "WindowMinSize";
+                ImGuiStyleVar[ImGuiStyleVar["WindowTitleAlign"] = 6] = "WindowTitleAlign";
+                ImGuiStyleVar[ImGuiStyleVar["ChildRounding"] = 7] = "ChildRounding";
+                ImGuiStyleVar[ImGuiStyleVar["ChildBorderSize"] = 8] = "ChildBorderSize";
+                ImGuiStyleVar[ImGuiStyleVar["PopupRounding"] = 9] = "PopupRounding";
+                ImGuiStyleVar[ImGuiStyleVar["PopupBorderSize"] = 10] = "PopupBorderSize";
+                ImGuiStyleVar[ImGuiStyleVar["FramePadding"] = 11] = "FramePadding";
+                ImGuiStyleVar[ImGuiStyleVar["FrameRounding"] = 12] = "FrameRounding";
+                ImGuiStyleVar[ImGuiStyleVar["FrameBorderSize"] = 13] = "FrameBorderSize";
+                ImGuiStyleVar[ImGuiStyleVar["ItemSpacing"] = 14] = "ItemSpacing";
+                ImGuiStyleVar[ImGuiStyleVar["ItemInnerSpacing"] = 15] = "ItemInnerSpacing";
+                ImGuiStyleVar[ImGuiStyleVar["IndentSpacing"] = 16] = "IndentSpacing";
+                ImGuiStyleVar[ImGuiStyleVar["CellPadding"] = 17] = "CellPadding";
+                ImGuiStyleVar[ImGuiStyleVar["ScrollbarSize"] = 18] = "ScrollbarSize";
+                ImGuiStyleVar[ImGuiStyleVar["ScrollbarRounding"] = 19] = "ScrollbarRounding";
+                ImGuiStyleVar[ImGuiStyleVar["GrabMinSize"] = 20] = "GrabMinSize";
+                ImGuiStyleVar[ImGuiStyleVar["GrabRounding"] = 21] = "GrabRounding";
+                ImGuiStyleVar[ImGuiStyleVar["TabRounding"] = 22] = "TabRounding";
+                ImGuiStyleVar[ImGuiStyleVar["ButtonTextAlign"] = 23] = "ButtonTextAlign";
+                ImGuiStyleVar[ImGuiStyleVar["SelectableTextAlign"] = 24] = "SelectableTextAlign";
+                ImGuiStyleVar[ImGuiStyleVar["COUNT"] = 25] = "COUNT";
             })(ImGuiStyleVar || (ImGuiStyleVar = {}));
             exports_1("ImGuiStyleVar", ImGuiStyleVar);
             exports_1("StyleVar", ImGuiStyleVar);
@@ -2759,12 +2799,12 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImGuiColorEditFlags[ImGuiColorEditFlags["InputHSV"] = 268435456] = "InputHSV";
                 // Defaults Options. You can set application defaults using SetColorEditOptions(). The intent is that you probably don't want to
                 // override them in most of your calls. Let the user choose via the option menu and/or call SetColorEditOptions() once during startup.
-                ImGuiColorEditFlags[ImGuiColorEditFlags["_OptionsDefault"] = 177209344] = "_OptionsDefault";
+                ImGuiColorEditFlags[ImGuiColorEditFlags["DefaultOptions_"] = 177209344] = "DefaultOptions_";
                 // [Internal] Masks
-                ImGuiColorEditFlags[ImGuiColorEditFlags["_DisplayMask"] = 7340032] = "_DisplayMask";
-                ImGuiColorEditFlags[ImGuiColorEditFlags["_DataTypeMask"] = 25165824] = "_DataTypeMask";
-                ImGuiColorEditFlags[ImGuiColorEditFlags["_PickerMask"] = 100663296] = "_PickerMask";
-                ImGuiColorEditFlags[ImGuiColorEditFlags["_InputMask"] = 402653184] = "_InputMask";
+                ImGuiColorEditFlags[ImGuiColorEditFlags["DisplayMask_"] = 7340032] = "DisplayMask_";
+                ImGuiColorEditFlags[ImGuiColorEditFlags["DataTypeMask_"] = 25165824] = "DataTypeMask_";
+                ImGuiColorEditFlags[ImGuiColorEditFlags["PickerMask_"] = 100663296] = "PickerMask_";
+                ImGuiColorEditFlags[ImGuiColorEditFlags["InputMask_"] = 402653184] = "InputMask_";
             })(ImGuiColorEditFlags || (ImGuiColorEditFlags = {}));
             exports_1("ImGuiColorEditFlags", ImGuiColorEditFlags);
             exports_1("ColorEditFlags", ImGuiColorEditFlags);
@@ -2810,20 +2850,24 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             })(ImGuiCond || (ImGuiCond = {}));
             exports_1("ImGuiCond", ImGuiCond);
             exports_1("Cond", ImGuiCond);
-            (function (ImDrawCornerFlags) {
-                ImDrawCornerFlags[ImDrawCornerFlags["None"] = 0] = "None";
-                ImDrawCornerFlags[ImDrawCornerFlags["TopLeft"] = 1] = "TopLeft";
-                ImDrawCornerFlags[ImDrawCornerFlags["TopRight"] = 2] = "TopRight";
-                ImDrawCornerFlags[ImDrawCornerFlags["BotLeft"] = 4] = "BotLeft";
-                ImDrawCornerFlags[ImDrawCornerFlags["BotRight"] = 8] = "BotRight";
-                ImDrawCornerFlags[ImDrawCornerFlags["Top"] = 3] = "Top";
-                ImDrawCornerFlags[ImDrawCornerFlags["Bot"] = 12] = "Bot";
-                ImDrawCornerFlags[ImDrawCornerFlags["Left"] = 5] = "Left";
-                ImDrawCornerFlags[ImDrawCornerFlags["Right"] = 10] = "Right";
-                ImDrawCornerFlags[ImDrawCornerFlags["All"] = 15] = "All";
-            })(ImDrawCornerFlags || (ImDrawCornerFlags = {}));
-            exports_1("ImDrawCornerFlags", ImDrawCornerFlags);
-            exports_1("DrawCornerFlags", ImDrawCornerFlags);
+            (function (ImDrawFlags) {
+                ImDrawFlags[ImDrawFlags["None"] = 0] = "None";
+                ImDrawFlags[ImDrawFlags["Closed"] = 1] = "Closed";
+                ImDrawFlags[ImDrawFlags["RoundCornersTopLeft"] = 16] = "RoundCornersTopLeft";
+                ImDrawFlags[ImDrawFlags["RoundCornersTopRight"] = 32] = "RoundCornersTopRight";
+                ImDrawFlags[ImDrawFlags["RoundCornersBottomLeft"] = 64] = "RoundCornersBottomLeft";
+                ImDrawFlags[ImDrawFlags["RoundCornersBottomRight"] = 128] = "RoundCornersBottomRight";
+                ImDrawFlags[ImDrawFlags["RoundCornersNone"] = 256] = "RoundCornersNone";
+                ImDrawFlags[ImDrawFlags["RoundCornersTop"] = 48] = "RoundCornersTop";
+                ImDrawFlags[ImDrawFlags["RoundCornersBottom"] = 192] = "RoundCornersBottom";
+                ImDrawFlags[ImDrawFlags["RoundCornersLeft"] = 80] = "RoundCornersLeft";
+                ImDrawFlags[ImDrawFlags["RoundCornersRight"] = 160] = "RoundCornersRight";
+                ImDrawFlags[ImDrawFlags["RoundCornersAll"] = 240] = "RoundCornersAll";
+                ImDrawFlags[ImDrawFlags["RoundCornersDefault_"] = 240] = "RoundCornersDefault_";
+                ImDrawFlags[ImDrawFlags["RoundCornersMask_"] = 496] = "RoundCornersMask_";
+            })(ImDrawFlags || (ImDrawFlags = {}));
+            exports_1("ImDrawFlags", ImDrawFlags);
+            exports_1("DrawFlags", ImDrawFlags);
             (function (ImDrawListFlags) {
                 ImDrawListFlags[ImDrawListFlags["None"] = 0] = "None";
                 ImDrawListFlags[ImDrawListFlags["AntiAliasedLines"] = 1] = "AntiAliasedLines";
@@ -3294,8 +3338,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 get DisplayStart() { return this.native.DisplayStart; }
                 get DisplayEnd() { return this.native.DisplayEnd; }
                 get ItemsCount() { return this.native.ItemsCount; }
-                get StepNo() { return this.native.StepNo; }
-                get ItemsFrozen() { return this.native.ItemsFrozen; }
+                // public get StepNo(): number { return this.native.StepNo; }
+                // public get ItemsFrozen(): number { return this.native.ItemsFrozen; }
                 get ItemsHeight() { return this.native.ItemsHeight; }
                 get StartPosY() { return this.native.StartPosY; }
                 // items_count:  Use -1 to ignore (you can call Begin later). Use INT_MAX if you don't know how many items you have (in which case the cursor won't be advanced in the final step).
@@ -3463,13 +3507,13 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 AddLine(a, b, col, thickness = 1.0) {
                     this.native.AddLine(a, b, col, thickness);
                 }
-                // IMGUI_API void  AddRect(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All, float thickness = 1.0f);   // a: upper-left, b: lower-right, rounding_corners_flags: 4-bits corresponding to which corner to round
-                AddRect(a, b, col, rounding = 0.0, rounding_corners_flags = ImDrawCornerFlags.All, thickness = 1.0) {
-                    this.native.AddRect(a, b, col, rounding, rounding_corners_flags, thickness);
+                // IMGUI_API void  AddRect(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int flags = ImDrawFlags_None, float thickness = 1.0f);   // a: upper-left, b: lower-right, flags: 4-bits corresponding to which corner to round
+                AddRect(a, b, col, rounding = 0.0, flags = ImDrawFlags.None, thickness = 1.0) {
+                    this.native.AddRect(a, b, col, rounding, flags, thickness);
                 }
-                // IMGUI_API void  AddRectFilled(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);                     // a: upper-left, b: lower-right
-                AddRectFilled(a, b, col, rounding = 0.0, rounding_corners_flags = ImDrawCornerFlags.All) {
-                    this.native.AddRectFilled(a, b, col, rounding, rounding_corners_flags);
+                // IMGUI_API void  AddRectFilled(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding = 0.0f, int flags = ImDrawFlags_None);                     // a: upper-left, b: lower-right
+                AddRectFilled(a, b, col, rounding = 0.0, flags = ImDrawFlags.None) {
+                    this.native.AddRectFilled(a, b, col, rounding, flags);
                 }
                 // IMGUI_API void  AddRectFilledMultiColor(const ImVec2& a, const ImVec2& b, ImU32 col_upr_left, ImU32 col_upr_right, ImU32 col_bot_right, ImU32 col_bot_left);
                 AddRectFilledMultiColor(a, b, col_upr_left, col_upr_right, col_bot_right, col_bot_left) {
@@ -3527,9 +3571,9 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                         this.native.AddText_A(pos, col, text_end !== null ? text_begin.substring(0, text_end) : text_begin);
                     }
                 }
-                // IMGUI_API void  AddPolyline(const ImVec2* points, const int num_points, ImU32 col, bool closed, float thickness);
-                AddPolyline(points, num_points, col, closed, thickness) {
-                    this.native.AddPolyline(points, num_points, col, closed, thickness);
+                // IMGUI_API void  AddPolyline(const ImVec2* points, const int num_points, ImU32 col, ImDrawFlags flags, float thickness);
+                AddPolyline(points, num_points, col, flags, thickness) {
+                    this.native.AddPolyline(points, num_points, col, flags, thickness);
                 }
                 // IMGUI_API void  AddConvexPolyFilled(const ImVec2* points, const int num_points, ImU32 col);
                 AddConvexPolyFilled(points, num_points, col) {
@@ -3551,9 +3595,9 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 AddImageQuad(user_texture_id, a, b, c, d, uv_a = ImVec2.ZERO, uv_b = ImVec2.UNIT_X, uv_c = ImVec2.UNIT, uv_d = ImVec2.UNIT_Y, col = 0xFFFFFFFF) {
                     this.native.AddImageQuad(ImGuiContext.setTexture(user_texture_id), a, b, c, d, uv_a, uv_b, uv_c, uv_d, col);
                 }
-                // IMGUI_API void  AddImageRounded(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col, float rounding, int rounding_corners = ImDrawCornerFlags_All);
-                AddImageRounded(user_texture_id, a, b, uv_a, uv_b, col, rounding, rounding_corners = ImDrawCornerFlags.All) {
-                    this.native.AddImageRounded(ImGuiContext.setTexture(user_texture_id), a, b, uv_a, uv_b, col, rounding, rounding_corners);
+                // IMGUI_API void  AddImageRounded(ImTextureID user_texture_id, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, ImU32 col, float rounding, int rounding_corners = ImDrawFlags_None);
+                AddImageRounded(user_texture_id, a, b, uv_a, uv_b, col, rounding, flags = ImDrawFlags.None) {
+                    this.native.AddImageRounded(ImGuiContext.setTexture(user_texture_id), a, b, uv_a, uv_b, col, rounding, flags);
                 }
                 // Stateful path API, add points then finish with PathFill() or PathStroke()
                 // inline    void  PathClear()                                                 { _Path.resize(0); }
@@ -3565,17 +3609,17 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 // inline    void  PathFillConvex(ImU32 col)                                   { AddConvexPolyFilled(_Path.Data, _Path.Size, col); PathClear(); }
                 PathFillConvex(col) { this.native.PathFillConvex(col); }
                 // inline    void  PathStroke(ImU32 col, bool closed, float thickness = 1.0f)  { AddPolyline(_Path.Data, _Path.Size, col, closed, thickness); PathClear(); }
-                PathStroke(col, closed, thickness = 1.0) { this.native.PathStroke(col, closed, thickness); }
+                PathStroke(col, flags, thickness = 1.0) { this.native.PathStroke(col, flags, thickness); }
                 // IMGUI_API void  PathArcTo(const ImVec2& centre, float radius, float a_min, float a_max, int num_segments = 10);
-                PathArcTo(centre, radius, a_min, a_max, num_segments = 10) { this.native.PathArcTo(centre, radius, a_min, a_max, num_segments); }
+                PathArcTo(centre, radius, a_min, a_max, num_segments = 0) { this.native.PathArcTo(centre, radius, a_min, a_max, num_segments); }
                 // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
                 PathArcToFast(centre, radius, a_min_of_12, a_max_of_12) { this.native.PathArcToFast(centre, radius, a_min_of_12, a_max_of_12); }
                 // IMGUI_API void  PathBezierCubicCurveTo(const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, int num_segments = 0);  // Cubic Bezier (4 control points)
                 PathBezierCubicCurveTo(p2, p3, p4, num_segments = 0) { this.native.PathBezierCubicCurveTo(p2, p3, p4, num_segments); }
                 // IMGUI_API void  PathBezierQuadraticCurveTo(const ImVec2& p2, const ImVec2& p3, int num_segments = 0);                // Quadratic Bezier (3 control points)
                 PathBezierQuadraticCurveTo(p2, p3, num_segments = 0) { this.native.PathBezierQuadraticCurveTo(p2, p3, num_segments); }
-                // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
-                PathRect(rect_min, rect_max, rounding = 0.0, rounding_corners_flags = ImDrawCornerFlags.All) { this.native.PathRect(rect_min, rect_max, rounding, rounding_corners_flags); }
+                // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int flags = ImDrawFlags_None);
+                PathRect(rect_min, rect_max, rounding = 0.0, flags = ImDrawFlags.None) { this.native.PathRect(rect_min, rect_max, rounding, flags); }
                 // Channels
                 // - Use to simulate layers. By switching channels to can render out-of-order (e.g. submit foreground primitives before background primitives)
                 // - Use to minimize draw calls (e.g. if going back-and-forth between multiple non-overlapping clipping rectangles, prefer to append into separate channels then merge at the end)
@@ -3613,6 +3657,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 PrimWriteIdx(idx) { this.native.PrimWriteIdx(idx); }
                 // inline    void  PrimVtx(const ImVec2& pos, const ImVec2& uv, ImU32 col)     { PrimWriteIdx((ImDrawIdx)_VtxCurrentIdx); PrimWriteVtx(pos, uv, col); }
                 PrimVtx(pos, uv, col) { this.native.PrimVtx(pos, uv, col); }
+                // IMGUI_API int   _CalcCircleAutoSegmentCount(float radius) const;
+                _CalcCircleAutoSegmentCount(radius) { return this.native._CalcCircleAutoSegmentCount(radius); }
             };
             exports_1("ImDrawList", ImDrawList);
             exports_1("DrawList", ImDrawList);
@@ -3679,12 +3725,13 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                     this.GlyphMaxAdvanceX = Number.MAX_VALUE;
                     // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
                     this.MergeMode = false;
-                    // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
-                    this.RasterizerFlags = 0;
+                    // unsigned int    FontBuilderFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
+                    this.FontBuilderFlags = 0;
                     // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
                     this.RasterizerMultiply = 1.0;
                     // ImWchar         EllipsisChar;           // -1       // Explicitly specify unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
                     this.EllipsisChar = -1;
+                    this.DotChar = -1;
                     // [Internal]
                     // char            Name[32];                               // Name (strictly to ease debugging)
                     this.Name = "";
@@ -3724,8 +3771,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 get GlyphMaxAdvanceX() { return this.internal.GlyphMaxAdvanceX; }
                 // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
                 get MergeMode() { return this.internal.MergeMode; }
-                // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
-                get RasterizerFlags() { return this.internal.RasterizerFlags; }
+                // unsigned int    FontBuilderFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
+                get FontBuilderFlags() { return this.internal.FontBuilderFlags; }
                 // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
                 get RasterizerMultiply() { return this.internal.RasterizerMultiply; }
                 // [Internal]
@@ -3743,10 +3790,12 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             // struct ImFontGlyph
             script_ImFontGlyph = class script_ImFontGlyph {
                 constructor() {
-                    // unsigned int    Codepoint : 31;     // 0x0000..0xFFFF
-                    this.Codepoint = 0;
-                    // unsigned int    Visible : 1;        // Flag to allow early out when rendering
+                    // unsigned int    Colored : 1;        // Flag to indicate glyph is colored and should generally ignore tinting (make it usable with no shift on little-endian as this is used in loops)
+                    this.Colored = false;
+                    // unsigned int    Visible : 1;        // Flag to indicate glyph has no visible pixels (e.g. space). Allow early out when rendering.
                     this.Visible = false;
+                    // unsigned int    Codepoint : 30;     // 0x0000..0x10FFFF
+                    this.Codepoint = 0;
                     // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
                     this.AdvanceX = 0.0;
                     // float           X0, Y0, X1, Y1;     // Glyph corners
@@ -3766,10 +3815,12 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 constructor(internal = new script_ImFontGlyph()) {
                     this.internal = internal;
                 }
-                // unsigned int    Codepoint : 31;     // 0x0000..0xFFFF
-                get Codepoint() { return this.internal.Codepoint; }
+                // unsigned int    Colored : 1;
+                get Colored() { return this.internal.Visible; }
                 // unsigned int    Visible : 1;        // Flag to allow early out when rendering
                 get Visible() { return this.internal.Visible; }
+                // unsigned int    Codepoint : 31;     // 0x0000..0xFFFF
+                get Codepoint() { return this.internal.Codepoint; }
                 // float           AdvanceX;           // Distance to next character (= data from font + ImFontConfig::GlyphExtraSpacing.x baked in)
                 get AdvanceX() { return this.internal.AdvanceX; }
                 ;
@@ -3984,6 +4035,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 get FallbackChar() { return this.native.FallbackChar; }
                 // ImWchar                     EllipsisChar;       // 2     // out // = -1       // Character used for ellipsis rendering.
                 get EllipsisChar() { return this.native.EllipsisChar; }
+                get DotChar() { return this.native.DotChar; }
                 // Members: Cold ~18/26 bytes
                 // short                       ConfigDataCount;    // ~ 1          // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
                 get ConfigDataCount() { return this.ConfigData.length; }
@@ -4020,7 +4072,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                     return glyph && new ImFontGlyph(glyph);
                 }
                 // IMGUI_API void              SetFallbackChar(ImWchar c);
-                SetFallbackChar(c) { return this.native.SetFallbackChar(c); }
+                // public SetFallbackChar(c: number): void { return this.native.SetFallbackChar(c); }
                 // float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
                 GetCharAdvance(c) { return this.native.GetCharAdvance(c); }
                 // bool                        IsLoaded() const                    { return ContainerAtlas != NULL; }
@@ -4055,10 +4107,43 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             };
             exports_1("ImFont", ImFont);
             exports_1("Font", ImFont);
+            (function (ImGuiViewportFlags) {
+                ImGuiViewportFlags[ImGuiViewportFlags["None"] = 0] = "None";
+                ImGuiViewportFlags[ImGuiViewportFlags["IsPlatformWindow"] = 1] = "IsPlatformWindow";
+                ImGuiViewportFlags[ImGuiViewportFlags["IsPlatformMonitor"] = 2] = "IsPlatformMonitor";
+                ImGuiViewportFlags[ImGuiViewportFlags["OwnedByApp"] = 4] = "OwnedByApp"; // Platform Window: is created/managed by the application (rather than a dear imgui backend)
+            })(ImGuiViewportFlags || (ImGuiViewportFlags = {}));
+            exports_1("ImGuiViewportFlags", ImGuiViewportFlags);
+            exports_1("ViewportFlags", ImGuiViewportFlags);
+            ;
+            ImGuiViewport = class ImGuiViewport {
+                constructor(native) {
+                    this.native = native;
+                }
+                // ImGuiViewportFlags  Flags;                  // See ImGuiViewportFlags_
+                get Flags() { return this.native.Flags; }
+                // ImVec2              Pos;                    // Main Area: Position of the viewport (Dear ImGui coordinates are the same as OS desktop/native coordinates)
+                get Pos() { return this.native.Pos; }
+                // ImVec2              Size;                   // Main Area: Size of the viewport.
+                get Size() { return this.native.Size; }
+                // ImVec2              WorkPos;                // Work Area: Position of the viewport minus task bars, menus bars, status bars (>= Pos)
+                get WorkPos() { return this.native.WorkPos; }
+                // ImVec2              WorkSize;               // Work Area: Size of the viewport minus task bars, menu bars, status bars (<= Size)
+                get WorkSize() { return this.native.WorkSize; }
+                // ImGuiViewport()     { memset(this, 0, sizeof(*this)); }
+                // Helpers
+                // ImVec2              GetCenter() const       { return ImVec2(Pos.x + Size.x * 0.5f, Pos.y + Size.y * 0.5f); }
+                GetCenter() { return new ImVec2(this.Pos.x + this.Size.x * 0.5, this.Pos.y + this.Size.y * 0.5); }
+                // ImVec2              GetWorkCenter() const   { return ImVec2(WorkPos.x + WorkSize.x * 0.5f, WorkPos.y + WorkSize.y * 0.5f); }
+                GetWorkCenter() { return new ImVec2(this.WorkPos.x + this.WorkSize.x * 0.5, this.WorkPos.y + this.WorkSize.y * 0.5); }
+            };
+            exports_1("ImGuiViewport", ImGuiViewport);
+            exports_1("Viewport", ImGuiViewport);
             // a script version of Bind.ImGuiStyle with matching interface
             script_ImGuiStyle = class script_ImGuiStyle {
                 constructor() {
                     this.Alpha = 1.0;
+                    this.DisabledAlpha = 0.6;
                     this.WindowPadding = new ImVec2(8, 8);
                     this.WindowRounding = 7.0;
                     this.WindowBorderSize = 0.0;
@@ -4096,7 +4181,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                     this.AntiAliasedLinesUseTex = true;
                     this.AntiAliasedFill = true;
                     this.CurveTessellationTol = 1.25;
-                    this.CircleSegmentMaxError = 1.60;
+                    this.CircleTessellationMaxError = 1.60;
                     this.Colors = [];
                     for (let i = 0; i < ImGuiCol.COUNT; ++i) {
                         this.Colors[i] = new ImVec4();
@@ -4138,6 +4223,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
                 get Alpha() { return this.internal.Alpha; }
                 set Alpha(value) { this.internal.Alpha = value; }
+                get DisabledAlpha() { return this.internal.DisabledAlpha; }
+                set DisabledAlpha(value) { this.internal.DisabledAlpha = value; }
                 get WindowPadding() { return this.internal.WindowPadding; }
                 get WindowRounding() { return this.internal.WindowRounding; }
                 set WindowRounding(value) { this.internal.WindowRounding = value; }
@@ -4200,10 +4287,11 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 set AntiAliasedFill(value) { this.internal.AntiAliasedFill = value; }
                 get CurveTessellationTol() { return this.internal.CurveTessellationTol; }
                 set CurveTessellationTol(value) { this.internal.CurveTessellationTol = value; }
-                get CircleSegmentMaxError() { return this.internal.CircleSegmentMaxError; }
-                set CircleSegmentMaxError(value) { this.internal.CircleSegmentMaxError = value; }
+                get CircleTessellationMaxError() { return this.internal.CircleTessellationMaxError; }
+                set CircleTessellationMaxError(value) { this.internal.CircleTessellationMaxError = value; }
                 Copy(other) {
                     this.Alpha = other.Alpha;
+                    this.DisabledAlpha = other.DisabledAlpha;
                     this.WindowPadding.Copy(other.WindowPadding);
                     this.WindowRounding = other.WindowRounding;
                     this.WindowBorderSize = other.WindowBorderSize;
@@ -4240,7 +4328,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                     this.AntiAliasedLinesUseTex = other.AntiAliasedLinesUseTex;
                     this.AntiAliasedFill = other.AntiAliasedFill;
                     this.CurveTessellationTol = other.CurveTessellationTol;
-                    this.CircleSegmentMaxError = other.CircleSegmentMaxError;
+                    this.CircleTessellationMaxError = other.CircleTessellationMaxError;
                     for (let i = 0; i < ImGuiCol.COUNT; ++i) {
                         this.Colors[i].Copy(other.Colors[i]);
                     }
@@ -4301,9 +4389,6 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                             return this.native._setAt_NavInputs(Number(key), value);
                         },
                     });
-                    //------------------------------------------------------------------
-                    // [Internal] ImGui will maintain those fields. Forward compatibility not guaranteed!
-                    //------------------------------------------------------------------
                     // ImGuiKeyModFlags KeyMods;                   // Key mods flags (same as io.KeyCtrl/KeyShift/KeyAlt/KeySuper but merged into flags), updated by NewFrame()
                     // ImVec2      MousePosPrev;               // Previous mouse position temporary storage (nb: not for public use, set to MousePos in NewFrame())
                     // ImVec2      MouseClickedPos[5];         // Position at time of clicking
@@ -4541,6 +4626,11 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 get MetricsActiveAllocations() { return this.native.MetricsActiveAllocations; }
                 // ImVec2      MouseDelta;                 // Mouse delta. Note that this is zero if either current or previous position are invalid (-FLT_MAX,-FLT_MAX), so a disappearing/reappearing mouse won't have a huge delta.
                 get MouseDelta() { return this.native.MouseDelta; }
+                //------------------------------------------------------------------
+                // [Internal] ImGui will maintain those fields. Forward compatibility not guaranteed!
+                //------------------------------------------------------------------
+                get WantCaptureMouseUnlessPopupClose() { return this.native.WantCaptureMouseUnlessPopupClose; }
+                set WantCaptureMouseUnlessPopupClose(value) { this.native.WantCaptureMouseUnlessPopupClose = value; }
             };
             exports_1("ImGuiIO", ImGuiIO);
             exports_1("IO", ImGuiIO);
