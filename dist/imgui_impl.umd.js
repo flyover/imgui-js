@@ -578,7 +578,6 @@
             exports.gl || exports.ctx || console.log(draw_list);
             exports.gl || exports.ctx || console.log("VtxBuffer.length", draw_list.VtxBuffer.length);
             exports.gl || exports.ctx || console.log("IdxBuffer.length", draw_list.IdxBuffer.length);
-            let idx_buffer_offset = 0;
             exports.gl && exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, g_VboHandle);
             exports.gl && exports.gl.bufferData(exports.gl.ARRAY_BUFFER, draw_list.VtxBuffer, exports.gl.STREAM_DRAW);
             exports.gl && exports.gl.bindBuffer(exports.gl.ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
@@ -607,15 +606,15 @@
                         // Bind texture, Draw
                         exports.gl && exports.gl.activeTexture(exports.gl.TEXTURE0);
                         exports.gl && exports.gl.bindTexture(exports.gl.TEXTURE_2D, draw_cmd.TextureId);
-                        exports.gl && exports.gl.drawElements(exports.gl.TRIANGLES, draw_cmd.ElemCount, idx_buffer_type, idx_buffer_offset);
+                        exports.gl && exports.gl.drawElements(exports.gl.TRIANGLES, draw_cmd.ElemCount, idx_buffer_type, draw_cmd.IdxOffset * ImGui__namespace.DrawIdxSize);
                         if (exports.ctx) {
                             exports.ctx.save();
                             exports.ctx.beginPath();
                             exports.ctx.rect(clip_rect.x, clip_rect.y, clip_rect.z - clip_rect.x, clip_rect.w - clip_rect.y);
                             exports.ctx.clip();
                             const idx = ImGui__namespace.DrawIdxSize === 4 ?
-                                new Uint32Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + idx_buffer_offset) :
-                                new Uint16Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + idx_buffer_offset);
+                                new Uint32Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + draw_cmd.IdxOffset * ImGui__namespace.DrawIdxSize) :
+                                new Uint16Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + draw_cmd.IdxOffset * ImGui__namespace.DrawIdxSize);
                             for (let i = 0; i < draw_cmd.ElemCount; i += 3) {
                                 const i0 = idx[i + 0];
                                 const i1 = idx[i + 1];
@@ -696,7 +695,6 @@
                         }
                     }
                 }
-                idx_buffer_offset += draw_cmd.ElemCount * ImGui__namespace.DrawIdxSize;
             });
         });
         // Destroy the temporary VAO

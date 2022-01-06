@@ -575,8 +575,6 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
         gl || ctx || console.log("VtxBuffer.length", draw_list.VtxBuffer.length);
         gl || ctx || console.log("IdxBuffer.length", draw_list.IdxBuffer.length);
         
-        let idx_buffer_offset: number = 0;
-
         gl && gl.bindBuffer(gl.ARRAY_BUFFER, g_VboHandle);
         gl && gl.bufferData(gl.ARRAY_BUFFER, draw_list.VtxBuffer, gl.STREAM_DRAW);
         gl && gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
@@ -607,7 +605,7 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
                     // Bind texture, Draw
                     gl && gl.activeTexture(gl.TEXTURE0);
                     gl && gl.bindTexture(gl.TEXTURE_2D, draw_cmd.TextureId);
-                    gl && gl.drawElements(gl.TRIANGLES, draw_cmd.ElemCount, idx_buffer_type, idx_buffer_offset);
+                    gl && gl.drawElements(gl.TRIANGLES, draw_cmd.ElemCount, idx_buffer_type, draw_cmd.IdxOffset * ImGui.DrawIdxSize);
 
                     if (ctx) {
                         ctx.save();
@@ -615,8 +613,8 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
                         ctx.rect(clip_rect.x, clip_rect.y, clip_rect.z - clip_rect.x, clip_rect.w - clip_rect.y);
                         ctx.clip();
                         const idx = ImGui.DrawIdxSize === 4 ? 
-                            new Uint32Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + idx_buffer_offset) : 
-                            new Uint16Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + idx_buffer_offset);
+                            new Uint32Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + draw_cmd.IdxOffset * ImGui.DrawIdxSize) : 
+                            new Uint16Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + draw_cmd.IdxOffset * ImGui.DrawIdxSize);
                         for (let i = 0; i < draw_cmd.ElemCount; i += 3) {
                             const i0: number = idx[i + 0];
                             const i1: number = idx[i + 1];
@@ -685,8 +683,6 @@ export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawD
                     }
                 }
             }
-
-            idx_buffer_offset += draw_cmd.ElemCount * ImGui.DrawIdxSize;
         });
     });
 
