@@ -4,7 +4,7 @@ JavaScript bindings for [Dear ImGui](https://github.com/ocornut/imgui) using [Em
 ## Example
 [ImGui JavaScript+WebGL example](https://flyover.github.io/imgui-js/example/)
 
-The original Dear ImGui demo code from [imgui_demo.cpp](imgui/imgui_demo.cpp) has been ported to [imgui_demo.ts](imgui_demo.ts).  Also, the Memory Editor from the [imgui_club](https://github.com/ocornut/imgui_club) project ([imgui_memory_editor.h](https://github.com/ocornut/imgui_club/blob/master/imgui_memory_editor/imgui_memory_editor.h)) has been ported to [imgui_memory_editor.ts](imgui_memory_editor.ts) and added to the demo for browsing the Emscripten memory space.
+The original Dear ImGui demo code from [imgui_demo.cpp](https://github.com/ocornut/imgui/blob/master/imgui_demo.cpp) has been ported to [imgui_demo.ts](example/src/imgui_demo.ts).  Also, the Memory Editor from the [imgui_club](https://github.com/ocornut/imgui_club) project ([imgui_memory_editor.h](https://github.com/ocornut/imgui_club/blob/master/imgui_memory_editor/imgui_memory_editor.h)) has been ported to [imgui_memory_editor.ts](example/src/imgui_memory_editor.ts) and added to the demo for browsing the Emscripten memory space.
 
 [ImGui JavaScript Sandbox](https://codepen.io/flyovergames/pen/xYPBaj)
 
@@ -86,13 +86,13 @@ const flags: ImGuiWindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
 In order to minimize size of the output, the C++ library has been compiled with `IMGUI_DISABLE_OBSOLETE_FUNCTIONS` and `IMGUI_DISABLE_DEMO_WINDOWS`.
 
 ## Building
-* git clone git@github.com:flyover/imgui-js.git
-* cd imgui-js
-* git submodule update --init --recursive
+* `git clone git@github.com:flyover/imgui-js.git`
+* `cd imgui-js`
+* `git submodule update --init --recursive`
 * download and install [Emscripten](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html)
-* npm install
-* make
-* make start-example-html
+* `npm install`
+* `make`
+* `make start-example-html`
 
 ## TODO
 * file I/O, imgui.ini, loading external fonts
