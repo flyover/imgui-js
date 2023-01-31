@@ -62,8 +62,8 @@ type ImGuiTableFlags = number;        // -> enum ImGuiTableFlags_      // Flags:
 type ImGuiTableColumnFlags = number;  // -> enum ImGuiTableColumnFlags_// Flags: For TableSetupColumn()
 type ImGuiTableRowFlags = number;     // -> enum ImGuiTableRowFlags_   // Flags: For TableNextRow()
 type ImGuiTreeNodeFlags = number;     // -> enum ImGuiTreeNodeFlags_   // Flags: for TreeNode(), TreeNodeEx(), CollapsingHeader()
-type ImGuiWindowFlags = number;       // -> enum ImGuiWindowFlags_     // Flags: for Begin(), BeginChild()
 type ImGuiViewportFlags = number;     // -> enum ImGuiViewportFlags_   // Flags: for ImGuiViewport
+type ImGuiWindowFlags = number;       // -> enum ImGuiWindowFlags_     // Flags: for Begin(), BeginChild()
 
 // Other types
 // #ifndef ImTextureID                 // ImTextureID [configurable type: override in imconfig.h with '#define ImTextureID xxx']

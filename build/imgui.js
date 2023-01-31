@@ -4141,6 +4141,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             exports_1("Viewport", ImGuiViewport);
             // a script version of Bind.ImGuiStyle with matching interface
             script_ImGuiStyle = class script_ImGuiStyle {
+                _getAt_Colors(index) { return this.Colors[index]; }
+                _setAt_Colors(index, color) { this.Colors[index].Copy(color); return true; }
                 constructor() {
                     this.Alpha = 1.0;
                     this.DisabledAlpha = 0.6;
@@ -4194,8 +4196,6 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                     _this.Copy(_that);
                     native.delete();
                 }
-                _getAt_Colors(index) { return this.Colors[index]; }
-                _setAt_Colors(index, color) { this.Colors[index].Copy(color); return true; }
                 ScaleAllSizes(scale_factor) {
                     const _this = new ImGuiStyle(this);
                     const native = new bind.ImGuiStyle();
@@ -4642,9 +4642,6 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             // IMGUI_API ImGuiContext* GetCurrentContext();
             // IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
             ImGuiContext = class ImGuiContext {
-                constructor(native) {
-                    this.native = native;
-                }
                 static getTexture(index) {
                     if (ImGuiContext.current_ctx === null) {
                         throw new Error();
@@ -4656,6 +4653,9 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                         throw new Error();
                     }
                     return ImGuiContext.current_ctx._setTexture(texture);
+                }
+                constructor(native) {
+                    this.native = native;
                 }
                 _getTexture(index) {
                     return ImGuiContext.textures[index] || null;

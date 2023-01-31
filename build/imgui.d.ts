@@ -38,20 +38,20 @@ export declare class ImStringBuffer {
     buffer: string;
     constructor(size: number, buffer?: string);
 }
-export declare type ImAccess<T> = Bind.ImAccess<T>;
+export type ImAccess<T> = Bind.ImAccess<T>;
 export { ImAccess as Access };
-export declare type ImScalar<T> = Bind.ImScalar<T>;
+export type ImScalar<T> = Bind.ImScalar<T>;
 export { ImScalar as Scalar };
-export declare type ImTuple2<T> = Bind.ImTuple2<T>;
+export type ImTuple2<T> = Bind.ImTuple2<T>;
 export { ImTuple2 as Tuple2 };
-export declare type ImTuple3<T> = Bind.ImTuple3<T>;
+export type ImTuple3<T> = Bind.ImTuple3<T>;
 export { ImTuple3 as Tuple3 };
-export declare type ImTuple4<T> = Bind.ImTuple4<T>;
+export type ImTuple4<T> = Bind.ImTuple4<T>;
 export { ImTuple4 as Tuple4 };
 export { ImTextureID as TextureID };
-export declare type ImTextureID = WebGLTexture;
+export type ImTextureID = WebGLTexture;
 export { ImGuiID as ID };
-export declare type ImGuiID = Bind.ImGuiID;
+export type ImGuiID = Bind.ImGuiID;
 export { ImGuiWindowFlags as WindowFlags };
 export declare enum ImGuiWindowFlags {
     None = 0,
@@ -610,7 +610,7 @@ export declare enum ImDrawListFlags {
     AllowVtxOffset = 8
 }
 export { ImU32 as U32 };
-export declare type ImU32 = Bind.ImU32;
+export type ImU32 = Bind.ImU32;
 export { interface_ImVec2 } from "bind-imgui";
 export { reference_ImVec2 } from "bind-imgui";
 export { ImVec2 as Vec2 };
@@ -718,7 +718,7 @@ export declare class ImColor {
 export { ImGuiInputTextDefaultSize as InputTextDefaultSize };
 export declare const ImGuiInputTextDefaultSize: number;
 export { ImGuiInputTextCallback as InputTextCallback };
-export declare type ImGuiInputTextCallback<T> = (data: ImGuiInputTextCallbackData<T>) => number;
+export type ImGuiInputTextCallback<T> = (data: ImGuiInputTextCallbackData<T>) => number;
 export { ImGuiInputTextCallbackData as InputTextCallbackData };
 export declare class ImGuiInputTextCallbackData<T> {
     readonly native: Bind.reference_ImGuiInputTextCallbackData;
@@ -748,7 +748,7 @@ export declare class ImGuiInputTextCallbackData<T> {
     HasSelection(): boolean;
 }
 export { ImGuiSizeCallback as SizeCallback };
-export declare type ImGuiSizeCallback<T> = (data: ImGuiSizeCallbackData<T>) => void;
+export type ImGuiSizeCallback<T> = (data: ImGuiSizeCallbackData<T>) => void;
 export { ImGuiSizeCallbackData as SizeCallbackData };
 export declare class ImGuiSizeCallbackData<T> {
     readonly native: Bind.reference_ImGuiSizeCallbackData;
@@ -792,7 +792,7 @@ export declare class ImGuiListClipper {
     Step(): boolean;
 }
 export declare const IM_DRAWLIST_TEX_LINES_WIDTH_MAX: number;
-export declare type ImDrawCallback = (parent_list: Readonly<ImDrawList>, cmd: Readonly<ImDrawCmd>) => void;
+export type ImDrawCallback = (parent_list: Readonly<ImDrawList>, cmd: Readonly<ImDrawCmd>) => void;
 export declare const ImDrawCallback_ResetRenderState = -1;
 export { ImDrawCmd as DrawCmd };
 export declare class ImDrawCmd {
@@ -809,7 +809,7 @@ export declare class ImDrawCmd {
 export { ImDrawIdxSize as DrawIdxSize };
 export declare const ImDrawIdxSize: number;
 export { ImDrawIdx as DrawIdx };
-export declare type ImDrawIdx = number;
+export type ImDrawIdx = number;
 export { ImDrawVertSize as DrawVertSize };
 export declare const ImDrawVertSize: number;
 export { ImDrawVertPosOffset as DrawVertPosOffset };
@@ -1429,7 +1429,7 @@ export declare function ProgressBar(fraction: number, size_arg?: Readonly<Bind.i
 export declare function Bullet(): void;
 export declare function BeginCombo(label: string, preview_value?: string | null, flags?: ImGuiComboFlags): boolean;
 export declare function EndCombo(): void;
-export declare type ComboValueGetter<T> = (data: T, idx: number, out_text: [string]) => boolean;
+export type ComboValueGetter<T> = (data: T, idx: number, out_text: [string]) => boolean;
 export declare function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items: string[], items_count?: number, popup_max_height_in_items?: number): boolean;
 export declare function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_separated_by_zeros: string, popup_max_height_in_items?: number): boolean;
 export declare function Combo<T>(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ComboValueGetter<T>, data: T, items_count: number, popup_max_height_in_items?: number): boolean;
@@ -1494,13 +1494,13 @@ export declare function Selectable(label: string, selected?: boolean, flags?: Im
 export declare function Selectable(label: string, p_selected: Bind.ImScalar<boolean> | Bind.ImAccess<boolean>, flags?: ImGuiSelectableFlags, size?: Readonly<Bind.interface_ImVec2>): boolean;
 export declare function BeginListBox(label: string, size?: Readonly<Bind.interface_ImVec2>): boolean;
 export declare function EndListBox(): void;
-export declare type ListBoxItemGetter<T> = (data: T, idx: number, out_text: [string]) => boolean;
+export type ListBoxItemGetter<T> = (data: T, idx: number, out_text: [string]) => boolean;
 export declare function ListBox(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items: string[], items_count?: number, height_in_items?: number): boolean;
 export declare function ListBox<T>(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ListBoxItemGetter<T>, data: T, items_count: number, height_in_items?: number): boolean;
-export declare type PlotLinesValueGetter<T> = (data: T, idx: number) => number;
+export type PlotLinesValueGetter<T> = (data: T, idx: number) => number;
 export declare function PlotLines(label: string, values: ArrayLike<number>, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>, stride?: number): void;
 export declare function PlotLines<T>(label: string, values_getter: PlotLinesValueGetter<T>, data: T, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
-export declare type PlotHistogramValueGetter<T> = (data: T, idx: number) => number;
+export type PlotHistogramValueGetter<T> = (data: T, idx: number) => number;
 export declare function PlotHistogram(label: string, values: ArrayLike<number>, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>, stride?: number): void;
 export declare function PlotHistogram<T>(label: string, values_getter: PlotHistogramValueGetter<T>, data: T, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
 export declare function Value(prefix: string, b: boolean): void;

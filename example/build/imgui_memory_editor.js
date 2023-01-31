@@ -66,6 +66,8 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             // #pragma warning (disable: 4996) // warning C4996: 'sprintf': This function or variable may be unsafe.
             // #endif
             MemoryEditor = class MemoryEditor {
+                ;
+                ;
                 constructor() {
                     this.DataInputBuf = new ImGui.StringBuffer(32); /*char[32]*/
                     this.AddrInputBuf = new ImGui.StringBuffer(32); /*char[32]*/
@@ -96,8 +98,6 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     this.PreviewEndianess = 0;
                     this.PreviewDataType = ImGui.DataType.S32;
                 }
-                ;
-                ;
                 GotoAddrAndHighlight(addr_min, addr_max) {
                     this.GotoAddr = addr_min;
                     this.HighlightMin = addr_min;
@@ -315,7 +315,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                                 if (data_editing_addr_next !== -1)
                                     data_write = data_next = false;
                                 // unsigned int data_input_value = 0;
-                                let data_input_value = 0;
+                                let data_input_value /*unsigned int*/ = 0;
                                 // if (data_write && sscanf(DataInputBuf, "%X", &data_input_value) === 1)
                                 if (data_write && Number.isInteger(data_input_value = parseInt(this.DataInputBuf.buffer, 16))) {
                                     if (this.WriteFn)
@@ -329,7 +329,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                             else {
                                 // NB: The trailing space is not visible but ensure there's no gap that the mouse cannot click on.
                                 // ImU8 b = ReadFn ? ReadFn(mem_data, addr) : mem_data[addr];
-                                const b = this.ReadFn ? this.ReadFn(mem_data, addr) : new Uint8Array(mem_data)[addr];
+                                const b /*ImU8*/ = this.ReadFn ? this.ReadFn(mem_data, addr) : new Uint8Array(mem_data)[addr];
                                 if (this.OptShowHexII) {
                                     if ((b >= 32 && b < 128))
                                         // ImGui.Text(".%c ", b);
