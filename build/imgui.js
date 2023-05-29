@@ -169,6 +169,26 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     }
     exports_1("IM_ARRAYSIZE", IM_ARRAYSIZE);
     exports_1("ARRAYSIZE", IM_ARRAYSIZE);
+    function stristr(haystack, needle) {
+        let needleEnd = needle.length;
+        const un0 = needle.charAt(0).toUpperCase();
+        let haystackIndex = 0;
+        while (haystackIndex < haystack.length) {
+            if (haystack.charAt(haystackIndex).toUpperCase() === un0) {
+                let b = 1;
+                for (let a = haystackIndex + 1; b < needleEnd; a++, b++) {
+                    if (haystack.charAt(a).toUpperCase() !== needle.charAt(b).toUpperCase()) {
+                        break;
+                    }
+                }
+                if (b === needleEnd) {
+                    return haystack.substring(haystackIndex);
+                }
+            }
+            haystackIndex++;
+        }
+        return null;
+    }
     function IM_COL32(R, G, B, A = 255) {
         return ((A << IM_COL32_A_SHIFT) | (B << IM_COL32_B_SHIFT) | (G << IM_COL32_G_SHIFT) | (R << IM_COL32_R_SHIFT)) >>> 0;
     }
@@ -3039,40 +3059,15 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             exports_1("IM_UNICODE_CODEPOINT_MAX", IM_UNICODE_CODEPOINT_MAX = 0xFFFF); // Maximum Unicode code point supported by this build.
             exports_1("UNICODE_CODEPOINT_MAX", IM_UNICODE_CODEPOINT_MAX);
             ImGuiTextFilter = class ImGuiTextFilter {
-                // IMGUI_API           ImGuiTextFilter(const char* default_filter = "");
-                constructor(default_filter = "") {
-                    // [Internal]
-                    // struct TextRange
-                    // {
-                    //     const char* b;
-                    //     const char* e;
-                    //     TextRange() { b = e = NULL; }
-                    //     TextRange(const char* _b, const char* _e) { b = _b; e = _e; }
-                    //     const char* begin() const { return b; }
-                    //     const char* end() const { return e; }
-                    //     bool empty() const { return b == e; }
-                    //     char front() const { return *b; }
-                    //     static bool is_blank(char c) { return c == ' ' || c == '\t'; }
-                    //     void trim_blanks() { while (b < e && is_blank(*b)) b++; while (e > b && is_blank(*(e-1))) e--; }
-                    //     IMGUI_API void split(char separator, ImVector<TextRange>& out);
-                    // };
-                    // char                InputBuf[256];
+                constructor(defaultFilter) {
                     this.InputBuf = new ImStringBuffer(256);
-                    // ImVector<TextRange> Filters;
-                    // int                 CountGrep;
+                    this.Filters = [];
                     this.CountGrep = 0;
-                    if (default_filter) {
-                        // ImStrncpy(InputBuf, default_filter, IM_ARRAYSIZE(InputBuf));
-                        this.InputBuf.buffer = default_filter;
-                        this.Build();
-                    }
-                    else {
-                        // InputBuf[0] = 0;
-                        this.InputBuf.buffer = "";
-                        this.CountGrep = 0;
-                    }
+                    this.InputBuf.buffer = defaultFilter ? defaultFilter : "";
+                    this.Build();
                 }
-                // IMGUI_API bool      Draw(const char* label = "Filter (inc,-exc)", float width = 0.0f);    // Helper calling InputText+Build
+                Clear() { this.InputBuf.buffer = ""; this.Build(); }
+                IsActive() { return !(this.Filters.length == 0) && !(this.InputBuf.buffer == ""); }
                 Draw(label = "Filter (inc,-exc)", width = 0.0) {
                     if (width !== 0.0)
                         bind.PushItemWidth(width);
@@ -3083,54 +3078,41 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                         this.Build();
                     return value_changed;
                 }
-                // IMGUI_API bool      PassFilter(const char* text, const char* text_end = NULL) const;
-                PassFilter(text, text_end = null) {
-                    // if (Filters.empty())
-                    //     return true;
-                    // if (text == NULL)
-                    //     text = "";
-                    // for (int i = 0; i != Filters.Size; i++)
-                    // {
-                    //     const TextRange& f = Filters[i];
-                    //     if (f.empty())
-                    //         continue;
-                    //     if (f.front() == '-')
-                    //     {
-                    //         // Subtract
-                    //         if (ImStristr(text, text_end, f.begin()+1, f.end()) != NULL)
-                    //             return false;
-                    //     }
-                    //     else
-                    //     {
-                    //         // Grep
-                    //         if (ImStristr(text, text_end, f.begin(), f.end()) != NULL)
-                    //             return true;
-                    //     }
-                    // }
-                    // Implicit * grep
-                    if (this.CountGrep === 0)
-                        return true;
-                    return false;
-                }
-                // IMGUI_API void      Build();
                 Build() {
-                    // Filters.resize(0);
-                    // TextRange input_range(InputBuf, InputBuf+strlen(InputBuf));
-                    // input_range.split(',', Filters);
-                    this.CountGrep = 0;
-                    // for (int i = 0; i != Filters.Size; i++)
-                    // {
-                    //     Filters[i].trim_blanks();
-                    //     if (Filters[i].empty())
-                    //         continue;
-                    //     if (Filters[i].front() != '-')
-                    //         CountGrep += 1;
-                    // }
+                    this.Filters = this.InputBuf.buffer.split(',').map(s => s.trim());
+                    this.CountGrep = this.Filters.reduce((count, f) => f.charAt(0) !== '-' ? count + 1 : count, 0);
                 }
-                // void                Clear() { InputBuf[0] = 0; Build(); }
-                Clear() { this.InputBuf.buffer = ""; this.Build(); }
-                // bool                IsActive() const { return !Filters.empty(); }
-                IsActive() { return false; }
+                PassFilter(text) {
+                    if (this.Filters.length === 0 || this.InputBuf.buffer == "") {
+                        return true;
+                    }
+                    if (text === null) {
+                        text = "";
+                    }
+                    for (let i = 0; i < this.Filters.length; i++) {
+                        let f = this.Filters[i];
+                        if (f.length === 0) {
+                            continue;
+                        }
+                        if (f.charAt(0) === '-') {
+                            // Subtract
+                            if (stristr(text, f.substring(1)) !== null) {
+                                return false;
+                            }
+                        }
+                        else {
+                            // Grep
+                            if (stristr(text, f) !== null) {
+                                return true;
+                            }
+                        }
+                    }
+                    // If no additive filters matched and CountGrep > 0, text did not pass the filter
+                    if (this.CountGrep > 0) {
+                        return false;
+                    }
+                    return true;
+                }
             };
             exports_1("ImGuiTextFilter", ImGuiTextFilter);
             exports_1("TextFilter", ImGuiTextFilter);

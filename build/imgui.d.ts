@@ -666,14 +666,15 @@ export { IM_UNICODE_CODEPOINT_MAX as UNICODE_CODEPOINT_MAX };
 export declare const IM_UNICODE_CODEPOINT_MAX: number;
 export { ImGuiTextFilter as TextFilter };
 export declare class ImGuiTextFilter {
-    constructor(default_filter?: string);
-    Draw(label?: string, width?: number): boolean;
-    PassFilter(text: string, text_end?: number | null): boolean;
-    Build(): void;
+    Filters: string[];
+    CountGrep: number;
+    InputBuf: ImStringBuffer;
+    constructor(defaultFilter: string | null);
     Clear(): void;
     IsActive(): boolean;
-    InputBuf: ImStringBuffer;
-    CountGrep: number;
+    Draw(label?: string, width?: number): boolean;
+    Build(): void;
+    PassFilter(text: string): boolean;
 }
 export { ImGuiTextBuffer as TextBuffer };
 export declare class ImGuiTextBuffer {

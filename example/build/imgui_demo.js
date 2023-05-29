@@ -4920,7 +4920,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         if (ImGui.CollapsingHeader("Filtering")) {
             // Helper class to easy setup a text filter.
             // You may want to implement a more feature-full filtering scheme in your own application.
-            const filter = STATIC(UNIQUE("filter#51f8d318"), new ImGui.TextFilter());
+            const filter = STATIC(UNIQUE("filter#51f8d318"), new ImGui.TextFilter(""));
             ImGui.Text("Filter usage:\n" +
                 "  \"\"         display all lines\n" +
                 "  \"xxx\"      display lines containing \"xxx\"\n" +
@@ -5543,7 +5543,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 ImGui.Combo("##output_type", output_dest.access, "To Clipboard\0To TTY\0");
                 ImGui.SameLine();
                 ImGui.Checkbox("Only Modified Colors", output_only_modified.access);
-                const filter = STATIC(UNIQUE("filter#82eacb19"), new ImGui.TextFilter());
+                const filter = STATIC(UNIQUE("filter#82eacb19"), new ImGui.TextFilter(""));
                 filter.value.Draw("Filter colors", ImGui.GetFontSize() * 16);
                 const alpha_flags = STATIC(UNIQUE("alpha_flags#5b075799"), 0);
                 if (ImGui.RadioButton("Opaque", alpha_flags.value === ImGui.ColorEditFlags.None)) {
@@ -6723,7 +6723,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     this.Commands = new ImGui.Vector();
                     this.History = new ImGui.Vector();
                     this.HistoryPos = -1; // -1: new line, 0..this.History.Size-1 browsing history.
-                    this.Filter = new ImGui.TextFilter();
+                    this.Filter = new ImGui.TextFilter("");
                     this.AutoScroll = true;
                     this.ScrollToBottom = false;
                     IMGUI_DEMO_MARKER("Examples/Console");
@@ -7043,7 +7043,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             ExampleAppLog = class ExampleAppLog {
                 constructor() {
                     this.Buf = new ImGui.TextBuffer();
-                    this.Filter = new ImGui.TextFilter();
+                    this.Filter = new ImGui.TextFilter("");
                     this.LineOffsets = new ImGui.Vector(); // Index to lines offset. We maintain this with this.AddLog() calls.
                     this.AutoScroll = true;
                     this.Clear();
@@ -7098,13 +7098,12 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         // This is because we don't have a random access on the result on our filter.
                         // A real application processing logs with ten of thousands of entries may want to store the result of
                         // search/filter.. especially if the filtering function is not trivial (e.g. reg-exp).
-                        for (let line_no = 0; line_no < this.LineOffsets.Size; line_no++) {
+                        var _s = this.Buf.Buf.split('\n');
+                        for (let line_no = 0; line_no < _s.length; line_no++) {
                             // string line_start = buf + this.LineOffsets[line_no];
                             // string line_end = (line_no + 1 < this.LineOffsets.Size) ? (buf + this.LineOffsets[line_no + 1] - 1) : buf_end;
-                            const line_start = this.Buf.Buf.substr(this.LineOffsets[line_no]);
-                            const line_end = (line_no + 1 < this.LineOffsets.Size) ? this.LineOffsets[line_no + 1] - 1 : buf_end;
-                            if (this.Filter.PassFilter(line_start, line_end))
-                                ImGui.TextUnformatted(line_start, line_end);
+                            if (this.Filter.PassFilter(_s[line_no]))
+                                ImGui.TextUnformatted(_s[line_no]);
                         }
                     }
                     else {
