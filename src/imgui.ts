@@ -984,26 +984,46 @@ export class ImVector<T> extends Array<T>
 export { IM_UNICODE_CODEPOINT_MAX as UNICODE_CODEPOINT_MAX }
 export const IM_UNICODE_CODEPOINT_MAX: number = 0xFFFF; // Maximum Unicode code point supported by this build.
 
+function stristr(haystack: string, needle: string): string | null {
+    let needleEnd = needle.length;
+
+    const un0 = needle.charAt(0).toUpperCase();
+    let haystackIndex = 0;
+
+    while (haystackIndex < haystack.length) {
+        if (haystack.charAt(haystackIndex).toUpperCase() === un0) {
+            let b = 1;
+            for (let a = haystackIndex + 1; b < needleEnd; a++, b++) {
+                if (haystack.charAt(a).toUpperCase() !== needle.charAt(b).toUpperCase()) {
+                    break;
+                }
+            }
+            if (b === needleEnd) {
+                return haystack.substring(haystackIndex);
+            }
+        }
+        haystackIndex++;
+    }
+    return null;
+}
+
 // Helper: Parse and apply text filters. In format "aaaaa[,bbbb][,ccccc]"
 export { ImGuiTextFilter as TextFilter }
-export class ImGuiTextFilter
-{
-    // IMGUI_API           ImGuiTextFilter(const char* default_filter = "");
-    constructor(default_filter: string = "") {
-        if (default_filter)
-        {
-            // ImStrncpy(InputBuf, default_filter, IM_ARRAYSIZE(InputBuf));
-            this.InputBuf.buffer = default_filter;
-            this.Build();
-        }
-        else
-        {
-            // InputBuf[0] = 0;
-            this.InputBuf.buffer = "";
-            this.CountGrep = 0;
-        }
+export class ImGuiTextFilter {
+    Filters: string[];
+    CountGrep: number;
+    InputBuf: ImStringBuffer = new ImStringBuffer(256);
+
+    constructor(defaultFilter: string | null) {
+        this.Filters = [];
+        this.CountGrep = 0;
+        this.InputBuf.buffer = defaultFilter ? defaultFilter : "";
+        this.Build();
     }
-    // IMGUI_API bool      Draw(const char* label = "Filter (inc,-exc)", float width = 0.0f);    // Helper calling InputText+Build
+
+    public Clear(): void { this.InputBuf.buffer = ""; this.Build(); }
+    public IsActive(): boolean { return !(this.Filters.length == 0) && !(this.InputBuf.buffer == ""); }
+
     public Draw(label: string = "Filter (inc,-exc)", width: number = 0.0): boolean {
         if (width !== 0.0)
             bind.PushItemWidth(width);
@@ -1014,82 +1034,46 @@ export class ImGuiTextFilter
             this.Build();
         return value_changed;
     }
-    // IMGUI_API bool      PassFilter(const char* text, const char* text_end = NULL) const;
-    public PassFilter(text: string, text_end: number | null = null): boolean {
-        // if (Filters.empty())
-        //     return true;
 
-        // if (text == NULL)
-        //     text = "";
-
-        // for (int i = 0; i != Filters.Size; i++)
-        // {
-        //     const TextRange& f = Filters[i];
-        //     if (f.empty())
-        //         continue;
-        //     if (f.front() == '-')
-        //     {
-        //         // Subtract
-        //         if (ImStristr(text, text_end, f.begin()+1, f.end()) != NULL)
-        //             return false;
-        //     }
-        //     else
-        //     {
-        //         // Grep
-        //         if (ImStristr(text, text_end, f.begin(), f.end()) != NULL)
-        //             return true;
-        //     }
-        // }
-
-        // Implicit * grep
-        if (this.CountGrep === 0)
-            return true;
-
-        return false;
-    }
-    // IMGUI_API void      Build();
     public Build(): void {
-        // Filters.resize(0);
-        // TextRange input_range(InputBuf, InputBuf+strlen(InputBuf));
-        // input_range.split(',', Filters);
-
-        this.CountGrep = 0;
-        // for (int i = 0; i != Filters.Size; i++)
-        // {
-        //     Filters[i].trim_blanks();
-        //     if (Filters[i].empty())
-        //         continue;
-        //     if (Filters[i].front() != '-')
-        //         CountGrep += 1;
-        // }
+        this.Filters = this.InputBuf.buffer.split(',').map(s => s.trim());
+        this.CountGrep = this.Filters.reduce((count, f) => f.charAt(0) !== '-' ? count + 1 : count, 0);
     }
-    // void                Clear() { InputBuf[0] = 0; Build(); }
-    public Clear(): void { this.InputBuf.buffer = ""; this.Build(); }
-    // bool                IsActive() const { return !Filters.empty(); }
-    public IsActive(): boolean { return false; }
 
-    // [Internal]
-    // struct TextRange
-    // {
-    //     const char* b;
-    //     const char* e;
+    public PassFilter(text: string): boolean {
+        if (this.Filters.length === 0 || this.InputBuf.buffer == "") {
+            return true;
+        }
 
-    //     TextRange() { b = e = NULL; }
-    //     TextRange(const char* _b, const char* _e) { b = _b; e = _e; }
-    //     const char* begin() const { return b; }
-    //     const char* end() const { return e; }
-    //     bool empty() const { return b == e; }
-    //     char front() const { return *b; }
-    //     static bool is_blank(char c) { return c == ' ' || c == '\t'; }
-    //     void trim_blanks() { while (b < e && is_blank(*b)) b++; while (e > b && is_blank(*(e-1))) e--; }
-    //     IMGUI_API void split(char separator, ImVector<TextRange>& out);
-    // };
+        if (text === null) {
+            text = "";
+        }
 
-    // char                InputBuf[256];
-    public InputBuf: ImStringBuffer = new ImStringBuffer(256);
-    // ImVector<TextRange> Filters;
-    // int                 CountGrep;
-    public CountGrep: number = 0;
+        for (let i = 0; i < this.Filters.length; i++) {
+            let f = this.Filters[i];
+            if (f.length === 0) {
+                continue;
+            }
+            if (f.charAt(0) === '-') {
+                // Subtract
+                if (stristr(text, f.substring(1)) !== null) {
+                    return false;
+                }
+            } else {
+                // Grep
+                if (stristr(text, f) !== null) {
+                    return true;
+                }
+            }
+        }
+
+        // If no additive filters matched and CountGrep > 0, text did not pass the filter
+        if (this.CountGrep > 0) {
+            return false;
+        }
+
+        return true;
+    }
 }
 
 // Helper: Text buffer for logging/accumulating text
