@@ -15,9 +15,9 @@ export default [
   {
     input: "src/imgui.ts",
     output: {
-      file: "dist/imgui.umd.js",
+      file: "dist/imgui.esm.js",
       name: "ImGui",
-      format: "umd",
+      format: "es",
       exports: "named",
     },
     plugins: [
@@ -37,9 +37,9 @@ export default [
   {
     input: "example/src/imgui_impl.ts",
     output: {
-      file: "dist/imgui_impl.umd.js",
+      file: "dist/imgui_impl.esm.js",
       name: "ImGui_Impl",
-      format: "umd",
+      format: "es",
       exports: "named",
       globals: { "imgui-js": "ImGui" },
     },
@@ -55,9 +55,9 @@ export default [
   {
     input: "example/src/imgui_demo.ts",
     output: {
-      file: "dist/imgui_demo.umd.js",
+      file: "dist/imgui_demo.esm.js",
       name: "ImGui_Demo",
-      format: "umd",
+      format: "es",
       exports: "named",
       globals: { "imgui-js": "ImGui" },
     },
@@ -73,9 +73,9 @@ export default [
   {
     input: "example/src/imgui_memory_editor.ts",
     output: {
-      file: "dist/imgui_memory_editor.umd.js",
+      file: "dist/imgui_memory_editor.esm.js",
       name: "ImGui_Memory_Editor",
-      format: "umd",
+      format: "es",
       exports: "named",
       globals: { "imgui-js": "ImGui" },
     },
